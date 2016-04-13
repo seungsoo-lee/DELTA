@@ -30,7 +30,7 @@ $ cd agent-manager
 $ ant
 ```
 
-+ STEP 2. Installing Channel-Agent. (Not used)
++ STEP 2. Installing Channel-Agent.
 
 ```
 $ cd channel-agent
@@ -56,13 +56,13 @@ $ ln -s (delta-dev absolute path)/app-agent/floodlight/0.91/nss (floodlight abso
 $ vi (floodlight path)/src/main/resources/floodlightdefault.properties
 
 floodlight.modules=\
-nss.sdn.appagent.AppAgent,\   # <-- add
+nss.delta.appagent.AppAgent,\   # <-- add
 net.floodlightcontroller.jython.JythonDebugInterface,\
 ...
 
 $ vi (floodlight path)/src/main/resources/META-INF/services/net.floodlightcontroller.core.module.IFloodlightModule
 
-nss.sdn.appagent.AppAgent # <-- add
+nss.delta.appagent.AppAgent     # <-- add
 net.floodlightcontroller.core.module.ApplicationLoader
 net.floodlightcontroller.core.internal.FloodlightProvider
 ...
@@ -133,7 +133,7 @@ $ sudo java -jar ./target/am.jar ./floodlight.info
 Command>_
 ```
 
-+ STEP 2. Running Channel-Agent (Not used)
++ STEP 2. Running Channel-Agent
 ```
 $ cd [delta-dev]/channel-agent
 $ sudo java -jar ./target/channel-agent.jar ca.config
