@@ -1,0 +1,5 @@
+CONTROLLER=onos|/home/seungsoo/onos/onos-1.1.0/
+VERSION=1.1.0
+APPAGENT_PATH=/home/seungsoo/onos/onos-1.1.0/apps/appagent/
+CBENCH_PATH=/home/seungsoo/oflops/cbench/
+SWITCHS=10.0.0.252

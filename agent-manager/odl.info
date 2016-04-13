@@ -1,0 +1,5 @@
+CONTROLLER=opendaylight|/home/nssadmin/odl-helium-sr3/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh
+VERSION=helium-sr3
+APPAGENT_PATH=/home/nssadmin/odl-helium-sr3/opendaylight/appagent/target/appagent-1.4.5-Helium-SR3.jar
+SWITCHS=10.0.0.252,10.0.0.253
+CBENCH_PATH=/home/nssadmin/oflops/cbench/

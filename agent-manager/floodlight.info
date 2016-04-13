@@ -1,0 +1,5 @@
+CONTROLLER=floodlight|/home/sdn/floodlight/floodlight-0.91/target/floodlight.jar
+APPAGENT_PATH=
+VERSION=0.91
+CBENCH_PATH=/home/sdn/oflops/cbench/
+SWITCHS=192.168.100.185
