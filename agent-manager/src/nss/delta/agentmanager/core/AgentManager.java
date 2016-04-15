@@ -6,8 +6,6 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import nss.delta.agentmanager.core.AttackConductor;
-import nss.delta.agentmanager.unknown.Fuzzing;
 import nss.delta.agentmanager.utils.ProgressBar;
 
 public class AgentManager extends Thread {
