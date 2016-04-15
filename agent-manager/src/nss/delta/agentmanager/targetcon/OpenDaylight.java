@@ -9,45 +9,31 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-public class OpenDaylight {
+public class OpenDaylight implements TargetController {
 
 	public static final String HYDROGEN = "";
 	
 	private Process process = null;
 	private boolean isRunning = false;
 	
-	public static String version = "";
+	public String version = "";
 	public String controllerPath = "";
 	public String appPath = "";
 	
-	private int currentPID;
+	private int currentPID = -1;
 	private int bundleID;
 	
 	private BufferedWriter stdIn;
 	private BufferedReader stdOut;
 	
 	
-	public OpenDaylight(String controllerPath, String appPath) {
+	public OpenDaylight(String controllerPath, String v) {
 		this.controllerPath = controllerPath;
-		this.appPath = appPath;
+		this.version = v;
 	}
 	
-	public ArrayList<String> getBaseAttacks() {
-		ArrayList<String> attacks = new ArrayList<String>();
-		
-		attacks.add("A-3-M");
-		attacks.add("A-5-M-1");
-		
-		return attacks;
-	}
-	
-	public ArrayList<String> getBoundaryInputs(String code) {
-		ArrayList<String> inputs = new ArrayList<String>();
-		
-		if(code.contains("A-3-M")) {
-		}
-		
-		return inputs;
+	public void setAppAgentPath(String path) {
+		this.appPath = path;
 	}
 	
 	public int createController() {
@@ -97,6 +83,7 @@ public class OpenDaylight {
 			e1.printStackTrace();
 		}
 
+		installAppAgent();
 		return currentPID;
 	}
 	
@@ -160,10 +147,36 @@ public class OpenDaylight {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
+		
+		this.currentPID = -1;
 	}
 	
 	public Process getProc() {
 		return this.process;
+	}
+
+	@Override
+	public String getType() {
+		// TODO Auto-generated method stub
+		return "OpenDaylight";
+	}
+	
+	@Override
+	public String getVersion() {
+		// TODO Auto-generated method stub
+		return this.version;
+	}
+
+	@Override
+	public String getPath() {
+		// TODO Auto-generated method stub
+		return this.controllerPath + "\n" + this.appPath;
+	}
+
+	@Override
+	public int getPID() {
+		// TODO Auto-generated method stub
+		return this.currentPID;
 	}
 	
 }

@@ -41,6 +41,7 @@ public class AttackConductor {
 	private AppAgentManager appm;
 	private HostAgentManager hostm;
 	private ChannelAgentManager channelm;
+	private ControllerManager controllerm;
 
 	private ProgressBar pb;
 
@@ -55,14 +56,22 @@ public class AttackConductor {
 		infoAdvancedCase = new HashMap<String, String>();
 
 		TestInfo.updateAdvancedCase(infoAdvancedCase);
+		
+		this.controllerm = new ControllerManager(config);		
 
 		this.appm = new AppAgentManager();
+		this.appm.setControllerType(controllerm.getType());
+		
 		this.hostm = new HostAgentManager();
 		this.channelm = new ChannelAgentManager();
 
-		testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, config);
+		testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
 	}
 
+	public String showConfig() {
+		return controllerm.showConfig();
+	}
+	
 	public void setSocket(Socket socket) throws IOException {
 		dos = new DataOutputStream(socket.getOutputStream());
 		dis = new DataInputStream(socket.getInputStream());

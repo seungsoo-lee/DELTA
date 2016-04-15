@@ -8,61 +8,36 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-public class ONOS {
+public class ONOS implements TargetController {
 	private Process process = null;
 	private boolean isRunning = false;
 
-	public static String version = "";
+	public String version = "";
 	public String controllerPath = "";
-	public String appPath = "";
+	public String karafPath = "";
 
-	private int currentPID;
+	private int currentPID = -1;
 
 	private BufferedWriter stdIn;
 	private BufferedReader stdOut;
 
-	public ONOS(String controllerPath, String appPath) {
+	public ONOS(String controllerPath, String v) {
 		this.controllerPath = controllerPath;
-		this.appPath = appPath;
+		this.version = v;
 	}
 
-	public ArrayList<String> getBaseInputs() {
-		ArrayList<String> attacks = new ArrayList<String>();
-
-		attacks.add("HostService");
-		attacks.add("DeviceService");
-		attacks.add("ApplicationService");
-		attacks.add("ComponentConfigService");
-		attacks.add("LinkService");
-		attacks.add("ClusterService");
-		
-		return attacks;
+	public void setKarafPath(String p) {
+		this.karafPath = p;
 	}
-
-	public ArrayList<String> getBoundaryInputs(String code) {
-		ArrayList<String> inputs = new ArrayList<String>();
-
-		if (code.contains("A-3-M")) {
-			inputs.add("switch");
-			inputs.add("host");
-			inputs.add("flow");
-			inputs.add("controller info");
-		}
-
-		return inputs;
-	}
-
+	
 	public int createController() {
 		isRunning = false;
 
 		String str = "";
 		try {
-			process = Runtime
-					.getRuntime()
-					.exec("/home/seungsoo/Application/apache-karaf-3.0.4/bin/karaf clean");
-			
-			Field pidField = Class.forName("java.lang.UNIXProcess")
-					.getDeclaredField("pid");
+			process = Runtime.getRuntime().exec(karafPath+" clean");
+
+			Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
 			pidField.setAccessible(true);
 			Object value = pidField.get(process);
 
@@ -75,11 +50,9 @@ public class ONOS {
 				e.printStackTrace();
 			}
 
-			stdOut = new BufferedReader(new InputStreamReader(
-					process.getInputStream()));
-			stdIn = new BufferedWriter(new OutputStreamWriter(
-					process.getOutputStream()));
-			
+			stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+
 			while ((str = stdOut.readLine()) != null) {
 				if (str.contains("ONOS.")) {
 					isRunning = true;
@@ -112,24 +85,48 @@ public class ONOS {
 		return this.process;
 	}
 
-	public void killController() {
+	public void killController() {		
 		try {
-			if(stdIn != null) {
+			if (stdIn != null) {
 				stdIn.write("system:shutdown -f\n");
 				stdIn.flush();
-				
-				stdIn.close();
-				stdOut.close();
 			}
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}	
+		}
+			
+		this.currentPID = -1;
 	}
 
+	/* ONOS, AppAgent is automatically installed when the controller starts */
 	public boolean installAppAgent() {
-		/* ONOS, AppAgent is automatically installed when the controller starts */
+
 		return true;
+	}
+
+	@Override
+	public String getType() {
+		// TODO Auto-generated method stub
+		return "ONOS";
+	}
+	
+	@Override
+	public String getVersion() {
+		// TODO Auto-generated method stub
+		return this.version;
+	}
+	
+	@Override
+	public String getPath() {
+		// TODO Auto-generated method stub
+		return this.controllerPath;
+	}
+
+	@Override
+	public int getPID() {
+		// TODO Auto-generated method stub
+		return this.currentPID;
 	}
 }

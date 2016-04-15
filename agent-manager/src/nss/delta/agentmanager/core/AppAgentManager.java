@@ -21,14 +21,14 @@ public class AppAgentManager {
 	private DataOutputStream dos2;
 	private DataInputStream dis2;
 
-	private int controllerType;
+	private String targetController;
 
 	public AppAgentManager() {
 
 	}
 
-	public void setControllerType(int in) {
-		this.controllerType = in;
+	public void setControllerType(String in) {
+		this.targetController = in;
 	}
 
 	public void closeSocket() {
@@ -69,9 +69,8 @@ public class AppAgentManager {
 
 	}
 
-	public boolean write(String code) {
-		switch (this.controllerType) {
-		case ControllerManager.OPENDAYLIGHT:
+	public boolean write(String code) {		
+		if (targetController.equals("OpenDaylight")) {
 			if (code.contains("A-2-M") || code.contains("A-6-M")) {
 				try {
 					dos2.writeUTF(code);
@@ -99,20 +98,7 @@ public class AppAgentManager {
 					return false;
 				}
 			}
-
-		case ControllerManager.ONOS:
-			try {
-				dos.writeUTF(code);
-				dos.flush();
-				return true;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-
-				return false;
-			}
-
-		case ControllerManager.FLOODLIGHT:
+		} else {
 			try {
 				dos.writeUTF(code);
 				dos.flush();
@@ -124,8 +110,6 @@ public class AppAgentManager {
 				return false;
 			}
 		}
-
-		return true;
 	}
 
 	public void startFuzzing() {

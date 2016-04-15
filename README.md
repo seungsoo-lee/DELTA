@@ -75,27 +75,28 @@ $ sudo ant
 <br> 3) In the case of OpenDaylight: ...
 
 ## Configuring your own experiments
-+ The Agent-Manager automatically reads your configuration file, and setup environments based on the config file. The <floodlight.info> contains sample configurations. You can specify your own config file by passing its path:
++ The Agent-Manager automatically reads your configuration file, and setup environments based on the config file. The <setting.cfg> contains sample configurations. You can specify your own config file by passing its path:
 ```
-CONTROLLER=floodlight|(floodlight path)/target/floodlight.jar
-VERSION=0.91
-APPAGENT_PATH=(floodlight path)/src/main/java/nss
-CBENCH_PATH=(cbench path)
-SWITCHS=10.0.0.252 # switch IP
+FLOODLIGHT_ROOT=0.91|/home/sdn/floodlight/floodlight-0.91/target/floodlight.jar
+ODL_ROOT=helium-sr3|/home/sdn/odl-helium-sr3/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh
+ODL_APPAGENT=/home/sdn/odl-helium-sr3/opendaylight/appagent/target/appagent-1.4.5-Helium-SR3.jar
+ONOS_ROOT=1.1.0|/home/sdn/onos/onos-1.1.0/
+ONOS_KARAF_ROOT=/home/sdn/Application/apache-karaf-3.0.4/bin/karaf
+CBENCH_ROOT=/home/sdn/oflops/cbench/
+SWITCHS=192.168.100.185
+DEFAULT_TARGET=Floodlight  # target controller
+OF_PORT=6633
 ```
 
 + The Channel-Agent automatically reads your configuration file, and connects the Agent-Manager.
 ```
-TARGETS=[switch ip],[agent manager ip] # for arp spoofing
-NIC=eth0
-OUTPUT=out.log
 AM_IP=192.168.101.X
 AM_PORT=3366
 ```
 + The Host-Agent automatically reads your configuration file, and connects the Agent-Manager.
 ```
-AGENT_MANAGER_IP=192.168.101.X
-AGENT_MANAGER_PORT=3366
+AM_IP=192.168.101.X
+AM_PORT=3366
 ```
 
 ## Running DELTA
@@ -136,7 +137,7 @@ Command>_
 + STEP 2. Running Channel-Agent (Not used)
 ```
 $ cd [delta-dev]/channel-agent
-$ sudo java -jar ./target/channel-agent.jar ca.config
+$ sudo java -jar ./target/channel-agent.jar setting.cfg
 ```
 
 + STEP 3. Running Host-Agent in VM2
@@ -150,7 +151,7 @@ $ sudo python ./topo-setup.py (eth0 ip address in VM1) 6633
 mininet> xterm h1
 
 $ (console in h1) cd [delta-dev]/host-agent
-$ (console in h1) java -jar ./target/host-agent.jar ha.config
+$ (console in h1) java -jar ./target/host-agent.jar setting.cfg
 ```
 
 + STEP 4. Reproducing known attacks in VM1
@@ -176,3 +177,4 @@ Select the attack code (replay all, enter the 'A')> A-2-M-1
 
 ## Questions?
 Send questions or feedback to: lss365@kaist.ac.kr or chyoon87@kaist.ac.kr
+

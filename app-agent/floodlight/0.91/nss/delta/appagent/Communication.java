@@ -81,7 +81,7 @@ public class Communication extends Thread {
 			dos.writeUTF(result);
 		} else if (recv.contains("3.1.80")) {
 			if (recv.contains("false"))
-				app.Flow_Table_Clearance(false);	// one time
+				app.Flow_Table_Clearance(false);	// only once
 			else
 				app.Flow_Table_Clearance(true);		// infinite
 			return;
@@ -119,11 +119,7 @@ public class Communication extends Thread {
 		try {
 			while ((recv = dis.readUTF()) != null) {
 				// reads characters encoded with modified UTF-8
-				if (recv.equals("umode")) {
-					// findingUnkwonAttack(recv);
-				} else {
-					replayingKnownAttack(recv);
-				}
+				replayingKnownAttack(recv);
 			}
 		} catch (Exception e) {
 			// if any error occurs

@@ -1,11 +1,15 @@
 package nss.delta.channelagent.core;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -45,6 +49,51 @@ public class AMInterface extends Thread {
 		amIP = ip;
 		amPort = port;
 	}
+	
+	public AMInterface(String config) {
+		BufferedReader br = null;
+		InputStreamReader isr = null;
+		FileInputStream fis = null;
+		File file = new File(config);
+		String temp = "";
+
+		try {
+			fis = new FileInputStream(file);
+			isr = new InputStreamReader(fis, "UTF-8");
+			br = new BufferedReader(isr);
+
+			while ((temp = br.readLine()) != null) {
+				if (temp.contains("AM_IP")) {
+					this.amIP = temp.substring(temp.indexOf("=") + 1);
+				} else if (temp.contains("AM_PORT")) {
+					this.amPort = Integer.valueOf(temp.substring(temp
+							.indexOf("=") + 1));
+				}
+			}
+			
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				fis.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				isr.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				br.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	public void setConfiguration(String str) {
 		String[] list = new String(str).split(",");
@@ -75,7 +124,7 @@ public class AMInterface extends Thread {
 		pktHandler.startARPSpoofing(); // forTest
 	}
 
-	public void connectServer() {
+	public void connectAgentManager() {
 		try {
 			socket = new Socket(amIP, amPort);
 			socket.setReuseAddress(true);

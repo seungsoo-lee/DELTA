@@ -67,7 +67,7 @@ public class AgentManager extends Thread {
 			}
 
 		} else if (in.equalsIgnoreCase("C")) {
-			// conductor.showConfig();
+			System.out.println(conductor.showConfig());
 		} else if (in.equalsIgnoreCase("U")) {
 			System.out.println("\n [aA]\t- Asymmetric control message");
 			System.out.println(" [sS]\t- Symmetric control message");

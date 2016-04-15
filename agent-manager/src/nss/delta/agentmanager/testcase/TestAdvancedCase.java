@@ -20,30 +20,30 @@ public class TestAdvancedCase {
 
 	private ResultAnalyzer analyzer;
 
-	public TestAdvancedCase(AppAgentManager am, HostAgentManager hm, ChannelAgentManager cm, String config) {
+	public TestAdvancedCase(AppAgentManager am, HostAgentManager hm, ChannelAgentManager cm, ControllerManager ctm) {
 		this.appm = am;
 		this.hostm = hm;
 		this.channelm = cm;
+		this.controllerm = ctm;
 
-		this.controllerm = new ControllerManager(config);
-		this.appm.setControllerType(controllerm.getRunningControllerType());
 
 		this.analyzer = new ResultAnalyzer(controllerm);
-		this.appm.setControllerType(controllerm.getRunningControllerType());
 	}
 
 	public void initController() {
 		if (!controllerm.isRunning()) {
-			log.info("Controller setting..");
+			log.info("Target controller: " + controllerm.getType());
+			
+			log.info("Target controller is starting..");
 			controllerm.createController();
-			log.info("Controller setup complete");
+			log.info("Target controller setup is completed");
 
-			log.info("Target: " + controllerm.getInfo());
+			
 
 			/* waiting for switches */
 			log.info("Listening to switches..");
 			controllerm.isConnectedSwitch();
-			log.info("All switches connected");
+			log.info("All switches are connected");
 
 			try {
 				Thread.sleep(5000);
@@ -125,8 +125,8 @@ public class TestAdvancedCase {
 			e.printStackTrace();
 		}
 
-		/* remove flow rules */
-		appm.write("A-5-M-2|false");
+		/* Remove flow rules */
+		appm.write("3.1.80|false");
 
 		/* step 2: run cbench */
 		log.info("Cbench starts");
@@ -140,13 +140,12 @@ public class TestAdvancedCase {
 		}
 
 		/* step 3: try communication */
-		log.info("HostAgent starts communication");
+		log.info("Host-Agent sends packets to others");
 		String after = generateFlow("ping");
-		log.info("Gethering result from HostAgent");
+		log.info("Agent-Manager retrieves result from Host-Agent");
 
 		ResultInfo result = new ResultInfo();
 		result.addType(ResultInfo.COMMUNICATON).addType(ResultInfo.LATENCY_TIME);
-
 		result.setResult(after);
 		result.setLatency(before, after);
 
@@ -172,21 +171,21 @@ public class TestAdvancedCase {
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
-		log.info("AppAgent starts ");
+		log.info("App-Agent starts");
 		appm.write(code);
 
 		/* step 3: try communication */
-		log.info("HostAgent starts communication");
+		log.info("Host-Agent sends packets to others");
 		String flowResult = generateFlow("ping");
 
-		log.info("Gethering result from HostAgent");
+		log.info("Agent-Manager retrieves result from Host-Agent");
 
 		/* step 4: decide if the attack is feasible */
 		ResultInfo result = new ResultInfo();
 		result.addType(ResultInfo.COMMUNICATON);
 
 		String appresult = appm.read();
-		log.info("Dropped Packet: " + appresult);
+		log.info("Dropped packet: " + appresult);
 
 		result.setResult(flowResult);
 
@@ -211,14 +210,14 @@ public class TestAdvancedCase {
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
-		log.info("AppAgent starts ");
+		log.info("App-Agent starts");
 		appm.write(code);
 
 		/* step 3: try communication */
-		log.info("HostAgent starts communication");
+		log.info("Host-Agent sends packets to others");
 		String flowResult = generateFlow("ping");
 
-		log.info("Gethering result from HostAgent");
+		log.info("Agent-Manager retrieves result from Host-Agent");
 
 		/* step 4: decide if the attack is feasible */
 		ResultInfo result = new ResultInfo();
@@ -246,12 +245,12 @@ public class TestAdvancedCase {
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
-		log.info("AppAgent start");
+		log.info("App-Agent starts");
 		appm.write(code);
 
-		log.info("Gathering removed information");
+		log.info("Agent-Manager retrieves result from App-Agent");
 		String removedItem = appm.read();
-		log.info("Remove: " + removedItem);
+		log.info("Removed Item: " + removedItem);
 
 		/* step 3: try communication */
 		log.info("HostAgent starts communication");
@@ -285,10 +284,10 @@ public class TestAdvancedCase {
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
-		log.info("ChannelAgent start");
+		log.info("Channel-Agent starts");
 		channelm.write(code);
 		String resultChannel = channelm.read();
-		log.info("Gathering result from channel agent");
+		log.info("Agent-Manager retrieves result from Channel-Agent");
 
 		/* step 4: decide if the attack is feasible */
 		// analyzer.checkSwirchState(code);
@@ -315,10 +314,10 @@ public class TestAdvancedCase {
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
-		log.info("ChannelAgent start");
+		log.info("Channel-Agent starts");
 		channelm.write(code);
 
-		log.info("Gathering result from channel agent");
+		log.info("Agent-Manager retrieves result from Channel-Agent");
 		String resultChannel = channelm.read();
 
 		/* step 4: decide if the attack is feasible */
@@ -388,21 +387,21 @@ public class TestAdvancedCase {
 		initController();
 		long start = System.currentTimeMillis();
 
-		log.info("HostAgent generates flow (before)");
+		log.info("Host-Agent sends packets to others (before)");
 		/* step 2 : generate before flow (ping) */
 
 		String before = generateFlow("ping");
 
 		/* step 3 : replay attack */
-		log.info("AppAgent starts");
+		log.info("App-Agent starts");
 		appm.write(code);
 
 		String modified = "";
 
-		log.info("Gathering modified information");
+		log.info("Agent-Manager retrieves result from App-Agent");
 		modified = appm.read();
 
-		log.info("HostAgent generates flow (after)");
+		log.info("Host-Agent sends packets to others (after)");
 		String after = generateFlow("ping");
 
 		ResultInfo result = new ResultInfo();
@@ -430,16 +429,16 @@ public class TestAdvancedCase {
 		initController();
 		long start = System.currentTimeMillis();
 
-		log.info("HostAgent generates flow (before)");
+		log.info("Host-Agent sends packets to others (before)");
 		/* step 2 : generate before flow (ping) */
 
 		String before = generateFlow("compare");
 
 		/* step 3 : replay attack */
-		log.info("AppAgent starts");
+		log.info("App-Agent starts");
 		appm.write(code);
 
-		log.info("HostAgent generates flow (after)");
+		log.info("Host-Agent sends packets to others (after)");
 		String after = generateFlow("compare");
 
 		ResultInfo result = new ResultInfo();
@@ -461,7 +460,7 @@ public class TestAdvancedCase {
 	 * 3.1.90 - Event Unsubscription
 	 */
 	public boolean testEventUnsubscription(String code) {
-		if (controllerm.getRunningControllerType() == controllerm.ONOS) {
+		if (controllerm.getType().equals("ONOS")) {
 			System.out.println("\nONOS is impossible to replay [" + code + "] ");
 			return false;
 		}
@@ -473,17 +472,17 @@ public class TestAdvancedCase {
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
-		log.info("AppAgent starts");
+		log.info("App-Agent starts");
 		appm.write(code);
 
 		String remove = "";
 
-		if (controllerm.getType() == ControllerManager.OPENDAYLIGHT)
+		if (controllerm.getType().equals("OpenDaylight"))
 			remove = appm.read2();
 		else
 			remove = appm.read();
 
-		log.info("Remove: " + remove);
+		log.info("Removed Item: " + remove);
 
 		try {
 			Thread.sleep(10000);
@@ -493,9 +492,9 @@ public class TestAdvancedCase {
 		}
 
 		/* step 3: try communication */
-		log.info("HostAgent starts communication");
+		log.info("Host-Agent sends packets to others");
 		String resultFlow = generateFlow("ping");
-		log.info("Gethering result from HostAgent");
+		log.info("Agent-Manager retrieves result from Host-Agent");
 
 		/* step 4: decide if the attack is feasible */
 		ResultInfo result = new ResultInfo();
@@ -515,7 +514,7 @@ public class TestAdvancedCase {
 	 * 3.1.100 - Application Eviction
 	 */
 	public boolean testApplicationEviction(String code) {
-		if (controllerm.getRunningControllerType() == controllerm.FLOODLIGHT) {
+		if (controllerm.getType().equals("Floodlight")) {
 			System.out.println("\nFloodlight is impossible to replay [" + code + "] ");
 			return false;
 		}
@@ -527,17 +526,17 @@ public class TestAdvancedCase {
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
-		log.info("AppAgent starts");
+		log.info("App-Agent starts");
 		appm.write(code);
 
 		String remove = "";
 
-		if (controllerm.getType() == ControllerManager.OPENDAYLIGHT)
+		if (controllerm.getType().equals("OpenDaylight"))
 			remove = appm.read2();
 		else
 			remove = appm.read();
 
-		log.info("Remove: " + remove);
+		log.info("Removed Item: " + remove);
 
 		try {
 			Thread.sleep(10000);
@@ -547,9 +546,9 @@ public class TestAdvancedCase {
 		}
 
 		/* step 3: try communication */
-		log.info("HostAgent starts communication");
+		log.info("Host-Agent sends packets to others");
 		String resultFlow = generateFlow("ping");
-		log.info("Gethering result from HostAgent");
+		log.info("Agent-Manager retrieves result from Host-Agent");
 
 		/* step 4: decide if the attack is feasible */
 		ResultInfo result = new ResultInfo();
@@ -576,7 +575,7 @@ public class TestAdvancedCase {
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
-		log.info("HostAgent generates flow (before)");
+		log.info("Host-Agent sends packets to others (before)");
 		/* step 2 : generate before flow (ping) */
 		String before = generateFlow("compare");
 
@@ -584,7 +583,7 @@ public class TestAdvancedCase {
 		appm.write("3.1.80|false");
 
 		/* step 3 : replay attack */
-		log.info("AppAgent starts");
+		log.info("App-Agent starts");
 		appm.write(code);
 
 		try {
@@ -594,7 +593,7 @@ public class TestAdvancedCase {
 			e.printStackTrace();
 		}
 
-		log.info("HostAgent generates flow (after)");
+		log.info("Host-Agent sends packets to others (after)");
 		String after = generateFlow("compare");
 
 		ResultInfo result = new ResultInfo();
@@ -625,7 +624,7 @@ public class TestAdvancedCase {
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
-		log.info("HostAgent generates flow (before)");
+		log.info("Host-Agent sends packets to others (before)");
 		/* step 2 : generate before flow (ping) */
 		String before = generateFlow("compare");
 
@@ -633,7 +632,7 @@ public class TestAdvancedCase {
 		appm.write("3.1.80|false");
 
 		/* step 3 : replay attack */
-		log.info("AppAgent starts");
+		log.info("App-Agent starts");
 		appm.write(code);
 
 		try {
@@ -643,7 +642,7 @@ public class TestAdvancedCase {
 			e.printStackTrace();
 		}
 
-		log.info("HostAgent generates flow (after)");
+		log.info("Host-Agent sends packets to others (after)");
 		String after = generateFlow("compare");
 
 		ResultInfo result = new ResultInfo();
@@ -674,7 +673,7 @@ public class TestAdvancedCase {
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
-		log.info("AppAgent start");
+		log.info("App-Agent starts");
 		appm.write(code);
 
 		try {
@@ -685,11 +684,11 @@ public class TestAdvancedCase {
 		}
 
 		/* step 3: try communication */
-		log.info("HostAgent starts communication with another host");
+		log.info("Host-Agent sends packets to others");
 		this.generateFlow("ping");
 
 		/* step 4: decide if the attack is feasible */
-		log.info("Check switch's state");
+		log.info("Agent-Manager checks the status of switches");
 
 		ResultInfo result = new ResultInfo();
 		result.addType(ResultInfo.SWITCH_STATE);
@@ -713,10 +712,10 @@ public class TestAdvancedCase {
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
-		log.info("AppAgent starts");
+		log.info("App-Agent starts");
 		appm.write(code);
 
-		log.info("Check controller's state");
+		log.info("Agent-Manager checks the status of target controller");
 
 		ResultInfo result = new ResultInfo();
 		result.addType(ResultInfo.CONTROLLER_STATE);
@@ -744,7 +743,7 @@ public class TestAdvancedCase {
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
-		log.info("ChannelAgent starts");
+		log.info("Channel-Agent starts");
 		channelm.write(code);
 		String resultChannel = channelm.read();
 
@@ -770,12 +769,12 @@ public class TestAdvancedCase {
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
-		log.info("ChannelAgent starts ");
+		log.info("Channel-Agent starts");
 		channelm.write(code);
 		String resultChannel = channelm.read();
 
 		/* step 3: try communication */
-		log.info("HostAgent starts communication");
+		log.info("Host-Agent sends packets to others");
 		try {
 			Thread.sleep(31000);
 		} catch (InterruptedException e) {
@@ -784,7 +783,7 @@ public class TestAdvancedCase {
 		}
 		generateFlow("ping");
 
-		log.info("Gathering topology information from ChannelAgent");
+		log.info("Agent-Manager retrieves the result from Channel-Agent");
 		channelm.write(code + "-V");
 		resultChannel = channelm.read();
 
@@ -815,14 +814,14 @@ public class TestAdvancedCase {
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
-		log.info("ChannelAgent start");
+		log.info("Channel-Agent starts");
 		channelm.write(code);
 		String resultChannel = channelm.read();
 
 		/* step 3: try communication */
-		log.info("HostAgent generates flows");
+		log.info("Host-Agent sends packets to others");
 		String resultFlow = generateFlow("ping");
-		log.info("Gethering result from HostAgent");
+		log.info("Agent-Manager retrieves the result from Host-Agent");
 
 		/* step 4: decide if the attack is feasible */
 		ResultInfo result = new ResultInfo();
@@ -849,14 +848,14 @@ public class TestAdvancedCase {
 		initController();
 		long start = System.currentTimeMillis();
 
-		log.info("HostAgent generates flow (before)");
+		log.info("Host-Agent sends packets to others (before)");
 		String before = generateFlow("compare");
 
 		/* remove flow rules */
 		appm.write("3.1.80|false");
 
 		/* step 2: conduct the attack */
-		log.info("AppAgent starts");
+		log.info("App-Agent starts");
 		appm.write(code);
 
 		try {
@@ -867,11 +866,11 @@ public class TestAdvancedCase {
 		}
 
 		/* step 3: try communication */
-		log.info("HostAgent generates flow (after)");
+		log.info("Host-Agent sends packets to others (after)");
 		String after = generateFlow("compare");
 
 		/* step 4: decide if the attack is feasible */
-		log.info("Compare flow latency");
+		log.info("Agent-Manager retrieves the result from Host-Agent");
 
 		ResultInfo result = new ResultInfo();
 		result.addType(ResultInfo.COMMUNICATON).addType(ResultInfo.LATENCY_TIME);
@@ -899,23 +898,23 @@ public class TestAdvancedCase {
 		initController();
 		long start = System.currentTimeMillis();
 
-		log.info("HostAgent generates flow (before)");
+		log.info("Host-Agent sends packets to others (before)");
 		String before = generateFlow("compare");
 
 		/* step 2: conduct the attack */
-		log.info("AppAgent starts");
+		log.info("App-Agent starts");
 		appm.write(code);
 
-		log.info("Gathering modified information");
+		log.info("Agent-Manager retrieves the result from App-Agent");
 		String modified = appm.read();
-		log.info("modified: " + modified);
+		log.info("Modified Item: " + modified);
 
 		/* step 3: try communication */
-		log.info("HostAgent generates flow (after)");
+		log.info("Host-Agent sends packets to others (after)");
 		String after = generateFlow("compare");
 
 		/* step 4: decide if the attack is feasible */
-		log.info("Compare flow latency");
+		log.info("Agent-Manager retrieves the result from Host-Agent");
 
 		ResultInfo result = new ResultInfo();
 		result.addType(ResultInfo.LATENCY_TIME);

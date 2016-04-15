@@ -3,8 +3,13 @@ package nss.delta.channelagent.core;
 
 public class Main {
 	public static void main(String args[]) {
-		AMInterface am_if = new AMInterface("192.168.101.195", 3366);
-		am_if.connectServer();		
+		if (args.length == 0) {
+			System.err.println("Enter the Config File");
+			System.exit(1);
+		}
+		
+		AMInterface am_if = new AMInterface(args[0]);
+		am_if.connectAgentManager();
 		try {
 			Thread.sleep(500);
 			am_if.start();
