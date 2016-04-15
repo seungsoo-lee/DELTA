@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 import nss.delta.agentmanager.targetcon.ControllerManager;
 import nss.delta.agentmanager.testcase.TestAdvancedCase;
 import nss.delta.agentmanager.testcase.TestInfo;
+import nss.delta.agentmanager.testcase.TestSwitchCase;
 import nss.delta.agentmanager.utils.ProgressBar;
-
 
 public class AttackConductor {
 	private static final Logger log = LoggerFactory.getLogger(AttackConductor.class);
@@ -31,35 +31,42 @@ public class AttackConductor {
 	private ChannelAgentManager channelm;
 	private ControllerManager controllerm;
 
-	private ProgressBar pb;
+	private Configuration cfg;
 
 	private DataOutputStream dos;
 	private DataInputStream dis;
 
 	private TestAdvancedCase testAdvancedCase;
+	private TestSwitchCase testSwitchCase;
 
 	public AttackConductor(String config) {
 		infoControllerCase = new HashMap<String, String>();
 		infoSwitchCase = new HashMap<String, String>();
-		infoAdvancedCase = new HashMap<String, String>();	
-		
-		this.controllerm = new ControllerManager(config);		
+		infoAdvancedCase = new HashMap<String, String>();
+
+		cfg = new Configuration(config);
+
+		this.controllerm = new ControllerManager(cfg);
 
 		this.appm = new AppAgentManager();
-		this.appm.setControllerType(controllerm.getType());
-		
+		this.appm.setControllerType(cfg.getTargetController());
+
 		this.hostm = new HostAgentManager();
 		this.channelm = new ChannelAgentManager();
 
+		/* Update Test Cases */
 		TestInfo.updateAdvancedCase(infoAdvancedCase);
 		TestInfo.updateControllerCase(infoControllerCase);
+		TestInfo.updateSwitchCase(infoSwitchCase);
+
 		testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
+		testSwitchCase = new TestSwitchCase();
 	}
 
 	public String showConfig() {
-		return controllerm.showConfig();
+		return cfg.show();
 	}
-	
+
 	public void setSocket(Socket socket) throws IOException {
 		dos = new DataOutputStream(socket.getOutputStream());
 		dis = new DataInputStream(socket.getInputStream());
@@ -72,27 +79,23 @@ public class AttackConductor {
 			appm.setActSocket(socket, dos, dis);
 		} else if (agentType.contains("ChannelAgent")) {
 			channelm.setSocket(socket, dos, dis);
-			// System.out.println("\nchannel-agent connected");
+			/* OFVersion + NIC + OFPort + Controller IP + Switch IP */
+			channelm.write("config," + "version:" + cfg.getOFVer() + ",nic:" + cfg.getMitmNIC() + ",port:"
+					+ cfg.getOFPort() + ",controller_ip:" + cfg.getControllerIP() + ",switch_ip:" + cfg.getSwitchIP());
 
-			/* OF version : Controller IP : Channel IP : Switch IP */
-			channelm.write("config," + "version:1.0," + "nic:eth0," + "port:6653," + "controller_ip:192.168.100.195,"
-					+ "switch_ip:192.168.100.185");
-
-			// String temp = channelm.read();
-			// System.out.println(temp);
 		} else if (agentType.contains("HostAgent")) {
-			// System.out.println("\nhost-agent connected");
 			hostm.setSocket(socket, dos, dis);
 		}
 	}
 
 	public void replayKnownAttack(String code) {
-		if(code.charAt(0) == '3')
+		if (code.charAt(0) == '1')
+			testSwitchCase.replayKnownAttack(code);
+		if (code.charAt(0) == '3')
 			testAdvancedCase.replayKnownAttack(code);
 	}
 
 	public void printAttackList() {
-		
 		System.out.println("\nControl Plane Test Set");
 
 		Iterator<String> treeMapIter = infoControllerCase.keySet().iterator();
@@ -115,8 +118,8 @@ public class AttackConductor {
 		}
 
 		System.out.println("\nAdvanced Test Set");
-		
-		TreeMap treeMap = new TreeMap(infoAdvancedCase);
+
+		TreeMap<String, String> treeMap = new TreeMap<String, String>(infoAdvancedCase);
 		treeMapIter = treeMap.keySet().iterator();
 		while (treeMapIter.hasNext()) {
 
@@ -143,12 +146,5 @@ public class AttackConductor {
 
 	public void replayAllKnownAttacks() {
 
-	}
-
-	public void initProgressBar(String code) {
-		ProgressBar.clearConsole();
-		pb = new ProgressBar(code);
-		pb.clearMsg();
-		pb.start();
 	}
 }

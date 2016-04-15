@@ -6,6 +6,10 @@ import java.util.Iterator;
 public class TestInfo {
 
 	public static void updateControllerCase(HashMap<String, String> map) {
+
+	}
+
+	public static void updateSwitchCase(HashMap<String, String> map) {
 		map.put("1.1.10", "Port Range Violation");
 		map.put("1.1.11", "TTP Port Range Violation");
 		map.put("1.1.20", "Table Number Violation");
@@ -29,10 +33,6 @@ public class TestInfo {
 		map.put("1.2.30", "Auxiliary Connection – Terminate when main connection is down");
 		map.put("1.2.40", "Auxiliary Connection – Initiate Non-Hello");
 		map.put("1.2.50", "Auxiliary Connection – Unsupported Messages");
-	}
-
-	public static void updateSwitchCase(HashMap<String, String> map) {
-
 	}
 
 	public static void updateAdvancedCase(HashMap<String, String> map) {

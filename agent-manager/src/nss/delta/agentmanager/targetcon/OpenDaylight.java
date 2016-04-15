@@ -32,8 +32,10 @@ public class OpenDaylight implements TargetController {
 		this.version = v;
 	}
 	
-	public void setAppAgentPath(String path) {
+	public OpenDaylight setAppAgentPath(String path) {
 		this.appPath = path;
+		
+		return this;
 	}
 	
 	public int createController() {

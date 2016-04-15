@@ -77,15 +77,20 @@ $ sudo ant
 ## Configuring your own experiments
 + The Agent-Manager automatically reads your configuration file, and setup environments based on the config file. The <setting.cfg> contains sample configurations. You can specify your own config file by passing its path:
 ```
-FLOODLIGHT_ROOT=0.91|/home/sdn/floodlight/floodlight-0.91/target/floodlight.jar
-ODL_ROOT=helium-sr3|/home/sdn/odl-helium-sr3/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh
+FLOODLIGHT_ROOT=/home/sdn/floodlight/floodlight-0.91/target/floodlight.jar
+FLOODLIGHT_VER=0.91
+ODL_ROOT=/home/sdn/odl-helium-sr3/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.shODL_VER=helium-sr3
 ODL_APPAGENT=/home/sdn/odl-helium-sr3/opendaylight/appagent/target/appagent-1.4.5-Helium-SR3.jar
-ONOS_ROOT=1.1.0|/home/sdn/onos/onos-1.1.0/
+ONOS_ROOT=/home/sdn/onos/onos-1.1.0/
+ONOS_VER=1.1.0
 ONOS_KARAF_ROOT=/home/sdn/Application/apache-karaf-3.0.4/bin/karaf
 CBENCH_ROOT=/home/sdn/oflops/cbench/
-SWITCHS=192.168.100.185
-DEFAULT_TARGET=Floodlight  # target controller
+TARGET_CONTROLLER=Floodlight
 OF_PORT=6633
+OF_VER=1.0
+MITM_NIC=eth0
+CONTROLLER_IP=192.168.100.195
+SWITCH_IP=192.168.100.185
 ```
 
 + The Channel-Agent automatically reads your configuration file, and connects the Agent-Manager.
