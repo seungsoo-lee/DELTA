@@ -26,86 +26,33 @@ public class ControllerManager {
 	
 	private Configuration cfg;
 
-	public ControllerManager(String config) {
+	public ControllerManager(Configuration config) {
 		targetList = new ArrayList<TargetController>();
 		switchList = new ArrayList<String>();
 
-		readConfigFile(config);
+		cfg = config;
+		
+		this.setConfig();
 	}
 
-	public void readConfigFile(String config) {
-		BufferedReader br = null;
-		InputStreamReader isr = null;
-		FileInputStream fis = null;
-		File file = new File(config);
-		String temp = "";
-
-		try {
-			fis = new FileInputStream(file);
-			isr = new InputStreamReader(fis, "UTF-8");
-			br = new BufferedReader(isr);
-
-			while ((temp = br.readLine()) != null) {
-				if (temp.contains("FLOODLIGHT_ROOT")) {
-					String v = temp.substring(temp.indexOf("=") + 1, temp.indexOf("|"));
-					String p = temp.substring(temp.indexOf("|") + 1);
-
-					TargetController tc = new Floodlight(p, v);
-					targetList.add(tc);
-				} else if (temp.contains("ODL_ROOT")) {
-					String v = temp.substring(temp.indexOf("=") + 1, temp.indexOf("|"));
-					String p = temp.substring(temp.indexOf("|") + 1);
-
-					TargetController tc = new OpenDaylight(p, v);
-					targetList.add(tc);
-				} else if (temp.contains("ODL_APPAGENT")) {
-					String p = temp.substring(temp.indexOf("=") + 1);
-
-					for (TargetController tc : targetList) {
-						if (tc.getType().equals("OpenDaylight")) {
-							((OpenDaylight) tc).setAppAgentPath(p);
-						}
-					}
-				} else if (temp.contains("ONOS_ROOT")) {
-					String v = temp.substring(temp.indexOf("=") + 1, temp.indexOf("|"));
-					String p = temp.substring(temp.indexOf("|") + 1);
-
-					TargetController tc = new ONOS(p, v);
-					targetList.add(tc);
-				} else if (temp.contains("ONOS_KARAF_ROOT")) {
-					String p = temp.substring(temp.indexOf("=") + 1);
-					for (TargetController tc : targetList) {
-						if (tc.getType().equals("ONOS")) {
-							((ONOS) tc).setKarafPath(p);
-						}
-					}
-				} else if (temp.contains("CBENCH_ROOT")) {
-					cbechPath = temp.substring(temp.indexOf("=") + 1);
-				} else if (temp.contains("DEFAULT_TARGET")) {
-					targetController = temp.substring(temp.indexOf("=") + 1);
-				} else if (temp.contains("OF_PORT")) {
-					ofPort = temp.substring(temp.indexOf("=") + 1);
-				} else if (temp.contains("SWITCH_IP")) {
-					temp = temp.substring(temp.indexOf("=") + 1);
-					StringTokenizer st = new StringTokenizer(temp, ",");
-					while (st.hasMoreTokens()) {
-						this.addSwitchIP(st.nextToken());
-					}
-				}
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				fis.close();
-				isr.close();
-				br.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+	public void setConfig() {
+		TargetController fl = new Floodlight(cfg.getFloodlightRoot(), cfg.getFloodlightVer());
+		targetList.add(fl);
+		
+		TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getODLVer()).setAppAgentPath(cfg.getODLAppAgent());
+		targetList.add(odl);
+		
+		TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getONOSVer()).setKarafPath(cfg.getONOSKarafRoot());
+		targetList.add(onos);
+		
+		cbechPath = cfg.getCbenchRoot();
+		targetController = cfg.getTargetController();
+		ofPort = cfg.getOFPort();
+		
+		String temp = cfg.getSwitchIP();		
+		StringTokenizer st = new StringTokenizer(temp, ",");
+		while (st.hasMoreTokens()) {
+			this.addSwitchIP(st.nextToken());
 		}
 	}
 

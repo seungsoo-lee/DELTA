@@ -47,10 +47,10 @@ public class AttackConductor {
 		
 		cfg = new Configuration(config);
 		
-		this.controllerm = new ControllerManager(config);		
+		this.controllerm = new ControllerManager(cfg);		
 
 		this.appm = new AppAgentManager();
-		this.appm.setControllerType(controllerm.getType());
+		this.appm.setControllerType(cfg.getTargetController());
 		
 		this.hostm = new HostAgentManager();
 		this.channelm = new ChannelAgentManager();

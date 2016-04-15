@@ -26,8 +26,10 @@ public class ONOS implements TargetController {
 		this.version = v;
 	}
 
-	public void setKarafPath(String p) {
+	public ONOS setKarafPath(String p) {
 		this.karafPath = p;
+		
+		return this;
 	}
 	
 	public int createController() {
