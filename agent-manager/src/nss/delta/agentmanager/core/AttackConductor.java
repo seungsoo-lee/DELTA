@@ -17,7 +17,6 @@ import nss.delta.agentmanager.testcase.TestInfo;
 import nss.delta.agentmanager.testcase.TestSwitchCase;
 import nss.delta.agentmanager.utils.ProgressBar;
 
-
 public class AttackConductor {
 	private static final Logger log = LoggerFactory.getLogger(AttackConductor.class);
 
@@ -43,15 +42,15 @@ public class AttackConductor {
 	public AttackConductor(String config) {
 		infoControllerCase = new HashMap<String, String>();
 		infoSwitchCase = new HashMap<String, String>();
-		infoAdvancedCase = new HashMap<String, String>();	
-		
+		infoAdvancedCase = new HashMap<String, String>();
+
 		cfg = new Configuration(config);
-		
-		this.controllerm = new ControllerManager(cfg);		
+
+		this.controllerm = new ControllerManager(cfg);
 
 		this.appm = new AppAgentManager();
 		this.appm.setControllerType(cfg.getTargetController());
-		
+
 		this.hostm = new HostAgentManager();
 		this.channelm = new ChannelAgentManager();
 
@@ -59,7 +58,7 @@ public class AttackConductor {
 		TestInfo.updateAdvancedCase(infoAdvancedCase);
 		TestInfo.updateControllerCase(infoControllerCase);
 		TestInfo.updateSwitchCase(infoSwitchCase);
-		
+
 		testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
 		testSwitchCase = new TestSwitchCase();
 	}
@@ -67,7 +66,7 @@ public class AttackConductor {
 	public String showConfig() {
 		return cfg.show();
 	}
-	
+
 	public void setSocket(Socket socket) throws IOException {
 		dos = new DataOutputStream(socket.getOutputStream());
 		dis = new DataInputStream(socket.getInputStream());
@@ -80,29 +79,23 @@ public class AttackConductor {
 			appm.setActSocket(socket, dos, dis);
 		} else if (agentType.contains("ChannelAgent")) {
 			channelm.setSocket(socket, dos, dis);
-			// System.out.println("\nchannel-agent connected");
+			/* OFVersion + NIC + OFPort + Controller IP + Switch IP */
+			channelm.write("config," + "version:" + cfg.getOFVer() + ",nic:" + cfg.getMitmNIC() + ",port:"
+					+ cfg.getOFPort() + ",controller_ip:" + cfg.getControllerIP() + ",switch_ip:" + cfg.getSwitchIP());
 
-			/* OF version : Controller IP : Channel IP : Switch IP */
-			channelm.write("config," + "version:1.0," + "nic:eth0," + "port:6653," + "controller_ip:192.168.100.195,"
-					+ "switch_ip:192.168.100.185");
-
-			// String temp = channelm.read();
-			// System.out.println(temp);
 		} else if (agentType.contains("HostAgent")) {
-			// System.out.println("\nhost-agent connected");
 			hostm.setSocket(socket, dos, dis);
 		}
 	}
 
 	public void replayKnownAttack(String code) {
-		if(code.charAt(0) == '1')
+		if (code.charAt(0) == '1')
 			testSwitchCase.replayKnownAttack(code);
-		if(code.charAt(0) == '3')
+		if (code.charAt(0) == '3')
 			testAdvancedCase.replayKnownAttack(code);
 	}
 
 	public void printAttackList() {
-		
 		System.out.println("\nControl Plane Test Set");
 
 		Iterator<String> treeMapIter = infoControllerCase.keySet().iterator();
@@ -125,7 +118,7 @@ public class AttackConductor {
 		}
 
 		System.out.println("\nAdvanced Test Set");
-		
+
 		TreeMap<String, String> treeMap = new TreeMap<String, String>(infoAdvancedCase);
 		treeMapIter = treeMap.keySet().iterator();
 		while (treeMapIter.hasNext()) {

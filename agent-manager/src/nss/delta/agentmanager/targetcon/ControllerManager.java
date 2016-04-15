@@ -23,7 +23,7 @@ public class ControllerManager {
 	private ArrayList<String> switchList;
 
 	private Process processCbench;
-	
+
 	private Configuration cfg;
 
 	public ControllerManager(Configuration config) {
@@ -31,25 +31,27 @@ public class ControllerManager {
 		switchList = new ArrayList<String>();
 
 		cfg = config;
-		
+
 		this.setConfig();
 	}
 
 	public void setConfig() {
 		TargetController fl = new Floodlight(cfg.getFloodlightRoot(), cfg.getFloodlightVer());
 		targetList.add(fl);
+
+		TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getODLVer())
+				.setAppAgentPath(cfg.getODLAppAgent());
 		
-		TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getODLVer()).setAppAgentPath(cfg.getODLAppAgent());
 		targetList.add(odl);
-		
+
 		TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getONOSVer()).setKarafPath(cfg.getONOSKarafRoot());
 		targetList.add(onos);
-		
+
 		cbechPath = cfg.getCbenchRoot();
 		targetController = cfg.getTargetController();
 		ofPort = cfg.getOFPort();
-		
-		String temp = cfg.getSwitchIP();		
+
+		String temp = cfg.getSwitchIP();
 		StringTokenizer st = new StringTokenizer(temp, ",");
 		while (st.hasMoreTokens()) {
 			this.addSwitchIP(st.nextToken());
@@ -205,7 +207,7 @@ public class ControllerManager {
 		while (true) {
 			try {
 				int cnt = 0;
-				temp = Runtime.getRuntime().exec(new String[] { "bash", "-c", "netstat -ap | grep " + ofPort});
+				temp = Runtime.getRuntime().exec(new String[] { "bash", "-c", "netstat -ap | grep " + ofPort });
 
 				BufferedReader stdOut = new BufferedReader(new InputStreamReader(temp.getInputStream()));
 

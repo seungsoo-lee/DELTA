@@ -72,49 +72,49 @@ public class TestSwitchCase {
 	}
 
 	public void replayKnownAttack(String code) {
-//		if (code.equals("3.1.10")) {
+//		if (code.equals("1.1.10")) {
 //			testPacketInFlooding(code);
-//		} else if (code.equals("3.1.20")) {
+//		} else if (code.equals("1.1.11")) {
 //			testControlMessageDrop(code);
-//		} else if (code.equals("3.1.30")) {
+//		} else if (code.equals("1.1.20")) {
 //			testInfiniteLoop(code);
-//		} else if (code.equals("3.1.40")) {
+//		} else if (code.equals("1.1.30")) {
 //			testInternalStorageAbuse(code);
-//		} else if (code.equals("3.1.50")) {
+//		} else if (code.equals("1.1.40")) {
 //			testSwitchTableFlooding(code);
-//		} else if (code.equals("3.1.60")) {
+//		} else if (code.equals("1.1.50")) {
 //			testSwitchIdentificationSpoofing(code);
-//		} else if (code.equals("------")) {
+//		} else if (code.equals("1.1.60")) {
 //			testMalformedControlMessage(code);
-//		} else if (code.equals("3.1.70")) {
+//		} else if (code.equals("1.1.70")) {
 //			testFlowRuleModification(code);
-//		} else if (code.equals("3.1.80")) {
+//		} else if (code.equals("1.1.80")) {
 //			testFlowTableClearance(code);
-//		} else if (code.equals("3.1.90")) {
+//		} else if (code.equals("1.1.90")) {
 //			testEventUnsubscription(code);
-//		} else if (code.equals("3.1.100")) {
+//		} else if (code.equals("1.1.100")) {
 //			testApplicationEviction(code);
-//		} else if (code.equals("3.1.110")) {
+//		} else if (code.equals("1.1.110")) {
 //			testMemoryExhaustion(code);
-//		} else if (code.equals("3.1.120")) {
+//		} else if (code.equals("1.1.120")) {
 //			testCPUExhaustion(code);
-//		} else if (code.equals("3.1.130")) {
+//		} else if (code.equals("1.1.130")) {
 //			testSystemVariableManipulation(code);
-//		} else if (code.equals("3.1.140")) {
+//		} else if (code.equals("1.1.140")) {
 //			testSystemCommandExecution(code);
-//		} else if (code.equals("3.1.160")) {
+//		} else if (code.equals("1.1.150")) {
 //			testLinkFabrication(code);
-//		} else if (code.equals("3.1.170")) {
+//		} else if (code.equals("1.1.160")) {
 //			testEvaseDrop(code);
-//		} else if (code.equals("3.1.180")) {
+//		} else if (code.equals("1.1.170")) {
 //			testManInTheMiddle(code);
-//		} else if (code.equals("3.1.190")) {
+//		} else if (code.equals("1.2.10")) {
 //			testFlowRuleFlooding(code);
-//		} else if (code.equals("3.1.200")) {
+//		} else if (code.equals("1.2.20")) {
 //			testSwitchFirmwareMisuse(code);
-//		} else if (code.equals("------")) {
+//		} else if (code.equals("1.2.30")) {
 //			testControlMessageManipulation(code);
-//		}
+//		} 
 	}
 	public long genXid() {
 		long l = random.nextLong();
