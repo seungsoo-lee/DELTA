@@ -53,9 +53,7 @@ public class AttackConductor {
 	public AttackConductor(String config) {
 		infoControllerCase = new HashMap<String, String>();
 		infoSwitchCase = new HashMap<String, String>();
-		infoAdvancedCase = new HashMap<String, String>();
-
-		TestInfo.updateAdvancedCase(infoAdvancedCase);
+		infoAdvancedCase = new HashMap<String, String>();	
 		
 		this.controllerm = new ControllerManager(config);		
 
@@ -65,6 +63,7 @@ public class AttackConductor {
 		this.hostm = new HostAgentManager();
 		this.channelm = new ChannelAgentManager();
 
+		TestInfo.updateAdvancedCase(infoAdvancedCase);
 		testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
 	}
 
