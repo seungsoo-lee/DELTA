@@ -71,6 +71,51 @@ public class TestSwitchCase {
 		defaultFactory = OFFactories.getFactory(OFVersion.OF_13);
 	}
 
+	public void replayKnownAttack(String code) {
+//		if (code.equals("3.1.10")) {
+//			testPacketInFlooding(code);
+//		} else if (code.equals("3.1.20")) {
+//			testControlMessageDrop(code);
+//		} else if (code.equals("3.1.30")) {
+//			testInfiniteLoop(code);
+//		} else if (code.equals("3.1.40")) {
+//			testInternalStorageAbuse(code);
+//		} else if (code.equals("3.1.50")) {
+//			testSwitchTableFlooding(code);
+//		} else if (code.equals("3.1.60")) {
+//			testSwitchIdentificationSpoofing(code);
+//		} else if (code.equals("------")) {
+//			testMalformedControlMessage(code);
+//		} else if (code.equals("3.1.70")) {
+//			testFlowRuleModification(code);
+//		} else if (code.equals("3.1.80")) {
+//			testFlowTableClearance(code);
+//		} else if (code.equals("3.1.90")) {
+//			testEventUnsubscription(code);
+//		} else if (code.equals("3.1.100")) {
+//			testApplicationEviction(code);
+//		} else if (code.equals("3.1.110")) {
+//			testMemoryExhaustion(code);
+//		} else if (code.equals("3.1.120")) {
+//			testCPUExhaustion(code);
+//		} else if (code.equals("3.1.130")) {
+//			testSystemVariableManipulation(code);
+//		} else if (code.equals("3.1.140")) {
+//			testSystemCommandExecution(code);
+//		} else if (code.equals("3.1.160")) {
+//			testLinkFabrication(code);
+//		} else if (code.equals("3.1.170")) {
+//			testEvaseDrop(code);
+//		} else if (code.equals("3.1.180")) {
+//			testManInTheMiddle(code);
+//		} else if (code.equals("3.1.190")) {
+//			testFlowRuleFlooding(code);
+//		} else if (code.equals("3.1.200")) {
+//			testSwitchFirmwareMisuse(code);
+//		} else if (code.equals("------")) {
+//			testControlMessageManipulation(code);
+//		}
+	}
 	public long genXid() {
 		long l = random.nextLong();
 		if (l == 0)

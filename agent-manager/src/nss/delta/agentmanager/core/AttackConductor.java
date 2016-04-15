@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import nss.delta.agentmanager.targetcon.ControllerManager;
 import nss.delta.agentmanager.testcase.TestAdvancedCase;
 import nss.delta.agentmanager.testcase.TestInfo;
+import nss.delta.agentmanager.testcase.TestSwitchCase;
 import nss.delta.agentmanager.utils.ProgressBar;
 
 
@@ -37,6 +38,7 @@ public class AttackConductor {
 	private DataInputStream dis;
 
 	private TestAdvancedCase testAdvancedCase;
+	private TestSwitchCase testSwitchCase;
 
 	public AttackConductor(String config) {
 		infoControllerCase = new HashMap<String, String>();
@@ -51,9 +53,13 @@ public class AttackConductor {
 		this.hostm = new HostAgentManager();
 		this.channelm = new ChannelAgentManager();
 
+		/* Update Test Cases */
 		TestInfo.updateAdvancedCase(infoAdvancedCase);
 		TestInfo.updateControllerCase(infoControllerCase);
+		TestInfo.updateSwitchCase(infoSwitchCase);
+		
 		testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
+		testSwitchCase = new TestSwitchCase();
 	}
 
 	public String showConfig() {
@@ -87,6 +93,8 @@ public class AttackConductor {
 	}
 
 	public void replayKnownAttack(String code) {
+		if(code.charAt(0) == '1')
+			testSwitchCase.replayKnownAttack(code);
 		if(code.charAt(0) == '3')
 			testAdvancedCase.replayKnownAttack(code);
 	}
@@ -116,7 +124,7 @@ public class AttackConductor {
 
 		System.out.println("\nAdvanced Test Set");
 		
-		TreeMap treeMap = new TreeMap(infoAdvancedCase);
+		TreeMap<String, String> treeMap = new TreeMap<String, String>(infoAdvancedCase);
 		treeMapIter = treeMap.keySet().iterator();
 		while (treeMapIter.hasNext()) {
 
@@ -143,12 +151,5 @@ public class AttackConductor {
 
 	public void replayAllKnownAttacks() {
 
-	}
-
-	public void initProgressBar(String code) {
-		ProgressBar.clearConsole();
-		pb = new ProgressBar(code);
-		pb.clearMsg();
-		pb.start();
 	}
 }

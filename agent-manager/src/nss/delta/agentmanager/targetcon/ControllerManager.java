@@ -81,7 +81,7 @@ public class ControllerManager {
 					targetController = temp.substring(temp.indexOf("=") + 1);
 				} else if (temp.contains("OF_PORT")) {
 					ofPort = temp.substring(temp.indexOf("=") + 1);
-				} else if (temp.contains("SWITCHS")) {
+				} else if (temp.contains("SWITCH_IP")) {
 					temp = temp.substring(temp.indexOf("=") + 1);
 					StringTokenizer st = new StringTokenizer(temp, ",");
 					while (st.hasMoreTokens()) {
