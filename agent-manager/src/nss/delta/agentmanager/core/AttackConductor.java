@@ -32,7 +32,7 @@ public class AttackConductor {
 	private ChannelAgentManager channelm;
 	private ControllerManager controllerm;
 
-	private ProgressBar pb;
+	private Configuration cfg;
 
 	private DataOutputStream dos;
 	private DataInputStream dis;
@@ -44,6 +44,8 @@ public class AttackConductor {
 		infoControllerCase = new HashMap<String, String>();
 		infoSwitchCase = new HashMap<String, String>();
 		infoAdvancedCase = new HashMap<String, String>();	
+		
+		cfg = new Configuration(config);
 		
 		this.controllerm = new ControllerManager(config);		
 
@@ -63,7 +65,7 @@ public class AttackConductor {
 	}
 
 	public String showConfig() {
-		return controllerm.showConfig();
+		return cfg.show();
 	}
 	
 	public void setSocket(Socket socket) throws IOException {

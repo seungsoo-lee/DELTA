@@ -10,6 +10,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import nss.delta.agentmanager.core.Configuration;
+
 public class ControllerManager {
 	private String cbechPath = "";
 	private String targetController = "";
@@ -21,6 +23,8 @@ public class ControllerManager {
 	private ArrayList<String> switchList;
 
 	private Process processCbench;
+	
+	private Configuration cfg;
 
 	public ControllerManager(String config) {
 		targetList = new ArrayList<TargetController>();
