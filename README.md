@@ -49,7 +49,7 @@ $ ant
 ```
 (before installing application-agent of floodlight-0.91, floodlight-0.91 controller should be installed)
 
-$ ln -s (delta-dev absolute path)/app-agent/floodlight/0.91/nss (floodlight absolute path)/src/main/java/nss
+$ ln -s (Delta absolute path)/app-agent/floodlight/0.91/nss (floodlight absolute path)/src/main/java/nss
 
 (Then, Modify floodlight module configuration files)
 
@@ -124,7 +124,7 @@ eth1 192.168.101.X/24 # for Delta agents connection
 
 + STEP 1. Running Agent Manager in VM1
 ```
-$ cd (delta-dev)/agent-manager
+$ cd [Delta]/agent-manager
 $ sudo java -jar ./target/am.jar ./floodlight.info
 
  DELTA: A Penetration Testing Framework for Software-Defined Networks
@@ -141,21 +141,21 @@ Command>_
 
 + STEP 2. Running Channel-Agent
 ```
-$ cd [delta-dev]/channel-agent
+$ cd [Delta]/channel-agent
 $ sudo java -jar ./target/channel-agent.jar setting.cfg
 ```
 
 + STEP 3. Running Host-Agent in VM2
 ```
-$ git clone https://github.com/seungsoo-lee/delta-dev.git
-$ cd delta-dev/host-agent
+$ git clone https://github.com/OpenNetworkingFoundation/DELTA.git
+$ cd Delta/host-agent
 $ ant
 
 $ sudo python ./topo-setup.py (eth0 ip address in VM1) 6633
 
 mininet> xterm h1
 
-$ (console in h1) cd [delta-dev]/host-agent
+$ (console in h1) cd [Delta]/host-agent
 $ (console in h1) java -jar ./target/host-agent.jar setting.cfg
 ```
 
