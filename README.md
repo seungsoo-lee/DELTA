@@ -1,12 +1,12 @@
-# DELTA: A Penetration Testing Framework for Software-defined Networks
+# DELTA: A Penetration Testing Framework for Software-Defined Networks
 
 ## What is DELTA?
-DELTA is a penetration testing framework which regenerates known attack scenarios in diverse test cases. Moreover, this framwork can even provide a chance of discovering unknown security problems in SDN by employing a fuzzing technique.
+DELTA is a penetration testing framework that regenerates known attack scenarios for diverse test cases. This framework also provides the capability of discovering unknown security problems in SDN by employing a fuzzing technique.
 
-+ Agent-Manger is control tower. It takes full control over all the agent deployed to the target SDN network.
-+ Application-Agent is a legitimate SDN application that conducts attack procedures and depends on what kind of conroller runs. The known malicious functions are implemented as application agent functions.
-+ Channel-Agent locates between the controller and the OpenFlow enabled switch. The agent sniffs and modifies the unencrpyted control messages. It is not dependent on the controllers.
-+ Host-Agent behaves as if it was a legitimate host participating in the target SDN network. The agent demonstrates an attack that a host attempts to compromise the control plane.
++ Agent-Manger is the control tower. It takes full control over all the agents deployed to the target SDN network.
++ Application-Agent is a legitimate SDN application that conducts attack procedures and is controller-dependent. The known malicious functions are implemented as application-agent functions.
++ Channel-Agent is deployed between the controller and the OpenFlow-enabled switch. The agent sniffs and modifies the unencrypted control messages. It is controller-independent.
++ Host-Agent behaves as if it was a legitimate host participating in the target SDN network. The agent demonstrates an attack in which a host attempts to compromise the control plane.
 
 ![Delta architecture](http://143.248.53.145/research/delta/arch.png)
 
@@ -21,7 +21,7 @@ In order to build and run DELTA the following are required:
 + JDK 1.7+
 
 ## Installing DELTA
-It depends on JAVA and Ant build system. To install Agent-Manager and sub-agents, you'll build using ant command.
+Delta installation depends on JAVA and the ant build system. The ant command is used to install the Agent-Manager and sub-agents.
 
 + STEP 1. Installing Agent-Manager.
 
@@ -44,7 +44,7 @@ $ cd host-agent
 $ ant
 ```
 
-+ STEP 4. Installing Application-Agent. It depends on controller type and version.
++ STEP 4. Installing Application-Agent. It depends on the controller type and version.
 <br><br> 1) In the case of Floodlight-0.91: 
 ```
 (before installing application-agent of floodlight-0.91, floodlight-0.91 controller should be installed)
@@ -75,7 +75,7 @@ $ sudo ant
 <br> 3) In the case of OpenDaylight: ...
 
 ## Configuring your own experiments
-+ The Agent-Manager automatically reads your configuration file, and setup environments based on the config file. The <setting.cfg> contains sample configurations. You can specify your own config file by passing its path:
++ The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. The <setting.cfg> contains sample configurations. You can specify your own config file by passing its path:
 ```
 FLOODLIGHT_ROOT=/home/sdn/floodlight/floodlight-0.91/target/floodlight.jar
 FLOODLIGHT_VER=0.91
@@ -93,12 +93,12 @@ CONTROLLER_IP=192.168.100.195
 SWITCH_IP=192.168.100.185
 ```
 
-+ The Channel-Agent automatically reads your configuration file, and connects the Agent-Manager.
++ The Channel-Agent automatically reads your configuration file and connects the Agent-Manager.
 ```
 AM_IP=192.168.101.X
 AM_PORT=3366
 ```
-+ The Host-Agent automatically reads your configuration file, and connects the Agent-Manager.
++ The Host-Agent automatically reads your configuration file and connects the Agent-Manager.
 ```
 AM_IP=192.168.101.X
 AM_PORT=3366
@@ -109,14 +109,14 @@ AM_PORT=3366
 
 > VM 1. Agent-Manager and one of the target controllers are installed.
 ```
-(at least two network interfaces are needed)
+(at least two network interfaces are required)
 eth0 192.168.100.X/24 # for controller-switch connection
 eth1 192.168.101.X/24 # for Delta agents connection
 ```
 
 > VM 2. Mininet and Host-Agent are installed.
 ```
-(at least two network interfaces are needed)
+(at least two network interfaces are required)
 eth0 192.168.100.X/24 # for controller-switch connection
 eth1 192.168.101.X/24 # for Delta agents connection
 ```
