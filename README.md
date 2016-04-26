@@ -75,7 +75,7 @@ $ sudo ant
 <br> 3) In the case of OpenDaylight: ...
 
 ## Configuring your own experiments
-+ The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. The <setting.cfg> contains sample configurations. You can specify your own config file by passing its path:
++ The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. Setting.cfg contains sample configurations. You can specify your own config file by passing its path:
 ```
 FLOODLIGHT_ROOT=/home/sdn/floodlight/floodlight-0.91/target/floodlight.jar
 FLOODLIGHT_VER=0.91
