@@ -156,7 +156,7 @@ $ sudo python ./topo-setup.py (eth0 ip address in VM1) 6633
 mininet> xterm h1
 
 $ (console in h1) cd [Delta]/host-agent
-$ (console in h1) java -jar ./target/host-agent.jar setting.cfg
+$ (console in h1) java -jar ./target/ha.jar setting.cfg
 ```
 
 + STEP 4. Reproducing known attacks in VM1
