@@ -12,11 +12,11 @@ DELTA is a penetration testing framework which regenerates known attack scenario
 
 ## Prerequisites
 In order to build and run DELTA the following are required:
-+ At least 2 virtual machines (based on Ubuntu 14.04 LTS 64 bit)
-+ Target Controller ([OpenDaylight_Helium-S3](https://github.com/opendaylight/controller/releases/tag/release%2Fhelium-sr3), [ONOS 1.1.0](https://github.com/opennetworkinglab/onos/tree/onos-1.1) or [Floodlight-0.91](https://github.com/floodlight/floodlight/tree/v0.91)) (in VM-1)
-+ [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench)
-+ [Mininet 2.1+](http://mininet.org/download/) (in VM-2)
-+ [JPcap 64bit.jar](http://sdnsec.kr/research/delta/jpcap.jar) [libjpcap.so](http://sdnsec.kr/research/delta/libjpcap.so) (in channel-agent)
++ At least 3 virtual machines (based on Ubuntu 14.04 LTS 64 bit)
++ Target Controller ([OpenDaylight_Helium-S3](https://github.com/opendaylight/controller/releases/tag/release%2Fhelium-sr3), [ONOS 1.1.0](https://github.com/opennetworkinglab/onos/tree/onos-1.1) or [Floodlight-0.91](https://github.com/floodlight/floodlight/tree/v0.91)) (for agent-manager in VM-1)
++ [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (in VM-1)
++ [JPcap 64bit.jar](http://sdnsec.kr/research/delta/jpcap.jar) [libjpcap.so](http://sdnsec.kr/research/delta/libjpcap.so) (for channel-agent in VM-2)
++ [Mininet 2.1+](http://mininet.org/download/) (for host-agent in VM-3)
 + Ant build system
 + JPcap library
 + JDK 1.7+
