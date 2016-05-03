@@ -16,6 +16,7 @@ In order to build and run DELTA the following are required:
 + Target Controller ([OpenDaylight_Helium-S3](https://github.com/opendaylight/controller/releases/tag/release%2Fhelium-sr3), [ONOS 1.1.0](https://github.com/opennetworkinglab/onos/tree/onos-1.1) or [Floodlight-0.91](https://github.com/floodlight/floodlight/tree/v0.91)) (in VM-1)
 + [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench)
 + [Mininet 2.1+](http://mininet.org/download/) (in VM-2)
++ [JPcap 64bit.jar](http://sdnsec.kr/research/delta/jpcap.jar) [libjpcap.so](http://sdnsec.kr/research/delta/libjpcap.so) (in channel-agent)
 + Ant build system
 + JPcap library
 + JDK 1.7+
