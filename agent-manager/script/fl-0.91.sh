@@ -20,6 +20,8 @@ while read line;do
         ((k++))
 done < $FILE_BK
 
+rm $FILE_BK
+
 echo "modify floodlight module file.."
 MODULE_FILE_BK=$FL_ROOT/src/main/resources/META-INF/services/net.floodlightcontroller.core.module.IFloodlightModule_bk
 MODULE_FILE=$FL_ROOT/src/main/resources/META-INF/services/net.floodlightcontroller.core.module.IFloodlightModule
@@ -30,7 +32,7 @@ echo "nss.delta.appagent.AppAgent" > $MODULE_FILE
 while read line;do
 	echo "$line" >> $MODULE_FILE
 done < $MODULE_FILE_BK
-
+rm $MODULE_FILE_BK
 
 echo "compile floodlight controller.."
 cd $FL_ROOT
