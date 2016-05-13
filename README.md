@@ -125,7 +125,7 @@ eth1 192.168.101.X/24 # for Delta agents connection
 + STEP 1. Running Agent Manager in VM1
 ```
 $ cd [Delta]/agent-manager
-$ sudo java -jar ./target/am.jar ./floodlight.info
+$ sudo java -jar ./target/am.jar ./setting.cfg
 
  DELTA: A Penetration Testing Framework for Software-Defined Networks
 
