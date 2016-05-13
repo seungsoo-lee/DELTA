@@ -18,7 +18,7 @@
         <module>floodlight-0.91</module>
         <module>floodlight-1.0</module>
         <module>floodlight-1.1</module>
-        <module>opendaylight-helium-sr3</module>
+        <module>opendaylight-helium</module>
     </modules>
 
 
