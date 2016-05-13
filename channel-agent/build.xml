@@ -43,7 +43,7 @@
 		<mkdir dir="${dist.dir}" />
 		<jar destfile="${dist.dir}/${jar.file}" basedir="${build.dir}" includes="**/*.class">
 			<manifest>
-				<attribute name="Main-Class" value="nss.sdn.channelagent.Main" />
+				<attribute name="Main-Class" value="nss.delta.channelagent.core.Main" />
 			</manifest>
 			<zipgroupfileset dir="${base.dir}/lib" includes="**/*.jar" />
 		</jar>
