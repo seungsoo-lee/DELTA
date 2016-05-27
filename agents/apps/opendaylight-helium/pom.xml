@@ -54,6 +54,44 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>opendaylight-mirror</id>
+            <name>opendaylight-mirror</name>
+            <url>https://nexus.opendaylight.org/content/repositories/public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>opendaylight-snapshot</id>
+            <name>opendaylight-snapshot</name>
+            <url>https://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>opendaylight-snapshot</id>
+            <name>opendaylight-snapshot</name>
+            <url>https://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 
     <dependencies>
         <dependency>
@@ -69,44 +107,44 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal</artifactId>
-            <version>0.8.6-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/sal-0.8.6-SNAPSHOT.jar</systemPath>
+            <version>0.8.5-Helium-SR4</version>
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${basedir}/lib/sal-0.8.6-SNAPSHOT.jar</systemPath>-->
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>hosttracker</artifactId>
-            <version>0.5.7-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/hosttracker-0.5.7-SNAPSHOT.jar</systemPath>
+            <version>0.5.6-Helium-SR4</version>
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${basedir}/lib/hosttracker-0.5.7-SNAPSHOT.jar</systemPath>-->
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>statisticsmanager</artifactId>
-            <version>0.5.6-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/statisticsmanager-0.5.6-SNAPSHOT.jar</systemPath>
+            <version>0.5.5-Helium-SR4</version>
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${basedir}/lib/statisticsmanager-0.5.6-SNAPSHOT.jar</systemPath>-->
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>topologymanager</artifactId>
-            <version>0.4.7-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/topologymanager-0.4.7-SNAPSHOT.jar</systemPath>
+            <version>0.4.6-Helium-SR4</version>
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${basedir}/lib/topologymanager-0.4.7-SNAPSHOT.jar</systemPath>-->
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>forwardingrulesmanager</artifactId>
-            <version>0.6.5-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/forwardingrulesmanager-0.6.5-SNAPSHOT.jar</systemPath>
+            <version>0.6.4-Helium-SR4</version>
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${basedir}/lib/forwardingrulesmanager-0.6.5-SNAPSHOT.jar</systemPath>-->
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>switchmanager</artifactId>
-            <version>0.7.6-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/switchmanager-0.7.6-SNAPSHOT.jar</systemPath>
+            <version>0.7.5-Helium-SR4</version>
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${basedir}/lib/switchmanager-0.7.6-SNAPSHOT.jar</systemPath>-->
         </dependency>
     </dependencies>
 

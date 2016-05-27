@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>delta-agent-app-floodlight-1.0</artifactId>
+    <packaging>pom</packaging>
 
     <build>
         <plugins>
@@ -32,7 +33,7 @@
                         <inherited>false</inherited>
                         <configuration>
                             <target>
-                                <ant antfile="build.xml"/>
+                                <ant antfile="${basedir}/build.xml"/>
                             </target>
                         </configuration>
                         <goals>

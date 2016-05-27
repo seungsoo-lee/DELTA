@@ -33,7 +33,7 @@
                         <inherited>false</inherited>
                         <configuration>
                             <target>
-                                <ant antfile="build.xml"/>
+                                <ant antfile="${basedir}/build.xml"/>
                             </target>
                         </configuration>
                         <goals>
