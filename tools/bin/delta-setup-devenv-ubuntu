@@ -22,19 +22,22 @@ tar -zxvf apache-maven-3.3.9-bin.tar.gz -C ../Applications/
 sudo apt-get install pkg-config gcc make ant g++ git libboost-dev libcurl4-openssl-dev libjson0-dev libssl-dev openjdk-7-jdk unixodbc-dev xmlstarlet -y
 
 # Fetch controller sources
-cd;
-git clone https://github.com/floodlight/floodlight
-git clone https://gerrit.onosproject.org/onos
+cd; mkdir opendaylight
+cd opendaylight
+wget https://nexus.opendaylight.org/content/groups/public/org/opendaylight/integration/distribution-karaf/0.2.4-Helium-SR4/distribution-karaf-0.2.4-Helium-SR4.zip
+unzip distribution-karaf-0.2.4-Helium-SR4.zip
+rm distribution-karaf-0.2.4-Helium-SR4.zip
 
-cd; mkdir opendaylight-src
-cd opendaylight-src
+
+cd; mkdir onos
+cd onos
+wget http://downloads.onosproject.org/release/onos-1.1.0.zip
+unzip onos-1.1.0.zip
+rm onos-1.1.0.zip
+
+
 export JAVA_HOME=/usr/lib/jvm/java-7-oracle/
-
-
 export MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=256m"
-
-for i in odlparent affinity bgpcep controller lispflowmapping openflowjava openflowplugin ovsdb/commons/parent vtn yangtools
-do (cd "$i" && git checkout stable/helium && mvn clean install ); done
 
 
 # Edit maven settings for ODL
