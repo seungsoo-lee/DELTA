@@ -43,7 +43,6 @@ exit 0
 " | sudo tee /etc/rc.local > /dev/null
 fi
 sudo brctl addbr lxcbr1
-sudo ifconfig lxcbr0 192.168.111.1/24 up
 sudo ifconfig lxcbr1 192.168.222.1/24 up
 
 
@@ -58,12 +57,15 @@ lxc.network.hwaddr = 00:16:3e:xx:xx:xx
 " | sudo tee --append /etc/lxc/default.conf > /dev/null
 fi
 
+# restart lxc service to make the config changes effective
+sudo service lxc restart
 
 # create one container - controller
 sudo lxc-create -n controller -t ubuntu -- --release trusty --auth-key ~/.ssh/id_rsa.pub
 
 # start the container
 sudo lxc-start -n controller -d
+sleep 5
 
 # install Java8 to the container
 sudo lxc-attach -n controller -- bash -c 'echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections'
