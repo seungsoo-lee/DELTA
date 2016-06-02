@@ -18,12 +18,13 @@ sudo apt-get install lxc bridge-utils -y > /dev/null
 
 
 # configure lxc default lxcbr0, only if haven't done so
-if ! grep -q controller "/etc/default/lxc-net" ; then
+if ! grep -q DELTA "/etc/default/lxc-net" ; then
 sudo cp /etc/default/lxc-net /etc/default/lxc-net.bak
 echo "
+# DELTA lxc config
 USE_LXC_BRIDGE="true"
 
-LXC_BRIDGE="lxcbr0"
+LXC_BRIDGE="deltabr0"
 LXC_ADDR="192.168.111.1"
 LXC_NETMASK="255.255.255.0"
 LXC_NETWORK="192.168.111.0/24"
@@ -34,24 +35,30 @@ fi
 
 
 # add additional lxc bridge interface if not have done so
-if ! grep -q lxcbr1 "/etc/rc.local"; then
+if ! grep -q deltabr1 "/etc/rc.local"; then
 sudo cp /etc/rc.local /etc/rc.local.bak
 echo "
-brctl addbr lxcbr1
-ifconfig lxcbr1 192.168.222.1/24 up
+brctl addbr deltabr1
+ifconfig deltabr1 192.168.222.1/24 up
 exit 0
 " | sudo tee /etc/rc.local > /dev/null
 fi
-sudo brctl addbr lxcbr1
-sudo ifconfig lxcbr1 192.168.222.1/24 up
+sudo brctl addbr deltabr1
+sudo ifconfig deltabr1 192.168.222.1/24 up
 
 
 # change default lxc config to have two network interfaces, if not done so
 
-if ! grep -q lxcbr1 "/etc/lxc/default.conf" ; then
+if ! grep -q deltabr1 "/etc/lxc/default.conf" ; then
+sudo cp /etc/lxc/default.conf /etc/lxc/default.conf.bak
 echo "
 lxc.network.type = veth
-lxc.network.link = lxcbr1
+lxc.network.link = deltabr0
+lxc.network.flags = up
+lxc.network.hwaddr = 00:16:3e:xx:xx:xx
+
+lxc.network.type = veth
+lxc.network.link = deltabr1
 lxc.network.flags = up
 lxc.network.hwaddr = 00:16:3e:xx:xx:xx
 " | sudo tee --append /etc/lxc/default.conf > /dev/null
