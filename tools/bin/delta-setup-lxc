@@ -109,7 +109,6 @@ address 192.168.222.11
 netmask 255.255.255.0
 network 192.168.222.0
 broadcast 192.168.222.255
-gateway 192.168.222.1
 dns-nameservers 8.8.8.8
 " > /etc/network/interfaces'
 
@@ -131,7 +130,6 @@ address 192.168.222.12
 netmask 255.255.255.0
 network 192.168.222.0
 broadcast 192.168.222.255
-gateway 192.168.222.1
 dns-nameservers 8.8.8.8
 " > /etc/network/interfaces'
 
@@ -153,7 +151,6 @@ address 192.168.222.13
 netmask 255.255.255.0
 network 192.168.222.0
 broadcast 192.168.222.255
-gateway 192.168.222.1
 dns-nameservers 8.8.8.8
 " > /etc/network/interfaces'
 
