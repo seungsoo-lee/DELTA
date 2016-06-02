@@ -17,7 +17,7 @@ sudo apt-get update > /dev/null
 sudo apt-get install lxc bridge-utils -y > /dev/null
 
 
-# configure lxc default lxcbr0, only if haven't done so
+# configure lxc default network bridge, only if haven't done so
 if ! grep -q DELTA "/etc/default/lxc-net" ; then
 sudo cp /etc/default/lxc-net /etc/default/lxc-net.bak
 echo "
@@ -35,11 +35,13 @@ fi
 
 
 # add additional lxc bridge interface if not have done so
-if ! grep -q deltabr1 "/etc/rc.local"; then
+if ! grep -q DELTA "/etc/rc.local"; then
 sudo cp /etc/rc.local /etc/rc.local.bak
 echo "
+# DELTA bridge config on boot
 brctl addbr deltabr1
 ifconfig deltabr1 192.168.222.1/24 up
+
 exit 0
 " | sudo tee /etc/rc.local > /dev/null
 fi
@@ -49,9 +51,10 @@ sudo ifconfig deltabr1 192.168.222.1/24 up
 
 # change default lxc config to have two network interfaces, if not done so
 
-if ! grep -q deltabr1 "/etc/lxc/default.conf" ; then
+if ! grep -q DELTA "/etc/lxc/default.conf" ; then
 sudo cp /etc/lxc/default.conf /etc/lxc/default.conf.bak
 echo "
+# DELTA lxc network config
 lxc.network.type = veth
 lxc.network.link = deltabr0
 lxc.network.flags = up
@@ -174,7 +177,4 @@ sleep 5
 
 sudo lxc-ls --fancy
 
-#echo "Please execute delta-push-keys to enable passwordless login"
-#echo "Then, ssh into each container and enable passwordless sudo"
-#echo "Finally, in each container, execute delta-install-requirements to install Java"
-
+# END
