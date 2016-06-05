@@ -69,6 +69,7 @@ fi
 
 # restart lxc service to make the config changes effective
 sudo service lxc restart
+sudo service lxc-net restart
 
 # create one container - controller
 sudo lxc-create -n controller -t ubuntu -- --release trusty --auth-key ~/.ssh/id_rsa.pub
