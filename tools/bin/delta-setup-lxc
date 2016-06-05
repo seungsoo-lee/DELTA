@@ -84,6 +84,7 @@ sudo lxc-attach -n controller -- apt-get install software-properties-common -y
 sudo lxc-attach -n controller -- add-apt-repository ppa:webupd8team/java -y
 sudo lxc-attach -n controller -- apt-get update
 sudo lxc-attach -n controller -- apt-get install oracle-java8-installer oracle-java8-set-default -y
+sudo lxc-attach -n controller -- apt-get install openssh-server -y
 sudo lxc-stop -n controller
 
 # wait for 3 sec
