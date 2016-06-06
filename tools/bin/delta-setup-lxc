@@ -181,6 +181,10 @@ do
 done
 
 sleep 5
-sudo lxc-ls --fancy
 
+# channel agent setting
+sudo lxc-attach -n channel -- wget http://sdnsec.kr/libjpcap.so
+sudo lxc-attach -n channel -- mv /home/ubuntu/libjpcap.so /usr/lib/
+
+sudo lxc-ls --fancy
 ## END
