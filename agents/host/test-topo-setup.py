@@ -41,7 +41,7 @@ def DeltaNetwork():
 #	s1.attach('eth0')
 
 #Set ip
-	h1.cmd("ifconfig eth1 192.168.101.200 netmask 255.255.255.0")
+	h1.cmd("ifconfig eth1 172.16.47.200 netmask 255.255.255.0")
 	
 #connect a controller
 	os.system("sudo ovs-vsctl set-controller s1 tcp:"+sys.argv[1]+":"+sys.argv[2])
