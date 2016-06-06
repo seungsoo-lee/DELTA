@@ -79,4 +79,11 @@
 
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>delta-lib-repo</id>
+            <url>file://${project.basedir}/libs</url>
+        </repository>
+    </repositories>
+
 </project>
