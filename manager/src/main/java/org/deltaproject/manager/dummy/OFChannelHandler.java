@@ -1,4 +1,4 @@
-package org.deltaproject.manager.dummycon;
+package org.deltaproject.manager.dummy;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
@@ -10,10 +10,11 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.util.Timer;
-import org.deltaproject.manager.dummycon.OFChannelInitializer.PipelineHandler;
-import org.deltaproject.manager.dummycon.OFChannelInitializer.PipelineHandshakeTimeout;
-import org.deltaproject.manager.dummycon.OFChannelInitializer.PipelineIdleReadTimeout;
-import org.deltaproject.manager.dummycon.OFChannelInitializer.PipelineIdleWriteTimeout;
+
+import org.deltaproject.manager.dummy.OFChannelInitializer.PipelineHandler;
+import org.deltaproject.manager.dummy.OFChannelInitializer.PipelineHandshakeTimeout;
+import org.deltaproject.manager.dummy.OFChannelInitializer.PipelineIdleReadTimeout;
+import org.deltaproject.manager.dummy.OFChannelInitializer.PipelineIdleWriteTimeout;
 import org.deltaproject.manager.testcase.TestSwitchCase;
 import org.deltaproject.manager.utils.OFMessageDecoder;
 import org.projectfloodlight.openflow.exceptions.OFParseError;

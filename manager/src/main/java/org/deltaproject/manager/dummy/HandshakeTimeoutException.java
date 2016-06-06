@@ -15,7 +15,7 @@
 *    under the License.
 **/
 
-package org.deltaproject.manager.dummycon;
+package org.deltaproject.manager.dummy;
 
 /**
  * Exception is thrown when the handshake fails to complete 

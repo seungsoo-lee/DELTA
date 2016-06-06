@@ -1,4 +1,4 @@
-package org.deltaproject.manager.targetcon;
+package org.deltaproject.manager.target;
 
 import java.io.*;
 import java.lang.reflect.Field;

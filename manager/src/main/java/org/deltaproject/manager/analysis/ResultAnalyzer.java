@@ -1,6 +1,6 @@
 package org.deltaproject.manager.analysis;
 
-import org.deltaproject.manager.targetcon.ControllerManager;
+import org.deltaproject.manager.target.ControllerManager;
 import org.deltaproject.manager.testcase.TestAdvancedCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

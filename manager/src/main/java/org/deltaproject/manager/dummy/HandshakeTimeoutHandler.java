@@ -15,7 +15,7 @@
 *    under the License.
 **/
 
-package org.deltaproject.manager.dummycon;
+package org.deltaproject.manager.dummy;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
