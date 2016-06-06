@@ -2,7 +2,7 @@ package org.deltaproject.hostagent;
 
 public class Main {
 	public static void main(String args[]) {
-		if (args.length == 2) {
+		if (args.length != 2) {
 			System.err.println("Usage: java -jar target/delta-agent-host.jar <agent manager's ip> <agent-manager's port>");
 			System.exit(1);
 		}
