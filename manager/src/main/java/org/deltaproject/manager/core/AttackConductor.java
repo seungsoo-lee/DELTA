@@ -139,7 +139,8 @@ public class AttackConductor {
 	}
 
 	public void test(String code) {
-		this.appm.write(code);
+		//this.appm.write(code);
+		controllerm.createController();
 	}
 
 	public void replayAllKnownAttacks() {

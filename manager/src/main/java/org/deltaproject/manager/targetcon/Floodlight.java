@@ -27,7 +27,7 @@ public class Floodlight implements TargetController {
 
 		String str = "";
 		try {
-			process = Runtime.getRuntime().exec("java -jar " + controllerPath);
+			process = Runtime.getRuntime().exec("sudo lxc-attach -n controller -- java -jar /home/ubuntu/floodlight.jar");
 
 			Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
 			pidField.setAccessible(true);
@@ -52,6 +52,8 @@ public class Floodlight implements TargetController {
 					break;
 				}
 			}
+			
+			System.out.println(currentPID);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (NoSuchFieldException e1) {
