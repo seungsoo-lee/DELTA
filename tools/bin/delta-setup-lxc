@@ -38,6 +38,7 @@ fi
 if ! grep -q DELTA "/etc/rc.local"; then
 sudo cp /etc/rc.local /etc/rc.local.bak
 echo "
+#!/bin/sh -e
 # DELTA bridge config on boot
 brctl addbr deltabr1
 ifconfig deltabr1 192.168.222.1/24 up
@@ -45,6 +46,8 @@ ifconfig deltabr1 192.168.222.1/24 up
 exit 0
 " | sudo tee /etc/rc.local > /dev/null
 fi
+
+sudo chmod 755 /etc/rc.local
 
 sudo ip link set lxcbr0 down
 sudo brctl delbr lxcbr0
