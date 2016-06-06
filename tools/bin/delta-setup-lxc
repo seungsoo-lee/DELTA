@@ -90,6 +90,7 @@ sudo lxc-attach -n controller -- add-apt-repository ppa:webupd8team/java -y
 sudo lxc-attach -n controller -- apt-get update
 sudo lxc-attach -n controller -- apt-get install oracle-java8-installer oracle-java8-set-default -y
 sudo lxc-attach -n controller -- apt-get install openssh-server -y
+sudo lxc-attach -n controller -- apt-get install libpcap-dev -y
 sudo lxc-stop -n controller
 
 # wait for 3 sec
@@ -97,7 +98,7 @@ sleep 3
 
 # clone containers
 sudo lxc-clone -o controller -n channel
-sudo lxc-clone -o controller -n mininet
+# sudo lxc-clone -o controller -n mininet
 
 # power-up all containers
 declare -a arr=("controller" "channel" "mininet")
@@ -151,26 +152,26 @@ broadcast 192.168.222.255
 dns-nameservers 8.8.8.8
 " > /etc/network/interfaces'
 
-sudo lxc-attach -n mininet -- bash -c 'echo "auto lo
-iface lo inet loopback
+#sudo lxc-attach -n mininet -- bash -c 'echo "auto lo
+#iface lo inet loopback
 
-auto eth0
-iface eth0 inet static
-address 192.168.111.13
-netmask 255.255.255.0
-network 192.168.111.0
-broadcast 192.168.111.255
-gateway 192.168.111.1
-dns-nameservers 8.8.8.8
+#auto eth0
+#iface eth0 inet static
+#address 192.168.111.13
+#netmask 255.255.255.0
+#network 192.168.111.0
+#broadcast 192.168.111.255
+#gateway 192.168.111.1
+#dns-nameservers 8.8.8.8
 
-auto eth1
-iface eth1 inet static
-address 192.168.222.13
-netmask 255.255.255.0
-network 192.168.222.0
-broadcast 192.168.222.255
-dns-nameservers 8.8.8.8
-" > /etc/network/interfaces'
+#auto eth1
+#iface eth1 inet static
+#address 192.168.222.13
+#netmask 255.255.255.0
+#network 192.168.222.0
+#broadcast 192.168.222.255
+#dns-nameservers 8.8.8.8
+#" > /etc/network/interfaces'
 
 
 # restart the containers
@@ -180,7 +181,6 @@ do
 done
 
 sleep 5
-
 sudo lxc-ls --fancy
 
-# END
+## END
