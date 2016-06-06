@@ -18,8 +18,9 @@ public class AMInterface extends Thread {
 
 	private PktHandler ha;
 
-	public AMInterface(String config) {
-		readConfigFile(config);
+	public AMInterface(String ip, String port) {
+		this.amIP = ip;
+		this.amPort = Integer.valueOf(port);
 		
 		ha = new PktHandler();
 	}
