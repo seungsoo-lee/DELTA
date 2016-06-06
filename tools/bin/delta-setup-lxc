@@ -35,19 +35,21 @@ fi
 
 
 # add additional lxc bridge interface if not have done so
-# if ! grep -q DELTA "/etc/rc.local"; then
-# sudo cp /etc/rc.local /etc/rc.local.bak
-# echo "
+if ! grep -q DELTA "/etc/rc.local"; then
+sudo cp /etc/rc.local /etc/rc.local.bak
+echo "
 # DELTA bridge config on boot
-# brctl addbr deltabr1
-# ifconfig deltabr1 192.168.222.1/24 up
-#
-# exit 0
-# " | sudo tee /etc/rc.local > /dev/null
-# fi
-# sudo brctl addbr deltabr1
-# sudo ifconfig deltabr1 192.168.222.1/24 up
+brctl addbr deltabr1
+ifconfig deltabr1 192.168.222.1/24 up
 
+exit 0
+" | sudo tee /etc/rc.local > /dev/null
+fi
+
+sudo ip link set lxcbr0 down
+sudo brctl delbr lxcbr0
+sudo brctl addbr deltabr1
+sudo ifconfig deltabr1 192.168.222.1/24 up
 
 # change default lxc config to have two network interfaces, if not done so
 
