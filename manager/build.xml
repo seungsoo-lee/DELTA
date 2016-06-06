@@ -10,8 +10,8 @@
 	<property name="jar.file" value="delta-manager.jar"/>
 	<property name="dist.file" value="delta-manager.zip"/>
 	<path id ="project.classpath">
-		<pathelement location="${base.dir}/lib" />
-		<fileset dir="${base.dir}/lib">
+		<pathelement location="../lib" />
+		<fileset dir="../lib">
 			<include name="*.jar" />
 		</fileset>
 		<fileset dir="/usr/lib/">
@@ -41,7 +41,7 @@
 		<manifest>
 			<attribute name="Main-Class" value="org.deltaproject.manager.Main" />
 		</manifest>
-		<zipgroupfileset dir="${base.dir}/lib" includes="**/*.jar" />
+		<zipgroupfileset dir="../lib" includes="**/*.jar" />
 		</jar>
 		<delete dir="${build.dir}"/>
 	</target>

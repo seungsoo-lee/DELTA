@@ -12,19 +12,36 @@
 
     <artifactId>delta-manager</artifactId>
     <packaging>jar</packaging>
+
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.0</version>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <archive>
                         <manifest>
-                            <addClasspath>true</addClasspath>
                             <mainClass>org.deltaproject.manager.Main</mainClass>
                         </manifest>
                     </archive>
+                    <descriptorRefs>jar-with-dependencies</descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -52,19 +69,14 @@
             <groupId>org.projectfloodlight</groupId>
             <artifactId>openflowj</artifactId>
             <version>2.0.0-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/openflowj-2.0.0-SNAPSHOT.jar</systemPath>
         </dependency>
 
         <dependency>
             <groupId>jpcap</groupId>
             <artifactId>jpcap</artifactId>
             <version>0.7</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/jpcap.jar</systemPath>
         </dependency>
 
     </dependencies>
-
 
 </project>
