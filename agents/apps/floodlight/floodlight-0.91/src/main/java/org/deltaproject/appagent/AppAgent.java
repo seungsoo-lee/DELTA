@@ -148,7 +148,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 		fservice = context.getServiceImpl(IStaticFlowEntryPusherService.class);
 
 		cm = new Communication(this);
-		cm.setServerAddr("127.0.0.1", 3366);
+		cm.setServerAddr();
 		cm.connectServer("AppAgent");
 		cm.start();
 	}

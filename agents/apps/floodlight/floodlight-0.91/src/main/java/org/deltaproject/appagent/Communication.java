@@ -1,9 +1,14 @@
 package org.deltaproject.appagent;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -28,9 +33,44 @@ public class Communication extends Thread {
 		this.app = in;
 	}
 
-	public void setServerAddr(String ip, int port) {
-		this.serverIP = ip;
-		this.serverPort = port;
+	public void setServerAddr() {
+		BufferedReader br = null;
+		InputStreamReader isr = null;
+		FileInputStream fis = null;
+		File file = new File("/home/ubuntu/manager.cfg");
+		String temp = "";
+
+		try {
+			fis = new FileInputStream(file);
+			isr = new InputStreamReader(fis, "UTF-8");
+			br = new BufferedReader(isr);
+
+			temp = br.readLine();
+
+			this.serverIP = temp.substring(0, temp.indexOf(":"));
+			this.serverPort = Integer.valueOf(temp.substring(temp.indexOf(":") + 1));
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				fis.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				isr.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				br.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public void connectServer(String agent) {
@@ -81,9 +121,9 @@ public class Communication extends Thread {
 			dos.writeUTF(result);
 		} else if (recv.contains("3.1.80")) {
 			if (recv.contains("false"))
-				app.Flow_Table_Clearance(false);	// only once
+				app.Flow_Table_Clearance(false); // only once
 			else
-				app.Flow_Table_Clearance(true);		// infinite
+				app.Flow_Table_Clearance(true); // infinite
 			return;
 		} else if (recv.equals("3.1.90")) {
 			result = app.Event_Listener_Unsubscription();
