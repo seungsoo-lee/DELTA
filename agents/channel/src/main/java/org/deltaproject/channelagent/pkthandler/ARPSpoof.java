@@ -26,10 +26,9 @@ public class ARPSpoof extends Thread {
 
 	public void setMacList(HashMap<String, String> in) {
 		this.ip_mac_list = in;
-		ArrayList<String> online_ips = new ArrayList<String>(ip_mac_list.keySet());
 
-		victimAip = online_ips.get(0);
-		victimBip = online_ips.get(1);
+		victimAip = "192.168.111.11";
+		victimBip = "192.168.111.13";
 	}
 
 	public void setSender(Sender sd) {

@@ -65,7 +65,7 @@ public class PktHandler {
 
 	protected TestAdvancedSet testAdvanced;
 
-	public PktHandler(NetworkInterface mydevice, String targets, byte OFversion, String port) {
+	public PktHandler(NetworkInterface mydevice, String controllerip, String switchip, byte OFversion, String port) {
 		middle_handler = new middle_handler();
 		ips_to_explore = new ArrayList<String>();
 		nodes = new NetworkInfo();
@@ -74,7 +74,7 @@ public class PktHandler {
 		device = mydevice;
 		ofPort = port;
 		// set IP list
-		this.setIpsToExplore(targets);
+		this.setIpsToExplore(controllerip, switchip);
 
 		// set MAC list
 		ip_mac_list = new HashMap<String, String>();
@@ -84,8 +84,8 @@ public class PktHandler {
 		ArrayList<String> online_ips = new ArrayList<String>(ip_mac_list.keySet());
 
 		// IP setting
-		controllerIP = online_ips.get(0);
-		switchIP = online_ips.get(1);
+		controllerIP = controllerip;
+		switchIP = switchip;
 		localIp = Utils.__get_inet4(device).address.toString().split("/")[1];
 
 		// OF Test setting
@@ -130,19 +130,9 @@ public class PktHandler {
 		return nodes.toPrintNodes(result, 0);
 	}
 
-	public void setIpsToExplore(String ips_temp) {
-		if (ips_temp == null)
-			return;
-		String[] ips = ips_temp.split(",");
-		for (int i = 0; i < ips.length; i++) {
-			try {
-				InetAddress.getByName(ips[i]);
-				ips_to_explore.add(ips[i]);
-			} catch (Exception e) {
-				System.err.println("WARNING: " + ips[i] + " is not a valid ip address");
-				// e.printStackTrace();
-			}
-		}
+	public void setIpsToExplore(String contip, String switchip) {
+		ips_to_explore.add(contip);
+		ips_to_explore.add(switchip);
 	}
 
 	public void startARPSpoofing() {

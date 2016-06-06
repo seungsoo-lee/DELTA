@@ -40,12 +40,12 @@ public class AMInterface extends Thread {
 		amIP = ip;
 		amPort = port;
 	}
-	
+
 	public AMInterface(String ip, String port) {
 		amIP = ip;
 		amPort = Integer.parseInt(port);
 	}
-	
+
 	public AMInterface(String config) {
 		BufferedReader br = null;
 		InputStreamReader isr = null;
@@ -62,11 +62,9 @@ public class AMInterface extends Thread {
 				if (temp.contains("AM_IP")) {
 					this.amIP = temp.substring(temp.indexOf("=") + 1);
 				} else if (temp.contains("AM_PORT")) {
-					this.amPort = Integer.valueOf(temp.substring(temp
-							.indexOf("=") + 1));
+					this.amPort = Integer.valueOf(temp.substring(temp.indexOf("=") + 1));
 				}
 			}
-			
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -115,8 +113,7 @@ public class AMInterface extends Thread {
 			}
 		}
 
-		this.targets = controller_ip + "," + switch_ip;
-		pktHandler = new PktHandler(device, targets, this.OFVersion, this.ofPort);
+		pktHandler = new PktHandler(device, controller_ip, switch_ip, this.OFVersion, this.ofPort);
 		pktHandler.startARPSpoofing(); // forTest
 	}
 
