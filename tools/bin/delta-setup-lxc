@@ -35,18 +35,18 @@ fi
 
 
 # add additional lxc bridge interface if not have done so
-if ! grep -q DELTA "/etc/rc.local"; then
-sudo cp /etc/rc.local /etc/rc.local.bak
-echo "
+# if ! grep -q DELTA "/etc/rc.local"; then
+# sudo cp /etc/rc.local /etc/rc.local.bak
+# echo "
 # DELTA bridge config on boot
-brctl addbr deltabr1
-ifconfig deltabr1 192.168.222.1/24 up
-
-exit 0
-" | sudo tee /etc/rc.local > /dev/null
-fi
-sudo brctl addbr deltabr1
-sudo ifconfig deltabr1 192.168.222.1/24 up
+# brctl addbr deltabr1
+# ifconfig deltabr1 192.168.222.1/24 up
+#
+# exit 0
+# " | sudo tee /etc/rc.local > /dev/null
+# fi
+# sudo brctl addbr deltabr1
+# sudo ifconfig deltabr1 192.168.222.1/24 up
 
 
 # change default lxc config to have two network interfaces, if not done so
@@ -64,12 +64,12 @@ lxc.network.type = veth
 lxc.network.link = deltabr1
 lxc.network.flags = up
 lxc.network.hwaddr = 00:16:3e:xx:xx:xx
-" | sudo tee --append /etc/lxc/default.conf > /dev/null
+" | sudo tee /etc/lxc/default.conf > /dev/null
 fi
 
 # restart lxc service to make the config changes effective
-sudo service lxc restart
 sudo service lxc-net restart
+sudo service lxc restart 
 
 # create one container - controller
 sudo lxc-create -n controller -t ubuntu -- --release trusty --auth-key ~/.ssh/id_rsa.pub
