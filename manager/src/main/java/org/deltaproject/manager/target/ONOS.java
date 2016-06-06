@@ -1,33 +1,38 @@
-package org.deltaproject.manager.targetcon;
+package org.deltaproject.manager.target;
 
 import java.io.*;
 import java.lang.reflect.Field;
 
-public class Floodlight implements TargetController {
+public class ONOS implements TargetController {
 	private Process process = null;
 	private boolean isRunning = false;
 
 	public String version = "";
 	public String controllerPath = "";
-	public String appPath = "";
+	public String karafPath = "";
 
 	private int currentPID = -1;
 
 	private BufferedWriter stdIn;
 	private BufferedReader stdOut;
 
-	
-	public Floodlight(String controllerPath, String version) {
+	public ONOS(String controllerPath, String v) {
 		this.controllerPath = controllerPath;
-		this.version = version;
+		this.version = v;
 	}
 
+	public ONOS setKarafPath(String p) {
+		this.karafPath = p;
+		
+		return this;
+	}
+	
 	public int createController() {
 		isRunning = false;
 
 		String str = "";
 		try {
-			process = Runtime.getRuntime().exec("sudo lxc-attach -n controller -- java -jar /home/ubuntu/floodlight.jar");
+			process = Runtime.getRuntime().exec(karafPath+" clean");
 
 			Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
 			pidField.setAccessible(true);
@@ -46,14 +51,11 @@ public class Floodlight implements TargetController {
 			stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
 			while ((str = stdOut.readLine()) != null) {
-				// System.out.println(str);
-				if (str.contains("Starting DebugServer on :6655")) {
+				if (str.contains("ONOS.")) {
 					isRunning = true;
 					break;
 				}
 			}
-			
-			System.out.println(currentPID);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (NoSuchFieldException e1) {
@@ -80,34 +82,22 @@ public class Floodlight implements TargetController {
 		return this.process;
 	}
 
-	public void killController() {
-		Process pc = null;
+	public void killController() {		
 		try {
-			if (process != null) {
-				process.getErrorStream().close();
-				process.getInputStream().close();
-				process.getOutputStream().close();
+			if (stdIn != null) {
+				stdIn.write("system:shutdown -f\n");
+				stdIn.flush();
 			}
 
-			pc = Runtime.getRuntime().exec("kill -9 " + this.currentPID);
-			pc.getErrorStream().close();
-			pc.getInputStream().close();
-			pc.getOutputStream().close();
-			pc.waitFor();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+			
 		this.currentPID = -1;
 	}
 
-	/*
-	 * In the case of Floodlight, App-Agent is automatically installed when the
-	 * controller starts
-	 */
+	/* ONOS, AppAgent is automatically installed when the controller starts */
 	public boolean installAppAgent() {
 
 		return true;
@@ -116,7 +106,7 @@ public class Floodlight implements TargetController {
 	@Override
 	public String getType() {
 		// TODO Auto-generated method stub
-		return "Floodlight";
+		return "ONOS";
 	}
 	
 	@Override
@@ -130,7 +120,6 @@ public class Floodlight implements TargetController {
 		// TODO Auto-generated method stub
 		return this.controllerPath;
 	}
-
 
 	@Override
 	public int getPID() {

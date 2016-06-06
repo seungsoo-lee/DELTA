@@ -1,4 +1,4 @@
-package org.deltaproject.manager.dummycon;
+package org.deltaproject.manager.dummy;
 
 /**
  *    Copyright 2011, Big Switch Networks, Inc.

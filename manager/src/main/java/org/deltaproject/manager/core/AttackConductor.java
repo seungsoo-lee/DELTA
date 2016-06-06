@@ -1,6 +1,6 @@
 package org.deltaproject.manager.core;
 
-import org.deltaproject.manager.targetcon.ControllerManager;
+import org.deltaproject.manager.target.ControllerManager;
 import org.deltaproject.manager.testcase.TestAdvancedCase;
 import org.deltaproject.manager.testcase.TestInfo;
 import org.deltaproject.manager.testcase.TestSwitchCase;
