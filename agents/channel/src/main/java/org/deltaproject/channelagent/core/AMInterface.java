@@ -41,6 +41,11 @@ public class AMInterface extends Thread {
 		amPort = port;
 	}
 	
+	public AMInterface(String ip, String port) {
+		amIP = ip;
+		amPort = Integer.parseInt(port);
+	}
+	
 	public AMInterface(String config) {
 		BufferedReader br = null;
 		InputStreamReader isr = null;
