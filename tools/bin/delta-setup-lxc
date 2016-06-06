@@ -48,6 +48,8 @@ fi
 
 sudo ip link set lxcbr0 down
 sudo brctl delbr lxcbr0
+sudo brctl addbr deltabr0
+sudo ifconfig deltabr0 192.168.111.1/24 up
 sudo brctl addbr deltabr1
 sudo ifconfig deltabr1 192.168.222.1/24 up
 
