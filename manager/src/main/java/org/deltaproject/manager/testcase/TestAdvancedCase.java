@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 public class TestAdvancedCase {
 	private static final Logger log = LoggerFactory.getLogger(TestAdvancedCase.class.getName());
-
+	
 	private AppAgentManager appm;
 	private HostAgentManager hostm;
 	private ChannelAgentManager channelm;

@@ -72,7 +72,7 @@ public class Floodlight implements TargetController {
 				process.getOutputStream().close();
 			}
 
-			pc = Runtime.getRuntime().exec("sudo lxc-stop -n controller");
+			pc = Runtime.getRuntime().exec("sudo lxc-stop -n controller -r");
 			pc.getErrorStream().close();
 			pc.getInputStream().close();
 			pc.getOutputStream().close();
