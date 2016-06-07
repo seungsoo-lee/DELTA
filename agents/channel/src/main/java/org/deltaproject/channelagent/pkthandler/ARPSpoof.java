@@ -28,7 +28,7 @@ public class ARPSpoof extends Thread {
 		this.ip_mac_list = in;
 
 		victimAip = "192.168.111.11";
-		victimBip = "192.168.111.13";
+		victimBip = "192.168.111.1";
 	}
 
 	public void setSender(Sender sd) {
