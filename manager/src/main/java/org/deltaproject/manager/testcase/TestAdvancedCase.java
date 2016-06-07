@@ -4,8 +4,8 @@ import org.deltaproject.manager.analysis.ResultAnalyzer;
 import org.deltaproject.manager.analysis.ResultInfo;
 import org.deltaproject.manager.core.AppAgentManager;
 import org.deltaproject.manager.core.ChannelAgentManager;
+import org.deltaproject.manager.core.ControllerManager;
 import org.deltaproject.manager.core.HostAgentManager;
-import org.deltaproject.manager.target.ControllerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

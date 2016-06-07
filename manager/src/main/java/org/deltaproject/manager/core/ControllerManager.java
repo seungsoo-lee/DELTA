@@ -1,6 +1,4 @@
-package org.deltaproject.manager.target;
-
-import org.deltaproject.manager.core.Configuration;
+package org.deltaproject.manager.core;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,6 +6,11 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+
+import org.deltaproject.manager.target.Floodlight;
+import org.deltaproject.manager.target.ONOS;
+import org.deltaproject.manager.target.OpenDaylight;
+import org.deltaproject.manager.target.TargetController;
 
 public class ControllerManager {
 	private String cbechPath = "";
@@ -149,7 +152,7 @@ public class ControllerManager {
 	public boolean executeCbench() {
 		try {
 			processCbench = Runtime.getRuntime()
-					.exec(cbechPath + "cbench -c localhost -p " + ofPort + " -m 10000 -l 10 -s 16 -M 1000 -t");
+					.exec(cbechPath + "cbench -c 192.168.111.11 -p " + ofPort + " -m 10000 -l 10 -s 16 -M 1000 -t");
 
 			Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
 			pidField.setAccessible(true);

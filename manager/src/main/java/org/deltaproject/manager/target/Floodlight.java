@@ -16,7 +16,6 @@ public class Floodlight implements TargetController {
 	private BufferedWriter stdIn;
 	private BufferedReader stdOut;
 
-	
 	public Floodlight(String controllerPath, String version) {
 		this.controllerPath = controllerPath;
 		this.version = version;
@@ -27,7 +26,8 @@ public class Floodlight implements TargetController {
 
 		String str = "";
 		try {
-			process = Runtime.getRuntime().exec("sudo lxc-attach -n controller -- java -jar /home/ubuntu/floodlight.jar");
+			process = Runtime.getRuntime()
+					.exec("sudo lxc-attach -n controller -- java -jar /home/ubuntu/floodlight.jar");
 
 			Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
 			pidField.setAccessible(true);
@@ -52,25 +52,8 @@ public class Floodlight implements TargetController {
 					break;
 				}
 			}
-			
-			System.out.println(currentPID);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-		} catch (NoSuchFieldException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (SecurityException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IllegalArgumentException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IllegalAccessException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
 		}
 
 		return currentPID;
@@ -89,7 +72,7 @@ public class Floodlight implements TargetController {
 				process.getOutputStream().close();
 			}
 
-			pc = Runtime.getRuntime().exec("kill -9 " + this.currentPID);
+			pc = Runtime.getRuntime().exec("sudo lxc-stop -n controller");
 			pc.getErrorStream().close();
 			pc.getInputStream().close();
 			pc.getOutputStream().close();
@@ -118,19 +101,18 @@ public class Floodlight implements TargetController {
 		// TODO Auto-generated method stub
 		return "Floodlight";
 	}
-	
+
 	@Override
 	public String getVersion() {
 		// TODO Auto-generated method stub
 		return this.version;
 	}
-	
+
 	@Override
 	public String getPath() {
 		// TODO Auto-generated method stub
 		return this.controllerPath;
 	}
-
 
 	@Override
 	public int getPID() {
