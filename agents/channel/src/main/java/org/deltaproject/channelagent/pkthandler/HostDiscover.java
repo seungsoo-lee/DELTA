@@ -104,7 +104,7 @@ public class HostDiscover {
 				Thread.sleep(this.sleepy);
 
 				ARPPacket pack = packet.build_request_packet(ipaddr);
-				// System.out.printf("\rInterrogating "+ipaddr);
+				//System.out.printf("\rInterrogating " + ipaddr);
 
 				this.ARPSender.send(pack);
 			} catch (Exception e) {
@@ -120,7 +120,7 @@ public class HostDiscover {
 				Thread.sleep(this.sleepy);
 
 				ARPPacket pack = packet.build_request_packet(ipaddr);
-				// System.out.printf("\rInterrogating "+ipaddr);
+				//System.out.printf("\rInterrogating " + ipaddr);
 
 				this.ARPSender.send(pack);
 			} catch (Exception e) {

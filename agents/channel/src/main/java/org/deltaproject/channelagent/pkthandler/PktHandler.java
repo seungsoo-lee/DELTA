@@ -66,35 +66,27 @@ public class PktHandler {
 	protected TestAdvancedSet testAdvanced;
 
 	public PktHandler(NetworkInterface mydevice, String controllerip, String switchip, byte OFversion, String port) {
-		middle_handler = new middle_handler();
-		ips_to_explore = new ArrayList<String>();
-		nodes = new NetworkInfo();
-
+		// set variable
 		ofversion = OFversion;
 		device = mydevice;
 		ofPort = port;
+		
 		// set IP list
-		this.setIpsToExplore(controllerip, switchip);
-
-		// set MAC list
-		ip_mac_list = new HashMap<String, String>();
-		HostDiscover hosty = new HostDiscover(device, ips_to_explore);
-		hosty.discover();
-		ip_mac_list.putAll(hosty.getHosts());
-		ArrayList<String> online_ips = new ArrayList<String>(ip_mac_list.keySet());
-
-		// IP setting
 		controllerIP = controllerip;
 		switchIP = switchip;
 		localIp = Utils.__get_inet4(device).address.toString().split("/")[1];
+		ips_to_explore = new ArrayList<String>();
+		this.setIpsToExplore(controllerip, switchip);		
 
-		// OF Test setting
+		middle_handler = new middle_handler();
+		nodes = new NetworkInfo();
+
+		// set OF version
 		OFFactory factory = null;
 		if (OFversion == 0x01)
 			factory = OFFactories.getFactory(OFVersion.OF_10);
 		else if (OFversion == 0x04)
 			factory = OFFactories.getFactory(OFVersion.OF_13);
-
 		if (factory != null)
 			testAdvanced = new TestAdvancedSet(factory, factory.getReader(), this.ofversion);
 
@@ -113,13 +105,12 @@ public class PktHandler {
 			e.printStackTrace();
 		}
 
-		// ARPSpoofing ready
+		typeOfAttacks = this.EMPTY;
+		
+		// ready to ARP Spoofing
 		spoof = new ARPSpoof(device);
-		spoof.setMacList(ip_mac_list);
 		spoof.setIPList(ips_to_explore);
 		spoof.setSender(this.traffic_sender);
-
-		typeOfAttacks = this.MITM;
 	}
 
 	public void testfunc() {
@@ -136,11 +127,22 @@ public class PktHandler {
 	}
 
 	public void startARPSpoofing() {
+		// set MAC list
+		ip_mac_list = new HashMap<String, String>();
+		HostDiscover hosty = new HostDiscover(device, ips_to_explore);
+		hosty.discover();
+		ip_mac_list.putAll(hosty.getHosts());
+		spoof.setMacList(ip_mac_list);
+
 		this.spoof.setARPspoof(true);
 		this.spoof.start();
 	}
 
-	public void setARPspoof(boolean value) {
+	public void stopARPSpoofing() {
+		this.spoof.setARPspoof(false);
+	}
+	
+	public void setARPspoofing(boolean value) {
 		this.spoof.setARPspoof(value);
 	}
 

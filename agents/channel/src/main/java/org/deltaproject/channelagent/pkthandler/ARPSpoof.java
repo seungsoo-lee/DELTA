@@ -22,13 +22,13 @@ public class ARPSpoof extends Thread {
 	public ARPSpoof(NetworkInterface mydevice) {
 		device = mydevice;
 		isARPspoof = false;
+		
+		victimAip = "192.168.111.11";
+		victimBip = "192.168.111.1";
 	}
 
 	public void setMacList(HashMap<String, String> in) {
-		this.ip_mac_list = in;
-
-		victimAip = "192.168.111.11";
-		victimBip = "192.168.111.1";
+		this.ip_mac_list = in;	
 	}
 
 	public void setSender(Sender sd) {

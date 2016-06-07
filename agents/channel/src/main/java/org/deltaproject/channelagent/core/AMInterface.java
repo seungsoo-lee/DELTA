@@ -36,11 +36,6 @@ public class AMInterface extends Thread {
 	private byte OFVersion;
 	private String ofPort;
 
-	public AMInterface(String ip, int port) {
-		amIP = ip;
-		amPort = port;
-	}
-
 	public AMInterface(String ip, String port) {
 		amIP = ip;
 		amPort = Integer.parseInt(port);
@@ -114,7 +109,6 @@ public class AMInterface extends Thread {
 		}
 
 		pktHandler = new PktHandler(device, controller_ip, switch_ip, this.OFVersion, this.ofPort);
-		pktHandler.startARPSpoofing(); // forTest
 	}
 
 	public void connectAgentManager() {
@@ -156,12 +150,15 @@ public class AMInterface extends Thread {
 					continue;
 					// MITM
 				} else if (recv.equalsIgnoreCase("3.1.180")) {
-					System.out.println("\n[ATTACK] MITM start");
+					System.out.println("[Channel-Agent] 3.1.180 - MITM start");
 					pktHandler.setTypeOfAttacks(PktHandler.MITM);
+					pktHandler.startARPSpoofing();
+					
 
 					Thread.sleep(10000);
 
 					dos.writeUTF("success");
+					pktHandler.stopARPSpoofing();
 				} else if (recv.equalsIgnoreCase("3.1.170")) { // Evaesdrop
 					pktHandler.setTypeOfAttacks(PktHandler.EVAESDROP);
 					dos.writeUTF("success");
