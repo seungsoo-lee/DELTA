@@ -155,7 +155,7 @@ public class AMInterface extends Thread {
 					this.setConfiguration(recv);
 					continue;
 					// MITM
-				} else if (recv.equalsIgnoreCase("B-2-A")) {
+				} else if (recv.equalsIgnoreCase("3.1.180")) {
 					System.out.println("\n[ATTACK] MITM start");
 					pktHandler.startARPSpoofing();
 					pktHandler.setTypeOfAttacks(PktHandler.MITM);
@@ -163,11 +163,11 @@ public class AMInterface extends Thread {
 					Thread.sleep(10000);
 
 					dos.writeUTF("success");
-				} else if (recv.equalsIgnoreCase("B-1-A")) { // Evaesdrop
+				} else if (recv.equalsIgnoreCase("3.1.170")) { // Evaesdrop
 					pktHandler.setARPspoof(true);
 					pktHandler.setTypeOfAttacks(PktHandler.EVAESDROP);
 					dos.writeUTF("success");
-				} else if (recv.equalsIgnoreCase("B-1-A-V")) {
+				} else if (recv.equalsIgnoreCase("3.1.170-V")) {
 					pktHandler.setARPspoof(false);
 					String result = "";
 
