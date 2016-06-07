@@ -69,9 +69,9 @@ public class HostDiscover {
 		InetAddress pingAddr;
 		System.out.println("Attempting to resolve gateway...");
 
-		try {
-			pingAddr = InetAddress.getByName("www.google.com");
-			this.ARPListener.setFilter("tcp and dst host " + pingAddr.getHostAddress(), true);
+//		try {
+//			pingAddr = InetAddress.getByName("www.google.com");
+//			this.ARPListener.setFilter("tcp and dst host " + pingAddr.getHostAddress(), true);
 			this.ARPListener.getListener().setPacketReadTimeout(5000);
 			this.ARPListener.start();
 			/*
@@ -82,9 +82,9 @@ public class HostDiscover {
 			 * if(gatewaymac != null) break; }
 			 */
 
-		} catch (UnknownHostException e1) {
-			e1.printStackTrace();
-		}
+//		} catch (UnknownHostException e1) {
+//			e1.printStackTrace();
+//		}
 
 		try {
 			Thread.sleep(500);
