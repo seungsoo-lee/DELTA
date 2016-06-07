@@ -104,7 +104,7 @@ sudo lxc-clone -o controller -n channel
 # sudo lxc-clone -o controller -n mininet
 
 # power-up all containers
-declare -a arr=("controller" "channel" "mininet")
+declare -a arr=("controller" "channel")
 for CONTAINER in "${arr[@]}"
 do
     sudo lxc-start -n $CONTAINER -d
@@ -122,8 +122,9 @@ address 192.168.111.11
 netmask 255.255.255.0
 network 192.168.111.0
 broadcast 192.168.111.255
-gateway 192.168.111.1
 dns-nameservers 8.8.8.8
+post-up route add default gw 192.168.111.1 metric 1
+pre-down route del default gw 192.168.111.1
 
 auto eth1
 iface eth1 inet static
@@ -132,6 +133,8 @@ netmask 255.255.255.0
 network 192.168.222.0
 broadcast 192.168.222.255
 dns-nameservers 8.8.8.8
+post-up route add default gw 192.168.222.1 metric 2
+pre-down route del default gw 192.168.222.1
 " > /etc/network/interfaces'
 
 sudo lxc-attach -n channel -- bash -c 'echo "auto lo
@@ -143,8 +146,9 @@ address 192.168.111.12
 netmask 255.255.255.0
 network 192.168.111.0
 broadcast 192.168.111.255
-gateway 192.168.111.1
 dns-nameservers 8.8.8.8
+post-up route add default gw 192.168.111.1 metric 1
+pre-down route del default gw 192.168.111.1
 
 auto eth1
 iface eth1 inet static
@@ -153,28 +157,10 @@ netmask 255.255.255.0
 network 192.168.222.0
 broadcast 192.168.222.255
 dns-nameservers 8.8.8.8
+post-up route add default gw 192.168.222.1 metric 2
+pre-down route del default gw 192.168.222.1
 " > /etc/network/interfaces'
 
-#sudo lxc-attach -n mininet -- bash -c 'echo "auto lo
-#iface lo inet loopback
-
-#auto eth0
-#iface eth0 inet static
-#address 192.168.111.13
-#netmask 255.255.255.0
-#network 192.168.111.0
-#broadcast 192.168.111.255
-#gateway 192.168.111.1
-#dns-nameservers 8.8.8.8
-
-#auto eth1
-#iface eth1 inet static
-#address 192.168.222.13
-#netmask 255.255.255.0
-#network 192.168.222.0
-#broadcast 192.168.222.255
-#dns-nameservers 8.8.8.8
-#" > /etc/network/interfaces'
 
 
 # restart the containers
