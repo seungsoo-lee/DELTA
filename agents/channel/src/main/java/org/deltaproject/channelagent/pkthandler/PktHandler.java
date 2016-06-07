@@ -108,8 +108,7 @@ public class PktHandler {
 		typeOfAttacks = this.EMPTY;
 		
 		// ready to ARP Spoofing
-		spoof = new ARPSpoof(device);
-		spoof.setIPList(ips_to_explore);
+		spoof = new ARPSpoof(device, ips_to_explore);
 		spoof.setSender(this.traffic_sender);
 	}
 

