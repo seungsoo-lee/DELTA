@@ -26,8 +26,7 @@ public class Floodlight implements TargetController {
 
 		String str = "";
 		try {
-			process = Runtime.getRuntime()
-					.exec("sudo lxc-attach -n controller -- java -jar /home/ubuntu/floodlight.jar");
+			process = Runtime.getRuntime().exec("java -jar " + controllerPath);
 
 			Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
 			pidField.setAccessible(true);
@@ -46,7 +45,7 @@ public class Floodlight implements TargetController {
 			stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
 			while ((str = stdOut.readLine()) != null) {
-				// System.out.println(str);
+				//System.out.println(str);
 				if (str.contains("Starting DebugServer on :6655")) {
 					isRunning = true;
 					break;
@@ -72,7 +71,8 @@ public class Floodlight implements TargetController {
 				process.getOutputStream().close();
 			}
 
-			pc = Runtime.getRuntime().exec("sudo lxc-stop -n controller -r");
+			// pc = Runtime.getRuntime().exec("sudo lxc-stop -n controller -r");
+			pc = Runtime.getRuntime().exec("kill -9 " + this.currentPID);
 			pc.getErrorStream().close();
 			pc.getInputStream().close();
 			pc.getOutputStream().close();
@@ -84,6 +84,7 @@ public class Floodlight implements TargetController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 		this.currentPID = -1;
 	}
 
