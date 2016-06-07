@@ -6,7 +6,7 @@ import org.deltaproject.channelagent.core.AMInterface;
 public class Main {
 	public static void main(String args[]) {
 		if (args.length != 2) {
-			System.err.println("Usage: java -jar delta-agent-channel-X.X-SNAPSHOT.jar <Agent-Manager IP> <Agent-Manager Port>");
+			System.err.println("Usage: java -jar delta-agent-channel-x.x-SNAPSHOT-jar-with-dependencies.jar <Agent-Manager IP> <Agent-Manager Port>");
 			System.exit(1);
 		}
 		
