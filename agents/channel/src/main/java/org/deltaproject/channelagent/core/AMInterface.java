@@ -157,18 +157,15 @@ public class AMInterface extends Thread {
 					// MITM
 				} else if (recv.equalsIgnoreCase("3.1.180")) {
 					System.out.println("\n[ATTACK] MITM start");
-					pktHandler.startARPSpoofing();
 					pktHandler.setTypeOfAttacks(PktHandler.MITM);
 
 					Thread.sleep(10000);
 
 					dos.writeUTF("success");
 				} else if (recv.equalsIgnoreCase("3.1.170")) { // Evaesdrop
-					pktHandler.setARPspoof(true);
 					pktHandler.setTypeOfAttacks(PktHandler.EVAESDROP);
 					dos.writeUTF("success");
 				} else if (recv.equalsIgnoreCase("3.1.170-V")) {
-					pktHandler.setARPspoof(false);
 					String result = "";
 
 					pktHandler.printNetwrokNodes(result);
@@ -183,7 +180,6 @@ public class AMInterface extends Thread {
 					dos.writeUTF(result);
 				} else if (recv.equalsIgnoreCase("C-3-A")) { // control Message
 																// Manipulation
-					pktHandler.setARPspoof(true);
 					pktHandler.setTypeOfAttacks(PktHandler.CONTROLMESSAGEMANIPULATION);
 
 					Thread.sleep(15000);
@@ -192,7 +188,6 @@ public class AMInterface extends Thread {
 				} else if (recv.equalsIgnoreCase("A-4-A-3")) { // Malformed
 																// control
 																// message
-					pktHandler.setARPspoof(true);
 					pktHandler.setTypeOfAttacks(PktHandler.MALFORMEDCONTROLMESSAGE);
 
 					Thread.sleep(5000);
@@ -230,7 +225,6 @@ public class AMInterface extends Thread {
 					// handler.setFuzzing(recv.substring(7));
 				} else if (recv.equalsIgnoreCase("exit")) {
 					pktHandler.setTypeOfAttacks(PktHandler.EMPTY);
-					pktHandler.setARPspoof(false);
 					/*
 					 * handler.stopSwitchTableFlooder();
 					 * handler.stopSwitchIdentificationSpoofer();
