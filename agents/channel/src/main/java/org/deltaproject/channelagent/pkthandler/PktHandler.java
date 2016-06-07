@@ -70,13 +70,13 @@ public class PktHandler {
 		ofversion = OFversion;
 		device = mydevice;
 		ofPort = port;
-		
+
 		// set IP list
 		controllerIP = controllerip;
 		switchIP = switchip;
 		localIp = Utils.__get_inet4(device).address.toString().split("/")[1];
 		ips_to_explore = new ArrayList<String>();
-		this.setIpsToExplore(controllerip, switchip);		
+		this.setIpsToExplore(controllerip, switchip);
 
 		middle_handler = new middle_handler();
 		nodes = new NetworkInfo();
@@ -106,10 +106,7 @@ public class PktHandler {
 		}
 
 		typeOfAttacks = this.EMPTY;
-		
-		// ready to ARP Spoofing
-		spoof = new ARPSpoof(device, ips_to_explore);
-		spoof.setSender(this.traffic_sender);
+
 	}
 
 	public void testfunc() {
@@ -126,7 +123,11 @@ public class PktHandler {
 	}
 
 	public void startARPSpoofing() {
+		System.out.println("Start ARP Spoofing");
 		// set MAC list
+		// ready to ARP Spoofing
+		spoof = new ARPSpoof(device, ips_to_explore);
+		spoof.setSender(this.traffic_sender);
 		ip_mac_list = new HashMap<String, String>();
 		HostDiscover hosty = new HostDiscover(device, ips_to_explore);
 		hosty.discover();
@@ -138,9 +139,10 @@ public class PktHandler {
 	}
 
 	public void stopARPSpoofing() {
+		System.out.println("Stop ARP Spoofing");
 		this.spoof.setARPspoof(false);
 	}
-	
+
 	public void setARPspoofing(boolean value) {
 		this.spoof.setARPspoof(value);
 	}

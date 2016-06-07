@@ -194,12 +194,14 @@ public class TestAdvancedSet {
 
 				if (message == null)
 					return null;
+				
+				System.out.println(message.toString());
 
 				if (message.getType() == OFType.FLOW_MOD) {
 					OFFlowMod fa = (OFFlowMod) message;
 
 					if (fa.getCommand() == OFFlowModCommand.ADD) {
-						// System.out.println("before " + fa.toString());
+						//System.out.println("before " + fa.toString());
 						OFFlowMod.Builder b = factory.buildFlowDelete();
 
 						b.setXid(fa.getXid());
@@ -219,8 +221,8 @@ public class TestAdvancedSet {
 							buf = PooledByteBufAllocator.DEFAULT.directBuffer(totalLen);
 						
 						newfm.writeTo(buf);
-						// System.out.println(newfm.toString());
-						// System.out.println("after" + newfm.toString());
+						//System.out.println(newfm.toString());
+						//System.out.println("after" + newfm.toString());
 					}
 
 				} else if (message.getType() == OFType.PACKET_OUT) {
@@ -241,7 +243,7 @@ public class TestAdvancedSet {
 					if (outPort.toString().equals("flood"))
 						return null;
 
-					// System.out.println("before " + pktout.toString());
+					System.out.println("before " + pktout.toString());
 
 					int outNum = ((OFActionOutput) (pktout.getActions()).get(0)).getPort().getPortNumber();
 
@@ -258,7 +260,7 @@ public class TestAdvancedSet {
 						buf = PooledByteBufAllocator.DEFAULT.directBuffer(totalLen);
 					
 					newoutput.writeTo(buf);
-					// System.out.println("after " + newout.toString());
+					//System.out.println("after " + newoutput.toString());
 				}
 			} catch (OFParseError e) {
 				// TODO Auto-generated catch block

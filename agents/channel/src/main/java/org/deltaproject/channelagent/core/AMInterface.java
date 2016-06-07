@@ -152,8 +152,7 @@ public class AMInterface extends Thread {
 				} else if (recv.equalsIgnoreCase("3.1.180")) {
 					System.out.println("[Channel-Agent] 3.1.180 - MITM start");
 					pktHandler.setTypeOfAttacks(PktHandler.MITM);
-					pktHandler.startARPSpoofing();
-					
+					pktHandler.startARPSpoofing();					
 
 					Thread.sleep(10000);
 

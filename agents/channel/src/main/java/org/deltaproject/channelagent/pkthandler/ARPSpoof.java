@@ -62,8 +62,6 @@ public class ARPSpoof extends Thread {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		System.out.println("Start ARP Spoofing");
 		
 		while (true) {
 			try {
