@@ -1,6 +1,8 @@
 package org.deltaproject.channelagent.core;
 
 import jpcap.NetworkInterface;
+
+import org.deltaproject.channelagent.dummy.DummyOFSwitch;
 import org.deltaproject.channelagent.pkthandler.NIC;
 import org.deltaproject.channelagent.pkthandler.PktHandler;
 import org.deltaproject.channelagent.testcase.LinkFabricator;
@@ -31,14 +33,19 @@ public class AMInterface extends Thread {
 
 	private PktHandler pktHandler;
 
-	private String targets;
+	//private String targets;
 	private NetworkInterface device;
 	private byte OFVersion;
-	private String ofPort;
+	private String ofPort;	
+	private String handler;	
+	
+	private DummyOFSwitch dummysw;
 
 	public AMInterface(String ip, String port) {
 		amIP = ip;
 		amPort = Integer.parseInt(port);
+		
+		dummysw = new DummyOFSwitch();
 	}
 
 	public AMInterface(String config) {
@@ -105,10 +112,12 @@ public class AMInterface extends Thread {
 				switch_ip = s.substring(s.indexOf(":") + 1);
 			} else if (s.startsWith("port")) {
 				this.ofPort = s.substring(s.indexOf(":") + 1);
+			} else if (s.startsWith("handler")) {
+				this.handler = s.substring(s.indexOf(":") + 1);
 			}
 		}
 
-		pktHandler = new PktHandler(device, controller_ip, switch_ip, this.OFVersion, this.ofPort);
+		pktHandler = new PktHandler(device, controller_ip, switch_ip, this.OFVersion, this.ofPort, this.handler);
 	}
 
 	public void connectAgentManager() {
@@ -218,7 +227,8 @@ public class AMInterface extends Thread {
 
 					dos.writeUTF("success");
 				} else if (recv.startsWith("fuzzing")) {
-					// handler.setFuzzing(recv.substring(7));
+					dummysw.connectTargetController();
+					dummysw.start();
 				} else if (recv.equalsIgnoreCase("exit")) {
 					pktHandler.setTypeOfAttacks(PktHandler.EMPTY);
 					/*

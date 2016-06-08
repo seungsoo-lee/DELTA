@@ -8,6 +8,7 @@ import jpcap.packet.IPPacket;
 import jpcap.packet.Packet;
 import jpcap.packet.TCPPacket;
 import org.deltaproject.channelagent.core.Utils;
+import org.deltaproject.channelagent.dummy.DummyOFSwitch;
 import org.deltaproject.channelagent.networknode.NetworkInfo;
 import org.deltaproject.channelagent.testcase.TestAdvancedSet;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
@@ -53,7 +54,8 @@ public class PktHandler {
 	private Listener traffic_listener;
 	private Sender traffic_sender;
 
-	private PacketReceiver middle_handler;
+	private PacketReceiver handler;
+
 	private String output;
 	private NetworkInfo nodes;
 	private ARPSpoof spoof;
@@ -65,7 +67,8 @@ public class PktHandler {
 
 	protected TestAdvancedSet testAdvanced;
 
-	public PktHandler(NetworkInterface mydevice, String controllerip, String switchip, byte OFversion, String port) {
+	public PktHandler(NetworkInterface mydevice, String controllerip, String switchip, byte OFversion, String port,
+			String handler) {
 		// set variable
 		ofversion = OFversion;
 		device = mydevice;
@@ -78,7 +81,6 @@ public class PktHandler {
 		ips_to_explore = new ArrayList<String>();
 		this.setIpsToExplore(controllerip, switchip);
 
-		middle_handler = new middle_handler();
 		nodes = new NetworkInfo();
 
 		// set OF version
@@ -90,8 +92,23 @@ public class PktHandler {
 		if (factory != null)
 			testAdvanced = new TestAdvancedSet(factory, factory.getReader(), this.ofversion);
 
+		// set Handler
+		if (handler.equals("middle"))
+			this.handler = new middle_handler();
+		else {
+			this.handler = new dummy_handler();
+		}
+
+		typeOfAttacks = this.EMPTY;
+	}
+
+	public void testfunc() {
+
+	}
+	
+	public void startListening() {
 		try {
-			this.traffic_listener = new Listener(device, this.middle_handler);
+			this.traffic_listener = new Listener(device, this.handler);
 			this.traffic_listener.setFilter("port " + this.ofPort, true);
 			this.traffic_listener.start();
 
@@ -104,13 +121,6 @@ public class PktHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		typeOfAttacks = this.EMPTY;
-
-	}
-
-	public void testfunc() {
-
 	}
 
 	public String printNetwrokNodes(String result) {
@@ -309,6 +319,125 @@ public class PktHandler {
 			p.datalink = ether;
 
 			return p;
+		}
+	}
+
+	class dummy_handler implements PacketReceiver {
+		private String dst_ip;
+		private String src_ip;
+
+		private boolean isTested = false;
+		Map<Long, TCPBodyData> tcpBodys = new HashMap<Long, TCPBodyData>();
+
+		private int handshakeCnt = 0;
+		private Packet STC;
+		private Packet CTS;
+
+		// for fragmented tcp data
+		private class TCPBodyData {
+
+			byte[] bytes = null;
+
+			public TCPBodyData(byte[] bytes) {
+				this.bytes = bytes;
+			}
+
+			public void addBytes(byte[] bytes) {
+				try {
+					ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+					outputStream.write(this.bytes);
+					outputStream.write(bytes);
+					this.bytes = outputStream.toByteArray();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			}
+
+			public byte[] getBytes() {
+				return bytes;
+			}
+		}
+
+		private byte[] addBodyData(TCPPacket packet) {
+			TCPBodyData tcpBodyData;
+			Long ack = new Long(packet.ack_num);
+			if (tcpBodys.containsKey(ack)) {
+				tcpBodyData = tcpBodys.get(ack);
+				tcpBodyData.addBytes(packet.data);
+			} else {
+				tcpBodyData = new TCPBodyData(packet.data);
+				tcpBodys.put(ack, tcpBodyData);
+			}
+
+			if (packet.psh) {
+				tcpBodys.remove(ack);
+			}
+
+			return tcpBodyData.getBytes();
+		}
+
+		public void receivePacket(Packet p_temp) {
+			EthernetPacket p_eth = (EthernetPacket) p_temp.datalink;
+
+			// check if the packet is mine just return do not send it again
+			String mine_mac = Utils.decalculate_mac(device.mac_address);
+			String incoming_src_mac = Utils.decalculate_mac(p_eth.src_mac);
+
+			IPPacket p = ((IPPacket) p_temp);
+			this.dst_ip = p.dst_ip.toString().split("/")[1];
+			this.src_ip = p.src_ip.toString().split("/")[1];
+
+			if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
+				System.out.println("CTS : " + p_temp.toString());
+				this.CTS = p_temp;
+			} else if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
+				System.out.println("STC : " + p_temp.toString());
+				this.STC = p_temp;
+			}
+
+			this.handshakeCnt++;
+
+//			if (this.handshakeCnt >= 5) {
+//				ByteBuf newBuf = null;
+//				if (p_temp.data.length > 8) {
+//					try {
+//						newBuf = DummyOFSwitch.testHello();
+//					} catch (OFParseError e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//				}
+//
+//				if (newBuf != null) {
+//					byte[] bytes;
+//					int length = newBuf.readableBytes();
+//
+//					if (newBuf.hasArray()) {
+//						bytes = newBuf.array();
+//					} else {
+//						bytes = new byte[length];
+//						newBuf.getBytes(newBuf.readerIndex(), bytes);
+//					}
+//
+//					// replace packet data
+//					newBuf.clear();
+//					this.STC.data = bytes;
+//					traffic_sender.send(p_temp);
+//				}
+//			}
+			
+
+			/* send Pkt */
+			// if (this.src_ip.equals(switchIP) &&
+			// this.dst_ip.equals(controllerIP)) {
+			// traffic_sender.send(spoofPacket(p_temp, controllerIP));
+			// } else if (this.src_ip.equals(controllerIP) &&
+			// this.dst_ip.equals(switchIP)) {
+			// traffic_sender.send(spoofPacket(p_temp, switchIP));
+			// }
+
+			return;
 		}
 	}
 }
