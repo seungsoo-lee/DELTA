@@ -168,14 +168,20 @@ public class DummyOFSwitch extends Thread {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		byte[] recv;
+		byte[] recv;		
+
+//		try {
+//			sendHello();
+//		} catch (OFParseError e2) {
+//			// TODO Auto-generated catch block
+//			e2.printStackTrace();
+//		}
 
 		try {
 			while (true) {
 				recv = new byte [2048];
-				if(in.read(recv, 0, recv.length) != 0) {
+				if(in.read(recv, 0, recv.length) != -1) {
 					System.out.println(recv);
-					sendHello();
 				}
 				else
 					break;
@@ -183,7 +189,6 @@ public class DummyOFSwitch extends Thread {
 			}
 		} catch (Exception e) {
 			// if any error occurs
-			System.out.println("Exception in AMIface");
 			e.printStackTrace();
 
 			if (in != null)
