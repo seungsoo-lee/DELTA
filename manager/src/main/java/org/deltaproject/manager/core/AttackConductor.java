@@ -78,7 +78,8 @@ public class AttackConductor {
 			channelm.setSocket(socket, dos, dis);
 			/* OFVersion + NIC + OFPort + Controller IP + Switch IP */
 			channelm.write("config," + "version:" + cfg.getOFVer() + ",nic:" + cfg.getMitmNIC() + ",port:"
-					+ cfg.getOFPort() + ",controller_ip:" + cfg.getControllerIP() + ",switch_ip:" + cfg.getSwitchIP());
+					+ cfg.getOFPort() + ",controller_ip:" + cfg.getControllerIP() + ",switch_ip:" + cfg.getSwitchIP()
+					+ ",handler:dummy");
 
 		} else if (agentType.contains("HostAgent")) {
 			hostm.setSocket(socket, dos, dis);
@@ -138,8 +139,8 @@ public class AttackConductor {
 	}
 
 	public void test(String code) {
-		//this.appm.write(code);
-		controllerm.createController();
+		// this.appm.write(code);
+		channelm.write("fuzzing");
 	}
 
 	public void replayAllKnownAttacks() {
