@@ -33,11 +33,11 @@ public class AMInterface extends Thread {
 
 	private PktHandler pktHandler;
 
-	//private String targets;
 	private NetworkInterface device;
 	private byte OFVersion;
 	private String ofPort;	
-	private String handler;	
+	private String handler;
+	private String controllerIP;
 	
 	private DummyOFSwitch dummysw;
 
@@ -93,7 +93,6 @@ public class AMInterface extends Thread {
 
 	public void setConfiguration(String str) {
 		String[] list = new String(str).split(",");
-		String controller_ip = "";
 		String switch_ip = "";
 
 		for (String s : list) {
@@ -107,7 +106,7 @@ public class AMInterface extends Thread {
 				String nic = s.substring(s.indexOf(":") + 1);
 				this.device = NIC.getInterfaceByName(nic);
 			} else if (s.startsWith("controller_ip")) {
-				controller_ip = s.substring(s.indexOf(":") + 1);
+				controllerIP = s.substring(s.indexOf(":") + 1);
 			} else if (s.startsWith("switch_ip")) {
 				switch_ip = s.substring(s.indexOf(":") + 1);
 			} else if (s.startsWith("port")) {
@@ -117,7 +116,7 @@ public class AMInterface extends Thread {
 			}
 		}
 
-		pktHandler = new PktHandler(device, controller_ip, switch_ip, this.OFVersion, this.ofPort, this.handler);
+		pktHandler = new PktHandler(device, controllerIP, switch_ip, this.OFVersion, this.ofPort, this.handler);
 	}
 
 	public void connectAgentManager() {
@@ -227,7 +226,8 @@ public class AMInterface extends Thread {
 
 					dos.writeUTF("success");
 				} else if (recv.startsWith("fuzzing")) {
-					dummysw.connectTargetController();
+					dummysw.connectTargetController(controllerIP, ofPort);
+					dummysw.setOFFactory(this.OFVersion);
 					dummysw.start();
 				} else if (recv.equalsIgnoreCase("exit")) {
 					pktHandler.setTypeOfAttacks(PktHandler.EMPTY);
