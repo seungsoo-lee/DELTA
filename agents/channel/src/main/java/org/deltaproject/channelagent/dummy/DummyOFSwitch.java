@@ -40,8 +40,8 @@ public class DummyOFSwitch extends Thread {
 	private OutputStream out;
 
 	/* for target controller */
-	private String IP = "192.168.100.133";
-	private int PORT = 6633;
+	private String IP = "";
+	private int PORT = 0;
 	
 	/* for OF message */
 	OFFactory factory;
