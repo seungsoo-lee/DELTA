@@ -17,6 +17,7 @@ import org.projectfloodlight.openflow.protocol.OFErrorMsg.Builder;
 import org.projectfloodlight.openflow.protocol.OFFactories;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFFeaturesReply;
+import org.projectfloodlight.openflow.protocol.OFFeaturesRequest;
 import org.projectfloodlight.openflow.protocol.OFFlowMod;
 import org.projectfloodlight.openflow.protocol.OFFlowModCommand;
 import org.projectfloodlight.openflow.protocol.OFFlowRemoved;
@@ -33,6 +34,8 @@ import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
 import org.projectfloodlight.openflow.protocol.errormsg.OFErrorMsgs;
 import org.projectfloodlight.openflow.types.OFPort;
 import org.projectfloodlight.openflow.types.U16;
+
+import com.google.common.primitives.Longs;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -92,11 +95,24 @@ public class DummyOFSwitch extends Thread {
 		return data;
 	}
 
-	public static ByteBuf parseOFMsg(byte[] recv, int len) {
+	public ByteBuf parseOFMsg(byte[] recv, int len) throws OFParseError {
 		// for OpenFlow Message
 		byte[] rawMsg = new byte[len];
 		System.arraycopy(recv, 0, rawMsg, 0, len);
-		// ByteBuf byteMsg = Unpooled.copiedBuffer(rawMsg);
+		ByteBuf bb = Unpooled.copiedBuffer(rawMsg);
+		OFMessage message = reader.readFrom(bb);
+
+		if (message.getType() == OFType.FEATURES_REQUEST) {
+			OFFeaturesRequest fr = (OFFeaturesRequest) message;
+			long xid = fr.getXid();
+			this.sendFeatureRes(xid);
+		} else if (message.getType() == OFType.GET_CONFIG_REQUEST) {
+			
+		} else if (message.getType() == OFType.BARRIER_REQUEST) {
+			
+		} else if (message.getType() == OFType.STATS_REQUEST) {
+			
+		} 
 
 		return Unpooled.wrappedBuffer(rawMsg);
 	}
@@ -118,7 +134,7 @@ public class DummyOFSwitch extends Thread {
 
 		buf.clear();
 	}
-	
+
 	public void sendRawMsg(byte[] msg) {
 		try {
 			this.out.write(msg, 0, msg.length);
@@ -132,20 +148,19 @@ public class DummyOFSwitch extends Thread {
 	public void sendHello() throws OFParseError {
 		OFFactory factory = OFFactories.getFactory(OFVersion.OF_10);
 		long r_xid = 0xeeeeeeeel;
-		
+
 		OFHello.Builder fab = factory.buildHello();
 		fab.setXid(r_xid);
 
 		OFHello hello = fab.build();
-
 		sendMsg(hello, MINIMUM_LENGTH);
 
 		return;
 	}
-	
+
 	public void sendError() throws OFParseError {
 		long r_xid = 0xeeeeeeeel;
-		
+
 		OFErrorMsgs msg = factory.errorMsgs();
 		OFFeaturesReply.Builder frb = factory.buildFeaturesReply();
 		OFFeaturesReply fr = frb.build();
@@ -153,14 +168,17 @@ public class DummyOFSwitch extends Thread {
 		return;
 	}
 
-	public void sendFeatureRes() throws OFParseError {
-		long r_xid = 0xeeeeeeeel;
+	public void sendFeatureRes(long xid) throws OFParseError {
+		byte[] bytes = Longs.toByteArray(xid);
+		byte[] featureres = new byte[DummyData.featureRes.length];
+		System.arraycopy(DummyData.featureRes, 0, featureres, 0, DummyData.featureRes.length);
+		System.arraycopy(bytes, 4, featureres, 4, 4);
 
 		OFFeaturesReply.Builder frb = factory.buildFeaturesReply();
 		OFFeaturesReply fr = frb.build();
-
-		sendRawMsg(DummyData.featureRes);
 		
+		sendRawMsg(featureres);
+
 		return;
 	}
 
@@ -245,50 +263,52 @@ public class DummyOFSwitch extends Thread {
 		return buf;
 	}
 
-//	/*****************************************************************/
-//	public static ByteBuf testMITM(Packet p_temp) throws OFParseError {
-//		OFFactory factory = OFFactories.getFactory(OFVersion.OF_10);
-//		OFMessageReader<OFMessage> reader = factory.getReader();
-//
-//		byte ofversion = 1;
-//		ByteBuf bb = getByteBuf(p_temp);
-//		int totalLen = bb.readableBytes();
-//		int offset = bb.readerIndex();
-//
-//		OFFlowMod newfm = null;
-//		OFPacketOut newoutput = null;
-//
-//		ByteBuf buf = null;
-//
-//		while (offset < totalLen) {
-//			bb.readerIndex(offset);
-//
-//			byte version = bb.readByte();
-//			bb.readByte();
-//			int length = U16.f(bb.readShort());
-//			bb.readerIndex(offset);
-//
-//			if (version != ofversion) {
-//				// segmented TCP pkt
-//				System.out.println("OFVersion Missing " + version + " : " + offset + "-" + totalLen);
-//				return null;
-//			}
-//
-//			if (length < MINIMUM_LENGTH)
-//				throw new OFParseError("Wrong length: Expected to be >= " + MINIMUM_LENGTH + ", was: " + length);
-//
-//			OFMessage message = reader.readFrom(bb);
-//
-//			if (message == null)
-//				return null;
-//
-//			System.out.println(message.toString());
-//			offset += length;
-//		}
-//
-//		bb.clear();
-//		return buf;
-//	}
+	// /*****************************************************************/
+	// public static ByteBuf testMITM(Packet p_temp) throws OFParseError {
+	// OFFactory factory = OFFactories.getFactory(OFVersion.OF_10);
+	// OFMessageReader<OFMessage> reader = factory.getReader();
+	//
+	// byte ofversion = 1;
+	// ByteBuf bb = getByteBuf(p_temp);
+	// int totalLen = bb.readableBytes();
+	// int offset = bb.readerIndex();
+	//
+	// OFFlowMod newfm = null;
+	// OFPacketOut newoutput = null;
+	//
+	// ByteBuf buf = null;
+	//
+	// while (offset < totalLen) {
+	// bb.readerIndex(offset);
+	//
+	// byte version = bb.readByte();
+	// bb.readByte();
+	// int length = U16.f(bb.readShort());
+	// bb.readerIndex(offset);
+	//
+	// if (version != ofversion) {
+	// // segmented TCP pkt
+	// System.out.println("OFVersion Missing " + version + " : " + offset + "-"
+	// + totalLen);
+	// return null;
+	// }
+	//
+	// if (length < MINIMUM_LENGTH)
+	// throw new OFParseError("Wrong length: Expected to be >= " +
+	// MINIMUM_LENGTH + ", was: " + length);
+	//
+	// OFMessage message = reader.readFrom(bb);
+	//
+	// if (message == null)
+	// return null;
+	//
+	// System.out.println(message.toString());
+	// offset += length;
+	// }
+	//
+	// bb.clear();
+	// return buf;
+	// }
 
 	@Override
 	public void run() {
@@ -305,9 +325,8 @@ public class DummyOFSwitch extends Thread {
 						synack = true;
 						sendHello();
 					} else {
-						parseOFMsg(recv, readlen);
-						sendFeatureRes();
 						/* after hello */
+						parseOFMsg(recv, readlen);
 					}
 				} else
 					break; // end of connection
