@@ -201,6 +201,22 @@ public class DummyOFSwitch extends Thread {
 
 		return buf;
 	}
+	
+	public void fuzzPacketIn() throws OFParseError {
+		/* 
+		 * length		- 2 bytes
+		 * xid			- 4 bytes
+		 * buffer_id	- 4 bytes
+		 * total_len	- 2 bytes
+		 * in_port		- 2 bytes
+		 * reason		- 1 byte
+		 * pad			- 1 byte
+		 */
+		
+		
+
+		return;
+	}
 
 	public ByteBuf sendFlowRemoved() throws OFParseError {
 		OFFactory factory = OFFactories.getFactory(OFVersion.OF_10);
