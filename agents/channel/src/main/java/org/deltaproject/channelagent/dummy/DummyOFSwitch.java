@@ -1,46 +1,33 @@
 package org.deltaproject.channelagent.dummy;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
 import org.projectfloodlight.openflow.exceptions.OFParseError;
-import org.projectfloodlight.openflow.protocol.OFEchoRequest;
-import org.projectfloodlight.openflow.protocol.OFErrorMsg;
-import org.projectfloodlight.openflow.protocol.OFErrorMsg.Builder;
 import org.projectfloodlight.openflow.protocol.OFFactories;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFFeaturesReply;
 import org.projectfloodlight.openflow.protocol.OFFeaturesRequest;
-import org.projectfloodlight.openflow.protocol.OFFlowMod;
-import org.projectfloodlight.openflow.protocol.OFFlowModCommand;
 import org.projectfloodlight.openflow.protocol.OFFlowRemoved;
 import org.projectfloodlight.openflow.protocol.OFHello;
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFMessageReader;
 import org.projectfloodlight.openflow.protocol.OFPacketIn;
-import org.projectfloodlight.openflow.protocol.OFPacketOut;
 import org.projectfloodlight.openflow.protocol.OFPortStatus;
 import org.projectfloodlight.openflow.protocol.OFType;
 import org.projectfloodlight.openflow.protocol.OFVersion;
-import org.projectfloodlight.openflow.protocol.action.OFAction;
-import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
 import org.projectfloodlight.openflow.protocol.errormsg.OFErrorMsgs;
-import org.projectfloodlight.openflow.types.OFPort;
-import org.projectfloodlight.openflow.types.U16;
 
 import com.google.common.primitives.Longs;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
-import jpcap.packet.Packet;
 
 public class DummyOFSwitch extends Thread {
 	static final int MINIMUM_LENGTH = 8;
@@ -49,6 +36,7 @@ public class DummyOFSwitch extends Thread {
 	private InputStream in;
 	private OutputStream out;
 
+	private Random random;
 	/* for target controller */
 	private String IP = "";
 	private int PORT = 0;
@@ -56,6 +44,10 @@ public class DummyOFSwitch extends Thread {
 	/* for OF message */
 	OFFactory factory;
 	OFMessageReader<OFMessage> reader;
+	
+	public DummyOFSwitch() {
+		random = new Random();
+	}
 
 	public void connectTargetController(String cip, String ofPort) {
 		this.IP = cip;
@@ -101,10 +93,11 @@ public class DummyOFSwitch extends Thread {
 		System.arraycopy(recv, 0, rawMsg, 0, len);
 		ByteBuf bb = Unpooled.copiedBuffer(rawMsg);
 		OFMessage message = reader.readFrom(bb);
+		
+		long xid = message.getXid();
 
 		if (message.getType() == OFType.FEATURES_REQUEST) {
-			OFFeaturesRequest fr = (OFFeaturesRequest) message;
-			long xid = fr.getXid();
+			OFFeaturesRequest fr = (OFFeaturesRequest) message;			
 			this.sendFeatureRes(xid);
 		} else if (message.getType() == OFType.GET_CONFIG_REQUEST) {
 			
