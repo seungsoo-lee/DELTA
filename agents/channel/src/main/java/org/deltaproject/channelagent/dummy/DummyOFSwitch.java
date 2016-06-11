@@ -11,15 +11,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.projectfloodlight.openflow.exceptions.OFParseError;
+import org.projectfloodlight.openflow.protocol.OFEchoRequest;
+import org.projectfloodlight.openflow.protocol.OFErrorMsg;
 import org.projectfloodlight.openflow.protocol.OFFactories;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFFeaturesReply;
 import org.projectfloodlight.openflow.protocol.OFFlowMod;
 import org.projectfloodlight.openflow.protocol.OFFlowModCommand;
+import org.projectfloodlight.openflow.protocol.OFFlowRemoved;
 import org.projectfloodlight.openflow.protocol.OFHello;
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFMessageReader;
+import org.projectfloodlight.openflow.protocol.OFPacketIn;
 import org.projectfloodlight.openflow.protocol.OFPacketOut;
+import org.projectfloodlight.openflow.protocol.OFPortStatus;
 import org.projectfloodlight.openflow.protocol.OFType;
 import org.projectfloodlight.openflow.protocol.OFVersion;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
@@ -67,9 +72,7 @@ public class DummyOFSwitch extends Thread {
 	}
 	
 	public void setOFFactory(byte ofVersion) {
-		if(ofVersion == 1)
-			factory = OFFactories.getFactory(OFVersion.OF_10);
-		
+		factory = OFFactories.getFactory(OFVersion.OF_10);
 		reader = factory.getReader();
 	}
 
@@ -99,7 +102,7 @@ public class DummyOFSwitch extends Thread {
 
 		return Unpooled.wrappedBuffer(rawMsg);
 	}
-
+	/*****************************************************************/
 	public ByteBuf sendHello() throws OFParseError {
 		OFFactory factory = OFFactories.getFactory(OFVersion.OF_10);
 		long r_xid = 0xeeeeeeeel;
@@ -154,6 +157,87 @@ public class DummyOFSwitch extends Thread {
 		return buf;
 	}
 
+	public ByteBuf sendPacketIn() throws OFParseError {
+		OFFactory factory = OFFactories.getFactory(OFVersion.OF_10);
+		long r_xid = 0xeeeeeeeel;
+
+		OFPacketIn.Builder fab = factory.buildPacketIn();
+		fab.setXid(r_xid);
+		OFPacketIn hello = fab.build();
+		
+		ByteBuf buf = null;
+		buf = PooledByteBufAllocator.DEFAULT.directBuffer(20/*variable*/);
+		hello.writeTo(buf);
+
+		byte[] bytes;
+		int length = buf.readableBytes();
+		bytes = new byte[length];
+		buf.getBytes(buf.readerIndex(), bytes);
+
+		try {
+			this.out.write(bytes, 0, length);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return buf;
+	}	
+	
+	public ByteBuf sendFlowRemoved() throws OFParseError {
+		OFFactory factory = OFFactories.getFactory(OFVersion.OF_10);
+		long r_xid = 0xeeeeeeeel;
+
+		OFFlowRemoved.Builder fab = factory.buildFlowRemoved();
+		fab.setXid(r_xid);
+		OFFlowRemoved hello = fab.build();
+		
+		ByteBuf buf = null;
+		buf = PooledByteBufAllocator.DEFAULT.directBuffer(88);
+		hello.writeTo(buf);
+
+		byte[] bytes;
+		int length = buf.readableBytes();
+		bytes = new byte[length];
+		buf.getBytes(buf.readerIndex(), bytes);
+
+		try {
+			this.out.write(bytes, 0, length);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return buf;
+	}
+	
+	public ByteBuf sendPortStatus() throws OFParseError {
+		OFFactory factory = OFFactories.getFactory(OFVersion.OF_10);
+		long r_xid = 0xeeeeeeeel;
+
+		OFPortStatus.Builder fab = factory.buildPortStatus();
+		fab.setXid(r_xid);
+		OFPortStatus hello = fab.build();
+		
+		ByteBuf buf = null;
+		buf = PooledByteBufAllocator.DEFAULT.directBuffer(64);
+		hello.writeTo(buf);
+
+		byte[] bytes;
+		int length = buf.readableBytes();
+		bytes = new byte[length];
+		buf.getBytes(buf.readerIndex(), bytes);
+
+		try {
+			this.out.write(bytes, 0, length);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return buf;
+	}
+	/*****************************************************************/
 	public static ByteBuf testMITM(Packet p_temp) throws OFParseError {
 		OFFactory factory = OFFactories.getFactory(OFVersion.OF_10);
 		OFMessageReader<OFMessage> reader = factory.getReader();
