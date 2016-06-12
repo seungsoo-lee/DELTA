@@ -7,12 +7,15 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 import org.projectfloodlight.openflow.exceptions.OFParseError;
+import org.projectfloodlight.openflow.protocol.OFAggregateStatsReply;
 import org.projectfloodlight.openflow.protocol.OFBarrierReply;
 import org.projectfloodlight.openflow.protocol.OFConfigFlags;
+import org.projectfloodlight.openflow.protocol.OFEchoReply;
 import org.projectfloodlight.openflow.protocol.OFFactories;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFFeaturesReply;
@@ -23,6 +26,8 @@ import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFMessageReader;
 import org.projectfloodlight.openflow.protocol.OFPacketIn;
 import org.projectfloodlight.openflow.protocol.OFPortStatus;
+import org.projectfloodlight.openflow.protocol.OFStatsReply;
+import org.projectfloodlight.openflow.protocol.OFStatsReplyFlags;
 import org.projectfloodlight.openflow.protocol.OFType;
 import org.projectfloodlight.openflow.protocol.OFVersion;
 import org.projectfloodlight.openflow.protocol.errormsg.OFErrorMsgs;
@@ -123,9 +128,13 @@ public class DummyOFSwitch extends Thread {
 				} else if (message.getType() == OFType.GET_CONFIG_REQUEST) {
 					sendGetConfigRes(xid);
 				} else if (message.getType() == OFType.BARRIER_REQUEST) {
-
+					sendBarrierRes(xid);
 				} else if (message.getType() == OFType.STATS_REQUEST) {
-
+					sendStatRes(xid);
+				} else if (message.getType() == OFType.EXPERIMENTER) {
+					sendExperimenter(xid);
+				} else if (message.getType() == OFType.ECHO_REQUEST) {
+					sendEchoRes(xid);
 				}
 			} catch (OFParseError e) {
 				// TODO Auto-generated catch block
@@ -181,20 +190,52 @@ public class DummyOFSwitch extends Thread {
 		return;
 	}
 
+	public void sendStatRes(long xid) {
+		byte[] msg = DummyData.hexStringToByteArray(DummyData.statsRes);
+		byte[] xidbytes = Longs.toByteArray(xid);
+		System.arraycopy(xidbytes, 4, msg, 4, 4);
+
+		sendRawMsg(msg);
+	}
+
+	public void sendFeatureRes(long xid) throws OFParseError {
+		byte[] msg = DummyData.hexStringToByteArray(DummyData.featureRes);
+		byte[] xidbytes = Longs.toByteArray(xid);
+		System.arraycopy(xidbytes, 4, msg, 4, 4);
+
+		sendRawMsg(msg);
+		return;
+	}
+
+	public void sendGetConfigRes(long xid) {
+		byte[] msg = DummyData.hexStringToByteArray(DummyData.getConfigRes);
+		byte[] xidbytes = Longs.toByteArray(xid);
+		System.arraycopy(xidbytes, 4, msg, 4, 4);
+
+		sendRawMsg(msg);
+	}
+
+	public void sendExperimenter(long xid) {
+		byte[] msg = DummyData.hexStringToByteArray(DummyData.experimenter);
+		byte[] xidbytes = Longs.toByteArray(xid);
+		System.arraycopy(xidbytes, 4, msg, 4, 4);
+
+		sendRawMsg(msg);
+	}
+
 	public void sendBarrierRes(long xid) {
-		OFBarrierReply.Builder builer = factory.buildBarrierReply();
+		OFBarrierReply.Builder builder = factory.buildBarrierReply();
+
+		builder.setXid(xid);
+		OFBarrierReply msg = builder.build();
+		sendMsg(msg, 8);
 	}
 	
-	public void sendGetConfigRes(long xid) {
-		OFGetConfigReply.Builder builer = factory.buildGetConfigReply();
-		builer.setXid(xid);		
-		
-		byte[] bytes = Longs.toByteArray(xid);
-		byte[] getconfigres = new byte[DummyData.getConfigRes.length];
-		System.arraycopy(DummyData.getConfigRes, 0, getconfigres, 0, DummyData.getConfigRes.length);
-		System.arraycopy(bytes, 4, getconfigres, 4, 4);		
-	
-		this.sendRawMsg(getconfigres);
+	public void sendEchoRes(long xid) {
+		OFEchoReply.Builder builder = factory.buildEchoReply();
+		builder.setXid(xid);
+		OFEchoReply msg = builder.build();
+		sendMsg(msg, 8);
 	}
 
 	public void sendError() throws OFParseError {
@@ -203,20 +244,6 @@ public class DummyOFSwitch extends Thread {
 		OFErrorMsgs msg = factory.errorMsgs();
 		OFFeaturesReply.Builder frb = factory.buildFeaturesReply();
 		OFFeaturesReply fr = frb.build();
-
-		return;
-	}
-
-	public void sendFeatureRes(long xid) throws OFParseError {
-		byte[] bytes = Longs.toByteArray(xid);
-		byte[] featureres = new byte[DummyData.featureRes.length];
-		System.arraycopy(DummyData.featureRes, 0, featureres, 0, DummyData.featureRes.length);
-		System.arraycopy(bytes, 4, featureres, 4, 4);
-
-		OFFeaturesReply.Builder frb = factory.buildFeaturesReply();
-		OFFeaturesReply fr = frb.build();
-
-		sendRawMsg(featureres);
 
 		return;
 	}
@@ -310,53 +337,6 @@ public class DummyOFSwitch extends Thread {
 
 		return buf;
 	}
-
-	// /*****************************************************************/
-	// public static ByteBuf testMITM(Packet p_temp) throws OFParseError {
-	// OFFactory factory = OFFactories.getFactory(OFVersion.OF_10);
-	// OFMessageReader<OFMessage> reader = factory.getReader();
-	//
-	// byte ofversion = 1;
-	// ByteBuf bb = getByteBuf(p_temp);
-	// int totalLen = bb.readableBytes();
-	// int offset = bb.readerIndex();
-	//
-	// OFFlowMod newfm = null;
-	// OFPacketOut newoutput = null;
-	//
-	// ByteBuf buf = null;
-	//
-	// while (offset < totalLen) {
-	// bb.readerIndex(offset);
-	//
-	// byte version = bb.readByte();
-	// bb.readByte();
-	// int length = U16.f(bb.readShort());
-	// bb.readerIndex(offset);
-	//
-	// if (version != ofversion) {
-	// // segmented TCP pkt
-	// System.out.println("OFVersion Missing " + version + " : " + offset + "-"
-	// + totalLen);
-	// return null;
-	// }
-	//
-	// if (length < MINIMUM_LENGTH)
-	// throw new OFParseError("Wrong length: Expected to be >= " +
-	// MINIMUM_LENGTH + ", was: " + length);
-	//
-	// OFMessage message = reader.readFrom(bb);
-	//
-	// if (message == null)
-	// return null;
-	//
-	// System.out.println(message.toString());
-	// offset += length;
-	// }
-	//
-	// bb.clear();
-	// return buf;
-	// }
 
 	@Override
 	public void run() {
