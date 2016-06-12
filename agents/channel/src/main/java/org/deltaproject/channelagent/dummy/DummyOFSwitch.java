@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import org.deltaproject.channelagent.fuzz.Fuzzing.PACKET_IN;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.OFAggregateStatsReply;
 import org.projectfloodlight.openflow.protocol.OFBarrierReply;
@@ -86,7 +87,7 @@ public class DummyOFSwitch extends Thread {
 			factory = OFFactories.getFactory(OFVersion.OF_10);
 		else
 			factory = OFFactories.getFactory(OFVersion.OF_13);
-		
+
 		reader = factory.getReader();
 	}
 
@@ -157,9 +158,9 @@ public class DummyOFSwitch extends Thread {
 	}
 
 	public void printError(OFMessage msg) {
-		System.out.println(msg.toString());		
+		System.out.println(msg.toString());
 	}
-	
+
 	public void sendMsg(OFMessage msg, int len) {
 		ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(len);
 		msg.writeTo(buf);
@@ -274,17 +275,22 @@ public class DummyOFSwitch extends Thread {
 		 * length - 2 bytes xid - 4 bytes buffer_id - 4 bytes total_len - 2
 		 * bytes in_port - 2 bytes reason - 1 byte pad - 1 byte
 		 */
-		
+
 		byte[] msg = DummyData.hexStringToByteArray(DummyData.packetin);
-		
-		byte[] data = new byte[42];
-		System.arraycopy(msg, 18, data, 0, 42);
-		random.nextBytes(data);
-		System.arraycopy(data, 0, msg, 18, 42);
-//		msg[16] = (byte) 0xff;
-//		msg[14] = (byte) 0xff;
-//		msg[15] = (byte) 0xff;
-		
+
+		PACKET_IN[] fields = PACKET_IN.values();
+		int idx = random.nextInt(fields.length);
+		PACKET_IN target = fields[idx];
+		System.out.println(target.name() + ":" + target.getLen());
+
+//		byte[] data = new byte[42];
+//		System.arraycopy(msg, 18, data, 0, 42);
+//		random.nextBytes(data);
+//		System.arraycopy(data, 0, msg, 18, 42);
+		// msg[16] = (byte) 0xff;
+		// msg[14] = (byte) 0xff;
+		// msg[15] = (byte) 0xff;
+
 		sendRawMsg(msg);
 
 		return;
