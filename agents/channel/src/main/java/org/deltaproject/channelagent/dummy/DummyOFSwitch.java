@@ -281,12 +281,23 @@ public class DummyOFSwitch extends Thread {
 		PACKET_IN[] fields = PACKET_IN.values();
 		int idx = random.nextInt(fields.length);
 		PACKET_IN target = fields[idx];
-		System.out.println(target.name() + ":" + target.getLen());
 
-//		byte[] data = new byte[42];
-//		System.arraycopy(msg, 18, data, 0, 42);
-//		random.nextBytes(data);
-//		System.arraycopy(data, 0, msg, 18, 42);
+		byte[] crafted = new byte[target.getLen()];
+		byte[] original = new byte[target.getLen()];
+
+		System.arraycopy(msg, target.getStartOff(), crafted, 0, crafted.length);
+		System.arraycopy(crafted, 0, original, 0, crafted.length);
+
+		random.nextBytes(crafted);
+		System.arraycopy(crafted, 0, msg, target.getStartOff(), crafted.length);
+
+		System.out.println("FUZZ PACKET_IN " + target.name() + ": " + DummyData.bytesToHex(original) + " -> "
+				+ DummyData.bytesToHex(crafted));
+
+		// byte[] data = new byte[42];
+		// System.arraycopy(msg, 18, data, 0, 42);
+		// random.nextBytes(data);
+		// System.arraycopy(data, 0, msg, 18, 42);
 		// msg[16] = (byte) 0xff;
 		// msg[14] = (byte) 0xff;
 		// msg[15] = (byte) 0xff;

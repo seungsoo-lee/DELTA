@@ -2,7 +2,7 @@ package org.deltaproject.channelagent.fuzz;
 
 public class Fuzzing {
 	public enum PACKET_IN {
-		buffer_id(4), total_len(2), in_port(2), reason(1), pad(1), data(-1);
+		buffer_id(4), total_len(2), in_port(2), reason(1), pad(1);
 
 		private int byteLen;
 		private int startOffset;
