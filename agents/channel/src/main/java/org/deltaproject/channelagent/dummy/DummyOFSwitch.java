@@ -291,19 +291,10 @@ public class DummyOFSwitch extends Thread {
 		random.nextBytes(crafted);
 		System.arraycopy(crafted, 0, msg, target.getStartOff(), crafted.length);
 
-		System.out.println("FUZZ PACKET_IN " + target.name() + ": " + DummyData.bytesToHex(original) + " -> "
+		System.out.println("FUZZ|PACKET_IN|" + target.name() + ": " + DummyData.bytesToHex(original) + " -> "
 				+ DummyData.bytesToHex(crafted));
 
-		// byte[] data = new byte[42];
-		// System.arraycopy(msg, 18, data, 0, 42);
-		// random.nextBytes(data);
-		// System.arraycopy(data, 0, msg, 18, 42);
-		// msg[16] = (byte) 0xff;
-		// msg[14] = (byte) 0xff;
-		// msg[15] = (byte) 0xff;
-
 		sendRawMsg(msg);
-
 		return;
 	}
 
