@@ -276,9 +276,14 @@ public class DummyOFSwitch extends Thread {
 		 */
 		
 		byte[] msg = DummyData.hexStringToByteArray(DummyData.packetin);
+		
+		byte[] data = new byte[42];
+		System.arraycopy(msg, 18, data, 0, 42);
+		random.nextBytes(data);
+		System.arraycopy(data, 0, msg, 18, 42);
 //		msg[16] = (byte) 0xff;
-		msg[14] = (byte) 0xff;
-		msg[15] = (byte) 0xff;
+//		msg[14] = (byte) 0xff;
+//		msg[15] = (byte) 0xff;
 		
 		sendRawMsg(msg);
 
