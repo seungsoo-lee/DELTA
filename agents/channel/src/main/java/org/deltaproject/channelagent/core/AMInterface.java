@@ -226,9 +226,7 @@ public class AMInterface extends Thread {
 
 					dos.writeUTF("success");
 				} else if (recv.startsWith("seed")) {
-					dummysw.connectTargetController(controllerIP, ofPort);
-					dummysw.setOFFactory(this.OFVersion);
-					dummysw.start();
+					
 				} else if (recv.startsWith("fuzzing")) {
 					dummysw.connectTargetController(controllerIP, ofPort);
 					dummysw.setOFFactory(this.OFVersion);
