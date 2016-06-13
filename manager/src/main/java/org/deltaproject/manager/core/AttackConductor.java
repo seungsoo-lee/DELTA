@@ -15,7 +15,8 @@ import java.util.Iterator;
 import java.util.TreeMap;
 
 public class AttackConductor {
-	private static final Logger log = LoggerFactory.getLogger(AttackConductor.class);
+	private static final Logger log = LoggerFactory
+			.getLogger(AttackConductor.class);
 
 	public static final int UMODE_DEFAULT_COUNT = 100;
 
@@ -56,7 +57,8 @@ public class AttackConductor {
 		TestInfo.updateControllerCase(infoControllerCase);
 		TestInfo.updateSwitchCase(infoSwitchCase);
 
-		testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
+		testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm,
+				controllerm);
 		testSwitchCase = new TestSwitchCase();
 	}
 
@@ -77,9 +79,10 @@ public class AttackConductor {
 		} else if (agentType.contains("ChannelAgent")) {
 			channelm.setSocket(socket, dos, dis);
 			/* OFVersion + NIC + OFPort + Controller IP + Switch IP */
-			channelm.write("config," + "version:" + cfg.getOFVer() + ",nic:" + cfg.getMitmNIC() + ",port:"
-					+ cfg.getOFPort() + ",controller_ip:" + cfg.getControllerIP() + ",switch_ip:" + cfg.getSwitchIP()
-					+ ",handler:dummy");
+			channelm.write("config," + "version:" + cfg.getOFVer() + ",nic:"
+					+ cfg.getMitmNIC() + ",port:" + cfg.getOFPort()
+					+ ",controller_ip:" + cfg.getControllerIP() + ",switch_ip:"
+					+ cfg.getSwitchIP() + ",handler:dummy");
 
 		} else if (agentType.contains("HostAgent")) {
 			hostm.setSocket(socket, dos, dis);
@@ -117,7 +120,8 @@ public class AttackConductor {
 
 		System.out.println("\nAdvanced Test Set");
 
-		TreeMap<String, String> treeMap = new TreeMap<String, String>(infoAdvancedCase);
+		TreeMap<String, String> treeMap = new TreeMap<String, String>(
+				infoAdvancedCase);
 		treeMapIter = treeMap.keySet().iterator();
 		while (treeMapIter.hasNext()) {
 
