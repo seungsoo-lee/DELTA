@@ -98,6 +98,7 @@ public class AMInterface extends Thread {
 		for (String s : list) {
 			if (s.startsWith("version")) {
 				String OFVersion = s.substring(s.indexOf(":") + 1);
+				System.out.println(OFVersion);
 				if (OFVersion.equals("1.0"))
 					this.OFVersion = 1;
 				else if (OFVersion.equals("1.3"))
@@ -225,8 +226,6 @@ public class AMInterface extends Thread {
 					Thread.sleep(15000);
 
 					dos.writeUTF("success");
-				} else if (recv.startsWith("seed")) {
-					
 				} else if (recv.startsWith("fuzzing")) {
 					dummysw.connectTargetController(controllerIP, ofPort);
 					dummysw.setOFFactory(this.OFVersion);
