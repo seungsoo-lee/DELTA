@@ -227,18 +227,17 @@ public class AMInterface extends Thread {
 
 					dos.writeUTF("success");
 				} else if (recv.startsWith("fuzzing")) {
-					System.out.println("GET SEED");
+					/*System.out.println("GET SEED");
 					pktListener.setTypeOfAttacks(PktListener.SEED);
 					pktListener.startListening();
 					
 					Thread.sleep(10000);
 					System.out.println("DummySW START");
-					pktListener.setTypeOfAttacks(PktListener.EMPTY);					
+					pktListener.setTypeOfAttacks(PktListener.EMPTY);*/					
 					
 					dummysw.connectTargetController(controllerIP, ofPort);
 					dummysw.setOFFactory(this.OFVersion);
-					dummysw.setSeed(pktListener.getSeedPackets());
-					
+					// dummysw.setSeed(pktListener.getSeedPackets());					
 					dummysw.start();
 				} else if (recv.equalsIgnoreCase("exit")) {
 					pktListener.setTypeOfAttacks(PktListener.EMPTY);

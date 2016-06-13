@@ -1,5 +1,6 @@
 package org.deltaproject.channelagent.dummy;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,10 +8,9 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
-import org.deltaproject.channelagent.fuzz.Fuzzer.PACKET_IN;
+import org.deltaproject.channelagent.fuzz.OFFuzzer;
 import org.deltaproject.channelagent.fuzz.SeedPackets;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.OFBarrierReply;
@@ -41,8 +41,6 @@ public class DummyOFSwitch extends Thread {
 	private InputStream in;
 	private OutputStream out;
 
-	private Random random;
-
 	/* for target controller */
 	private String IP = "";
 	private int PORT = 0;
@@ -51,17 +49,17 @@ public class DummyOFSwitch extends Thread {
 	private OFFactory factory;
 
 	private OFMessageReader<OFMessage> reader;
-	
+
 	private SeedPackets seedpkts;
 
 	public DummyOFSwitch() {
-		random = new Random();
+
 	}
 
 	public void setSeed(SeedPackets seed) {
 		seedpkts = seed;
 	}
-	
+
 	public void connectTargetController(String cip, String ofPort) {
 		this.IP = cip;
 		this.PORT = Integer.parseInt(ofPort);
@@ -90,19 +88,19 @@ public class DummyOFSwitch extends Thread {
 		reader = factory.getReader();
 	}
 
-//	public byte[] readBytes() throws IOException {
-//		// Again, probably better to store these objects references in the
-//		// support class
-//		InputStream in = socket.getInputStream();
-//		DataInputStream dis = new DataInputStream(in);
-//
-//		int len = dis.readInt();
-//		byte[] data = new byte[len];
-//		if (len > 0) {
-//			dis.readFully(data);
-//		}
-//		return data;
-//	}
+	public byte[] readBytes() throws IOException {
+		// Again, probably better to store these objects references in the
+		// support class
+		InputStream in = socket.getInputStream();
+		DataInputStream dis = new DataInputStream(in);
+
+		int len = dis.readInt();
+		byte[] data = new byte[len];
+		if (len > 0) {
+			dis.readFully(data);
+		}
+		return data;
+	}
 
 	public boolean parseOFMsg(byte[] recv, int len) throws OFParseError {
 		// for OpenFlow Message
@@ -140,7 +138,9 @@ public class DummyOFSwitch extends Thread {
 					sendExperimenter(xid);
 				} else if (message.getType() == OFType.ECHO_REQUEST) {
 					sendEchoReply(xid);
-					fuzzPacketIn();
+					
+					/* fuuzzing */
+					sendRawMsg(OFFuzzer.fuzzPacketIn());
 				} else if (message.getType() == OFType.ERROR) {
 					printError(message);
 				}
@@ -201,14 +201,14 @@ public class DummyOFSwitch extends Thread {
 
 		return;
 	}
-	
+
 	public void sendSeedHello() throws OFParseError {
 		Map<OFMessage, Integer> map = seedpkts.getSeedList(OFType.HELLO).getMsgMap();
 		Set<OFMessage> keys = map.keySet();
-		
+
 		ArrayList<OFMessage> list = new ArrayList<OFMessage>();
 		list.addAll(keys);
-		
+
 		sendMsg(list.get(0), map.get(list.get(0)));
 		return;
 	}
@@ -280,34 +280,6 @@ public class DummyOFSwitch extends Thread {
 		return true;
 	}
 
-	public void fuzzPacketIn() throws OFParseError {
-		/*
-		 * length - 2 bytes xid - 4 bytes buffer_id - 4 bytes total_len - 2
-		 * bytes in_port - 2 bytes reason - 1 byte pad - 1 byte
-		 */
-
-		byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.packetin);
-
-		PACKET_IN[] fields = PACKET_IN.values();
-		int idx = random.nextInt(fields.length);
-		PACKET_IN target = fields[idx];
-
-		byte[] crafted = new byte[target.getLen()];
-		byte[] original = new byte[target.getLen()];
-
-		System.arraycopy(msg, target.getStartOff(), crafted, 0, crafted.length);
-		System.arraycopy(crafted, 0, original, 0, crafted.length);
-
-		random.nextBytes(crafted);
-		System.arraycopy(crafted, 0, msg, target.getStartOff(), crafted.length);
-
-		System.out.println("FUZZ|PACKET_IN|" + target.name() + ":" + DummyOFData.bytesToHex(original) + " -> "
-				+ DummyOFData.bytesToHex(crafted));
-
-		sendRawMsg(msg);
-		return;
-	}
-
 	public ByteBuf sendFlowRemoved() throws OFParseError {
 		OFFactory factory = OFFactories.getFactory(OFVersion.OF_10);
 		long r_xid = 0xeeeeeeeel;
@@ -375,7 +347,7 @@ public class DummyOFSwitch extends Thread {
 				if ((readlen = in.read(recv, 0, recv.length)) != -1) {
 					if (!synack) {
 						synack = true;
-						sendSeedHello();
+						sendHello();
 					} else {
 						/* after hello */
 						parseOFMsg(recv, readlen);
