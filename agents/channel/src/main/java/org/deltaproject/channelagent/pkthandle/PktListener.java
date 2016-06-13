@@ -1,4 +1,4 @@
-package org.deltaproject.channelagent.pkthandler;
+package org.deltaproject.channelagent.pkthandle;
 
 import io.netty.buffer.ByteBuf;
 import jpcap.NetworkInterface;
@@ -9,6 +9,7 @@ import jpcap.packet.Packet;
 import jpcap.packet.TCPPacket;
 import org.deltaproject.channelagent.core.Utils;
 import org.deltaproject.channelagent.dummy.DummyOFSwitch;
+import org.deltaproject.channelagent.fuzz.SeedPackets;
 import org.deltaproject.channelagent.networknode.NetworkInfo;
 import org.deltaproject.channelagent.testcase.TestAdvancedSet;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
@@ -27,7 +28,7 @@ import java.util.Map;
 //import jpcap.packet.TCPPacket;
 //import jpcap.packet.UDPPacket;
 
-public class PktHandler {
+public class PktListener {
 	public static final int MINIMUM_LENGTH = 8;
 
 	public static final int EMPTY = 0;
@@ -35,10 +36,7 @@ public class PktHandler {
 	public static final int EVAESDROP = 2;
 	public static final int CONTROLMESSAGEMANIPULATION = 3;
 	public static final int MALFORMEDCONTROLMESSAGE = 4;
-	public static final int SYMFUZZ = 5;
-	public static final int ASYFUZZ = 6;
-
-	public static final int TEST = -1;
+	public static final int SEED = 5;
 
 	private static HashMap<String, String> ip_mac_list;
 	private static NetworkInterface device;
@@ -66,8 +64,9 @@ public class PktHandler {
 	private byte ofversion;
 
 	protected TestAdvancedSet testAdvanced;
+	private SeedPackets seedPkts;
 
-	public PktHandler(NetworkInterface mydevice, String controllerip, String switchip, byte OFversion, String port,
+	public PktListener(NetworkInterface mydevice, String controllerip, String switchip, byte OFversion, String port,
 			String handler) {
 		// set variable
 		ofversion = OFversion;
@@ -79,7 +78,7 @@ public class PktHandler {
 		switchIP = switchip;
 		localIp = Utils.__get_inet4(device).address.toString().split("/")[1];
 		ips_to_explore = new ArrayList<String>();
-		this.setIpsToExplore(controllerip, switchip);
+		setIpsToExplore(controllerip, switchip);
 
 		nodes = new NetworkInfo();
 
@@ -90,19 +89,19 @@ public class PktHandler {
 		else if (OFversion == 0x04)
 			factory = OFFactories.getFactory(OFVersion.OF_13);
 		if (factory != null)
-			testAdvanced = new TestAdvancedSet(factory, factory.getReader(), this.ofversion);
+			testAdvanced = new TestAdvancedSet(factory, this.ofversion);
 
 		// set Handler
-		if (handler.equals("middle"))
-			this.handler = new middle_handler();
+		this.handler = new middle_handler();
 
-		typeOfAttacks = this.EMPTY;
+		typeOfAttacks = EMPTY;
+		seedPkts = new SeedPackets(factory);
 	}
 
 	public void testfunc() {
 
 	}
-	
+
 	public void startListening() {
 		try {
 			this.traffic_listener = new Listener(device, this.handler);
@@ -110,16 +109,16 @@ public class PktHandler {
 			this.traffic_listener.start();
 
 			this.traffic_sender = new Sender(device);
-			// this.captor = JpcapCaptor.openDevice(device, 65535, false, 20);
-			//
-			// // open a file to save captured packets
-			// writer = JpcapWriter.openDumpFile(captor, this.output);
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
+	public SeedPackets getSeedPackets() {
+		return this.seedPkts;
+	}
+	
 	public String printNetwrokNodes(String result) {
 		return nodes.toPrintNodes(result, 0);
 	}
@@ -292,6 +291,18 @@ public class PktHandler {
 					(p.data)[3] = 0x01;
 					// }
 				}
+			} else if (typeOfAttacks == SEED) {
+				/* Modify a Packet Here */
+				if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
+					// System.out.print(switchIP + " -> " + controllerIP + " ");
+					try {
+						seedPkts.getSeedPkts(p.data, p.data.length);
+					} catch (OFParseError e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				return;
 			}
 
 			/* send Pkt */

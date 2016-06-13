@@ -21,14 +21,16 @@ import java.util.List;
 
 public class TestAdvancedSet {
 	static final int MINIMUM_LENGTH = 8;
-
+	
+	public static final int TEST = -1;
+	
 	private OFFactory factory;
 	private OFMessageReader<OFMessage> reader;
 	private byte ofversion;
 
-	public TestAdvancedSet(OFFactory f, OFMessageReader<OFMessage> r, byte of) {
+	public TestAdvancedSet(OFFactory f, byte of) {
 		this.factory = f;
-		this.reader = r;
+		this.reader = factory.getReader();
 		this.ofversion = of;
 	}
 

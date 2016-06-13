@@ -1,4 +1,4 @@
-package org.deltaproject.channelagent.pkthandler;
+package org.deltaproject.channelagent.pkthandle;
 
 import java.net.InetAddress;
 import java.util.ArrayList;

@@ -3,11 +3,12 @@ package org.deltaproject.channelagent.core;
 import jpcap.NetworkInterface;
 
 import org.deltaproject.channelagent.dummy.DummyOFSwitch;
-import org.deltaproject.channelagent.pkthandler.NIC;
-import org.deltaproject.channelagent.pkthandler.PktHandler;
+import org.deltaproject.channelagent.pkthandle.NIC;
+import org.deltaproject.channelagent.pkthandle.PktListener;
 import org.deltaproject.channelagent.testcase.LinkFabricator;
 import org.deltaproject.channelagent.testcase.SwitchIdentificationSpoofer;
 import org.deltaproject.channelagent.testcase.SwitchTableFlooder;
+import org.deltaproject.channelagent.testcase.TestAdvancedSet;
 
 import java.io.*;
 import java.net.Socket;
@@ -31,7 +32,7 @@ public class AMInterface extends Thread {
 	private SwitchIdentificationSpoofer idSpoofing;
 	private LinkFabricator linkDeception;
 
-	private PktHandler pktHandler;
+	private PktListener pktListener;
 
 	private NetworkInterface device;
 	private byte OFVersion;
@@ -98,7 +99,6 @@ public class AMInterface extends Thread {
 		for (String s : list) {
 			if (s.startsWith("version")) {
 				String OFVersion = s.substring(s.indexOf(":") + 1);
-				System.out.println(OFVersion);
 				if (OFVersion.equals("1.0"))
 					this.OFVersion = 1;
 				else if (OFVersion.equals("1.3"))
@@ -117,7 +117,7 @@ public class AMInterface extends Thread {
 			}
 		}
 
-		pktHandler = new PktHandler(device, controllerIP, switch_ip, this.OFVersion, this.ofPort, this.handler);
+		pktListener = new PktListener(device, controllerIP, switch_ip, this.OFVersion, this.ofPort, this.handler);
 	}
 
 	public void connectAgentManager() {
@@ -160,20 +160,20 @@ public class AMInterface extends Thread {
 					// MITM
 				} else if (recv.equalsIgnoreCase("3.1.180")) {
 					System.out.println("[Channel-Agent] 3.1.180 - MITM start");
-					pktHandler.setTypeOfAttacks(PktHandler.MITM);
-					pktHandler.startARPSpoofing();					
+					pktListener.setTypeOfAttacks(PktListener.MITM);
+					pktListener.startARPSpoofing();					
 
 					Thread.sleep(10000);
 
 					dos.writeUTF("success");
-					pktHandler.stopARPSpoofing();
+					pktListener.stopARPSpoofing();
 				} else if (recv.equalsIgnoreCase("3.1.170")) { // Evaesdrop
-					pktHandler.setTypeOfAttacks(PktHandler.EVAESDROP);
+					pktListener.setTypeOfAttacks(PktListener.EVAESDROP);
 					dos.writeUTF("success");
 				} else if (recv.equalsIgnoreCase("3.1.170-V")) {
 					String result = "";
 
-					pktHandler.printNetwrokNodes(result);
+					pktListener.printNetwrokNodes(result);
 
 					if (result != null && !result.isEmpty() && result.length() > 0)
 						result = "Success\n:: Result of Topology Building! ::\n" + result;
@@ -185,7 +185,7 @@ public class AMInterface extends Thread {
 					dos.writeUTF(result);
 				} else if (recv.equalsIgnoreCase("C-3-A")) { // control Message
 																// Manipulation
-					pktHandler.setTypeOfAttacks(PktHandler.CONTROLMESSAGEMANIPULATION);
+					pktListener.setTypeOfAttacks(PktListener.CONTROLMESSAGEMANIPULATION);
 
 					Thread.sleep(15000);
 
@@ -193,7 +193,7 @@ public class AMInterface extends Thread {
 				} else if (recv.equalsIgnoreCase("A-4-A-3")) { // Malformed
 																// control
 																// message
-					pktHandler.setTypeOfAttacks(PktHandler.MALFORMEDCONTROLMESSAGE);
+					pktListener.setTypeOfAttacks(PktListener.MALFORMEDCONTROLMESSAGE);
 
 					Thread.sleep(5000);
 
@@ -227,11 +227,21 @@ public class AMInterface extends Thread {
 
 					dos.writeUTF("success");
 				} else if (recv.startsWith("fuzzing")) {
+					System.out.println("GET SEED");
+					pktListener.setTypeOfAttacks(PktListener.SEED);
+					pktListener.startListening();
+					
+					Thread.sleep(10000);
+					System.out.println("DummySW START");
+					pktListener.setTypeOfAttacks(PktListener.EMPTY);					
+					
 					dummysw.connectTargetController(controllerIP, ofPort);
 					dummysw.setOFFactory(this.OFVersion);
+					dummysw.setSeed(pktListener.getSeedPackets());
+					
 					dummysw.start();
 				} else if (recv.equalsIgnoreCase("exit")) {
-					pktHandler.setTypeOfAttacks(PktHandler.EMPTY);
+					pktListener.setTypeOfAttacks(PktListener.EMPTY);
 					/*
 					 * handler.stopSwitchTableFlooder();
 					 * handler.stopSwitchIdentificationSpoofer();

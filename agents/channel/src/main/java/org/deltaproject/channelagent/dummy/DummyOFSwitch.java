@@ -1,38 +1,31 @@
 package org.deltaproject.channelagent.dummy;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import org.deltaproject.channelagent.fuzz.Fuzzing.PACKET_IN;
+import org.deltaproject.channelagent.fuzz.Fuzzer.PACKET_IN;
+import org.deltaproject.channelagent.fuzz.SeedPackets;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
-import org.projectfloodlight.openflow.protocol.OFAggregateStatsReply;
 import org.projectfloodlight.openflow.protocol.OFBarrierReply;
-import org.projectfloodlight.openflow.protocol.OFConfigFlags;
 import org.projectfloodlight.openflow.protocol.OFEchoReply;
 import org.projectfloodlight.openflow.protocol.OFFactories;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFFeaturesReply;
 import org.projectfloodlight.openflow.protocol.OFFlowRemoved;
-import org.projectfloodlight.openflow.protocol.OFGetConfigReply;
 import org.projectfloodlight.openflow.protocol.OFHello;
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFMessageReader;
-import org.projectfloodlight.openflow.protocol.OFPacketIn;
 import org.projectfloodlight.openflow.protocol.OFPortStatus;
-import org.projectfloodlight.openflow.protocol.OFStatsReply;
-import org.projectfloodlight.openflow.protocol.OFStatsReplyFlags;
 import org.projectfloodlight.openflow.protocol.OFType;
 import org.projectfloodlight.openflow.protocol.OFVersion;
 import org.projectfloodlight.openflow.protocol.errormsg.OFErrorMsgs;
-import org.projectfloodlight.openflow.protocol.ver10.OFPacketInReasonSerializerVer10;
 import org.projectfloodlight.openflow.types.U16;
 
 import com.google.common.primitives.Longs;
@@ -55,14 +48,20 @@ public class DummyOFSwitch extends Thread {
 	private int PORT = 0;
 
 	/* for OF message */
-	OFFactory factory;
+	private OFFactory factory;
 
-	OFMessageReader<OFMessage> reader;
+	private OFMessageReader<OFMessage> reader;
+	
+	private SeedPackets seedpkts;
 
 	public DummyOFSwitch() {
 		random = new Random();
 	}
 
+	public void setSeed(SeedPackets seed) {
+		seedpkts = seed;
+	}
+	
 	public void connectTargetController(String cip, String ofPort) {
 		this.IP = cip;
 		this.PORT = Integer.parseInt(ofPort);
@@ -83,7 +82,7 @@ public class DummyOFSwitch extends Thread {
 	}
 
 	public void setOFFactory(byte ofVersion) {
-		if (ofVersion == 0)
+		if (ofVersion == 1)
 			factory = OFFactories.getFactory(OFVersion.OF_10);
 		else
 			factory = OFFactories.getFactory(OFVersion.OF_13);
@@ -91,19 +90,19 @@ public class DummyOFSwitch extends Thread {
 		reader = factory.getReader();
 	}
 
-	public byte[] readBytes() throws IOException {
-		// Again, probably better to store these objects references in the
-		// support class
-		InputStream in = socket.getInputStream();
-		DataInputStream dis = new DataInputStream(in);
-
-		int len = dis.readInt();
-		byte[] data = new byte[len];
-		if (len > 0) {
-			dis.readFully(data);
-		}
-		return data;
-	}
+//	public byte[] readBytes() throws IOException {
+//		// Again, probably better to store these objects references in the
+//		// support class
+//		InputStream in = socket.getInputStream();
+//		DataInputStream dis = new DataInputStream(in);
+//
+//		int len = dis.readInt();
+//		byte[] data = new byte[len];
+//		if (len > 0) {
+//			dis.readFully(data);
+//		}
+//		return data;
+//	}
 
 	public boolean parseOFMsg(byte[] recv, int len) throws OFParseError {
 		// for OpenFlow Message
@@ -202,9 +201,20 @@ public class DummyOFSwitch extends Thread {
 
 		return;
 	}
+	
+	public void sendSeedHello() throws OFParseError {
+		Map<OFMessage, Integer> map = seedpkts.getSeedList(OFType.HELLO).getMsgMap();
+		Set<OFMessage> keys = map.keySet();
+		
+		ArrayList<OFMessage> list = new ArrayList<OFMessage>();
+		list.addAll(keys);
+		
+		sendMsg(list.get(0), map.get(list.get(0)));
+		return;
+	}
 
 	public void sendStatReply(long xid) {
-		byte[] msg = DummyData.hexStringToByteArray(DummyData.statsReply);
+		byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.statsReply);
 		byte[] xidbytes = Longs.toByteArray(xid);
 		System.arraycopy(xidbytes, 4, msg, 4, 4);
 
@@ -212,7 +222,7 @@ public class DummyOFSwitch extends Thread {
 	}
 
 	public void sendFeatureReply(long xid) throws OFParseError {
-		byte[] msg = DummyData.hexStringToByteArray(DummyData.featureReply);
+		byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.featureReply);
 		byte[] xidbytes = Longs.toByteArray(xid);
 		System.arraycopy(xidbytes, 4, msg, 4, 4);
 
@@ -221,7 +231,7 @@ public class DummyOFSwitch extends Thread {
 	}
 
 	public void sendGetConfigReply(long xid) {
-		byte[] msg = DummyData.hexStringToByteArray(DummyData.getConfigReply);
+		byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.getConfigReply);
 		byte[] xidbytes = Longs.toByteArray(xid);
 		System.arraycopy(xidbytes, 4, msg, 4, 4);
 
@@ -229,7 +239,7 @@ public class DummyOFSwitch extends Thread {
 	}
 
 	public void sendExperimenter(long xid) {
-		byte[] msg = DummyData.hexStringToByteArray(DummyData.experimenter);
+		byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.experimenter);
 		byte[] xidbytes = Longs.toByteArray(xid);
 		System.arraycopy(xidbytes, 4, msg, 4, 4);
 
@@ -262,7 +272,7 @@ public class DummyOFSwitch extends Thread {
 	}
 
 	public boolean sendPacketIn() throws OFParseError {
-		byte[] msg = DummyData.hexStringToByteArray(DummyData.packetin);
+		byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.packetin);
 		byte[] xidbytes = Longs.toByteArray(0xeeeeeeeel);
 		System.arraycopy(xidbytes, 4, msg, 4, 4);
 
@@ -276,7 +286,7 @@ public class DummyOFSwitch extends Thread {
 		 * bytes in_port - 2 bytes reason - 1 byte pad - 1 byte
 		 */
 
-		byte[] msg = DummyData.hexStringToByteArray(DummyData.packetin);
+		byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.packetin);
 
 		PACKET_IN[] fields = PACKET_IN.values();
 		int idx = random.nextInt(fields.length);
@@ -291,8 +301,8 @@ public class DummyOFSwitch extends Thread {
 		random.nextBytes(crafted);
 		System.arraycopy(crafted, 0, msg, target.getStartOff(), crafted.length);
 
-		System.out.println("FUZZ|PACKET_IN|" + target.name() + ": " + DummyData.bytesToHex(original) + " -> "
-				+ DummyData.bytesToHex(crafted));
+		System.out.println("FUZZ|PACKET_IN|" + target.name() + ":" + DummyOFData.bytesToHex(original) + " -> "
+				+ DummyOFData.bytesToHex(crafted));
 
 		sendRawMsg(msg);
 		return;
@@ -365,7 +375,7 @@ public class DummyOFSwitch extends Thread {
 				if ((readlen = in.read(recv, 0, recv.length)) != -1) {
 					if (!synack) {
 						synack = true;
-						sendHello();
+						sendSeedHello();
 					} else {
 						/* after hello */
 						parseOFMsg(recv, readlen);

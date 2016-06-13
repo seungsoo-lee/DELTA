@@ -1,6 +1,6 @@
 package org.deltaproject.channelagent.fuzz;
 
-public class Fuzzing {
+public class Fuzzer {	
 	public enum PACKET_IN {
 		buffer_id(4), total_len(2), in_port(2), reason(1), pad(1);
 

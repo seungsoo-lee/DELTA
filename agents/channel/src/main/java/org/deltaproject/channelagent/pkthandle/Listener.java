@@ -1,4 +1,4 @@
-package org.deltaproject.channelagent.pkthandler;
+package org.deltaproject.channelagent.pkthandle;
 
 import jpcap.JpcapCaptor;
 import jpcap.NetworkInterface;
@@ -10,7 +10,7 @@ import java.io.IOException;
 public class Listener extends Thread {
 	class default_handler implements PacketReceiver {
 		public void receivePacket(Packet p) {
-			System.out.println("PACKET\t-\t" + p.toString());
+			System.out.println("I'm Default Listener PACKET\t-\t" + p.toString());
 		}
 	}
 
