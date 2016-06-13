@@ -1,6 +1,8 @@
 package org.deltaproject.channelagent.core;
 
 import jpcap.NetworkInterface;
+
+import org.deltaproject.channelagent.dummy.DummyOFSwitch;
 import org.deltaproject.channelagent.pkthandler.NIC;
 import org.deltaproject.channelagent.pkthandler.PktHandler;
 import org.deltaproject.channelagent.testcase.LinkFabricator;
@@ -31,14 +33,19 @@ public class AMInterface extends Thread {
 
 	private PktHandler pktHandler;
 
-	private String targets;
 	private NetworkInterface device;
 	private byte OFVersion;
-	private String ofPort;
+	private String ofPort;	
+	private String handler;
+	private String controllerIP;
+	
+	private DummyOFSwitch dummysw;
 
 	public AMInterface(String ip, String port) {
 		amIP = ip;
 		amPort = Integer.parseInt(port);
+		
+		dummysw = new DummyOFSwitch();
 	}
 
 	public AMInterface(String config) {
@@ -86,12 +93,12 @@ public class AMInterface extends Thread {
 
 	public void setConfiguration(String str) {
 		String[] list = new String(str).split(",");
-		String controller_ip = "";
 		String switch_ip = "";
 
 		for (String s : list) {
 			if (s.startsWith("version")) {
 				String OFVersion = s.substring(s.indexOf(":") + 1);
+				System.out.println(OFVersion);
 				if (OFVersion.equals("1.0"))
 					this.OFVersion = 1;
 				else if (OFVersion.equals("1.3"))
@@ -100,15 +107,17 @@ public class AMInterface extends Thread {
 				String nic = s.substring(s.indexOf(":") + 1);
 				this.device = NIC.getInterfaceByName(nic);
 			} else if (s.startsWith("controller_ip")) {
-				controller_ip = s.substring(s.indexOf(":") + 1);
+				controllerIP = s.substring(s.indexOf(":") + 1);
 			} else if (s.startsWith("switch_ip")) {
 				switch_ip = s.substring(s.indexOf(":") + 1);
 			} else if (s.startsWith("port")) {
 				this.ofPort = s.substring(s.indexOf(":") + 1);
+			} else if (s.startsWith("handler")) {
+				this.handler = s.substring(s.indexOf(":") + 1);
 			}
 		}
 
-		pktHandler = new PktHandler(device, controller_ip, switch_ip, this.OFVersion, this.ofPort);
+		pktHandler = new PktHandler(device, controllerIP, switch_ip, this.OFVersion, this.ofPort, this.handler);
 	}
 
 	public void connectAgentManager() {
@@ -218,7 +227,9 @@ public class AMInterface extends Thread {
 
 					dos.writeUTF("success");
 				} else if (recv.startsWith("fuzzing")) {
-					// handler.setFuzzing(recv.substring(7));
+					dummysw.connectTargetController(controllerIP, ofPort);
+					dummysw.setOFFactory(this.OFVersion);
+					dummysw.start();
 				} else if (recv.equalsIgnoreCase("exit")) {
 					pktHandler.setTypeOfAttacks(PktHandler.EMPTY);
 					/*

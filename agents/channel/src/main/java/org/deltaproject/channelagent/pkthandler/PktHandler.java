@@ -8,6 +8,7 @@ import jpcap.packet.IPPacket;
 import jpcap.packet.Packet;
 import jpcap.packet.TCPPacket;
 import org.deltaproject.channelagent.core.Utils;
+import org.deltaproject.channelagent.dummy.DummyOFSwitch;
 import org.deltaproject.channelagent.networknode.NetworkInfo;
 import org.deltaproject.channelagent.testcase.TestAdvancedSet;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
@@ -53,7 +54,8 @@ public class PktHandler {
 	private Listener traffic_listener;
 	private Sender traffic_sender;
 
-	private PacketReceiver middle_handler;
+	private PacketReceiver handler;
+
 	private String output;
 	private NetworkInfo nodes;
 	private ARPSpoof spoof;
@@ -65,7 +67,8 @@ public class PktHandler {
 
 	protected TestAdvancedSet testAdvanced;
 
-	public PktHandler(NetworkInterface mydevice, String controllerip, String switchip, byte OFversion, String port) {
+	public PktHandler(NetworkInterface mydevice, String controllerip, String switchip, byte OFversion, String port,
+			String handler) {
 		// set variable
 		ofversion = OFversion;
 		device = mydevice;
@@ -78,7 +81,6 @@ public class PktHandler {
 		ips_to_explore = new ArrayList<String>();
 		this.setIpsToExplore(controllerip, switchip);
 
-		middle_handler = new middle_handler();
 		nodes = new NetworkInfo();
 
 		// set OF version
@@ -90,8 +92,20 @@ public class PktHandler {
 		if (factory != null)
 			testAdvanced = new TestAdvancedSet(factory, factory.getReader(), this.ofversion);
 
+		// set Handler
+		if (handler.equals("middle"))
+			this.handler = new middle_handler();
+
+		typeOfAttacks = this.EMPTY;
+	}
+
+	public void testfunc() {
+
+	}
+	
+	public void startListening() {
 		try {
-			this.traffic_listener = new Listener(device, this.middle_handler);
+			this.traffic_listener = new Listener(device, this.handler);
 			this.traffic_listener.setFilter("port " + this.ofPort, true);
 			this.traffic_listener.start();
 
@@ -104,13 +118,6 @@ public class PktHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		typeOfAttacks = this.EMPTY;
-
-	}
-
-	public void testfunc() {
-
 	}
 
 	public String printNetwrokNodes(String result) {
