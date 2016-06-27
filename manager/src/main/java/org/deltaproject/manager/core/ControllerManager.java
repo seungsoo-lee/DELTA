@@ -41,7 +41,7 @@ public class ControllerManager {
 
 		TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getODLVer())
 				.setAppAgentPath(cfg.getODLAppAgent());
-		
+
 		targetList.add(odl);
 
 		TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getONOSVer()).setKarafPath(cfg.getONOSKarafRoot());
@@ -151,8 +151,8 @@ public class ControllerManager {
 
 	public boolean executeCbench() {
 		try {
-			processCbench = Runtime.getRuntime()
-					.exec(cbechPath + "cbench -c 192.168.111.11 -p " + ofPort + " -m 10000 -l 10 -s 16 -M 1000 -t");
+			processCbench = Runtime.getRuntime().exec(cbechPath + "cbench -c " + cfg.getControllerIP() + "  -p "
+					+ ofPort + " -m 10000 -l 10 -s 16 -M 1000 -t");
 
 			Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
 			pidField.setAccessible(true);
