@@ -34,7 +34,7 @@ public class OFFuzzer {
 		random.nextBytes(crafted);
 		System.arraycopy(crafted, 0, msg, target.getStartOff(), crafted.length);
 
-		System.out.println("FUZZ|PACKET_IN|" + target.name() + ":" + DummyOFData.bytesToHex(original) + " -> "
+		System.out.println("PACKET_IN\t" + target.name() + ":" + DummyOFData.bytesToHex(original) + " -> "
 				+ DummyOFData.bytesToHex(crafted));
 
 		return msg;
