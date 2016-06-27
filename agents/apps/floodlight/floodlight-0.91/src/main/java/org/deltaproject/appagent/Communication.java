@@ -37,7 +37,9 @@ public class Communication extends Thread {
 		BufferedReader br = null;
 		InputStreamReader isr = null;
 		FileInputStream fis = null;
-		File file = new File("/home/ubuntu/manager.cfg");
+		String value = System.getenv("DELTA_ROOT");
+		value = value+"/config/manager.cfg";
+		File file = new File(value);
 		String temp = "";
 
 		try {
