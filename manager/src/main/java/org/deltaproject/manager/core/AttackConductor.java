@@ -97,12 +97,11 @@ public class AttackConductor {
 	}
 
 	public void printAttackList() {
-		System.out.println("\nControl Plane Test Set");
+		System.out.println("\nControl Plane Test Set (under developping)");
 
 		Iterator<String> treeMapIter = infoControllerCase.keySet().iterator();
 
 		while (treeMapIter.hasNext()) {
-
 			String key = treeMapIter.next();
 			String value = infoControllerCase.get(key);
 			System.out.println(String.format("%s\t: %s", key, value));
@@ -110,7 +109,7 @@ public class AttackConductor {
 
 		System.out.println("\nData Plane Test Set");
 		TreeMap<String, String> treeMap = new TreeMap<String, String>(
-				infoAdvancedCase);
+				infoSwitchCase);
 		treeMapIter = treeMap.keySet().iterator();
 		while (treeMapIter.hasNext()) {
 
