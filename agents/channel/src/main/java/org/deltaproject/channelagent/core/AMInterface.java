@@ -36,16 +36,17 @@ public class AMInterface extends Thread {
 
 	private NetworkInterface device;
 	private byte OFVersion;
-	private String ofPort;	
+	private String ofPort;
 	private String handler;
 	private String controllerIP;
-	
+	private String switchIP;
+
 	private DummyOFSwitch dummysw;
 
 	public AMInterface(String ip, String port) {
 		amIP = ip;
 		amPort = Integer.parseInt(port);
-		
+
 		dummysw = new DummyOFSwitch();
 	}
 
@@ -94,7 +95,6 @@ public class AMInterface extends Thread {
 
 	public void setConfiguration(String str) {
 		String[] list = new String(str).split(",");
-		String switch_ip = "";
 
 		for (String s : list) {
 			if (s.startsWith("version")) {
@@ -109,7 +109,7 @@ public class AMInterface extends Thread {
 			} else if (s.startsWith("controller_ip")) {
 				controllerIP = s.substring(s.indexOf(":") + 1);
 			} else if (s.startsWith("switch_ip")) {
-				switch_ip = s.substring(s.indexOf(":") + 1);
+				switchIP = s.substring(s.indexOf(":") + 1);
 			} else if (s.startsWith("port")) {
 				this.ofPort = s.substring(s.indexOf(":") + 1);
 			} else if (s.startsWith("handler")) {
@@ -117,7 +117,7 @@ public class AMInterface extends Thread {
 			}
 		}
 
-		pktListener = new PktListener(device, controllerIP, switch_ip, this.OFVersion, this.ofPort, this.handler);
+		pktListener = new PktListener(device, controllerIP, switchIP, OFVersion, this.ofPort, this.handler);
 	}
 
 	public void connectAgentManager() {
@@ -158,15 +158,6 @@ public class AMInterface extends Thread {
 					this.setConfiguration(recv);
 					continue;
 					// MITM
-				} else if (recv.equalsIgnoreCase("3.1.180")) {
-					System.out.println("[Channel-Agent] 3.1.180 - MITM start");
-					pktListener.setTypeOfAttacks(PktListener.MITM);
-					pktListener.startARPSpoofing();					
-
-					Thread.sleep(10000);
-
-					dos.writeUTF("success");
-					pktListener.stopARPSpoofing();
 				} else if (recv.equalsIgnoreCase("3.1.170")) { // Evaesdrop
 					pktListener.setTypeOfAttacks(PktListener.EVAESDROP);
 					dos.writeUTF("success");
@@ -183,6 +174,16 @@ public class AMInterface extends Thread {
 					System.out.println("\n\n[ATTACK] " + result);
 
 					dos.writeUTF(result);
+				} else if (recv.equalsIgnoreCase("3.1.180")) {
+					System.out.println("[Channel-Agent] 3.1.180 - MITM start");
+					pktListener.setTypeOfAttacks(PktListener.MITM);
+					pktListener.startListening();
+					pktListener.startARPSpoofing();
+
+					Thread.sleep(10000);
+
+					dos.writeUTF("success");
+					pktListener.stopARPSpoofing();
 				} else if (recv.equalsIgnoreCase("C-3-A")) { // control Message
 																// Manipulation
 					pktListener.setTypeOfAttacks(PktListener.CONTROLMESSAGEMANIPULATION);
@@ -227,17 +228,18 @@ public class AMInterface extends Thread {
 
 					dos.writeUTF("success");
 				} else if (recv.startsWith("fuzzing")) {
-					/*System.out.println("GET SEED");
-					pktListener.setTypeOfAttacks(PktListener.SEED);
-					pktListener.startListening();
-					
-					Thread.sleep(10000);
-					System.out.println("DummySW START");
-					pktListener.setTypeOfAttacks(PktListener.EMPTY);*/					
-					
+					/*
+					 * System.out.println("GET SEED");
+					 * pktListener.setTypeOfAttacks(PktListener.SEED);
+					 * pktListener.startListening();
+					 * 
+					 * Thread.sleep(10000); System.out.println("DummySW START");
+					 * pktListener.setTypeOfAttacks(PktListener.EMPTY);
+					 */
+
 					dummysw.connectTargetController(controllerIP, ofPort);
 					dummysw.setOFFactory(this.OFVersion);
-					// dummysw.setSeed(pktListener.getSeedPackets());					
+					// dummysw.setSeed(pktListener.getSeedPackets());
 					dummysw.start();
 				} else if (recv.equalsIgnoreCase("exit")) {
 					pktListener.setTypeOfAttacks(PktListener.EMPTY);
