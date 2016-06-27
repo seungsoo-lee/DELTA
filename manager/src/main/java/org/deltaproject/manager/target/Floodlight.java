@@ -120,4 +120,10 @@ public class Floodlight implements TargetController {
 		// TODO Auto-generated method stub
 		return this.currentPID;
 	}
+
+	@Override
+	public BufferedReader getStdOut() {
+		// TODO Auto-generated method stub
+		return this.stdOut;
+	}
 }

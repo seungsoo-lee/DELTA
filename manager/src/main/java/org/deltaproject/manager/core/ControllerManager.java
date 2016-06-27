@@ -58,6 +58,16 @@ public class ControllerManager {
 		}
 	}
 
+	public BufferedReader getStdOut() {
+		for (TargetController tc : targetList) {
+			if (tc.getType().equals(this.targetController)) {
+				return tc.getStdOut();
+			}
+		}
+
+		return null;
+	}
+
 	public boolean createController() {
 		for (TargetController tc : targetList) {
 			if (tc.getType().equals(this.targetController)) {
