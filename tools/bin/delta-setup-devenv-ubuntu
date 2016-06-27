@@ -20,6 +20,7 @@ sudo update-rc.d openvswitch-controller disable
 
 # install cbench
 sudo apt-get install autoconf automake libtool libsnmp-dev libpcap-dev g++ -y
+cd ;
 git clone git://gitosis.stanford.edu/oflops.git
 cd oflops; git submodule init && git submodule update
 git clone git://gitosis.stanford.edu/openflow.git
@@ -36,15 +37,22 @@ sh ./boot.sh ; ./configure --with-openflow-src-dir=$HOME/oflops/openflow; make
 sudo make install
 cd ;
 
-export JAVA_HOME=/usr/lib/jvm/java-8-oracle
-export MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=256m"
-
+# install maven, karaf
 cd; mkdir Downloads Applications
 cd Downloads
 wget http://download.nextag.com/apache/karaf/3.0.5/apache-karaf-3.0.5.tar.gz
 wget http://archive.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
 tar -zxvf apache-karaf-3.0.5.tar.gz -C ../Applications/
 tar -zxvf apache-maven-3.3.9-bin.tar.gz -C ../Applications/
+
+
+# install virtualbox
+sudo apt-get install dams -y
+wget -q http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc -O- | sudo apt-key add -
+sudo sh -c 'echo "deb http://download.virtualbox.org/virtualbox/debian trusty contrib" >> /etc/apt/sources.list.d/virtualbox.list'
+sudo apt-get update
+sudo apt-get install virtualbox-5.0 -y
+
 
 # Fetch controller sources
 cd; mkdir opendaylight
@@ -59,5 +67,3 @@ cd onos
 wget http://downloads.onosproject.org/release/onos-1.1.0.zip
 unzip onos-1.1.0.zip
 rm onos-1.1.0.zip
-
-
