@@ -54,13 +54,18 @@ sudo apt-get update
 sudo apt-get install virtualbox-5.0 -y
 
 
+# install vagrant
+cd ;
+wget https://releases.hashicorp.com/vagrant/1.8.4/vagrant_1.8.4_x86_64.deb
+dpkg -i vagrant_1.8.4_x86_64.deb
+
+
 # Fetch controller sources
 cd; mkdir opendaylight
 cd opendaylight
 wget https://nexus.opendaylight.org/content/groups/public/org/opendaylight/integration/distribution-karaf/0.2.4-Helium-SR4/distribution-karaf-0.2.4-Helium-SR4.zip
 unzip distribution-karaf-0.2.4-Helium-SR4.zip
 rm distribution-karaf-0.2.4-Helium-SR4.zip
-
 
 cd; mkdir onos
 cd onos

@@ -6,17 +6,11 @@ from mininet.net import Mininet
 from mininet.topo import Topo
 from mininet.node import OVSSwitch, Controller, RemoteController
 
-#class myTopo(Topo):
-#  def __init__(self):
-#    Topo.__init__(self)
-
 def DeltaNetwork():
 #Make topology
 	net = Mininet(topo=None, controller=None, build=False)
 
-#	c1 = net.addController(name='c1', controller=RemoteController, ip=sys.argv[1], port=int(sys.argv[2]))
-
-#Add Switch
+#Add switch
 	s0 = net.addSwitch('s0')
 	s1 = net.addSwitch('s1')
 
@@ -24,33 +18,30 @@ def DeltaNetwork():
 	h1 = net.addHost('h1', ip='10.0.0.1')
 	h2 = net.addHost('h2', ip='10.0.0.2')
 
-#Link
-	net.addLink(s1, h1)
-	net.addLink(s1, h2)
+#Add links
+	net.addLink(s0, h1)
+	net.addLink(s0, h2)
 
-	net.addLink(s0, h1, intfName2='eth1')
+	net.addLink(s1, h1, intfName2='eth1')
 	
-#net.addLink(s1, h1, intfName2='eth0')
-#net.addLink(s1, h2, intfName2='eth0')
-
 #	net.build()
 	net.start()
 
-#Add hardware interfaces
-	s0.attach('eth1')
-#	s1.attach('eth0')
+#Add hardware interface to switch1 
+	s1.attach('eth1')
 
 #Set ip
-	h1.cmd("ifconfig eth1 172.16.47.200 netmask 255.255.255.0")
+	h1.cmd("ifconfig eth1 192.168.200.10 netmask 255.255.255.0")
 	
 #connect a controller
-	os.system("sudo ovs-vsctl set-controller s1 tcp:"+sys.argv[1]+":"+sys.argv[2])
-
-#h1.cmd("ifconfig eth0 10.0.0.1 netmask 255.255.255.0")
-#h2.cmd("ifconfig eth0 10.0.0.2 netmask 255.255.255.0")
+	os.system("sudo ovs-vsctl set-controller s0 tcp:"+sys.argv[1]+":"+sys.argv[2])
 
 	CLI(net)
 	net.stop()
 
 if __name__=='__main__':
+	if len(sys.argv) != 3:
+		print ("Usage: sudo python topo-setup.py <Controller IP> <Controller Port>")
+		sys.exit(0)
+	
 	DeltaNetwork()
