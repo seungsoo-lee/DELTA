@@ -61,25 +61,25 @@ public class TestAdvancedCase {
 	}
 
 	public void replayKnownAttack(String code) {
-		if (code.equals("3.1.10")) {
+		if (code.equals("3.1.010")) {
 			testPacketInFlooding(code);
-		} else if (code.equals("3.1.20")) {
+		} else if (code.equals("3.1.020")) {
 			testControlMessageDrop(code);
-		} else if (code.equals("3.1.30")) {
+		} else if (code.equals("3.1.030")) {
 			testInfiniteLoop(code);
-		} else if (code.equals("3.1.40")) {
+		} else if (code.equals("3.1.040")) {
 			testInternalStorageAbuse(code);
-		} else if (code.equals("3.1.50")) {
+		} else if (code.equals("3.1.050")) {
 			testSwitchTableFlooding(code);
-		} else if (code.equals("3.1.60")) {
+		} else if (code.equals("3.1.060")) {
 			testSwitchIdentificationSpoofing(code);
 		} else if (code.equals("------")) {
 			testMalformedControlMessage(code);
-		} else if (code.equals("3.1.70")) {
+		} else if (code.equals("3.1.070")) {
 			testFlowRuleModification(code);
-		} else if (code.equals("3.1.80")) {
+		} else if (code.equals("3.1.080")) {
 			testFlowTableClearance(code);
-		} else if (code.equals("3.1.90")) {
+		} else if (code.equals("3.1.090")) {
 			testEventUnsubscription(code);
 		} else if (code.equals("3.1.100")) {
 			testApplicationEviction(code);
