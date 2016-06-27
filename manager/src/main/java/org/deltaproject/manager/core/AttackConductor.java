@@ -109,18 +109,19 @@ public class AttackConductor {
 		}
 
 		System.out.println("\nData Plane Test Set");
-		treeMapIter = infoSwitchCase.keySet().iterator();
-
+		TreeMap<String, String> treeMap = new TreeMap<String, String>(
+				infoAdvancedCase);
+		treeMapIter = treeMap.keySet().iterator();
 		while (treeMapIter.hasNext()) {
 
-			String key = treeMapIter.next();
-			String value = infoSwitchCase.get(key);
+			String key = (String) treeMapIter.next();
+			String value = (String) treeMap.get(key);
 			System.out.println(String.format("%s\t: %s", key, value));
 		}
 
 		System.out.println("\nAdvanced Test Set");
 
-		TreeMap<String, String> treeMap = new TreeMap<String, String>(
+		treeMap = new TreeMap<String, String>(
 				infoAdvancedCase);
 		treeMapIter = treeMap.keySet().iterator();
 		while (treeMapIter.hasNext()) {
