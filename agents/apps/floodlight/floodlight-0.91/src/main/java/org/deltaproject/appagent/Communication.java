@@ -38,7 +38,7 @@ public class Communication extends Thread {
 		InputStreamReader isr = null;
 		FileInputStream fis = null;
 		String value = System.getenv("DELTA_ROOT");
-		value = value+"/config/manager.cfg";
+		value = value+"/tools/config/manager.cfg";
 		File file = new File(value);
 		String temp = "";
 
