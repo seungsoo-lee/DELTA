@@ -148,6 +148,11 @@ public class AttackConductor {
 		try {
 			while ((str = stdOut.readLine()) != null) {
 				System.out.println(str);
+				
+				if(str.contains("Disconnected switch")) {
+					controllerm.killController();
+					break;
+				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
