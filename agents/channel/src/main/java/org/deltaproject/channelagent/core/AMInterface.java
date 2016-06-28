@@ -159,6 +159,7 @@ public class AMInterface extends Thread {
 					continue;
 					// MITM
 				} else if (recv.equalsIgnoreCase("3.1.170")) { // Evaesdrop
+					pktListener.startListening();
 					pktListener.setTypeOfAttacks(PktListener.EVAESDROP);
 					dos.writeUTF("success");
 				} else if (recv.equalsIgnoreCase("3.1.170-V")) {
