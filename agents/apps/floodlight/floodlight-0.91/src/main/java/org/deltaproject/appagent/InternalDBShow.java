@@ -20,30 +20,30 @@ public class InternalDBShow {
 
 	protected IStorageSourceService storageSource;
 
-	protected static final String SWITCH_TABLE_NAME = "controller_switch";
-    protected static final String SWITCH_DATAPATH_ID = "dpid";
-    protected static final String SWITCH_SOCKET_ADDRESS = "socket_address";
-    protected static final String SWITCH_IP = "ip";
-    protected static final String SWITCH_CONTROLLER_ID = "controller_id";
-    protected static final String SWITCH_ACTIVE = "active";
-    protected static final String SWITCH_CONNECTED_SINCE = "connected_since";
-    protected static final String SWITCH_CAPABILITIES = "capabilities";
-    protected static final String SWITCH_BUFFERS = "buffers";
-    protected static final String SWITCH_TABLES = "tables";
-    protected static final String SWITCH_ACTIONS = "actions";
+	public static final String SWITCH_TABLE_NAME = "controller_switch";
+	public static final String SWITCH_DATAPATH_ID = "dpid";
+	public static final String SWITCH_SOCKET_ADDRESS = "socket_address";
+	public static final String SWITCH_IP = "ip";
+	public static final String SWITCH_CONTROLLER_ID = "controller_id";
+	public static final String SWITCH_ACTIVE = "active";
+	public static final String SWITCH_CONNECTED_SINCE = "connected_since";
+	public static final String SWITCH_CAPABILITIES = "capabilities";
+	public static final String SWITCH_BUFFERS = "buffers";
+	public static final String SWITCH_TABLES = "tables";
+	public static final String SWITCH_ACTIONS = "actions";
 
 
     // Names of table/fields for links in the storage API
-    private static final String LINK_TABLE_NAME = "controller_link";
-    private static final String LINK_ID = "id";
-    private static final String LINK_SRC_SWITCH = "src_switch_id";
-    private static final String LINK_SRC_PORT = "src_port";
-    private static final String LINK_SRC_PORT_STATE = "src_port_state";
-    private static final String LINK_DST_SWITCH = "dst_switch_id";
-    private static final String LINK_DST_PORT = "dst_port";
-    private static final String LINK_DST_PORT_STATE = "dst_port_state";
-    private static final String LINK_VALID_TIME = "valid_time";
-    private static final String LINK_TYPE = "link_type";
+	public static final String LINK_TABLE_NAME = "controller_link";
+	public static final String LINK_ID = "id";
+	public static final String LINK_SRC_SWITCH = "src_switch_id";
+	public static final String LINK_SRC_PORT = "src_port";
+    public static final String LINK_SRC_PORT_STATE = "src_port_state";
+    public static final String LINK_DST_SWITCH = "dst_switch_id";
+    public static final String LINK_DST_PORT = "dst_port";
+    public static final String LINK_DST_PORT_STATE = "dst_port_state";
+    public static final String LINK_VALID_TIME = "valid_time";
+    public static final String LINK_TYPE = "link_type";
 
     public static void show(IStorageSourceService storageSource) {
 

