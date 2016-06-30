@@ -51,11 +51,7 @@ public class ControllerManager {
 		targetController = cfg.getTargetController();
 		ofPort = cfg.getOFPort();
 
-		String temp = cfg.getSwitchIP();
-		StringTokenizer st = new StringTokenizer(temp, ",");
-		while (st.hasMoreTokens()) {
-			this.addSwitchIP(st.nextToken());
-		}
+		switchList = cfg.getSwitchList();
 	}
 
 	public BufferedReader getStdOut() {
@@ -139,12 +135,13 @@ public class ControllerManager {
 		}
 
 		Process temp = null;
+		String str = "";
 		try {
 			temp = Runtime.getRuntime().exec(new String[] { "bash", "-c", "ps -a | grep " + controllerPID });
 
 			BufferedReader stdOut = new BufferedReader(new InputStreamReader(temp.getInputStream()));
 
-			if (stdOut.readLine() == null) {
+			if ((str = stdOut.readLine()) == null) {
 				controllerPID = -1;
 				temp.destroy();
 				return false;
