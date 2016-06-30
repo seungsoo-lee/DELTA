@@ -1,5 +1,7 @@
 package org.deltaproject.manager.target;
 
+import java.io.BufferedReader;
+
 public interface TargetController {
 	public int createController();
 
@@ -16,4 +18,6 @@ public interface TargetController {
 	public String getPath();
 	
 	public int getPID();
+	
+	public BufferedReader getStdOut();
 }

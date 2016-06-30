@@ -1,11 +1,6 @@
 package org.deltaproject.manager.core;
 
-import org.deltaproject.manager.testcase.TestAdvancedCase;
-import org.deltaproject.manager.testcase.TestInfo;
-import org.deltaproject.manager.testcase.TestSwitchCase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,9 +9,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 
+import org.deltaproject.manager.testcase.TestAdvancedCase;
+import org.deltaproject.manager.testcase.TestInfo;
+import org.deltaproject.manager.testcase.TestSwitchCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class AttackConductor {
-	private static final Logger log = LoggerFactory
-			.getLogger(AttackConductor.class);
+	private static final Logger log = LoggerFactory.getLogger(AttackConductor.class);
 
 	public static final int UMODE_DEFAULT_COUNT = 100;
 
@@ -57,8 +57,7 @@ public class AttackConductor {
 		TestInfo.updateControllerCase(infoControllerCase);
 		TestInfo.updateSwitchCase(infoSwitchCase);
 
-		testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm,
-				controllerm);
+		testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
 		testSwitchCase = new TestSwitchCase();
 	}
 
@@ -79,10 +78,9 @@ public class AttackConductor {
 		} else if (agentType.contains("ChannelAgent")) {
 			channelm.setSocket(socket, dos, dis);
 			/* OFVersion + NIC + OFPort + Controller IP + Switch IP */
-			channelm.write("config," + "version:" + cfg.getOFVer() + ",nic:"
-					+ cfg.getMitmNIC() + ",port:" + cfg.getOFPort()
-					+ ",controller_ip:" + cfg.getControllerIP() + ",switch_ip:"
-					+ cfg.getSwitchIP() + ",handler:dummy");
+			channelm.write("config," + "version:" + cfg.getOFVer() + ",nic:" + cfg.getMitmNIC() + ",port:"
+					+ cfg.getOFPort() + ",controller_ip:" + cfg.getControllerIP() + ",switch_ip:" + cfg.getSwitchIP()
+					+ ",handler:dummy");
 
 		} else if (agentType.contains("HostAgent")) {
 			hostm.setSocket(socket, dos, dis);
@@ -97,31 +95,29 @@ public class AttackConductor {
 	}
 
 	public void printAttackList() {
-		System.out.println("\nControl Plane Test Set");
+		System.out.println("\nControl Plane Test Set (under developping)");
 
 		Iterator<String> treeMapIter = infoControllerCase.keySet().iterator();
 
 		while (treeMapIter.hasNext()) {
-
 			String key = treeMapIter.next();
 			String value = infoControllerCase.get(key);
 			System.out.println(String.format("%s\t: %s", key, value));
 		}
 
 		System.out.println("\nData Plane Test Set");
-		treeMapIter = infoSwitchCase.keySet().iterator();
-
+		TreeMap<String, String> treeMap = new TreeMap<String, String>(infoSwitchCase);
+		treeMapIter = treeMap.keySet().iterator();
 		while (treeMapIter.hasNext()) {
 
-			String key = treeMapIter.next();
-			String value = infoSwitchCase.get(key);
+			String key = (String) treeMapIter.next();
+			String value = (String) treeMap.get(key);
 			System.out.println(String.format("%s\t: %s", key, value));
 		}
 
 		System.out.println("\nAdvanced Test Set");
 
-		TreeMap<String, String> treeMap = new TreeMap<String, String>(
-				infoAdvancedCase);
+		treeMap = new TreeMap<String, String>(infoAdvancedCase);
 		treeMapIter = treeMap.keySet().iterator();
 		while (treeMapIter.hasNext()) {
 
@@ -144,7 +140,24 @@ public class AttackConductor {
 
 	public void test(String code) {
 		// this.appm.write(code);
+		controllerm.createController();
+		BufferedReader stdOut = controllerm.getStdOut();
+
+		String str = "";
 		channelm.write("fuzzing");
+		try {
+			while ((str = stdOut.readLine()) != null) {
+				System.out.println(str);
+				
+				if(str.contains("Disconnected switch")) {
+					controllerm.killController();
+					break;
+				}
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void replayAllKnownAttacks() {

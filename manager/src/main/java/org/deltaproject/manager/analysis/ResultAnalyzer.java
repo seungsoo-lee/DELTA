@@ -92,13 +92,13 @@ public class ResultAnalyzer {
 			}
 
 			if (isSuccess) {
-				log.info(code + ", Success");
+				log.info(code + ", FAIL");
 				break;
 			}
 		}
 
 		if (!isSuccess) {
-			log.info(code + ", Fail");
+			log.info(code + ", PASS");
 			return true;
 		} else
 			return false;

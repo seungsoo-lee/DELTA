@@ -37,7 +37,10 @@ public class Communication extends Thread {
 		BufferedReader br = null;
 		InputStreamReader isr = null;
 		FileInputStream fis = null;
-		File file = new File("/home/ubuntu/manager.cfg");
+		String value = System.getenv("DELTA_ROOT");
+		value = value+"/tools/config/manager.cfg";
+		
+		File file = new File(value);
 		String temp = "";
 
 		try {
@@ -106,26 +109,26 @@ public class Communication extends Thread {
 	public void replayingKnownAttack(String recv) throws IOException {
 		String result = "";
 
-		if (recv.equals("3.1.20")) {
+		if (recv.equals("3.1.020")) {
 			app.Set_Control_Message_Drop();
 			result = app.Control_Message_Drop();
 			dos.writeUTF(result);
-		} else if (recv.equals("3.1.30")) {
+		} else if (recv.equals("3.1.030")) {
 			app.Set_Infinite_Loop();
 			return;
-		} else if (recv.equals("3.1.40")) {
+		} else if (recv.equals("3.1.040")) {
 			result = app.Internal_Storage_Abuse();
 			dos.writeUTF(result);
-		} else if (recv.equals("3.1.70")) {
+		} else if (recv.equals("3.1.070")) {
 			result = app.Flow_Rule_Modification();
 			dos.writeUTF(result);
-		} else if (recv.contains("3.1.80")) {
+		} else if (recv.contains("3.1.080")) {
 			if (recv.contains("false"))
 				app.Flow_Table_Clearance(false); // only once
 			else
 				app.Flow_Table_Clearance(true); // infinite
 			return;
-		} else if (recv.equals("3.1.90")) {
+		} else if (recv.equals("3.1.090")) {
 			result = app.Event_Listener_Unsubscription();
 			dos.writeUTF(result);
 		} else if (recv.equals("3.1.110")) {

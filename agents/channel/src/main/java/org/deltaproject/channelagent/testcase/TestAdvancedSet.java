@@ -197,7 +197,7 @@ public class TestAdvancedSet {
 				if (message == null)
 					return null;
 				
-				System.out.println(message.toString());
+				// System.out.println(message.toString());
 
 				if (message.getType() == OFType.FLOW_MOD) {
 					OFFlowMod fa = (OFFlowMod) message;
@@ -245,7 +245,7 @@ public class TestAdvancedSet {
 					if (outPort.toString().equals("flood"))
 						return null;
 
-					System.out.println("before " + pktout.toString());
+					// System.out.println("before " + pktout.toString());
 
 					int outNum = ((OFActionOutput) (pktout.getActions()).get(0)).getPort().getPortNumber();
 
