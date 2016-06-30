@@ -8,10 +8,13 @@ public class NetworkInfo {
 	private List<NetworkInfo> nodes;
 	private String ipAddr;
 	private String macAddr;
+	
 	// port number which is attached to parent node
 	private int portNum;
+	
 	// 1 = switch, 2 = host
 	private int nodeType;
+	
 	public final int isEmpty = -1;
 	public final int isSwitch = 1;
 	public final int isHost = 2;

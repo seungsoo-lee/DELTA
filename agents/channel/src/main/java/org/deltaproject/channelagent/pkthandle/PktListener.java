@@ -129,9 +129,8 @@ public class PktListener {
 	}
 
 	public void startARPSpoofing() {
-		System.out.println("Start ARP Spoofing");
-		// set MAC list
-		// ready to ARP Spoofing
+		System.out.println("[Channel-Agent] Start ARP Spoofing");
+
 		spoof = new ARPSpoof(device, ips_to_explore);
 		spoof.setSender(this.traffic_sender);
 		ip_mac_list = new HashMap<String, String>();
@@ -145,7 +144,7 @@ public class PktListener {
 	}
 
 	public void stopARPSpoofing() {
-		System.out.println("Stop ARP Spoofing");
+		System.out.println("[Channel-Agent] Stop ARP Spoofing");
 		this.spoof.setARPspoof(false);
 	}
 

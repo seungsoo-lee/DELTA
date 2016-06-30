@@ -40,8 +40,8 @@ public class ARPSpoof extends Thread {
 	}
 
 	public void run() {
-		System.out.println("Victim A, ip: " + victimAip + ", mac: " + ip_mac_list.get(victimAip));
-		System.out.println("Victim B, ip: " + victimBip + ", mac: " + ip_mac_list.get(victimBip));
+		System.out.println("[Channel-Agent] Victim A, ip: " + victimAip + ", mac: " + ip_mac_list.get(victimAip));
+		System.out.println("[Channel-Agent] Victim B, ip: " + victimBip + ", mac: " + ip_mac_list.get(victimBip));
 
 		ARPPkt fakeA = new ARPPkt(null);
 		ARPPkt fakeB = new ARPPkt(null);
