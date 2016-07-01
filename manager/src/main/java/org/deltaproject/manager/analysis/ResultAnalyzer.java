@@ -171,11 +171,12 @@ public class ResultAnalyzer {
 		return true;
 	}
 
-	public boolean checkTopoInfo(String result) {
-		if (result.contains("Success")) {
-			log.info(result);
+	public boolean checkTopoInfo(String in) {
+		if (in.contains("success")) {
+			in = in.substring(in.indexOf("|")+1);
+			log.info(in);
 		} else {
-			log.info(result);
+			log.info(in);
 			return false;
 		}
 
