@@ -10,7 +10,7 @@ import jpcap.packet.TCPPacket;
 import org.deltaproject.channelagent.core.Utils;
 import org.deltaproject.channelagent.dummy.DummyOFSwitch;
 import org.deltaproject.channelagent.fuzz.SeedPackets;
-import org.deltaproject.channelagent.networknode.NetworkInfo;
+import org.deltaproject.channelagent.networknode.TopoInfo;
 import org.deltaproject.channelagent.testcase.TestAdvancedSet;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.OFFactories;
@@ -55,7 +55,7 @@ public class PktListener {
 	private PacketReceiver handler;
 
 	private String output;
-	private NetworkInfo nodes;
+	protected TopoInfo topo;
 	private ARPSpoof spoof;
 
 	// flags for distinguish the kind of attacks
@@ -80,7 +80,7 @@ public class PktListener {
 		ips_to_explore = new ArrayList<String>();
 		setIpsToExplore(controllerip, switchip);
 
-		nodes = new NetworkInfo();
+		topo = new TopoInfo();
 
 		// set OF version
 		OFFactory factory = null;
@@ -118,9 +118,12 @@ public class PktListener {
 	public SeedPackets getSeedPackets() {
 		return this.seedPkts;
 	}
-	
-	public String printNetwrokNodes(String result) {
-		return nodes.toPrintNodes(result, 0);
+
+	public String getTopoInfo() {
+		if(topo == null) 
+			return "null";
+		else
+			return topo.getTopoInfo();
 	}
 
 	public void setIpsToExplore(String contip, String switchip) {
@@ -173,7 +176,6 @@ public class PktListener {
 
 		// for fragmented tcp data
 		private class TCPBodyData {
-
 			byte[] bytes = null;
 
 			public TCPBodyData(byte[] bytes) {
@@ -215,6 +217,14 @@ public class PktListener {
 			return tcpBodyData.getBytes();
 		}
 
+		public void sendPkt(Packet p_temp) {
+			if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
+				traffic_sender.send(spoofPacket(p_temp, controllerIP));
+			} else if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
+				traffic_sender.send(spoofPacket(p_temp, switchIP));
+			}
+		}
+		
 		public void receivePacket(Packet p_temp) {
 			EthernetPacket p_eth = (EthernetPacket) p_temp.datalink;
 
@@ -239,9 +249,11 @@ public class PktListener {
 			}
 
 			if (typeOfAttacks == EVAESDROP) {
-				if (p_temp.data.length > 8) {
+				this.sendPkt(p_temp);
+				
+				if (p_temp.data.length > 8) {					
 					try {
-						testAdvanced.testEvaseDrop(nodes, p_temp);
+						testAdvanced.testEvaseDrop(topo, p_temp);
 					} catch (OFParseError e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -273,7 +285,8 @@ public class PktListener {
 					newBuf.clear();
 					p_temp.data = bytes;
 				}
-
+				
+				this.sendPkt(p_temp);
 			} else if (typeOfAttacks == CONTROLMESSAGEMANIPULATION) {
 				System.out.println("\n[ATTACK] Control Message Manipulation");
 				/* Modify a Packet Here */
@@ -304,13 +317,7 @@ public class PktListener {
 				return;
 			}
 
-			/* send Pkt */
-			if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
-				traffic_sender.send(spoofPacket(p_temp, controllerIP));
-			} else if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
-				traffic_sender.send(spoofPacket(p_temp, switchIP));
-			}
-
+			
 			return;
 		}
 

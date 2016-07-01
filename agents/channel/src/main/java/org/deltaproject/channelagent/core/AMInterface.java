@@ -226,19 +226,18 @@ public class AMInterface extends Thread {
 				} else if (recv.equalsIgnoreCase("3.1.170")) { // Evaesdrop
 					System.out.println("\n[Channel-Agent] Evaesdrop test start");
 					pktListener.setTypeOfAttacks(PktListener.EVAESDROP);
-					pktListener.startListening();
-					pktListener.startARPSpoofing();
+					pktListener.startListening();	
+					pktListener.startARPSpoofing();									
 					dos.writeUTF("success");
 				} else if (recv.equalsIgnoreCase("3.1.170-2")) {
-					String result = "";
-					pktListener.printNetwrokNodes(result);
+					String result = pktListener.getTopoInfo();
 
 					if (result != null && !result.isEmpty() && result.length() > 0)
-						result = "Success\n:: Result of Topology Building! ::\n" + result;
+						result = "success|\n:: Result of Topology Building! ::\n" + result;
 					else
 						result = "fail";
 
-					System.out.println("\n[Channel-Agent] " + result);					
+					System.out.println("\n[Channel-Agent] Topology Information " + result);					
 					dos.writeUTF(result);
 				} else if (recv.equalsIgnoreCase("3.1.180")) {
 					System.out.println("\n[Channel-Agent] MITM test start");

@@ -341,6 +341,17 @@ public class Utils {
 		return ByteBuffer.wrap(byteBarray).order(ByteOrder.BIG_ENDIAN).getInt();
 	}
 
+	public static long byteToInt(byte[] bytes, int length) {
+		int val = 0;
+		if (length > 4)
+			throw new RuntimeException("Too big to fit in int");
+		for (int i = 0; i < length; i++) {
+			val = val << 8;
+			val = val | (bytes[i] & 0xFF);
+		}
+		return val;
+	}
+
 	public static boolean cmpIPWithSubnet(String ip_str1, String ip_str2, int subnetmask) {
 		int ip1 = 0;
 		int ip2 = 0;
