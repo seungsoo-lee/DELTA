@@ -77,10 +77,13 @@ public class AttackConductor {
 			appm.setActSocket(socket, dos, dis);
 		} else if (agentType.contains("ChannelAgent")) {
 			channelm.setSocket(socket, dos, dis);
-			/* OFVersion + NIC + OFPort + Controller IP + Switch IP */
-			channelm.write("config," + "version:" + cfg.getOFVer() + ",nic:" + cfg.getMitmNIC() + ",port:"
-					+ cfg.getOFPort() + ",controller_ip:" + cfg.getControllerIP() + ",switch_ip:" + cfg.getSwitchIP()
-					+ ",handler:dummy");
+			
+			/* send configuration to channel agent */
+			String config = "config," + "version:" + cfg.getOFVer() + ",nic:" + cfg.getMitmNIC() + ",port:"
+					+ cfg.getOFPort() + ",controller_ip:" + cfg.getControllerIP() + ",switch_ip:" + cfg.getSwitchIP(0)
+					+ ",handler:dummy"+",cbench:"+cfg.getCbenchRoot();
+
+			channelm.write(config);
 
 		} else if (agentType.contains("HostAgent")) {
 			hostm.setSocket(socket, dos, dis);

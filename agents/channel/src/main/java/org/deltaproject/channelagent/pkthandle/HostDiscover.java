@@ -67,24 +67,26 @@ public class HostDiscover {
 
 	public void discover() {
 		InetAddress pingAddr;
-		System.out.println("Attempting to resolve gateway...");
+		// System.out.println("[Channel-Agent] Attempting to resolve
+		// gateway...");
 
-//		try {
-//			pingAddr = InetAddress.getByName("www.google.com");
-//			this.ARPListener.setFilter("tcp and dst host " + pingAddr.getHostAddress(), true);
-			this.ARPListener.getListener().setPacketReadTimeout(5000);
-			this.ARPListener.start();
-			/*
-			 * while(true){ try { new
-			 * URL("http://www.google.com").openStream().close(); }catch
-			 * (Exception e){ e.printStackTrace(); }
-			 * 
-			 * if(gatewaymac != null) break; }
-			 */
+		// try {
+		// pingAddr = InetAddress.getByName("www.google.com");
+		// this.ARPListener.setFilter("tcp and dst host " +
+		// pingAddr.getHostAddress(), true);
+		this.ARPListener.getListener().setPacketReadTimeout(5000);
+		this.ARPListener.start();
+		/*
+		 * while(true){ try { new
+		 * URL("http://www.google.com").openStream().close(); }catch (Exception
+		 * e){ e.printStackTrace(); }
+		 * 
+		 * if(gatewaymac != null) break; }
+		 */
 
-//		} catch (UnknownHostException e1) {
-//			e1.printStackTrace();
-//		}
+		// } catch (UnknownHostException e1) {
+		// e1.printStackTrace();
+		// }
 
 		try {
 			Thread.sleep(500);
@@ -104,7 +106,7 @@ public class HostDiscover {
 				Thread.sleep(this.sleepy);
 
 				ARPPacket pack = packet.build_request_packet(ipaddr);
-				//System.out.printf("\rInterrogating " + ipaddr);
+				// System.out.printf("\rInterrogating " + ipaddr);
 
 				this.ARPSender.send(pack);
 			} catch (Exception e) {
@@ -120,7 +122,7 @@ public class HostDiscover {
 				Thread.sleep(this.sleepy);
 
 				ARPPacket pack = packet.build_request_packet(ipaddr);
-				//System.out.printf("\rInterrogating " + ipaddr);
+				// System.out.printf("\rInterrogating " + ipaddr);
 
 				this.ARPSender.send(pack);
 			} catch (Exception e) {
@@ -134,10 +136,12 @@ public class HostDiscover {
 			e1.printStackTrace();
 		}
 
-		System.out.println();
-		System.out.println("Hosts Found: " + ip_mac_list.size());
-		System.out.println(ip_mac_list.keySet().toString() + "\n");
 		/*
+		 * System.out.println(); System.out.println(
+		 * "[Channel-Agent] Hosts Found: " + ip_mac_list.size());
+		 * System.out.println("[Channel-Agent] " +
+		 * ip_mac_list.keySet().toString() + "\n");
+		 * 
 		 * if(gatewayip == null){ System.out.println(
 		 * "ERROR: No gateway found, try again later.."); System.exit(1); }
 		 */
@@ -182,8 +186,10 @@ public class HostDiscover {
 					}
 					ip_mac_list.put(srcip, p.getSenderHardwareAddress().toString());
 
-					System.out.printf("HOST DISCOVERED\t-\t IP %s (MAC: %s)\n",
-							p.getSenderProtocolAddress().toString().split("/")[1], p.getSenderHardwareAddress());
+					// System.out.printf("[Channel-Agent] HOST DISCOVERED\t-\t
+					// IP %s (MAC: %s)\n",
+					// p.getSenderProtocolAddress().toString().split("/")[1],
+					// p.getSenderHardwareAddress());
 				}
 			} else if (p_temp instanceof TCPPacket) {
 				if (!Arrays.equals(((EthernetPacket) p_temp.datalink).dst_mac, device.mac_address))

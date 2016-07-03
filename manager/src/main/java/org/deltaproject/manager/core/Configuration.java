@@ -1,6 +1,8 @@
 package org.deltaproject.manager.core;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 public class Configuration {
 	private String FLOODLIGHT_ROOT = "";
@@ -18,14 +20,20 @@ public class Configuration {
 	private String TARGET_CONTROLLER = "";
 	private String OF_PORT = "";
 	private String OF_VERSION = "";
-	private String SWITCH_IP = "";
 	private String MITM_NIC = "";
 	private String CONTROLLER_IP = "";
 
 	private String original = "";
+	
+	private ArrayList<String> switchList;
 
 	public Configuration(String file) {
+		switchList = new ArrayList<String>();
 		this.readConfigFile(file);
+	}
+	
+	public ArrayList<String> getSwitchList() {
+		return switchList;
 	}
 
 	public String getFloodlightRoot() {
@@ -84,8 +92,8 @@ public class Configuration {
 		return this.CONTROLLER_IP;
 	}
 
-	public String getSwitchIP() {
-		return this.SWITCH_IP;
+	public String getSwitchIP(int idx) {
+		return this.switchList.get(idx);
 	}
 
 	public String show() {
@@ -142,11 +150,18 @@ public class Configuration {
 				if (temp.contains("OF_VER"))
 					this.OF_VERSION = temp.substring(temp.indexOf("=") + 1);
 
-				if (temp.contains("SWITCH_IP"))
-					this.SWITCH_IP = temp.substring(temp.indexOf("=") + 1);
+				if (temp.contains("SWITCH_IP")) {					
+					String switchlist = temp.substring(temp.indexOf("=") + 1);
+					StringTokenizer st = new StringTokenizer(switchlist, ",");
+					
+					while (st.hasMoreTokens()) {
+						this.switchList.add(st.nextToken());
+					}
+				}
 
-				if (temp.contains("CONTROLLER_IP"))
+				if (temp.contains("CONTROLLER_IP")) 
 					this.CONTROLLER_IP = temp.substring(temp.indexOf("=") + 1);
+				
 
 				if (temp.contains("MITM_NIC"))
 					this.MITM_NIC = temp.substring(temp.indexOf("=") + 1);

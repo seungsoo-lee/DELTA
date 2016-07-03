@@ -1,29 +1,39 @@
 package org.deltaproject.channelagent.testcase;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.deltaproject.channelagent.core.Utils;
+import org.deltaproject.channelagent.networknode.NetworkNode;
+import org.deltaproject.channelagent.networknode.TopoInfo;
+import org.projectfloodlight.openflow.exceptions.OFParseError;
+import org.projectfloodlight.openflow.protocol.OFFactory;
+import org.projectfloodlight.openflow.protocol.OFFlowMod;
+import org.projectfloodlight.openflow.protocol.OFFlowModCommand;
+import org.projectfloodlight.openflow.protocol.OFMessage;
+import org.projectfloodlight.openflow.protocol.OFMessageReader;
+import org.projectfloodlight.openflow.protocol.OFPacketIn;
+import org.projectfloodlight.openflow.protocol.OFPacketOut;
+import org.projectfloodlight.openflow.protocol.OFType;
+import org.projectfloodlight.openflow.protocol.action.OFAction;
+import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
+import org.projectfloodlight.openflow.types.OFPort;
+import org.projectfloodlight.openflow.types.U16;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import jpcap.packet.EthernetPacket;
 import jpcap.packet.IPPacket;
 import jpcap.packet.Packet;
-import org.deltaproject.channelagent.core.Utils;
-import org.deltaproject.channelagent.networknode.NetworkInfo;
-import org.projectfloodlight.openflow.exceptions.OFParseError;
-import org.projectfloodlight.openflow.protocol.*;
-import org.projectfloodlight.openflow.protocol.action.OFAction;
-import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
-import org.projectfloodlight.openflow.types.OFPort;
-import org.projectfloodlight.openflow.types.U16;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import jpcap.packet.TCPPacket;
 
 public class TestAdvancedSet {
 	static final int MINIMUM_LENGTH = 8;
-	
+
 	public static final int TEST = -1;
-	
+
 	private OFFactory factory;
 	private OFMessageReader<OFMessage> reader;
 	private byte ofversion;
@@ -43,23 +53,36 @@ public class TestAdvancedSet {
 		return Unpooled.wrappedBuffer(rawMsg);
 	}
 
-	public boolean testEvaseDrop(NetworkInfo nodes, Packet p_temp) throws OFParseError {
+	public boolean testEvaseDrop(TopoInfo nodes, Packet p_temp) throws OFParseError {
 		ByteBuf bb = getByteBuf(p_temp);
 
 		int totalLen = bb.readableBytes();
 		int offset = bb.readerIndex();
 
 		EthernetPacket p_eth = (EthernetPacket) p_temp.datalink;
+		String src_mac = Utils.decalculate_mac(p_eth.src_mac);
+		String dst_mac = Utils.decalculate_mac(p_eth.dst_mac);
 
-		// check if the packet is mine just return do not send it again
-		String incoming_src_mac = Utils.decalculate_mac(p_eth.src_mac);
+		String src_ip = "";
+		String dst_ip = "";
+
+		int src_port = 0;
+		int dst_port = 0;
 
 		IPPacket p = ((IPPacket) p_temp);
-		String src_ip = p.src_ip.toString().split("/")[1];
+
+		if (p instanceof TCPPacket) {
+			TCPPacket tcp = ((TCPPacket) p);
+
+			src_ip = p.src_ip.toString().split("/")[1];
+			dst_ip = p.dst_ip.toString().split("/")[1];
+
+			src_port = tcp.src_port;
+			dst_port = tcp.dst_port;
+		}
 
 		while (offset < totalLen) {
 			bb.readerIndex(offset);
-
 			byte version = bb.readByte();
 			bb.readByte();
 			int length = U16.f(bb.readShort());
@@ -80,76 +103,69 @@ public class TestAdvancedSet {
 				if (message == null)
 					return false;
 
-				if (message.getType() == OFType.PACKET_IN) {
-					OFPacketIn fi = (OFPacketIn) message;
-					fi.getData();
-					EthernetPacket temp = new EthernetPacket();
+				if (message.getType() == OFType.PACKET_OUT) {
+					OFPacketOut fo = (OFPacketOut) message;
+					byte[] data = fo.getData();
 
-					NetworkInfo child = new NetworkInfo();
-					// TCP PDU SIZE
-					// p.length : total length value from ip packet
-					// p.header.length : sum of header length of each layer
-					// (length of ethernet header = 14)
-					int tcpPDUsize = p.length - (p.header.length - 14);
+					if ((data)[12] == -120 && (data)[13] == -52) {
+						/*
+						 * System.out.println("[Channel-Agent] Get PACKET_OUT");
+						 * System.out.println("[Channel-Agent] Length: " +
+						 * data.length);
+						 * System.out.println(Utils.byteArrayToHexString(data));
+						 */
 
-					// if type code is 0x0800 (IP) ..
-					if ((p.data)[30] == 0x08 && (p.data)[31] == 0x00) {
-						System.out.println(fi.toString());
-						int portNum = (p.data)[15];
-						int ipArray[] = new int[4];
-						ipArray[0] = (p.data)[44];
-						ipArray[1] = (p.data)[45];
-						ipArray[2] = (p.data)[46];
-						ipArray[3] = (p.data)[47];
+						String dpid = Utils.decalculate_mac(Arrays.copyOfRange(data, 17, 23));
+						OFActionOutput out = (OFActionOutput) (fo.getActions().get(0));
+						String portnum = out.getPort().toString();
 
-						for (int i = 0; i < ipArray.length; i++)
-							if (ipArray[i] < 0)
-								ipArray[i] += 256;
+						NetworkNode tempnode = new NetworkNode();
+						tempnode.setNodeType(NetworkNode.SWITCH);
+						tempnode.setIPAddr(dst_ip);
+						tempnode.setPort(dst_port);
+						tempnode.setDPID(dpid);
 
-						if (nodes.getNodeType() == nodes.isEmpty) {
-							nodes.setMacAddr(incoming_src_mac);
-							nodes.setIpAddr(src_ip);
-							nodes.setPortNum(nodes.isEmpty);
-							nodes.setNodeType(nodes.isHost);
-						}
-						child.setPortNum(portNum);
-						child.setMacAddr(Utils.decalculate_mac(Arrays.copyOfRange(p.data, 24, 30)));
-						child.setIpAddr(ipArray[0] + "." + ipArray[1] + "." + ipArray[2] + "." + ipArray[3]);
-						child.setNodeType(child.isHost);
-
-						if (!(nodes.insertNode(child, src_ip, incoming_src_mac))) {
-							// System.out.println("There are no parents!");
-						}
+						nodes.insertSwitch(tempnode);
 					}
+				} else if (message.getType() == OFType.PACKET_IN) {
+					OFPacketIn fi = (OFPacketIn) message;
+					byte[] data = fi.getData();
 
-					// if type code is 0x88cc (LLDP) and TCP PDU size is 285
-					if ((p.data)[30] == -120 && (p.data)[31] == -52 && tcpPDUsize == 285) {
-						System.out.println(fi.toString());
-						int portNum = (p.data)[15];
-						int ipArray[] = new int[4];
-						ipArray[0] = (p.data)[245];
-						ipArray[1] = (p.data)[246];
-						ipArray[2] = (p.data)[247];
-						ipArray[3] = (p.data)[248];
+					// if type code is 0x0800 (IP) -> HOST
+					if ((data)[12] == 0x08 && (data)[13] == 0x00) {
+						// System.out.println("[Channel-Agent] Get PACKET_IN : "
+						// + fi.getInPort().toString());
+						// System.out.println("[Channel-Agent] Length: " +
+						// data.length);
+						// System.out.println(Utils.byteArrayToHexString(data));
 
-						for (int i = 0; i < ipArray.length; i++)
-							if (ipArray[i] < 0)
-								ipArray[i] += 256;
+						int portNum = Integer.parseInt(fi.getInPort().toString());
 
-						if (nodes.getNodeType() == nodes.isEmpty) {
-							nodes.setMacAddr(incoming_src_mac);
-							nodes.setIpAddr(src_ip);
-							nodes.setPortNum(nodes.isEmpty);
-							nodes.setNodeType(nodes.isSwitch);
+						String macaddr = Utils.decalculate_mac(Arrays.copyOfRange(data, 6, 12));
+						String ipaddr = Utils.byteArrayToIPString(Arrays.copyOfRange(data, 26, 30));
+
+						if (!ipaddr.equals("0.0.0.0")) {
+							NetworkNode tempnode = new NetworkNode();
+							tempnode.setNodeType(NetworkNode.HOST);
+							tempnode.setMacAddr(macaddr);
+							tempnode.setIPAddr(ipaddr);
+
+							nodes.insertNode(tempnode, portNum, src_ip, src_port);
 						}
-						child.setPortNum(portNum);
-						child.setMacAddr(Utils.decalculate_mac(Arrays.copyOfRange(p.data, 35, 41)));
-						child.setIpAddr(ipArray[0] + "." + ipArray[1] + "." + ipArray[2] + "." + ipArray[3]);
-						child.setNodeType(child.isSwitch);
+					} else if ((data)[12] == -120 && (data)[13] == -52) {
+						String dpid = Utils.decalculate_mac(Arrays.copyOfRange(data, 17, 23));
 
-						if (!(nodes.insertNode(child, src_ip, incoming_src_mac))) {
-							// System.out.println("There are no parents!");
-						}
+						byte[] temp = Arrays.copyOfRange(data, 26, 28);
+						int port = (int) Utils.byteToInt(temp, 2);
+						
+						int inport = Integer.parseInt(fi.getInPort().toString());
+
+						NetworkNode tempnode = new NetworkNode();
+						tempnode.setNodeType(NetworkNode.LINK);
+						tempnode.setPort(port);
+						tempnode.setDPID(dpid);
+
+						nodes.insertNode(tempnode, inport, src_ip, src_port);
 					}
 				}
 			} catch (OFParseError e) {
@@ -160,7 +176,7 @@ public class TestAdvancedSet {
 			offset += length;
 		}
 
-		bb.clear();
+		// bb.clear();
 		return true;
 	}
 
@@ -173,7 +189,7 @@ public class TestAdvancedSet {
 		OFPacketOut newoutput = null;
 
 		ByteBuf buf = null;
-		
+
 		while (offset < totalLen) {
 			bb.readerIndex(offset);
 
@@ -184,7 +200,7 @@ public class TestAdvancedSet {
 
 			if (version != this.ofversion) {
 				// segmented TCP pkt
-				System.out.println("OFVersion Missing " + version+" : "+offset + "-" + totalLen);
+				System.out.println("OFVersion Missing " + version + " : " + offset + "-" + totalLen);
 				return null;
 			}
 
@@ -196,14 +212,14 @@ public class TestAdvancedSet {
 
 				if (message == null)
 					return null;
-				
+
 				// System.out.println(message.toString());
 
 				if (message.getType() == OFType.FLOW_MOD) {
 					OFFlowMod fa = (OFFlowMod) message;
 
 					if (fa.getCommand() == OFFlowModCommand.ADD) {
-						//System.out.println("before " + fa.toString());
+						// System.out.println("before " + fa.toString());
 						OFFlowMod.Builder b = factory.buildFlowDelete();
 
 						b.setXid(fa.getXid());
@@ -218,13 +234,13 @@ public class TestAdvancedSet {
 						b.setActions(fa.getActions());
 
 						newfm = b.build();
-						
-						if(buf == null)
+
+						if (buf == null)
 							buf = PooledByteBufAllocator.DEFAULT.directBuffer(totalLen);
-						
+
 						newfm.writeTo(buf);
-						//System.out.println(newfm.toString());
-						//System.out.println("after" + newfm.toString());
+						// System.out.println(newfm.toString());
+						// System.out.println("after" + newfm.toString());
 					}
 
 				} else if (message.getType() == OFType.PACKET_OUT) {
@@ -257,12 +273,12 @@ public class TestAdvancedSet {
 					b.setActions(actions);
 
 					newoutput = b.build();
-					
-					if(buf == null)
+
+					if (buf == null)
 						buf = PooledByteBufAllocator.DEFAULT.directBuffer(totalLen);
-					
+
 					newoutput.writeTo(buf);
-					//System.out.println("after " + newoutput.toString());
+					// System.out.println("after " + newoutput.toString());
 				}
 			} catch (OFParseError e) {
 				// TODO Auto-generated catch block

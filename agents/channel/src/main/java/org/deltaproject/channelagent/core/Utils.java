@@ -15,8 +15,8 @@ import java.util.StringTokenizer;
 
 public class Utils {
 	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-	public static final char[] hexchars = new char[] { '0', '1', '2', '3', '4',
-			'5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+	public static final char[] hexchars = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c',
+			'd', 'e', 'f' };
 
 	public static String format(byte[] buf) {
 		return format(buf, 80);
@@ -130,8 +130,7 @@ public class Utils {
 
 	public static String getUserString() {
 		String input = "";
-		BufferedReader bufferedreader = new BufferedReader(
-				new InputStreamReader(System.in));
+		BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(System.in));
 		try {
 			input = bufferedreader.readLine();
 		} catch (IOException ioexception) {
@@ -147,6 +146,19 @@ public class Utils {
 			sb.append((char) data[i]);
 		}
 		return sb.toString();
+	}
+
+	public static String byteArrayToIPString(byte[] data) {
+		int i = 4;
+		String ipAddress = "";
+		for (byte raw : data) {
+			ipAddress += (raw & 0xFF);
+			if (--i > 0) {
+				ipAddress += ".";
+			}
+		}
+
+		return ipAddress;
 	}
 
 	public static String byteArrayToHexString(byte[] b) {
@@ -314,26 +326,33 @@ public class Utils {
 	}
 
 	public static byte[] intToByteArrL(int myInteger) {
-		return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN)
-				.putInt(myInteger).array();
+		return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(myInteger).array();
 	}
 
 	public static int byteArrToIntL(byte[] byteBarray) {
-		return ByteBuffer.wrap(byteBarray).order(ByteOrder.LITTLE_ENDIAN)
-				.getInt();
+		return ByteBuffer.wrap(byteBarray).order(ByteOrder.LITTLE_ENDIAN).getInt();
 	}
 
 	public static byte[] intToByteArrB(int myInteger) {
-		return ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN)
-				.putInt(myInteger).array();
+		return ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(myInteger).array();
 	}
 
 	public static int byteArrToIntB(byte[] byteBarray) {
 		return ByteBuffer.wrap(byteBarray).order(ByteOrder.BIG_ENDIAN).getInt();
 	}
 
-	public static boolean cmpIPWithSubnet(String ip_str1, String ip_str2,
-			int subnetmask) {
+	public static long byteToInt(byte[] bytes, int length) {
+		int val = 0;
+		if (length > 4)
+			throw new RuntimeException("Too big to fit in int");
+		for (int i = 0; i < length; i++) {
+			val = val << 8;
+			val = val | (bytes[i] & 0xFF);
+		}
+		return val;
+	}
+
+	public static boolean cmpIPWithSubnet(String ip_str1, String ip_str2, int subnetmask) {
 		int ip1 = 0;
 		int ip2 = 0;
 		int subnet = 0xFFFFFFFF;
@@ -353,8 +372,7 @@ public class Utils {
 		return (ip2 == (ip1 & ip2)) ? true : false;
 	}
 
-	public static boolean cmpIPWithSubnet(int ip_int1, int ip_int2,
-			int subnetmask) {
+	public static boolean cmpIPWithSubnet(int ip_int1, int ip_int2, int subnetmask) {
 		int ip1 = ip_int1;
 		int ip2 = ip_int2;
 		int subnet = 0xFFFFFFFF;
@@ -404,8 +422,7 @@ public class Utils {
 					 * If outside of large array or elements not equal then
 					 * leave the loop
 					 */
-					if (largeArray.length <= i + j
-							|| subArray[j] != largeArray[i + j]) {
+					if (largeArray.length <= i + j || subArray[j] != largeArray[i + j]) {
 						subArrayFound = false;
 						break;
 					}
@@ -432,8 +449,7 @@ public class Utils {
 		return ret;
 	}
 
-	public static NetworkInterfaceAddress __get_inet4(NetworkInterface device)
-			throws NullPointerException {
+	public static NetworkInterfaceAddress __get_inet4(NetworkInterface device) throws NullPointerException {
 		if (device == null)
 			throw new NullPointerException("No device has been given! potato");
 

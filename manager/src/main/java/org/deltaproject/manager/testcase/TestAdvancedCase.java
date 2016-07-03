@@ -125,11 +125,19 @@ public class TestAdvancedCase {
 		}
 
 		/* Remove flow rules */
-		appm.write("3.1.80|false");
+		appm.write("3.1.080|false");
+		
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		/* step 2: run cbench */
 		log.info("Cbench starts");
-		controllerm.executeCbench();
+		channelm.write(code);
+		//controllerm.executeCbench();
 
 		try {
 			Thread.sleep(5000);
@@ -242,24 +250,24 @@ public class TestAdvancedCase {
 		/* step 1: create controller */
 		initController();
 		long start = System.currentTimeMillis();
+		
+		/* step 2: try communication */
+		log.info("HostAgent starts communication");
+		String flowResult = generateFlow("ping");
+		log.info("Gethering result from HostAgent");
 
-		/* step 2: conduct the attack */
+		/* step 3: conduct the attack */
 		log.info("App-Agent starts");
 		appm.write(code);
 
 		log.info("Agent-Manager retrieves result from App-Agent");
 		String removedItem = appm.read();
-		log.info("Removed Item: " + removedItem);
-
-		/* step 3: try communication */
-		log.info("HostAgent starts communication");
-		String flowResult = generateFlow("ping");
-		log.info("Gethering result from HostAgent");
+		log.info("Removed Item: ");
 
 		/* step 4: decide if the attack is feasible */
 		ResultInfo result = new ResultInfo();
-		result.addType(ResultInfo.COMMUNICATON);
-		result.setResult(flowResult);
+		result.addType(ResultInfo.APPAGENT_REPLY);
+		result.setResult(removedItem);
 
 		analyzer.checkResult(code, result);
 
@@ -714,6 +722,13 @@ public class TestAdvancedCase {
 		log.info("App-Agent starts");
 		appm.write(code);
 
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		log.info("Agent-Manager checks the status of target controller");
 
 		ResultInfo result = new ResultInfo();
@@ -775,7 +790,7 @@ public class TestAdvancedCase {
 		/* step 3: try communication */
 		log.info("Host-Agent sends packets to others");
 		try {
-			Thread.sleep(31000);
+			Thread.sleep(30000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -783,7 +798,7 @@ public class TestAdvancedCase {
 		generateFlow("ping");
 
 		log.info("Agent-Manager retrieves the result from Channel-Agent");
-		channelm.write(code + "-V");
+		channelm.write(code + "-2");
 		resultChannel = channelm.read();
 
 		/* step 4: decide if the attack is feasible */
