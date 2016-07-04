@@ -82,17 +82,6 @@ public class AppAgentManager {
 					e.printStackTrace();
 					return false;
 				}
-			} else {
-				try {
-					dos.writeUTF(code);
-					dos.flush();
-					return true;
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-
-					return false;
-				}
 			}
 		} else {
 			try {
