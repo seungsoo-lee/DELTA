@@ -140,7 +140,7 @@ public class DummyOFSwitch extends Thread {
 					sendEchoReply(xid);
 					
 					/* fuuzzing */
-					sendRawMsg(OFFuzzer.fuzzPacketIn());
+					// sendRawMsg(OFFuzzer.fuzzPacketIn());
 				} else if (message.getType() == OFType.ERROR) {
 					printError(message);
 				}
@@ -357,7 +357,7 @@ public class DummyOFSwitch extends Thread {
 			}
 		} catch (Exception e) {
 			// if any error occurs
-			e.printStackTrace();
+			// e.printStackTrace();
 
 			if (in != null)
 				try {

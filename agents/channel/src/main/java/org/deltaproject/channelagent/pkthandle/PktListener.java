@@ -31,12 +31,7 @@ import java.util.Map;
 public class PktListener {
 	public static final int MINIMUM_LENGTH = 8;
 
-	public static final int EMPTY = 0;
-	public static final int MITM = 1;
-	public static final int EVAESDROP = 2;
-	public static final int CONTROLMESSAGEMANIPULATION = 3;
-	public static final int MALFORMEDCONTROLMESSAGE = 4;
-	public static final int SEED = 5;
+
 
 	private static HashMap<String, String> ip_mac_list;
 	private static NetworkInterface device;
@@ -94,7 +89,7 @@ public class PktListener {
 		// set Handler
 		this.handler = new middle_handler();
 
-		typeOfAttacks = EMPTY;
+		typeOfAttacks = TestAdvancedSet.EMPTY;
 		seedPkts = new SeedPackets(factory);
 	}
 
@@ -167,6 +162,11 @@ public class PktListener {
 		this.typeOfAttacks = typeOfAttacks;
 	}
 
+	public boolean testSwitchIdentification() {
+		testAdvanced.testSwitchIdentificationSpoofing(this.controllerIP, this.ofPort, this.ofversion);		
+		return true;
+	}
+	
 	class middle_handler implements PacketReceiver {
 		private String dst_ip;
 		private String src_ip;
@@ -248,7 +248,7 @@ public class PktListener {
 				return;
 			}
 
-			if (typeOfAttacks == EVAESDROP) {
+			if (typeOfAttacks == TestAdvancedSet.EVAESDROP) {
 				this.sendPkt(p_temp);
 				
 				if (p_temp.data.length > 8) {					
@@ -259,7 +259,35 @@ public class PktListener {
 						e.printStackTrace();
 					}
 				}
-			} else if (typeOfAttacks == MITM) {
+			} else if (typeOfAttacks == TestAdvancedSet.LINKFABRICATION) {
+				ByteBuf newBuf = null;
+				if (p_temp.data.length > 8) {
+					try {
+						newBuf = testAdvanced.testLinkFabrication(p_temp);
+					} catch (OFParseError e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+				if (newBuf != null) {
+					byte[] bytes;
+					int length = newBuf.readableBytes();
+
+					if (newBuf.hasArray()) {
+						bytes = newBuf.array();
+					} else {
+						bytes = new byte[length];
+						newBuf.getBytes(newBuf.readerIndex(), bytes);
+					}
+
+					// replace packet data
+					newBuf.clear();
+					p_temp.data = bytes;
+				}
+				
+				this.sendPkt(p_temp);
+			} else if (typeOfAttacks == TestAdvancedSet.MITM) {
 				ByteBuf newBuf = null;
 				if (p_temp.data.length > 8) {
 					try {
@@ -287,14 +315,14 @@ public class PktListener {
 				}
 				
 				this.sendPkt(p_temp);
-			} else if (typeOfAttacks == CONTROLMESSAGEMANIPULATION) {
+			} else if (typeOfAttacks == TestAdvancedSet.CONTROLMESSAGEMANIPULATION) {
 				System.out.println("\n[ATTACK] Control Message Manipulation");
 				/* Modify a Packet Here */
 				if (this.dst_ip.equals(controllerIP)) {
 					(p.data)[2] = 0x77;
 					(p.data)[3] = 0x77;
 				}
-			} else if (typeOfAttacks == MALFORMEDCONTROLMESSAGE) {
+			} else if (typeOfAttacks == TestAdvancedSet.MALFORMEDCONTROLMESSAGE) {
 				System.out.println("\n[ATTACK] Malformed Control Message");
 				/* Modify a Packet Here */
 				if (this.dst_ip.equals(switchIP)) {
@@ -303,7 +331,7 @@ public class PktListener {
 					(p.data)[3] = 0x01;
 					// }
 				}
-			} else if (typeOfAttacks == SEED) {
+			} else if (typeOfAttacks == TestAdvancedSet.SEED) {
 				/* Modify a Packet Here */
 				if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
 					// System.out.print(switchIP + " -> " + controllerIP + " ");
@@ -315,9 +343,7 @@ public class PktListener {
 					}
 				}
 				return;
-			}
-
-			
+			}		
 			return;
 		}
 

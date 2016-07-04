@@ -20,6 +20,7 @@ import org.deltaproject.channelagent.pkthandle.PktListener;
 import org.deltaproject.channelagent.testcase.LinkFabricator;
 import org.deltaproject.channelagent.testcase.SwitchIdentificationSpoofer;
 import org.deltaproject.channelagent.testcase.SwitchTableFlooder;
+import org.deltaproject.channelagent.testcase.TestAdvancedSet;
 
 import jpcap.NetworkInterface;
 
@@ -218,14 +219,22 @@ public class AMInterface extends Thread {
 				if (recv.startsWith("config")) {
 					this.setConfiguration(recv);
 					continue;
-				} else if (recv.equalsIgnoreCase("3.1.010")) { // Packet-In
-																// Flooding
-					System.out.println("\n[Channel-Agent] Pacekt-In Flooding test start");
+				} else if (recv.equalsIgnoreCase("3.1.010")) {
+					System.out.println("\n[Channel-Agent] Pacekt-In Flooding test starts");
 					this.executeCbench();
 					dos.writeUTF("success");
-				} else if (recv.equalsIgnoreCase("3.1.170")) { // Evaesdrop
-					System.out.println("\n[Channel-Agent] Evaesdrop test start");
-					pktListener.setTypeOfAttacks(PktListener.EVAESDROP);
+				} else if (recv.equalsIgnoreCase("3.1.160")) {
+					System.out.println("\n[Channel-Agent] LinkFabrication test starts");
+					pktListener.setTypeOfAttacks(TestAdvancedSet.LINKFABRICATION);
+					pktListener.startListening();	
+					pktListener.startARPSpoofing();
+					
+					Thread.sleep(40000);
+					
+					dos.writeUTF("success");			
+				} else if (recv.equalsIgnoreCase("3.1.170")) {
+					System.out.println("\n[Channel-Agent] Evaesdrop test starts");
+					pktListener.setTypeOfAttacks(TestAdvancedSet.EVAESDROP);
 					pktListener.startListening();	
 					pktListener.startARPSpoofing();									
 					dos.writeUTF("success");
@@ -241,30 +250,12 @@ public class AMInterface extends Thread {
 					dos.writeUTF(result);
 				} else if (recv.equalsIgnoreCase("3.1.180")) {
 					System.out.println("\n[Channel-Agent] MITM test start");
-					pktListener.setTypeOfAttacks(PktListener.MITM);
+					pktListener.setTypeOfAttacks(TestAdvancedSet.MITM);
 					pktListener.startListening();
 					pktListener.startARPSpoofing();
-
-					Thread.sleep(10000);
-
 					dos.writeUTF("success");
 					pktListener.stopARPSpoofing();
-				} else if (recv.equalsIgnoreCase("C-3-A")) { // control Message
-																// Manipulation
-					pktListener.setTypeOfAttacks(PktListener.CONTROLMESSAGEMANIPULATION);
-
-					Thread.sleep(15000);
-
-					dos.writeUTF("success");
-				} else if (recv.equalsIgnoreCase("A-4-A-3")) { // Malformed
-																// control
-																// message
-					pktListener.setTypeOfAttacks(PktListener.MALFORMEDCONTROLMESSAGE);
-
-					Thread.sleep(5000);
-
-					dos.writeUTF("success");
-				} else if (recv.equalsIgnoreCase("A-4-A-1")) { // Switch Table
+				} else if (recv.equalsIgnoreCase("3.1.050")) { // Switch Table
 																// Flooding
 					tableFlooding = new SwitchTableFlooder();
 					tableFlooding.startSwitchTableFlooding();
@@ -272,24 +263,16 @@ public class AMInterface extends Thread {
 					Thread.sleep(15000);
 
 					dos.writeUTF("success");
-				} else if (recv.equalsIgnoreCase("A-4-A-2")) { // Switch
-																// Identification
-																// Spoofing
-					idSpoofing = new SwitchIdentificationSpoofer();
-					idSpoofing.start();
+				} else if (recv.equalsIgnoreCase("3.1.060")) {		
+					System.out.println("\n[Channel-Agent] Switch Identification Spoofing Test");
+					pktListener.testSwitchIdentification();
+					
+					
+//					idSpoofing = new SwitchIdentificationSpoofer();
+//					idSpoofing.start();
 
 					// check the time interval
-					Thread.sleep(15000);
-
-					dos.writeUTF("success");
-				} else if (recv.equalsIgnoreCase("A-10-A-2")) { // Link
-																// fabrication
-
-					// check the time interval
-					linkDeception = new LinkFabricator();
-					linkDeception.startLinkFabrication();
-
-					Thread.sleep(15000);
+					//Thread.sleep(15000);
 
 					dos.writeUTF("success");
 				} else if (recv.startsWith("fuzzing")) {
@@ -307,7 +290,8 @@ public class AMInterface extends Thread {
 					// dummysw.setSeed(pktListener.getSeedPackets());
 					dummysw.start();
 				} else if (recv.equalsIgnoreCase("exit")) {
-					pktListener.setTypeOfAttacks(PktListener.EMPTY);
+					pktListener.setTypeOfAttacks(TestAdvancedSet.EMPTY);
+					pktListener.stopARPSpoofing();
 					/*
 					 * handler.stopSwitchTableFlooder();
 					 * handler.stopSwitchIdentificationSpoofer();
