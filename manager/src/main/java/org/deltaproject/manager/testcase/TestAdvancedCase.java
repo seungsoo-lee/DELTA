@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 public class TestAdvancedCase {
 	private static final Logger log = LoggerFactory.getLogger(TestAdvancedCase.class.getName());
-	
+
 	private AppAgentManager appm;
 	private HostAgentManager hostm;
 	private ChannelAgentManager channelm;
@@ -25,19 +25,16 @@ public class TestAdvancedCase {
 		this.channelm = cm;
 		this.controllerm = ctm;
 
-
 		this.analyzer = new ResultAnalyzer(controllerm);
 	}
 
 	public void initController() {
 		if (!controllerm.isRunning()) {
 			log.info("Target controller: " + controllerm.getType());
-			
+
 			log.info("Target controller is starting..");
 			controllerm.createController();
 			log.info("Target controller setup is completed");
-
-			
 
 			/* waiting for switches */
 			log.info("Listening to switches..");
@@ -126,7 +123,7 @@ public class TestAdvancedCase {
 
 		/* Remove flow rules */
 		appm.write("3.1.080|false");
-		
+
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
@@ -137,7 +134,7 @@ public class TestAdvancedCase {
 		/* step 2: run cbench */
 		log.info("Cbench starts");
 		channelm.write(code);
-		//controllerm.executeCbench();
+		// controllerm.executeCbench();
 
 		try {
 			Thread.sleep(5000);
@@ -250,7 +247,7 @@ public class TestAdvancedCase {
 		/* step 1: create controller */
 		initController();
 		long start = System.currentTimeMillis();
-		
+
 		/* step 2: try communication */
 		log.info("HostAgent starts communication");
 		String flowResult = generateFlow("ping");
@@ -327,17 +324,29 @@ public class TestAdvancedCase {
 		log.info("Agent-Manager retrieves result from Channel-Agent");
 		String resultChannel = channelm.read();
 
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		/* step 3: try communication */
+		log.info("Host-Agent sends packets to others");
+		String flowResult = generateFlow("ping");
+
+		log.info("Agent-Manager retrieves result from Host-Agent");
+
 		/* step 4: decide if the attack is feasible */
 		ResultInfo result = new ResultInfo();
-		result.addType(ResultInfo.SWITCH_STATE);
+		result.addType(ResultInfo.COMMUNICATON);
+		result.setResult(flowResult);
 
 		analyzer.checkResult(code, result);
 
 		long end = System.currentTimeMillis();
 		log.info("Running Time: " + (end - start));
 
-		channelm.write("exit");
-		controllerm.flushARPcache();
 		appm.closeSocket();
 		controllerm.killController();
 		return true;
@@ -728,7 +737,7 @@ public class TestAdvancedCase {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		log.info("Agent-Manager checks the status of target controller");
 
 		ResultInfo result = new ResultInfo();
@@ -751,16 +760,27 @@ public class TestAdvancedCase {
 	 */
 	public boolean testLinkFabrication(String code) {
 		log.info(code + " - Link Fabrication");
-
-		/* step 1: create controller */
-		initController();
 		long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
 		log.info("Channel-Agent starts");
 		channelm.write(code);
-		String resultChannel = channelm.read();
+		channelm.read();
+		
+		/* step 1: create controller */
+		initController();		
 
+		try {
+			Thread.sleep(30000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		appm.write(code);
+		String resultChannel = appm.read();
+
+		log.info(resultChannel);
 		/* step 4: decide if the attack is feasible */
 		// analyzer.checkSwirchState(code);
 
@@ -768,6 +788,10 @@ public class TestAdvancedCase {
 		controllerm.flushARPcache();
 		appm.closeSocket();
 		controllerm.killController();
+		
+		long end = System.currentTimeMillis();
+		log.info("Running Time: " + (end - start));
+		
 		return true;
 	}
 

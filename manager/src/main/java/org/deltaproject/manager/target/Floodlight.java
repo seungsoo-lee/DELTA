@@ -45,7 +45,7 @@ public class Floodlight implements TargetController {
 			stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
 			while ((str = stdOut.readLine()) != null) {
-				//System.out.println(str);
+				// System.out.println(str);
 				if (str.contains("Starting DebugServer on :6655")) {
 					isRunning = true;
 					break;
