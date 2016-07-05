@@ -82,7 +82,8 @@ public class AppAgentManager {
 					e.printStackTrace();
 					return false;
 				}
-			}
+			} else
+				return false;
 		} else {
 			try {
 				dos.writeUTF(code);
