@@ -23,7 +23,7 @@ In order to build and run DELTA the following are required:
 + JDK 1.7+
 
 ## Installing DELTA
-Delta installation depends on maven and ant build system. The mvn command is used to install the Agent-Manager and sub-agents.
+Delta installation depends on maven and ant build system. The mvn command is used to install the agent-Manager and the sub-agents.
 
 + STEP 1. Install DELTA dependencies on Ubuntu 14.04 (host machine).
 
@@ -32,11 +32,45 @@ $ cd DELTA/tools/dev/
 $ ./delta-setup-devenv-ubuntu
 ```
 
-+ STEP 2. Install 3 virtual machines using vagrant.
++ STEP 2. Install 3 virtual machines using vagrant (host machine).
 
 ```
 $ cd DELTA/tools/dev/vagrant
 $ vagrant up
+```
+
++ STEP 3. Configure passwd-less ssh login for target controller(s) (host machine).
+
+```
+$ cd ssh-keygen -t rsa
+
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/sk/.ssh/id_rsa): ## Press Enter
+Enter passphrase (empty for no passphrase): ## Enter Passphrase 
+Enter same passphrase again: ## Re-enter Passphrase
+Your identification has been saved in /home/sk/.ssh/id_rsa.
+Your public key has been saved in /home/sk/.ssh/id_rsa.pub.
+The key fingerprint is:
+e4:6d:fc:7b:6b:d4:0c:04:72:7e:ae:c4:16:f3:13:d1 sk@sk
+The key's randomart image is:
++--[ RSA 2048]----+
+|          . o... |
+|           +  ..E|
+|        .   +.o  |
+|       o o . *.. |
+|        S + + ++ |
+|         . + ...o|
+|            o.   |
+|             .o  |
+|            .o.. |
++-----------------+
+
+$ ssh-copy-id -i /home/[name]/.ssh/id_rsa.pub vagrant@10.100.100.11
+
+Now, ssh to your remote as shown here.
+$ ssh vagrant@10.100.100.11
+
+Check if you will be able to access the VM1 without having to enter the password.
 ```
 
 + STEP 3. Install jpcap library for channel agent (VM2).
@@ -46,12 +80,7 @@ $ cd host-agent
 $ ant
 ```
 
-+ STEP 4. Configure passwd-less ssh login for target controller(s) (VM1).
 
-```
-$ cd host-agent
-$ ant
-```
 
 ## Configuring your own experiments
 + The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. Setting.cfg contains sample configurations. You can specify your own config file by passing its path:
