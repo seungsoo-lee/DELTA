@@ -42,7 +42,7 @@ $ vagrant up
 + STEP 3. Configure passwd-less ssh login for target controller(s) (host machine).
 
 ```
-$ cd ssh-keygen -t rsa
+$ ssh-keygen -t rsa
 
 Generating public/private rsa key pair.
 Enter file in which to save the key (/home/sk/.ssh/id_rsa): ## Press Enter
@@ -73,11 +73,11 @@ $ ssh vagrant@10.100.100.11
 Check if you will be able to access the VM1 without having to enter the password.
 ```
 
-+ STEP 3. Install jpcap library for channel agent (VM2).
++ STEP 4. Install jpcap library for channel agent (VM2).
 
 ```
-$ cd host-agent
-$ ant
+$ cd DELTA/agents/channel/
+$ scp 
 ```
 
 
