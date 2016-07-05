@@ -35,7 +35,7 @@ public class Communication extends Thread {
 
 	public void setServerAddr() {
 		// for static		
-		this.serverIP = "127.0.0.1";
+		this.serverIP = "10.100.200.1";
 		this.serverPort = 3366;
 		
 //		BufferedReader br = null;
