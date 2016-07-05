@@ -76,8 +76,11 @@ Check if you will be able to access the VM1 without having to enter the password
 + STEP 4. Install jpcap library for channel agent (VM2).
 
 ```
-$ cd DELTA/agents/channel/
-$ scp 
+$ cd DELTA/agents/channel/libs/jpcap/jpcap/0.7
+$ scp libjpcap.so vagrant@10.100.100.12:/home/vagrant
+
+$ ssh vagrant@10.100.100.12
+vagrant@channel-vm:~$ sudo cp libjpcap.so /usr/lib/
 ```
 
 
