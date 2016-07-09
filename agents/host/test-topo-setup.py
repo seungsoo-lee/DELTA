@@ -26,16 +26,16 @@ def DeltaNetwork():
 	net.addLink(s0, s1)
 	net.addLink(s1, s2)
 
-	net.addLink(s3, h1, intfName2='eth2')
+	net.addLink(s3, h1, intfName2='eth0')
 	
 #	net.build()
 	net.start()
 
 #Add hardware interface to switch1 
-	s3.attach('eth2')
+	s3.attach('eth0')
 
 #Set ip
-	h1.cmd("ifconfig eth2 10.100.200.10 netmask 255.255.255.0")
+	h1.cmd("ifconfig eth0 10.0.2.13 netmask 255.255.255.0")
 	
 #connect a controller
 	os.system("sudo ovs-vsctl set-controller s0 tcp:"+sys.argv[1]+":"+sys.argv[2])
