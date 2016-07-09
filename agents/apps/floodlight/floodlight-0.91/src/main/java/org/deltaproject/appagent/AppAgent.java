@@ -253,8 +253,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
 		logger.info("[ATTACK] Internal Storage Manipulation");
 		String deletedInfo = "nothing";
 
-		IResultSet link = storageSource.executeQuery(InternalDBShow.LINK_TABLE_NAME, null,
-				null, null);
+		IResultSet link = storageSource.executeQuery(InternalDBShow.LINK_TABLE_NAME, null, null, null);
 		int count = 0;
 		List<String> linkIdList = new LinkedList<String>();
 
@@ -269,14 +268,14 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
 			}
 		}
 
-		for(int i =0; i<count; i++) {
-			deletedInfo = "success|";
+		deletedInfo = "success|";
+		for (int i = 0; i < count; i++) {
 			logger.info("[ATTACK] Access InternalDB : delete Link Information");
 			logger.info("[ATTACK] delete Link Info: " + linkIdList.get(i));
 			storageSource.deleteRow(InternalDBShow.LINK_TABLE_NAME, linkIdList.get(i));
-			deletedInfo += linkIdList.get(i).toString();
+			deletedInfo += linkIdList.get(i).toString() + "\n";
 		}
-		
+
 		InternalDBShow.show(storageSource);
 		return deletedInfo;
 	}
@@ -444,6 +443,49 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
 		System.exit(0);
 
 		return true;
+	}
+
+	public String LinkFabrication() {
+		logger.info("[ATTACK] Link Fabrication");
+		String fakeLinks = "";
+
+		boolean a = false, b = false;
+		
+		IResultSet link = storageSource.executeQuery(InternalDBShow.LINK_TABLE_NAME, null, null, null);
+		int count = 0;
+		List<String> linkIdList = new LinkedList<String>();
+
+		while (link.next()) {
+			try {
+				count++;
+				linkIdList.add(link.getString(InternalDBShow.LINK_ID));
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (count != 0) {
+			for (int i = 0; i < count; i++) {
+				logger.info("[ATTACK] delete Link Info: " + linkIdList.get(i));
+
+				if (linkIdList.get(i).toString().equals("00:00:00:00:00:00:00:01-2-00:00:00:00:00:00:00:03-2")) {
+					fakeLinks += linkIdList.get(i).toString() + "\n";
+					a = true;
+				}
+
+				if (linkIdList.get(i).toString().equals("00:00:00:00:00:00:00:03-2-00:00:00:00:00:00:00:01-2")) {
+					fakeLinks += linkIdList.get(i).toString() + "\n";
+					b = true;
+				}
+			}
+		}
+
+		if (a && b) {
+			fakeLinks = "success|\n Fake links: " + fakeLinks;
+		} else
+			fakeLinks = "nothing";
+
+		return fakeLinks;
 	}
 
 	/*
@@ -644,9 +686,9 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
 	}
 
 	public void testFunc() {
-		 
+
 	}
-	
+
 	@Override
 	public Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
 		// TODO Auto-generated method stub
@@ -666,7 +708,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
 				map.put(HexString.toHexString(eth.getSourceMACAddress()), ip_pkt.getSourceAddress());
 
 			}
-			
+
 			if (isDrop) {
 				if (droppedPacket == null)
 					droppedPacket = pi;
@@ -675,11 +717,11 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
 			} else if (isLoop) {
 				this.Infinite_Loop();
 			}
-			
+
 			testFunc();
 
 			return Command.CONTINUE;
-			
+
 		// case STATS_REPLY:
 		// System.out.println("STATS_REPLY receive");
 		// break;

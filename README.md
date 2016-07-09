@@ -12,67 +12,78 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 
 ## Prerequisites
 In order to build and run DELTA the following are required:
-+ At least 3 virtual machines (based on Ubuntu 14.04 LTS 64 bit)
-+ Target Controller ([OpenDaylight_Helium-S3](https://github.com/opendaylight/controller/releases/tag/release%2Fhelium-sr3), [ONOS 1.1.0](https://github.com/opennetworkinglab/onos/tree/onos-1.1) or [Floodlight-0.91](https://github.com/floodlight/floodlight/tree/v0.91)) (for agent-manager in VM-1)
-+ [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (in VM-1)
-+ JPcap library([JPcap 64bit.jar](http://sdnsec.kr/research/delta/jpcap.jar), [libjpcap.so](http://sdnsec.kr/research/delta/libjpcap.so)) (for channel-agent in VM-2)
-+ [Mininet 2.1+](http://mininet.org/download/) (for host-agent in VM-3)
++ A host machine based on Ubuntu 14.04 LTS 64 bit (agent manager)
++ Three virtual machines based on Ubuntu 14.04 LTS 64 bit; target controller(s) + application agent (VM1), channel agent (VM2) and host agent (VM3) 
++ Target Controller ([OpenDaylight_Helium-S3](https://github.com/opendaylight/controller/releases/tag/release%2Fhelium-sr3), [ONOS 1.1.0](https://github.com/opennetworkinglab/onos/tree/onos-1.1) or [Floodlight-0.91](https://github.com/floodlight/floodlight/tree/v0.91)) (in VM1)
++ [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench), JPcap library([JPcap 64bit.jar](http://sdnsec.kr/research/delta/jpcap.jar), [libjpcap.so](http://sdnsec.kr/research/delta/libjpcap.so)) (in VM2)
++ [Mininet 2.1+](http://mininet.org/download/) (in VM3)
 + Ant build system
++ Maven build system
++ Vagrant system
 + JDK 1.7+
 
 ## Installing DELTA
-Delta installation depends on JAVA and the ant build system. The ant command is used to install the Agent-Manager and sub-agents.
+Delta installation depends on maven and ant build system. The mvn command is used to install the agent-Manager and the sub-agents.
 
-+ STEP 1. Installing Agent-Manager.
-
-```
-$ cd agent-manager
-$ ant
-```
-
-+ STEP 2. Installing Channel-Agent.
++ STEP 1. Install DELTA dependencies on Ubuntu 14.04 (host machine).
 
 ```
-$ cd channel-agent
-$ ant
+$ cd DELTA/tools/dev/
+$ ./delta-setup-devenv-ubuntu
 ```
 
-+ STEP 3. Installing Host-Agent.
++ STEP 2. Install 3 virtual machines using vagrant (host machine).
 
 ```
-$ cd host-agent
-$ ant
+$ cd DELTA/tools/dev/vagrant
+$ vagrant up
 ```
 
-+ STEP 4. Installing Application-Agent. It depends on the controller type and version.
-<br><br> 1) In the case of Floodlight-0.91: 
++ STEP 3. Configure passwd-less ssh login for target controller(s) (host machine).
+
 ```
-(before installing application-agent of floodlight-0.91, floodlight-0.91 controller should be installed)
+$ ssh-keygen -t rsa
 
-$ ln -s (Delta absolute path)/app-agent/floodlight/0.91/nss (floodlight absolute path)/src/main/java/nss
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/sk/.ssh/id_rsa): ## Press Enter
+Enter passphrase (empty for no passphrase): ## Enter Passphrase 
+Enter same passphrase again: ## Re-enter Passphrase
+Your identification has been saved in /home/sk/.ssh/id_rsa.
+Your public key has been saved in /home/sk/.ssh/id_rsa.pub.
+The key fingerprint is:
+e4:6d:fc:7b:6b:d4:0c:04:72:7e:ae:c4:16:f3:13:d1 sk@sk
+The key's randomart image is:
++--[ RSA 2048]----+
+|          . o... |
+|           +  ..E|
+|        .   +.o  |
+|       o o . *.. |
+|        S + + ++ |
+|         . + ...o|
+|            o.   |
+|             .o  |
+|            .o.. |
++-----------------+
 
-(Then, Modify floodlight module configuration files)
+$ ssh-copy-id -i /home/[name]/.ssh/id_rsa.pub vagrant@10.100.100.11
 
-$ vi (floodlight path)/src/main/resources/floodlightdefault.properties
+Now, ssh to your remote as shown here.
+$ ssh vagrant@10.100.100.11
 
-floodlight.modules=\
-nss.delta.appagent.AppAgent,\   # <-- add
-net.floodlightcontroller.jython.JythonDebugInterface,\
-...
-
-$ vi (floodlight path)/src/main/resources/META-INF/services/net.floodlightcontroller.core.module.IFloodlightModule
-
-nss.delta.appagent.AppAgent     # <-- add
-net.floodlightcontroller.core.module.ApplicationLoader
-net.floodlightcontroller.core.internal.FloodlightProvider
-...
-
-$ cd (floodlight path)
-$ sudo ant
+Check if you will be able to access the VM1 without having to enter the password.
 ```
-<br> 2) In the case of ONOS: ...
 
-<br> 3) In the case of OpenDaylight: ...
++ STEP 4. Install jpcap library for channel agent (VM2).
+
+```
+$ cd DELTA/agents/channel/libs/jpcap/jpcap/0.7
+$ scp libjpcap.so vagrant@10.100.100.12:/home/vagrant
+
+$ ssh vagrant@10.100.100.12
+vagrant@channel-vm:~$ sudo cp libjpcap.so /usr/lib/
+```
+
+
 
 ## Configuring your own experiments
 + The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. Setting.cfg contains sample configurations. You can specify your own config file by passing its path:

@@ -3,3 +3,4 @@
   serial: 1
   roles:
     - mininet
+    - java8-oracle

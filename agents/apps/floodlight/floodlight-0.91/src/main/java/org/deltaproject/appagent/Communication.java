@@ -34,46 +34,50 @@ public class Communication extends Thread {
 	}
 
 	public void setServerAddr() {
-		BufferedReader br = null;
-		InputStreamReader isr = null;
-		FileInputStream fis = null;
-		String value = System.getenv("DELTA_ROOT");
-		value = value+"/tools/config/manager.cfg";
+		// for static		
+		this.serverIP = "10.100.200.1";
+		this.serverPort = 3366;
 		
-		File file = new File(value);
-		String temp = "";
-
-		try {
-			fis = new FileInputStream(file);
-			isr = new InputStreamReader(fis, "UTF-8");
-			br = new BufferedReader(isr);
-
-			temp = br.readLine();
-
-			this.serverIP = temp.substring(0, temp.indexOf(":"));
-			this.serverPort = Integer.valueOf(temp.substring(temp.indexOf(":") + 1));
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				fis.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			try {
-				isr.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			try {
-				br.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+//		BufferedReader br = null;
+//		InputStreamReader isr = null;
+//		FileInputStream fis = null;
+//		String value = System.getenv("DELTA_ROOT");
+//		value = value + "/tools/config/manager.cfg";
+//		
+//		File file = new File(value);
+//		String temp = "";
+//
+//		try {
+//			fis = new FileInputStream(file);
+//			isr = new InputStreamReader(fis, "UTF-8");
+//			br = new BufferedReader(isr);
+//
+//			temp = br.readLine();
+//
+//			this.serverIP = temp.substring(0, temp.indexOf(":"));
+//			this.serverPort = Integer.valueOf(temp.substring(temp.indexOf(":") + 1));
+//
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		} finally {
+//			try {
+//				fis.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			try {
+//				isr.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			try {
+//				br.close();
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
 	}
 
 	public void connectServer(String agent) {
@@ -143,6 +147,9 @@ public class Communication extends Thread {
 		} else if (recv.equals("3.1.140")) {
 			app.System_Command_Execution();
 			return;
+		} else if (recv.equals("3.1.160")) {
+			result = app.LinkFabrication();
+			dos.writeUTF(result);
 		} else if (recv.equals("3.1.190")) {
 			app.Flow_Rule_Flooding();
 			return;

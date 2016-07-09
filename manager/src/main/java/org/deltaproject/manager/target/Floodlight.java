@@ -1,129 +1,139 @@
 package org.deltaproject.manager.target;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.*;
 import java.lang.reflect.Field;
 
 public class Floodlight implements TargetController {
-	private Process process = null;
-	private boolean isRunning = false;
+    private Process process = null;
+    private boolean isRunning = false;
 
-	public String version = "";
-	public String controllerPath = "";
-	public String appPath = "";
+    public String version = "";
+    public String controllerPath = "";
 
-	private int currentPID = -1;
+    private int currentPID = -1;
 
-	private BufferedWriter stdIn;
-	private BufferedReader stdOut;
+    private BufferedWriter stdIn;
+    private BufferedReader stdOut;
 
-	public Floodlight(String controllerPath, String version) {
-		this.controllerPath = controllerPath;
-		this.version = version;
-	}
+    public Floodlight(String controllerPath, String version) {
+        this.controllerPath = controllerPath;
+        this.version = version;
+    }
 
-	public int createController() {
-		isRunning = false;
+    public int createController() {
+        isRunning = false;
 
-		String str = "";
-		try {
-			process = Runtime.getRuntime().exec("java -jar " + controllerPath);
+        String str;
 
-			Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
-			pidField.setAccessible(true);
-			Object value = pidField.get(process);
+        try {
+            process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 java -jar floodlight.jar");
 
-			this.currentPID = (Integer) value;
+            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
+            pidField.setAccessible(true);
+            Object value = pidField.get(process);
 
-			try {
-				Thread.sleep(7000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+            this.currentPID = (Integer) value;
 
-			stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
-			while ((str = stdOut.readLine()) != null) {
-				//System.out.println(str);
-				if (str.contains("Starting DebugServer on :6655")) {
-					isRunning = true;
-					break;
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+            stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
-		return currentPID;
-	}
 
-	public Process getProc() {
-		return this.process;
-	}
+            while ((str = stdOut.readLine()) != null) {
+                // System.out.println(str);
+                if (str.contains("Starting DebugServer on :6655")) {
+                    isRunning = true;
+                    break;
+                }
+            }
 
-	public void killController() {
-		Process pc = null;
-		try {
-			if (process != null) {
-				process.getErrorStream().close();
-				process.getInputStream().close();
-				process.getOutputStream().close();
-			}
+            Process temp = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo ps -ef | grep java");
+            String tempS;
 
-			// pc = Runtime.getRuntime().exec("sudo lxc-stop -n controller -r");
-			pc = Runtime.getRuntime().exec("kill -9 " + this.currentPID);
-			pc.getErrorStream().close();
-			pc.getInputStream().close();
-			pc.getOutputStream().close();
-			pc.waitFor();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
 
-		this.currentPID = -1;
-	}
+            while ((tempS = stdOut2.readLine()) != null && !tempS.isEmpty()) {
+                if (tempS.contains("floodlight.jar")) {
+                    String[] list = StringUtils.split(tempS);
 
-	/*
-	 * In the case of Floodlight, App-Agent is automatically installed when the
-	 * controller starts
-	 */
-	public boolean installAppAgent() {
+                    currentPID = Integer.parseInt(list[1]);
+                }
+            }
 
-		return true;
-	}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-	@Override
-	public String getType() {
-		// TODO Auto-generated method stub
-		return "Floodlight";
-	}
+        return currentPID;
+    }
 
-	@Override
-	public String getVersion() {
-		// TODO Auto-generated method stub
-		return this.version;
-	}
+    public Process getProc() {
+        return this.process;
+    }
 
-	@Override
-	public String getPath() {
-		// TODO Auto-generated method stub
-		return this.controllerPath;
-	}
+    public void killController() {
+        Process pc = null;
+        try {
+            pc = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo kill -9 " + this.currentPID);
+            pc.getErrorStream().close();
+            pc.getInputStream().close();
+            pc.getOutputStream().close();
+            pc.waitFor();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-	@Override
-	public int getPID() {
-		// TODO Auto-generated method stub
-		return this.currentPID;
-	}
+        this.currentPID = -1;
+    }
 
-	@Override
-	public BufferedReader getStdOut() {
-		// TODO Auto-generated method stub
-		return this.stdOut;
-	}
+    /*
+     * In the case of Floodlight, App-Agent is automatically installed when the
+     * controller starts
+     */
+    public boolean installAppAgent() {
+
+        return true;
+    }
+
+    @Override
+    public String getType() {
+        // TODO Auto-generated method stub
+        return "Floodlight";
+    }
+
+    @Override
+    public String getVersion() {
+        // TODO Auto-generated method stub
+        return this.version;
+    }
+
+    @Override
+    public String getPath() {
+        // TODO Auto-generated method stub
+        return this.controllerPath;
+    }
+
+    @Override
+    public int getPID() {
+        // TODO Auto-generated method stub
+        return this.currentPID;
+    }
+
+    @Override
+    public BufferedReader getStdOut() {
+        // TODO Auto-generated method stub
+        return this.stdOut;
+    }
 }
