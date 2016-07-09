@@ -1,6 +1,7 @@
 package org.deltaproject.manager.core;
 
 import org.deltaproject.manager.utils.ProgressBar;
+import org.deltaproject.webui.WebUI;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,9 +14,11 @@ public class AgentManager extends Thread {
 	private ServerSocket listenAgent;
 	private int portNum = 3366;
 	private BufferedReader sc;
+    private WebUI webUI = new WebUI();
 
 	public AgentManager(String path) {
 		this.conductor = new AttackConductor(path);
+        this.webUI.activate();
 	}
 
 	public void showMenu() throws IOException {
@@ -37,6 +40,7 @@ public class AgentManager extends Thread {
 
 			if (input.equalsIgnoreCase("q")) {
 				closeServerSocket();
+				webUI.deactivate();
 				break;
 			} else {
 				processUserInput(input);
