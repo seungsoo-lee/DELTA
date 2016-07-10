@@ -13,9 +13,14 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 ## Prerequisites
 In order to build and run DELTA the following are required:
 + A host machine based on Ubuntu 14.04 LTS 64 bit (agent manager)
-+ Three virtual machines based on Ubuntu 14.04 LTS 64 bit; target controller(s) + application agent (VM1), channel agent (VM2) and host agent (VM3) 
++ Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
+```
+- VM-1: Target controller + Application agent
+- VM-2: Channel agent
+- VM-3: Host agent
+```
 + Target Controller ([OpenDaylight_Helium-S3](https://github.com/opendaylight/controller/releases/tag/release%2Fhelium-sr3), [ONOS 1.1.0](https://github.com/opennetworkinglab/onos/tree/onos-1.1) or [Floodlight-0.91](https://github.com/floodlight/floodlight/tree/v0.91)) (in VM1)
-+ [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench), JPcap library([JPcap 64bit.jar](http://sdnsec.kr/research/delta/jpcap.jar), [libjpcap.so](http://sdnsec.kr/research/delta/libjpcap.so)) (in VM2)
++ [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (in VM2)
 + [Mininet 2.1+](http://mininet.org/download/) (in VM3)
 + Ant build system
 + Maven build system
@@ -39,7 +44,23 @@ $ cd DELTA/tools/dev/vagrant
 $ vagrant up
 ```
 
-+ STEP 3. Configure passwd-less ssh login for target controller(s) (host machine).
++ STEP 3. Install jpcap library for channel agent (VM2).
+
+```
+$ cd DELTA/agents/channel/libs/jpcap/jpcap/0.7
+$ scp libjpcap.so vagrant@10.100.100.12:/home/vagrant
+
+$ ssh vagrant@10.100.100.12
+vagrant@channel-vm:~$ sudo cp libjpcap.so /usr/lib/
+```
+
+
+
+
+
+
+## Configuring your own experiments
+++ STEP 3. Configure passwd-less ssh login for target controller(s) (host machine).
 
 ```
 $ ssh-keygen -t rsa
@@ -73,19 +94,6 @@ $ ssh vagrant@10.100.100.11
 Check if you will be able to access the VM1 without having to enter the password.
 ```
 
-+ STEP 4. Install jpcap library for channel agent (VM2).
-
-```
-$ cd DELTA/agents/channel/libs/jpcap/jpcap/0.7
-$ scp libjpcap.so vagrant@10.100.100.12:/home/vagrant
-
-$ ssh vagrant@10.100.100.12
-vagrant@channel-vm:~$ sudo cp libjpcap.so /usr/lib/
-```
-
-
-
-## Configuring your own experiments
 + The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. Setting.cfg contains sample configurations. You can specify your own config file by passing its path:
 ```
 FLOODLIGHT_ROOT=/home/sdn/floodlight/floodlight-0.91/target/floodlight.jar
