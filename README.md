@@ -30,21 +30,26 @@ In order to build and run DELTA the following are required:
 ## Installing DELTA
 Delta installation depends on maven and ant build system. The mvn command is used to install the agent-Manager and the sub-agents.
 
-+ STEP 1. Install DELTA dependencies on Ubuntu 14.04 (host machine).
++ STEP 0. Get the source
+```
+$ git clone https://github.com/OpenNetworkingFoundation/DELTA.git
+```
+
++ STEP 1. Install DELTA dependencies on the host machine.
 
 ```
 $ cd DELTA/tools/dev/
 $ ./delta-setup-devenv-ubuntu
 ```
 
-+ STEP 2. Install 3 virtual machines using vagrant (host machine).
++ STEP 2. Install 3 virtual machines using vagrant system.
 
 ```
 $ cd DELTA/tools/dev/vagrant
 $ vagrant up
 ```
 
-+ STEP 3. Install jpcap library for channel agent (VM2).
++ STEP 3. Install jpcap library for channel agent on VM-2.
 
 ```
 $ cd DELTA/agents/channel/libs/jpcap/jpcap/0.7
