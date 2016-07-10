@@ -1,0 +1,6 @@
+- hosts: localhost
+  remote_user: vagrant
+  serial: 1
+  roles:
+    - mininet
+    - java8-oracle
