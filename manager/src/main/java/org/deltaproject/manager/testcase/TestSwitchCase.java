@@ -34,6 +34,7 @@ public class TestSwitchCase {
     private long r_xid = 0xeeeeeeeel;
 
     private String ofversion;
+    private int ofport;
     private Configuration cfg;
 
     public TestSwitchCase(Configuration in) {
@@ -45,6 +46,8 @@ public class TestSwitchCase {
             defaultFactory = OFFactories.getFactory(OFVersion.OF_10);
         else if (ofversion.equals("1.3"))
             defaultFactory = OFFactories.getFactory(OFVersion.OF_13);
+
+        ofport = Integer.parseInt(cfg.getOFPort());
     }
 
     public void replayKnownAttack(String code) {
@@ -94,7 +97,7 @@ public class TestSwitchCase {
     }
 
     public void setUpDummyControllerWithNoHello(int type) {
-        dcontroller = new DummyController(this.ofversion);
+        dcontroller = new DummyController(this.ofversion, ofport);
         dcontroller.setHandShakeTest(type);
         dcontroller.bootstrapNetty();
 
@@ -109,7 +112,7 @@ public class TestSwitchCase {
     }
 
     public void setUpDummyController() {
-        dcontroller = new DummyController(this.ofversion);
+        dcontroller = new DummyController(this.ofversion, ofport);
         dcontroller.bootstrapNetty();
 
         while (!dcontroller.isOFHandlerActive()) {

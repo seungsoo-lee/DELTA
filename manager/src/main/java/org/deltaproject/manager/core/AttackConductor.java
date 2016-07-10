@@ -84,6 +84,7 @@ public class AttackConductor {
 
         } else if (agentType.contains("HostAgent")) {
             hostm.setSocket(socket, dos, dis);
+            hostm.write("connected");
         }
     }
 

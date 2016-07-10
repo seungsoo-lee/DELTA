@@ -21,7 +21,7 @@ public class PktHandler {
 
 	public String executePing(String destIP) {
 		try {
-			System.out.println("ping " + destIP + " -c 3");
+			System.out.println("[Host-Agent] ping " + destIP + " -c 3");
 			process = Runtime.getRuntime().exec("ping " + destIP + " -c 3");
 
 			stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -58,7 +58,7 @@ public class PktHandler {
 		String result = "";
 
 		try {
-			System.out.println("compare");
+			System.out.println("[Host-Agent] compare latency");
 			process = Runtime.getRuntime().exec("ping " + destIP + " -c 2");
 			stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			String lines = "";

@@ -113,6 +113,8 @@ public class AMInterface extends Thread {
 				} else if (recv.contains("compare")) {
 					dos.writeUTF(ha.comparePing("10.0.0.2"));
 					dos.flush();
+				} else if (recv.contains("connected")) {
+					System.out.println("[Host-Agent] Connected with Agent-Manager");
 				}
 			}
 		} catch (Exception e) {

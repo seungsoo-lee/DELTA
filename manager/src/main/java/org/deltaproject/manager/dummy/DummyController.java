@@ -45,8 +45,9 @@ public class DummyController implements Runnable {
     private OFChannelHandler handler;
 
     private int testHandShakeType;
+    private int ofport;
 
-    public DummyController(String ofv) {
+    public DummyController(String ofv, int port) {
         ofVersions = new HashSet<OFVersion>();
 
         if (ofv.equals("1.0")) {
@@ -61,6 +62,7 @@ public class DummyController implements Runnable {
 
         timer = new HashedWheelTimer();
         testHandShakeType = 0;
+        ofport = port;
     }
 
     public long getTimeOut() {
@@ -153,7 +155,7 @@ public class DummyController implements Runnable {
 
             cg = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
             Set<InetSocketAddress> addrs = new HashSet<InetSocketAddress>();
-            addrs.add(new InetSocketAddress(InetAddress.getByAddress(IPv4Address.NONE.getBytes()), 6653));
+            addrs.add(new InetSocketAddress(InetAddress.getByAddress(IPv4Address.NONE.getBytes()), 6633));
 
             for (InetSocketAddress sa : addrs) {
                 cg.add(bootstrap.bind(sa).channel());
