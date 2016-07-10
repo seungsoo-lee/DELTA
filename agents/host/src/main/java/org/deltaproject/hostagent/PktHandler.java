@@ -93,8 +93,6 @@ public class PktHandler {
 			}
 			System.out.println(result);
 
-			// stdIn = new BufferedWriter(new OutputStreamWriter(
-			// process.getOutputStream()));
 			process.getErrorStream().close();
 			process.getInputStream().close();
 			process.getOutputStream().close();
