@@ -53,6 +53,7 @@ $ vagrant up
 
 ```
 $ cd <DELTA>
+$ source ./tools/dev/bash_profile
 $ mvn clean install
 ```
 
@@ -106,14 +107,7 @@ Check if you will be able to access the VMs without having to enter the password
 
 + The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. Setting.cfg contains sample configurations. You can specify your own config file by passing its path:
 ```
-FLOODLIGHT_ROOT=/home/sdn/floodlight/floodlight-0.91/target/floodlight.jar
-FLOODLIGHT_VER=0.91
-ODL_ROOT=/home/sdn/odl-helium-sr3/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.shODL_VER=helium-sr3
-ODL_APPAGENT=/home/sdn/odl-helium-sr3/opendaylight/appagent/target/appagent-1.4.5-Helium-SR3.jar
-ONOS_ROOT=/home/sdn/onos/onos-1.1.0/
-ONOS_VER=1.1.0
-ONOS_KARAF_ROOT=/home/sdn/Application/apache-karaf-3.0.4/bin/karaf
-CBENCH_ROOT=/home/sdn/oflops/cbench/
+CBENCH_ROOT=/home/vagrant/oflops/cbench/
 TARGET_CONTROLLER=Floodlight
 OF_PORT=6633
 OF_VER=1.0
@@ -124,20 +118,12 @@ SWITCH_IP=10.100.100.13,10.100.100.13,10.100.100.13
 
 
 ## Running DELTA
-+ STEP 0. Virtual Machine Setting
++ STEP 0. Distribute the executable files to VMs
 
-> VM 1. Agent-Manager and one of the target controllers are installed.
 ```
-(at least two network interfaces are required)
-eth0 192.168.100.X/24 # for controller-switch connection
-eth1 192.168.101.X/24 # for Delta agents connection
-```
-
-> VM 2. Mininet and Host-Agent are installed.
-```
-(at least two network interfaces are required)
-eth0 192.168.100.X/24 # for controller-switch connection
-eth1 192.168.101.X/24 # for Delta agents connection
+$ cd <DELTA>
+$ scp ./agents/apps/floodlight/floodlight-0.91/target/floodlight.jar vagrant@10.100.100.11:/home/vagrant
+$
 ```
 
 
