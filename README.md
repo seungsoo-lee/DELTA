@@ -131,13 +131,8 @@ $ scp ./agents/host/test-topo/* vagrant@10.100.100.13:/home/vagrant
 
 + STEP 1. Execute Agent-Manager first
 ```
-<<<<<<< HEAD
-$ cd [Delta]/agent-manager
-$ sudo java -jar ./target/am.jar ./setting.cfg
-=======
 $ cd <DELTA>/manager
 $ java -jar target/delta-manager-1.0-SNAPSHOT-jar-with-dependencies.jar ../tools/config/manager.cfg
->>>>>>> delta-mvn
 
  DELTA: A Penetration Testing Framework for Software-Defined Networks
 
