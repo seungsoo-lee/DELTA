@@ -158,7 +158,7 @@ $ (the other console) ./ovs-static-rules
 mininet> h1 java -jar delta-agent-host-1.0-SNAPSHOT.jar 10.0.2.2 3366
 ```
 
-+ STEP 4. Reproducing known attacks in VM1
++ STEP 4. Reproducing known attacks
 ```
  DELTA: A Penetration Testing Framework for Software-Defined Networks
 
