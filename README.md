@@ -129,7 +129,7 @@ $ scp ./agents/host/test-topo/* vagrant@10.100.100.13:/home/vagrant
 ```
 
 
-+ STEP 1. Run Agent-Manager first
++ STEP 1. Execute Agent-Manager first
 ```
 $ cd <DELTA>/manager
 $ java -jar target/delta-manager-1.0-SNAPSHOT-jar-with-dependencies.jar ../tools/config/manager.cfg
@@ -181,5 +181,3 @@ Select the attack code (replay all, enter the 'A')> 3.1.020
 
 ## Questions?
 Send questions or feedback to: lss365@kaist.ac.kr or chyoon87@kaist.ac.kr
-
-in delta-101
