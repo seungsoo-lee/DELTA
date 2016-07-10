@@ -55,7 +55,7 @@ public class AttackConductor {
         TestInfo.updateSwitchCase(infoSwitchCase);
 
         testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
-        testSwitchCase = new TestSwitchCase();
+        testSwitchCase = new TestSwitchCase(cfg);
     }
 
     public String showConfig() {
@@ -139,25 +139,7 @@ public class AttackConductor {
     }
 
     public void test(String code) {
-        // this.appm.write(code);
-//		controllerm.createController();
-//		BufferedReader stdOut = controllerm.getStdOut();
-//
-//		String str = "";
-//		channelm.write("fuzzing");
-//		try {
-//			while ((str = stdOut.readLine()) != null) {
-//				System.out.println(str);
-//
-//				if(str.contains("Disconnected switch")) {
-//					controllerm.killController();
-//					break;
-//				}
-//			}
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+
     }
 
     public void replayAllKnownAttacks() {

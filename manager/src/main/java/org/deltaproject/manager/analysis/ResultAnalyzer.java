@@ -187,28 +187,13 @@ public class ResultAnalyzer {
 		Process temp = null;
 		String tempS = "";
 		int switchCnt = controllerm.getSwitchCounter();
+		int cnt = controllerm.isConnectedSwitch(false);
 
-		try {
-			int cnt = 0;
-			temp = Runtime.getRuntime().exec(new String[] { "bash", "-c", "netstat -ap | grep 6633" });
-
-			BufferedReader stdOut = new BufferedReader(new InputStreamReader(temp.getInputStream()));
-
-			while ((tempS = stdOut.readLine()) != null) {
-				if (tempS.contains("ESTABLISHED")) {
-					cnt++;
-				}
-			}
-
-			if (switchCnt != cnt)
-				log.info("Switch diconnected");
-			else {
-				log.info("Switches NOT disconnected");
-				return false;
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (switchCnt != cnt)
+			log.info("Switch diconnected");
+		else {
+			log.info("Switches NOT disconnected");
+			return false;
 		}
 
 		return true;

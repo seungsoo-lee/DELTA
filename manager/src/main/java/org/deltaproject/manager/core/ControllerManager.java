@@ -206,14 +206,15 @@ public class ControllerManager {
         }
     }
 
-    public boolean isConnectedSwitch() {
-        Process temp = null;
-        String tempS = "";
+    public int isConnectedSwitch(boolean wait) {
+        Process temp;
+        String tempS;
         int switchCnt = this.switchList.size();
+        int cnt = 0;
 
-        while (true) {
+        while (wait) {
             try {
-                int cnt = 0;
+                cnt = 0;
                 String cmd = "";
                 // temp = Runtime.getRuntime().exec(new String[] { "bash", "-c", "netstat -ap | grep " + ofPort});
                 temp = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo netstat -ap | grep " + ofPort);
@@ -228,18 +229,17 @@ public class ControllerManager {
                 stdOut.close();
 
                 if (switchCnt == cnt) {
-                    return true;
+                    break;
                 }
 
                 Thread.sleep(1000);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
+
+        return cnt;
     }
 
     public int getSwitchCounter() {

@@ -27,152 +27,156 @@ import java.util.List;
 import java.util.Set;
 
 public class DummyController implements Runnable {
-	private static final Logger log = LoggerFactory.getLogger(DummyController.class);
+    private static final Logger log = LoggerFactory.getLogger(DummyController.class);
 
-	public static final int SEND_BUFFER_SIZE = 4 * 1024 * 1024;
+    public static final int SEND_BUFFER_SIZE = 4 * 1024 * 1024;
 
-	private NioEventLoopGroup bossGroup;
-	private NioEventLoopGroup workerGroup;
-	private DefaultChannelGroup cg;
+    private NioEventLoopGroup bossGroup;
+    private NioEventLoopGroup workerGroup;
+    private DefaultChannelGroup cg;
 
-	private Set<OFVersion> ofVersions;
+    private Set<OFVersion> ofVersions;
 
-	protected static List<U32> ofBitmaps;
-	protected static OFFactory defaultFactory;
-	protected Timer timer;
+    protected static List<U32> ofBitmaps;
+    protected static OFFactory defaultFactory;
+    protected Timer timer;
 
-	private OFChannelInitializer initializer;
-	private OFChannelHandler handler;
+    private OFChannelInitializer initializer;
+    private OFChannelHandler handler;
 
-	private int testHandShakeType;
+    private int testHandShakeType;
 
-	public DummyController() {
-		ofVersions = new HashSet<OFVersion>();
-		// ofVersions.add(OFVersion.OF_10);
-		ofVersions.add(OFVersion.OF_13);
+    public DummyController(String ofv) {
+        ofVersions = new HashSet<OFVersion>();
 
-		// defaultFactory = OFFactories.getFactory(OFVersion.OF_10);
-		defaultFactory = OFFactories.getFactory(OFVersion.OF_13);
-		ofBitmaps = OFUtil.computeOurVersionBitmaps(ofVersions);
+        if (ofv.equals("1.0")) {
+            ofVersions.add(OFVersion.OF_10);
+            defaultFactory = OFFactories.getFactory(OFVersion.OF_10);
+        } else if (ofv.equals("1.3")) {
+            ofVersions.add(OFVersion.OF_13);
+            defaultFactory = OFFactories.getFactory(OFVersion.OF_13);
+        }
 
-		timer = new HashedWheelTimer();
-		testHandShakeType = 0;
-	}
+        ofBitmaps = OFUtil.computeOurVersionBitmaps(ofVersions);
 
-	public long getTimeOut() {
-		while (handler.getTimeOut() == 0) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return handler.getTimeOut();
-	}
+        timer = new HashedWheelTimer();
+        testHandShakeType = 0;
+    }
 
-	public void setHandShakeTest(int type) {
-		testHandShakeType = type;
-	}
+    public long getTimeOut() {
+        while (handler.getTimeOut() == 0) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return handler.getTimeOut();
+    }
 
-	public OFMessage sendOFMessage(OFMessage m) {
-		handler.sendOFMessage(m);
+    public void setHandShakeTest(int type) {
+        testHandShakeType = type;
+    }
 
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    public OFMessage sendOFMessage(OFMessage m) {
+        handler.sendOFMessage(m);
 
-		OFMessage res = handler.getResponse();
-		return res;
-	}
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-	public OFMessage sendRawPacket(byte[] m) {
-		handler.sendRawPkt(m);
+        OFMessage res = handler.getResponse();
+        return res;
+    }
 
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    public OFMessage sendRawPacket(byte[] m) {
+        handler.sendRawPkt(m);
 
-		OFMessage res = handler.getResponse();
-		return res;
-	}
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-	public OFMessage sendRawPacket(ByteBuf m) {
-		handler.sendRawPkt(m);
+        OFMessage res = handler.getResponse();
+        return res;
+    }
 
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    public OFMessage sendRawPacket(ByteBuf m) {
+        handler.sendRawPkt(m);
 
-		OFMessage res = handler.getResponse();
-		return res;
-	}
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-	public boolean isOFHandlerActive() {
-		if (this.initializer.getHandler() != null && this.initializer.getHandler().isChannelActive()) {
-			handler = this.initializer.getHandler();
-			return true;
-		} else
-			return false;
-	}
+        OFMessage res = handler.getResponse();
+        return res;
+    }
 
-	public void stopNetty() {
-		ChannelGroupFuture cf = cg.close();
-		cf.awaitUninterruptibly();
-		bossGroup.shutdownGracefully();
-		workerGroup.shutdownGracefully();
+    public boolean isOFHandlerActive() {
+        if (this.initializer.getHandler() != null && this.initializer.getHandler().isChannelActive()) {
+            handler = this.initializer.getHandler();
+            return true;
+        } else
+            return false;
+    }
 
-		log.info("Stop Dummy Controller");
-	}
+    public void stopNetty() {
+        ChannelGroupFuture cf = cg.close();
+        cf.awaitUninterruptibly();
+        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully();
 
-	public void bootstrapNetty() {
-		try {
-			bossGroup = new NioEventLoopGroup();
-			workerGroup = new NioEventLoopGroup();
+        log.info("Stop Dummy Controller");
+    }
 
-			ServerBootstrap bootstrap = new ServerBootstrap().group(bossGroup, workerGroup)
-					.channel(NioServerSocketChannel.class).option(ChannelOption.SO_REUSEADDR, true)
-					.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.TCP_NODELAY, true)
-					.option(ChannelOption.SO_SNDBUF, SEND_BUFFER_SIZE);
+    public void bootstrapNetty() {
+        try {
+            bossGroup = new NioEventLoopGroup();
+            workerGroup = new NioEventLoopGroup();
 
-			initializer = new OFChannelInitializer(timer, ofBitmaps, defaultFactory, testHandShakeType);
-			bootstrap.childHandler(initializer);
+            ServerBootstrap bootstrap = new ServerBootstrap().group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class).option(ChannelOption.SO_REUSEADDR, true)
+                    .option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.TCP_NODELAY, true)
+                    .option(ChannelOption.SO_SNDBUF, SEND_BUFFER_SIZE);
 
-			cg = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-			Set<InetSocketAddress> addrs = new HashSet<InetSocketAddress>();
-			addrs.add(new InetSocketAddress(InetAddress.getByAddress(IPv4Address.NONE.getBytes()), 6653));
+            initializer = new OFChannelInitializer(timer, ofBitmaps, defaultFactory, testHandShakeType);
+            bootstrap.childHandler(initializer);
 
-			for (InetSocketAddress sa : addrs) {
-				cg.add(bootstrap.bind(sa).channel());
-				log.info("Listening for switch connections on {}", sa);
-			}
+            cg = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+            Set<InetSocketAddress> addrs = new HashSet<InetSocketAddress>();
+            addrs.add(new InetSocketAddress(InetAddress.getByAddress(IPv4Address.NONE.getBytes()), 6653));
 
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+            for (InetSocketAddress sa : addrs) {
+                cg.add(bootstrap.bind(sa).channel());
+                log.info("Listening for switch connections on {}", sa);
+            }
 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		this.bootstrapNetty();
-		try {
-			while (!Thread.currentThread().interrupted()) {
+    @Override
+    public void run() {
+        // TODO Auto-generated method stub
 
-			}
-		} finally {
-			stopNetty();
-			log.info("shutdown controller");
-		}
-	}
+        this.bootstrapNetty();
+        try {
+            while (!Thread.currentThread().interrupted()) {
+
+            }
+        } finally {
+            stopNetty();
+            log.info("shutdown controller");
+        }
+    }
 }

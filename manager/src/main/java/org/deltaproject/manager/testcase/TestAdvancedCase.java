@@ -38,7 +38,7 @@ public class TestAdvancedCase {
 
 			/* waiting for switches */
             log.info("Listening to switches..");
-            controllerm.isConnectedSwitch();
+            controllerm.isConnectedSwitch(true);
             log.info("All switches are connected");
 
             try {
@@ -70,7 +70,7 @@ public class TestAdvancedCase {
             testSwitchTableFlooding(code);
         } else if (code.equals("3.1.060")) {
             testSwitchIdentificationSpoofing(code);
-        } else if (code.equals("------")) {        // to testSwitchCase
+        } else if (code.equals("------")) {        // testSwitchOFCase
             testMalformedControlMessage(code);
         } else if (code.equals("3.1.070")) {
             testFlowRuleModification(code);
@@ -98,7 +98,7 @@ public class TestAdvancedCase {
             testFlowRuleFlooding(code);
         } else if (code.equals("3.1.200")) {
             testSwitchFirmwareMisuse(code);
-        } else if (code.equals("------")) {
+        } else if (code.equals("------")) {         // testControllerOFCase
             testControlMessageManipulation(code);
         }
     }
@@ -115,7 +115,7 @@ public class TestAdvancedCase {
         String before = generateFlow("ping");
 
         try {
-            Thread.sleep(2000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -590,7 +590,7 @@ public class TestAdvancedCase {
 
 		/* step 2: conduct the attack */
         log.info("Host-Agent sends packets to others (before)");
-		/* step 2 : generate before flow (ping) */
+        /* step 2 : generate before flow (ping) */
         String before = generateFlow("compare");
 
 		/* remove flow rules */
@@ -639,7 +639,7 @@ public class TestAdvancedCase {
 
 		/* step 2: conduct the attack */
         log.info("Host-Agent sends packets to others (before)");
-		/* step 2 : generate before flow (ping) */
+        /* step 2 : generate before flow (ping) */
         String before = generateFlow("compare");
 
 		/* remove flow rules one time */
@@ -750,7 +750,7 @@ public class TestAdvancedCase {
     }
 
 	/*
-	 * 3.1.150 - Host Location Hijacking : Not implemented yet
+     * 3.1.150 - Host Location Hijacking : Not implemented yet
 	 */
 
     /*
@@ -764,7 +764,7 @@ public class TestAdvancedCase {
         log.info("Channel-Agent starts");
         channelm.write(code);
         channelm.read();
-		
+
 		/* step 1: create controller */
         initController();
 
@@ -799,6 +799,7 @@ public class TestAdvancedCase {
     public boolean testEvaseDrop(String code) {
         controllerm.flushARPcache();
         log.info(code + " - Evaesdrop");
+        String resultChannel;
 
 		/* step 1: create controller */
         initController();
@@ -807,10 +808,10 @@ public class TestAdvancedCase {
 		/* step 2: conduct the attack */
         log.info("Channel-Agent starts");
         channelm.write(code);
-        String resultChannel = channelm.read();
 
 		/* step 3: try communication */
         log.info("Host-Agent sends packets to others");
+
         try {
             Thread.sleep(30000);
         } catch (InterruptedException e) {
