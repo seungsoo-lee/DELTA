@@ -28,7 +28,7 @@ In order to build and run DELTA the following are required:
 + JDK 1.7+
 
 ## Installing DELTA
-Delta installation depends on maven and ant build system. The mvn command is used to install the agent-Manager and the sub-agents.
+Delta installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the sub-agents.
 
 + STEP 0. Get the source
 ```
