@@ -65,7 +65,7 @@ vagrant@channel-vm:~$ sudo cp libjpcap.so /usr/lib/
 
 
 ## Configuring your own experiments
-++ STEP 3. Configure passwd-less ssh login for target controller(s) (host machine).
++ Configure passwd-less ssh login for the VMs.
 
 ```
 $ ssh-keygen -t rsa
@@ -96,7 +96,7 @@ $ ssh-copy-id -i /home/[name]/.ssh/id_rsa.pub vagrant@10.100.100.11
 Now, ssh to your remote as shown here.
 $ ssh vagrant@10.100.100.11
 
-Check if you will be able to access the VM1 without having to enter the password.
+Check if you will be able to access the VMs without having to enter the password.
 ```
 
 + The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. Setting.cfg contains sample configurations. You can specify your own config file by passing its path:
@@ -112,21 +112,11 @@ CBENCH_ROOT=/home/sdn/oflops/cbench/
 TARGET_CONTROLLER=Floodlight
 OF_PORT=6633
 OF_VER=1.0
-MITM_NIC=eth0
-CONTROLLER_IP=192.168.100.195
-SWITCH_IP=192.168.100.185
+MITM_NIC=eth1
+CONTROLLER_IP=10.100.100.11
+SWITCH_IP=10.100.100.13,10.100.100.13,10.100.100.13
 ```
 
-+ The Channel-Agent automatically reads your configuration file and connects the Agent-Manager.
-```
-AM_IP=192.168.101.X
-AM_PORT=3366
-```
-+ The Host-Agent automatically reads your configuration file and connects the Agent-Manager.
-```
-AM_IP=192.168.101.X
-AM_PORT=3366
-```
 
 ## Running DELTA
 + STEP 0. Virtual Machine Setting
