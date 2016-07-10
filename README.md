@@ -129,7 +129,7 @@ $ scp ./agents/host/test-topo/* vagrant@10.100.100.13:/home/vagrant
 ```
 
 
-+ STEP 1. Running Agent Manager first
++ STEP 1. Run Agent-Manager first
 ```
 $ cd <DELTA>/manager
 $ java -jar target/delta-manager-1.0-SNAPSHOT-jar-with-dependencies.jar ../tools/config/manager.cfg
@@ -145,24 +145,17 @@ $ java -jar target/delta-manager-1.0-SNAPSHOT-jar-with-dependencies.jar ../tools
 Command>_
 ```
 
-+ STEP 2. Running Channel-Agent
++ STEP 2. Execute Channel-Agent (VM-2)
 ```
-$ cd [Delta]/channel-agent
-$ sudo java -jar ./target/channel-agent.jar setting.cfg
+$ sudo java -jar delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar 10.0.2.2 3366
 ```
 
-+ STEP 3. Running Host-Agent in VM2
++ STEP 3. Execute Host-Agent (VM-3)
 ```
-$ git clone https://github.com/OpenNetworkingFoundation/DELTA.git
-$ cd Delta/host-agent
-$ ant
+$ sudo python test-advanced-topo.py 10.100.100.11 6633
+$ (the other console) ./ovs-static-rules
 
-$ sudo python ./topo-setup.py (eth0 ip address in VM1) 6633
-
-mininet> xterm h1
-
-$ (console in h1) cd [Delta]/host-agent
-$ (console in h1) java -jar ./target/ha.jar setting.cfg
+mininet> h1 java -jar delta-agent-host-1.0-SNAPSHOT.jar 10.0.2.2 3366
 ```
 
 + STEP 4. Reproducing known attacks in VM1
@@ -177,12 +170,12 @@ $ (console in h1) java -jar ./target/ha.jar setting.cfg
 
 
 Command> k
-Select the attack code (replay all, enter the 'A')> A-2-M-1
+Select the attack code (replay all, enter the 'A')> 3.1.020
 
- 10% ===== |
-
-02:10:46.886 - [A-2-M-1] - Control Message Drop attack start
-02:10:46.887 - [A-2-M-1] - Controller setting..
+Select the attack code (replay all, enter the 'A')> 3.1.020
+[main] INFO org.deltaproject.manager.testcase.TestAdvancedCase - 3.1.020 - Control Message Drop
+[main] INFO org.deltaproject.manager.testcase.TestAdvancedCase - Target controller: Floodlight
+[main] INFO org.deltaproject.manager.testcase.TestAdvancedCase - Target controller is starting..
 ```
 
 
