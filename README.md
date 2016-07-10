@@ -28,7 +28,7 @@ In order to build and run DELTA the following are required:
 + JDK 1.7+
 
 ## Installing DELTA
-Delta installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the sub-agents.
+DELTA installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the sub-agents.
 
 + STEP 0. Get the source
 ```
@@ -123,14 +123,16 @@ SWITCH_IP=10.100.100.13,10.100.100.13,10.100.100.13
 ```
 $ cd <DELTA>
 $ scp ./agents/apps/floodlight/floodlight-0.91/target/floodlight.jar vagrant@10.100.100.11:/home/vagrant
-$
+$ scp ./agents/channel/target/delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar vagrant@10.100.100.12:/home/vagrant
+$ scp ./agents/host/target/delta-agent-host-1.0-SNAPSHOT.jar vagrant@10.100.100.13:/home/vagrant
+$ scp ./agents/host/test-topo/* vagrant@10.100.100.13:/home/vagrant
 ```
 
 
-+ STEP 1. Running Agent Manager in VM1
++ STEP 1. Running Agent Manager first
 ```
-$ cd [Delta]/agent-manager
-$ sudo java -jar ./target/am.jar ./floodlight.info
+$ cd <DELTA>/manager
+$ java -jar target/delta-manager-1.0-SNAPSHOT-jar-with-dependencies.jar ../tools/config/manager.cfg
 
  DELTA: A Penetration Testing Framework for Software-Defined Networks
 
@@ -138,8 +140,7 @@ $ sudo java -jar ./target/am.jar ./floodlight.info
  [cC]	- Show configuration info
  [kK]	- Replaying known attack(s)
  [uU]	- Finding an unknown attack
- [qQ]	- Quit Scanner
-
+ [qQ]	- Quit
 
 Command>_
 ```
