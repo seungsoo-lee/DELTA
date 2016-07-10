@@ -8,7 +8,7 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 + Channel-Agent is deployed between the controller and the OpenFlow-enabled switch. The agent sniffs and modifies the unencrypted control messages. It is controller-independent.
 + Host-Agent behaves as if it was a legitimate host participating in the target SDN network. The agent demonstrates an attack in which a host attempts to compromise the control plane.
 
-![Delta architecture](http://143.248.53.145/research/delta/arch.png)
+![Delta architecture](http://143.248.53.145/research/delta/arch.pdf)
 
 ## Prerequisites
 In order to build and run DELTA the following are required:
@@ -19,9 +19,9 @@ In order to build and run DELTA the following are required:
 - VM-2: Channel agent
 - VM-3: Host agent
 ```
-+ Target Controller ([OpenDaylight_Helium-S3](https://github.com/opendaylight/controller/releases/tag/release%2Fhelium-sr3), [ONOS 1.1.0](https://github.com/opennetworkinglab/onos/tree/onos-1.1) or [Floodlight-0.91](https://github.com/floodlight/floodlight/tree/v0.91)) (in VM1)
-+ [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (in VM2)
-+ [Mininet 2.1+](http://mininet.org/download/) (in VM3)
++ Target Controller ([OpenDaylight_Helium-S3](https://github.com/opendaylight/controller/releases/tag/release%2Fhelium-sr3), [ONOS 1.1.0](https://github.com/opennetworkinglab/onos/tree/onos-1.1) or [Floodlight-0.91](https://github.com/floodlight/floodlight/tree/v0.91)) (in VM-1)
++ [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (in VM-2)
++ [Mininet 2.1+](http://mininet.org/download/) (in VM-3)
 + Ant build system
 + Maven build system
 + Vagrant system
@@ -38,18 +38,25 @@ $ git clone https://github.com/OpenNetworkingFoundation/DELTA.git
 + STEP 1. Install DELTA dependencies on the host machine.
 
 ```
-$ cd DELTA/tools/dev/
+$ cd <DELTA>/tools/dev/
 $ ./delta-setup-devenv-ubuntu
 ```
 
 + STEP 2. Install 3 virtual machines using vagrant system.
 
 ```
-$ cd DELTA/tools/dev/vagrant
+$ cd <DELTA>/tools/dev/vagrant
 $ vagrant up
 ```
 
-+ STEP 3. Install jpcap library for channel agent on VM-2.
++ STEP 3. Install DELTA using maven build.
+
+```
+$ cd <DELTA>
+$ mvn clean install
+```
+
++ STEP 4. Install jpcap library for channel agent on VM-2.
 
 ```
 $ cd DELTA/agents/channel/libs/jpcap/jpcap/0.7
@@ -59,10 +66,8 @@ $ ssh vagrant@10.100.100.12
 vagrant@channel-vm:~$ sudo cp libjpcap.so /usr/lib/
 ```
 
-
-
-
-
++ After installing DELTA, the test environment is automatically setup as below,
+![Env](http://143.248.53.145/research/delta/env.pdf)
 
 ## Configuring your own experiments
 + Configure passwd-less ssh login for the VMs.
