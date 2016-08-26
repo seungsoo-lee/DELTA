@@ -74,6 +74,7 @@ vagrant@channel-vm:~$ sudo cp libjpcap.so /usr/lib/
 + Configure passwd-less ssh login for the VMs.
 
 ```
+$ cd ~
 $ ssh-keygen -t rsa
 
 Generating public/private rsa key pair.
@@ -97,10 +98,9 @@ The key's randomart image is:
 |            .o.. |
 +-----------------+
 
-$ ssh-copy-id -i /home/[name]/.ssh/id_rsa.pub vagrant@10.100.100.11
-
-Now, ssh to your remote as shown here.
-$ ssh vagrant@10.100.100.11
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.11
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.12
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.13
 
 Check if you will be able to access the VMs without having to enter the password.
 ```
