@@ -30,7 +30,7 @@ public class TestAdvancedCase {
 
     public void initController() {
         if (!controllerm.isRunning()) {
-            log.info("Target controller: " + controllerm.getType());
+            log.info("Target controller: " + controllerm.getType() + " " + controllerm.getVersion());
 
             log.info("Target controller is starting..");
             controllerm.createController();

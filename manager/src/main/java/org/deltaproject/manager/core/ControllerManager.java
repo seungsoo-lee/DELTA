@@ -15,6 +15,7 @@ import org.deltaproject.manager.target.TargetController;
 public class ControllerManager {
     private String cbechPath = "";
     private String targetController = "";
+    private String targetVersion = "";
     private String ofPort = "";
 
     private int cbenchPID = -1;
@@ -49,6 +50,11 @@ public class ControllerManager {
 
         cbechPath = cfg.getCbenchRoot();
         targetController = cfg.getTargetController();
+
+        if(targetController.equals("Floodlight")) {
+            targetVersion = "v" + cfg.getFloodlightVer();
+        }
+
         ofPort = cfg.getOFPort();
 
         switchList = cfg.getSwitchList();
@@ -87,6 +93,10 @@ public class ControllerManager {
 
     public String getType() {
         return targetController;
+    }
+
+    public String getVersion() {
+        return targetVersion;
     }
 
     public String showConfig() {

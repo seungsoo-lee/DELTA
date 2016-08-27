@@ -30,7 +30,7 @@ public class Communication extends Thread {
 
     public void setServerAddr() {
         // for static
-        this.serverIP = "10.100.200.1";
+        this.serverIP = "10.0.2.2";
         this.serverPort = 3366;
     }
 
@@ -67,53 +67,50 @@ public class Communication extends Thread {
     public void replayingKnownAttack(String recv) throws IOException {
         String result = "";
 
-//		if (recv.contains("A-2-M-1")) {
-//			app.Set_Control_Message_Drop();
-//			result = app.Control_Message_Drop();
-//			dos.writeUTF(result);
-//		} else if (recv.contains("A-2-M-2")) {
-//			app.Set_Infinite_Loop();
-//			return;
-//		} else if (recv.contains("A-3-M")) {
-//			result = app.Internal_Storage_Abuse();
-//			dos.writeUTF(result);
-//		} else if (recv.contains("A-5-M-1")) {
-//			result = app.Flow_Rule_Modification();
-//			dos.writeUTF(result);
-//		} else if (recv.contains("A-5-M-2")) {
-//			
-//			/* loop? */
-//			if(recv.contains("false"))
-//				app.Flow_Table_Clearance(false);	
-//			else
-//				app.Flow_Table_Clearance(true);
-//			
-//			return;
-//		} else if (recv.contains("A-6-M-1")) {
-//			result = app.Event_Listener_Unsubscription();
-//			dos.writeUTF(result);
-//		} else if (recv.contains("A-6-M-2")) {
-////			result = app.Application_Eviction("fwd");
-////			dos.writeUTF(result);
-//		} else if (recv.contains("A-7-M-1")) {
-//			app.Resource_Exhaustion_Mem();
-//			return;
-//		} else if (recv.contains("A-7-M-2")) {
-//			app.Resource_Exhaustion_CPU();
-//			return;
-//		} else if (recv.contains("A-8-M")) {
-//			app.System_Variable_Manipulation();
-//			return;
-//		} else if (recv.contains("A-9-M")) {
-//			app.System_Command_Execution();
-//			return;
-//		} else if (recv.contains("C-1-A")) {
-//			app.Flow_Rule_Flooding();
-//			return;
-//		} else if (recv.contains("C-2-M")) {
-//			result = app.Switch_Firmware_Misuse();
-//			dos.writeUTF(result);
-//		}
+        if (recv.equals("3.1.020")) {
+            app.setControlMessageDrop();
+            result = app.testControlMessageDrop();
+            dos.writeUTF(result);
+        } else if (recv.equals("3.1.030")) {
+            app.setInfiniteLoop();
+            return;
+        } else if (recv.equals("3.1.040")) {
+            result = app.testInternalStorageAbuse();
+            dos.writeUTF(result);
+        } else if (recv.equals("3.1.070")) {
+            result = app.testFlowRuleModification();
+            dos.writeUTF(result);
+        } else if (recv.contains("3.1.080")) {
+            if (recv.contains("false"))
+                app.testFlowTableClearance(false);  // only once
+            else
+                app.testFlowTableClearance(true);   // infinite
+            return;
+        } else if (recv.equals("3.1.090")) {
+            result = app.testEventListenerUnsubscription();
+            dos.writeUTF(result);
+        } else if (recv.equals("3.1.110")) {
+            app.testResourceExhaustionMem();
+            return;
+        } else if (recv.equals("3.1.120")) {
+            app.testResourceExhaustionCPU();
+            return;
+        } else if (recv.equals("3.1.130")) {
+            app.testSystemVariableManipulation();
+            return;
+        } else if (recv.equals("3.1.140")) {
+            app.testSystemCommandExecution();
+            return;
+        } else if (recv.equals("3.1.160")) {
+            result = app.testLinkFabrication();
+            dos.writeUTF(result);
+        } else if (recv.equals("3.1.190")) {
+            app.testFlowRuleFlooding();
+            return;
+        } else if (recv.equals("3.1.200")) {
+            result = app.testSwitchFirmwareMisuse();
+            dos.writeUTF(result);
+        }
 
         dos.flush();
     }
