@@ -9,63 +9,64 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Communication extends Thread {
-	int result = 1;
+    int result = 1;
 
-	private AppAgent app;
+    private AppAgent app;
 
-	private Socket socket;
-	private InputStream in;
-	private DataInputStream dis;
-	private OutputStream out;
-	private DataOutputStream dos;
+    private Socket socket;
+    private InputStream in;
+    private DataInputStream dis;
+    private OutputStream out;
+    private DataOutputStream dos;
 
-	private String serverIP;
-	private int serverPort;
-	
+    private String serverIP;
+    private int serverPort;
+
 //	private DataFuzzing fuzzing;
-	
-	public Communication(AppAgent in) {
-		this.app = in;
-	}
-	
-	public void setServerAddr(String ip, int port) {
-		this.serverIP = ip;
-		this.serverPort = port;
-	}
-	
-	public void connectServer(String agent) {
-		try {
-			socket = new Socket(serverIP, serverPort);
-			in = socket.getInputStream();
-			dis = new DataInputStream(in);
-			out = socket.getOutputStream();
-			dos = new DataOutputStream(out);
 
-			dos.writeUTF(agent);
-			dos.flush();
+    public Communication(AppAgent in) {
+        this.app = in;
+    }
 
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void write(String in) {
-		try {
-			dos.writeUTF(in);
-			dos.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void replayingKnownAttack(String recv) throws IOException {
-		String result = "";
-		
+    public void setServerAddr() {
+        // for static
+        this.serverIP = "10.100.200.1";
+        this.serverPort = 3366;
+    }
+
+    public void connectServer(String agent) {
+        try {
+            socket = new Socket(serverIP, serverPort);
+            in = socket.getInputStream();
+            dis = new DataInputStream(in);
+            out = socket.getOutputStream();
+            dos = new DataOutputStream(out);
+
+            dos.writeUTF(agent);
+            dos.flush();
+
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public void write(String in) {
+        try {
+            dos.writeUTF(in);
+            dos.flush();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public void replayingKnownAttack(String recv) throws IOException {
+        String result = "";
+
 //		if (recv.contains("A-2-M-1")) {
 //			app.Set_Control_Message_Drop();
 //			result = app.Control_Message_Drop();
@@ -114,35 +115,31 @@ public class Communication extends Thread {
 //			dos.writeUTF(result);
 //		}
 
-		dos.flush();
-	}
-	
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		String recv = "";
+        dos.flush();
+    }
 
-		try {
-			while ((recv = dis.readUTF()) != null) {
-				// reads characters encoded with modified UTF-8
-				if(recv.contains("umode")) {
-//					findingUnkwonAttack(recv);
-				} else {
-					replayingKnownAttack(recv);
-				}				
-			}
-		} catch (Exception e) {
-			// if any error occurs
-			e.printStackTrace();
-		} finally {
-			try {
-				dis.close();
-				dos.close();
-			} catch (IOException e) {
-				
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}		
-		}
-	}
+    @Override
+    public void run() {
+        // TODO Auto-generated method stub
+        String recv = "";
+
+        try {
+            while ((recv = dis.readUTF()) != null) {
+                // reads characters encoded with modified UTF-8
+                replayingKnownAttack(recv);
+            }
+        } catch (Exception e) {
+            // if any error occurs
+            e.printStackTrace();
+        } finally {
+            try {
+                dis.close();
+                dos.close();
+            } catch (IOException e) {
+
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
 }
