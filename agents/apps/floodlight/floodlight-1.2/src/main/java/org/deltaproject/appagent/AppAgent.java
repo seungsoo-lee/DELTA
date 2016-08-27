@@ -553,7 +553,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
         for (DatapathId sw : switchService.getAllSwitchDpids()) {
             switches.add(switchService.getSwitch(sw));
-            of = switchService.getSwitch(sw).getOFFactory();
         }
 
         for (IOFSwitch sw : switches) {
