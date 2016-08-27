@@ -231,7 +231,7 @@ public class AMInterface extends Thread {
 					
 					Thread.sleep(40000);
 					
-					dos.writeUTF("success");			
+					dos.writeUTF("success");
 				} else if (recv.equalsIgnoreCase("3.1.170")) {
 					System.out.println("\n[Channel-Agent] Evaesdrop test starts");
 					pktListener.setTypeOfAttacks(TestAdvancedSet.EVAESDROP);
@@ -253,7 +253,6 @@ public class AMInterface extends Thread {
 					pktListener.startListening();
 					pktListener.startARPSpoofing();
 					dos.writeUTF("success");
-					pktListener.stopARPSpoofing();
 				} else if (recv.equalsIgnoreCase("3.1.050")) { // Switch Table
 																// Flooding
 					tableFlooding = new SwitchTableFlooder();
