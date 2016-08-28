@@ -23,5 +23,8 @@ git checkout 1.1.0
 source ~/onos-1.1.0-bash-profile
 source $ONOS_ROOT/tools/dev/bash_profile
 
+cd $ONOS_ROOT
+mvn clean install
+
 mv ~/org.apache.karaf.features.cfg $KARAF_ROOT/etc/
 cp ${ONOS_ROOT}/tools/package/branding/target/onos-branding-1.1.0.jar ${KARAF_ROOT}/lib/
