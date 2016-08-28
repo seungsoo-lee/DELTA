@@ -20,7 +20,7 @@ git clone https://gerrit.onosproject.org/onos
 cd onos
 git checkout 1.1.0
 
-source ~/onos-1.1.0-profile
+source ~/onos-1.1.0-bash-profile
 source $ONOS_ROOT/tools/dev/bash_profile
 
 mv ~/org.apache.karaf.features.cfg $KARAF_ROOT/etc/
