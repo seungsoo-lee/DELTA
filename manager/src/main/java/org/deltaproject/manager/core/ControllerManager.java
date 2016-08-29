@@ -15,6 +15,7 @@ import org.deltaproject.manager.target.TargetController;
 public class ControllerManager {
     private String cbechPath = "";
     private String targetController = "";
+    private String targetVersion = "";
     private String ofPort = "";
 
     private int cbenchPID = -1;
@@ -36,19 +37,23 @@ public class ControllerManager {
     }
 
     public void setConfig() {
-        TargetController fl = new Floodlight(cfg.getFloodlightRoot(), cfg.getFloodlightVer());
-        targetList.add(fl);
+        TargetController fl = new Floodlight(cfg.getFloodlightRoot(), cfg.getTargetVer());
 
-        TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getODLVer())
+
+        TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getTargetVer())
                 .setAppAgentPath(cfg.getODLAppAgent());
 
-        targetList.add(odl);
+        TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getTargetVer());
 
-        TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getONOSVer()).setKarafPath(cfg.getONOSKarafRoot());
+        targetList.add(fl);
+        targetList.add(odl);
         targetList.add(onos);
 
         cbechPath = cfg.getCbenchRoot();
         targetController = cfg.getTargetController();
+
+        targetVersion = "v" + cfg.getTargetVer();
+
         ofPort = cfg.getOFPort();
 
         switchList = cfg.getSwitchList();
@@ -87,6 +92,10 @@ public class ControllerManager {
 
     public String getType() {
         return targetController;
+    }
+
+    public String getVersion() {
+        return targetVersion;
     }
 
     public String showConfig() {

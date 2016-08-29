@@ -1,6 +1,7 @@
 package org.deltaproject.manager;
 
 import org.deltaproject.manager.core.AgentManager;
+import org.slf4j.impl.SimpleLogger;
 
 import java.io.IOException;
 
@@ -15,11 +16,13 @@ public class Main {
             System.exit(1);
         }
 
+        System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "TRUE");
+
+
         AgentManager am = new AgentManager(args[0]);
         am.start();
         am.showMenu();
         am.closeServerSocket();
-
 
 //		TestSwitchCase ts = new TestSwitchCase();
 //		ts.testSlaveControllerViolation();

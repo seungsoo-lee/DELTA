@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# Script to onos-1.1.0 dependencies on Ubuntu 14.04
+#
+
+export MAVEN=${MAVEN:-~/Applications/apache-maven-3.3.9}
+export KARAF_VERSION=${KARAF_VERSION:-3.0.5}
+export KARAF_ROOT=${KARAF_ROOT:-~/Applications/apache-karaf-$KARAF_VERSION}
+export KARAF_LOG=$KARAF_ROOT/data/log/karaf.log
+
+export PATH="$PATH:$DELTA_ROOT/tools/bin"
+export PATH="$PATH:$MAVEN/bin:$KARAF_ROOT/bin"
+
+export ONOS_ROOT=~/onos

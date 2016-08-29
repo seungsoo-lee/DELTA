@@ -26,9 +26,16 @@ public class Floodlight implements TargetController {
         isRunning = false;
 
         String str;
+        String name;
 
         try {
-            process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 java -jar floodlight.jar");
+            if(version.equals("1.2")) {
+                process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 java -jar floodlight-1.2.jar -cf ./floodlightdefault.properties");
+                name = "floodlight-1.2.jar";
+            } else {
+                process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 java -jar floodlight-0.91.jar");
+                name = "floodlight-0.91.jar";
+            }
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
@@ -61,7 +68,7 @@ public class Floodlight implements TargetController {
             BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
 
             while ((tempS = stdOut2.readLine()) != null && !tempS.isEmpty()) {
-                if (tempS.contains("floodlight.jar")) {
+                if (tempS.contains(name)) {
                     String[] list = StringUtils.split(tempS);
 
                     currentPID = Integer.parseInt(list[1]);

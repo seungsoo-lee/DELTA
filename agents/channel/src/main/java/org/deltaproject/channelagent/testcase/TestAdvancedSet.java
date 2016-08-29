@@ -68,6 +68,13 @@ public class TestAdvancedSet {
 		switches = new ArrayList<DummyOFSwitch>();
 		
 		for (int i = 0; i < 50; i++) {
+
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
 			System.out.println("[Channel-Agent] Switch Spoofing "+i);
 			DummyOFSwitch dummysw = new DummyOFSwitch();
 			dummysw.connectTargetController(controllerIP, ofPort);
@@ -158,18 +165,18 @@ public class TestAdvancedSet {
 						// b.setTableId(fi.getTableId());
 						// b.setInPhyPort(fi.getInPhyPort());
 
-						if (dpid.equals("00:00:00:00:00:02") && port == 1) {
+						if (dpid.equals("00:00:00:00:00:22") && port == 1) {
 							data[22] = 3; // dpid
 							data[27] = 2; // port
 							data[27 + 18] = 3;
-						} else if (dpid.equals("00:00:00:00:00:02") && port == 2) {
+						} else if (dpid.equals("00:00:00:00:00:22") && port == 2) {
 							data[22] = 1;
 							data[27] = 2;
 							data[27 + 18] = 1;
-						} else if (dpid.equals("00:00:00:00:00:01") && port == 2) {
+						} else if (dpid.equals("00:00:00:00:00:11") && port == 2) {
 							data[22] = 0;
 							data[27] = 0;
-						} else if (dpid.equals("00:00:00:00:00:03") && port == 2) {
+						} else if (dpid.equals("00:00:00:00:00:33") && port == 2) {
 							data[22] = 0;
 							data[27] = 0;
 						}

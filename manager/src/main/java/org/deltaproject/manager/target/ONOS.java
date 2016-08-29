@@ -1,135 +1,127 @@
 package org.deltaproject.manager.target;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.*;
 import java.lang.reflect.Field;
 
 public class ONOS implements TargetController {
-	private Process process = null;
-	private boolean isRunning = false;
+    private Process process = null;
+    private boolean isRunning = false;
 
-	public String version = "";
-	public String controllerPath = "";
-	public String karafPath = "";
+    public String version = "";
+    public String controllerPath = "";
+    public String karafPath = "";
 
-	private int currentPID = -1;
+    private int currentPID = -1;
 
-	private BufferedWriter stdIn;
-	private BufferedReader stdOut;
+    private BufferedWriter stdIn;
+    private BufferedReader stdOut;
 
-	public ONOS(String controllerPath, String v) {
-		this.controllerPath = controllerPath;
-		this.version = v;
-	}
+    public ONOS(String controllerPath, String v) {
+        this.controllerPath = controllerPath;
+        this.version = v;
+    }
 
-	public ONOS setKarafPath(String p) {
-		this.karafPath = p;
-		
-		return this;
-	}
-	
-	public int createController() {
-		isRunning = false;
+    public ONOS setKarafPath(String p) {
+        this.karafPath = p;
 
-		String str = "";
-		try {
-			process = Runtime.getRuntime().exec(karafPath+" clean");
+        return this;
+    }
 
-			Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
-			pidField.setAccessible(true);
-			Object value = pidField.get(process);
+    public int createController() {
+        isRunning = false;
 
-			this.currentPID = (Integer) value;
+        String str;
 
-			try {
-				Thread.sleep(7000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+        try {
+            if (version.equals("1.1")) {
+                process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 /home/vagrant/Applications/apache-karaf-3.0.5/bin/karaf clean");
+            }
 
-			stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
+            pidField.setAccessible(true);
+            Object value = pidField.get(process);
 
-			while ((str = stdOut.readLine()) != null) {
-				if (str.contains("ONOS.")) {
-					isRunning = true;
-					break;
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (NoSuchFieldException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (SecurityException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IllegalArgumentException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IllegalAccessException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+            this.currentPID = (Integer) value;
 
-		return currentPID;
-	}
+            stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
-	public Process getProc() {
-		return this.process;
-	}
+            while ((str = stdOut.readLine()) != null) {
+                // System.out.println(str);
+                if (str.contains("ONOS.")) {
+                    isRunning = true;
+                    break;
+                }
+            }
 
-	public void killController() {		
-		try {
-			if (stdIn != null) {
-				stdIn.write("system:shutdown -f\n");
-				stdIn.flush();
-			}
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-			
-		this.currentPID = -1;
-	}
+        return currentPID;
+    }
 
-	/* ONOS, AppAgent is automatically installed when the controller starts */
-	public boolean installAppAgent() {
+    public Process getProc() {
+        return this.process;
+    }
 
-		return true;
-	}
+    public void killController() {
+        try {
+            if (stdIn != null) {
+                stdIn.write("system:shutdown -f\n");
+                stdIn.flush();
+                stdIn.close();
+            }
 
-	@Override
-	public String getType() {
-		// TODO Auto-generated method stub
-		return "ONOS";
-	}
-	
-	@Override
-	public String getVersion() {
-		// TODO Auto-generated method stub
-		return this.version;
-	}
-	
-	@Override
-	public String getPath() {
-		// TODO Auto-generated method stub
-		return this.controllerPath;
-	}
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-	@Override
-	public int getPID() {
-		// TODO Auto-generated method stub
-		return this.currentPID;
-	}
+        this.currentPID = -1;
+    }
 
-	@Override
-	public BufferedReader getStdOut() {
-		// TODO Auto-generated method stub
-		return this.stdOut;
-	}
+    /* ONOS, AppAgent is automatically installed when the controller starts */
+    public boolean installAppAgent() {
+
+        return true;
+    }
+
+    @Override
+    public String getType() {
+        // TODO Auto-generated method stub
+        return "ONOS";
+    }
+
+    @Override
+    public String getVersion() {
+        // TODO Auto-generated method stub
+        return this.version;
+    }
+
+    @Override
+    public String getPath() {
+        // TODO Auto-generated method stub
+        return this.controllerPath;
+    }
+
+    @Override
+    public int getPID() {
+        // TODO Auto-generated method stub
+        return this.currentPID;
+    }
+
+    @Override
+    public BufferedReader getStdOut() {
+        // TODO Auto-generated method stub
+        return this.stdOut;
+    }
 }

@@ -176,6 +176,7 @@ public class DummyOFSwitch extends Thread {
 		}
 
 		buf.clear();
+		buf.release();
 		buf = null;
 	}
 

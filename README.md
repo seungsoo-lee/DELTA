@@ -74,6 +74,7 @@ vagrant@channel-vm:~$ sudo cp libjpcap.so /usr/lib/
 + Configure passwd-less ssh login for the VMs.
 
 ```
+$ cd ~
 $ ssh-keygen -t rsa
 
 Generating public/private rsa key pair.
@@ -97,10 +98,9 @@ The key's randomart image is:
 |            .o.. |
 +-----------------+
 
-$ ssh-copy-id -i /home/[name]/.ssh/id_rsa.pub vagrant@10.100.100.11
-
-Now, ssh to your remote as shown here.
-$ ssh vagrant@10.100.100.11
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.11
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.12
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.13
 
 Check if you will be able to access the VMs without having to enter the password.
 ```
@@ -122,10 +122,8 @@ SWITCH_IP=10.100.100.13,10.100.100.13,10.100.100.13
 
 ```
 $ cd <DELTA>
-$ scp ./agents/apps/floodlight/floodlight-0.91/target/floodlight.jar vagrant@10.100.100.11:/home/vagrant
-$ scp ./agents/channel/target/delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar vagrant@10.100.100.12:/home/vagrant
-$ scp ./agents/host/target/delta-agent-host-1.0-SNAPSHOT.jar vagrant@10.100.100.13:/home/vagrant
-$ scp ./agents/host/test-topo/* vagrant@10.100.100.13:/home/vagrant
+$ source ./tools/dev/bash_profile
+$ scp ./tools/dev/distribute-files-to-vms
 ```
 
 
