@@ -60,20 +60,20 @@ public class Communication extends Thread {
 	public void replayingKnownAttack(String recv) throws IOException {
 		String result = "";
 
-		if (recv.contains("A-2-M-1")) {
+		if (recv.contains("3.1.020")) {
 			app.Set_Control_Message_Drop();
 			result = app.Control_Message_Drop();
 			dos.writeUTF(result);
-		} else if (recv.contains("A-2-M-2")) {
+		} else if (recv.contains("3.1.030")) {
 			app.Set_Infinite_Loop();
 			return;
-		} else if (recv.contains("A-3-M")) {
+		} else if (recv.contains("3.1.040")) {
 			result = app.Internal_Storage_Abuse();
 			dos.writeUTF(result);
-		} else if (recv.contains("A-5-M-1")) {
+		} else if (recv.contains("3.1.070")) {
 			result = app.Flow_Rule_Modification();
 			dos.writeUTF(result);
-		} else if (recv.contains("A-5-M-2")) {
+		} else if (recv.contains("3.1.080")) {
 
 			/* loop? */
 			if (recv.contains("false"))
@@ -82,30 +82,30 @@ public class Communication extends Thread {
 				app.Flow_Table_Clearance(true);
 
 			return;
-		} else if (recv.contains("A-6-M-1")) {
+		} else if (recv.contains("3.1.090")) {
 			if (app.Event_Listener_Unsubscription())
 				dos.writeUTF("success");
 			else
 				dos.writeUTF("fail");
-		} else if (recv.contains("A-6-M-2")) {
+		} else if (recv.contains("3.1.100")) {
 			result = app.Application_Eviction("fwd");
 			dos.writeUTF(result);
-		} else if (recv.contains("A-7-M-1")) {
+		} else if (recv.contains("3.1.110")) {
 			app.Resource_Exhaustion_Mem();
 			return;
-		} else if (recv.contains("A-7-M-2")) {
+		} else if (recv.contains("3.1.120")) {
 			app.Resource_Exhaustion_CPU();
 			return;
-		} else if (recv.contains("A-8-M")) {
+		} else if (recv.contains("3.1.130")) {
 			app.System_Variable_Manipulation();
 			return;
-		} else if (recv.contains("A-9-M")) {
+		} else if (recv.contains("3.1.140")) {
 			app.System_Command_Execution();
 			return;
-		} else if (recv.contains("C-1-A")) {
+		} else if (recv.contains("3.1.190")) {
 			app.Flow_Rule_Flooding();
 			return;
-		} else if (recv.contains("C-2-M")) {
+		} else if (recv.contains("3.1.200")) {
 			result = app.Switch_Firmware_Misuse();
 			dos.writeUTF(result);
 		}

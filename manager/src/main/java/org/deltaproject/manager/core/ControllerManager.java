@@ -37,23 +37,22 @@ public class ControllerManager {
     }
 
     public void setConfig() {
-        TargetController fl = new Floodlight(cfg.getFloodlightRoot(), cfg.getFloodlightVer());
-        targetList.add(fl);
+        TargetController fl = new Floodlight(cfg.getFloodlightRoot(), cfg.getTargetVer());
 
-        TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getODLVer())
+
+        TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getTargetVer())
                 .setAppAgentPath(cfg.getODLAppAgent());
 
-        targetList.add(odl);
+        TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getTargetVer());
 
-        TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getONOSVer()).setKarafPath(cfg.getONOSKarafRoot());
+        targetList.add(fl);
+        targetList.add(odl);
         targetList.add(onos);
 
         cbechPath = cfg.getCbenchRoot();
         targetController = cfg.getTargetController();
 
-        if(targetController.equals("Floodlight")) {
-            targetVersion = "v" + cfg.getFloodlightVer();
-        }
+        targetVersion = "v" + cfg.getTargetVer();
 
         ofPort = cfg.getOFPort();
 

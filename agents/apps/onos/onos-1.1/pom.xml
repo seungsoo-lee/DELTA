@@ -33,11 +33,13 @@
             <artifactId>org.apache.felix.scr.annotations</artifactId>
             <version>1.9.8</version>
         </dependency>
+
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <version>4.3.1</version>
         </dependency>
+
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
