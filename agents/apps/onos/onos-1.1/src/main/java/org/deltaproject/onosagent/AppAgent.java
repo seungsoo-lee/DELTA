@@ -17,7 +17,6 @@ package org.deltaproject.onosagent;
 
 import com.google.common.collect.Lists;
 import org.apache.felix.scr.annotations.*;
-import org.deltaproject.onosagent.fuzzer.Fuzzing;
 import org.onlab.metrics.MetricsService;
 import org.onlab.packet.*;
 import org.onosproject.app.ApplicationAdminService;
@@ -67,8 +66,6 @@ public class AppAgent {
 	private static final int DEFAULT_PRIORITY = 10;
 
 	private final Logger log = getLogger(getClass());
-
-	// for Service,
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
 	protected TopologyService topologyService;
@@ -169,7 +166,6 @@ public class AppAgent {
 			+ "default is false")
 	private boolean matchIcmpFields = false;
 
-	// for S3
 	private Communication cm;
 	private ComponentContext contextbk;
 	private SystemTimeSet systime;
@@ -178,14 +174,12 @@ public class AppAgent {
 	private Random ran = new Random();
 	private PacketContext dropped = null;
 
-	private Fuzzing fuzzing;
-
 	@Activate
 	public void activate(ComponentContext context) {
 		contextbk = context;
-		cfgService.registerProperties(getClass());
+		// cfgService.registerProperties(getClass());
 
-		appId = coreService.registerApplication("org.onosproject.appagent");
+		appId = coreService.registerApplication("org.deltaproject.onosagent");
 
 		packetService.addProcessor(processor, PacketProcessor.ADVISOR_MAX + 5);
 		readComponentConfiguration(context);
@@ -206,20 +200,15 @@ public class AppAgent {
 
 		log.info("Started with Application ID {}", appId.id());
 
-		fuzzing = new Fuzzing();
-		fuzzing.setCfgService(this.cfgService);
-
-		// test();
-
-		cm = new Communication(this);
-		cm.setServerAddr("127.0.0.1", 3366);
-		cm.connectServer("AppAgent");
-		cm.start();
+//		cm = new Communication(this);
+//		cm.setServerAddr("10.0.2.2", 3366);
+//		cm.connectServer("AppAgent");
+//		cm.start();
 	}
 
 	@Deactivate
 	public void deactivate() {
-		cfgService.unregisterProperties(getClass(), false);
+		// cfgService.unregisterProperties(getClass(), false);
 		flowRuleService.removeFlowRulesById(appId);
 		packetService.removeProcessor(processor);
 		processor = null;
