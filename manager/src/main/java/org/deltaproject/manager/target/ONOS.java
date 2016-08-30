@@ -37,6 +37,8 @@ public class ONOS implements TargetController {
         try {
             if (version.equals("1.1")) {
                 process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 /home/vagrant/Applications/apache-karaf-3.0.5/bin/karaf clean");
+            } else if (version.equals("1.6")) {
+                process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 /home/vagrant/onos-1.6.0/apache-karaf-3.0.5/bin/karaf clean");
             }
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");

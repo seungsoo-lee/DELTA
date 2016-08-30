@@ -24,16 +24,18 @@ import org.onosproject.cfg.ComponentConfigService;
 import org.onosproject.cfg.ConfigProperty;
 import org.onosproject.cluster.ClusterAdminService;
 import org.onosproject.cluster.ClusterService;
+import org.onosproject.core.Application;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.core.CoreService;
 import org.onosproject.mastership.MastershipAdminService;
 import org.onosproject.net.*;
 import org.onosproject.net.device.DeviceAdminService;
-import org.onosproject.net.device.DeviceClockProviderService;
+import org.onosproject.net.device.DeviceClockService;
 import org.onosproject.net.device.DeviceService;
 import org.onosproject.net.flow.*;
-import org.onosproject.net.flow.criteria.Criteria;
 import org.onosproject.net.flow.criteria.Criterion;
+import org.onosproject.net.flow.criteria.EthCriterion;
+import org.onosproject.net.flow.criteria.PortCriterion;
 import org.onosproject.net.host.HostAdminService;
 import org.onosproject.net.host.HostService;
 import org.onosproject.net.link.LinkAdminService;
@@ -95,7 +97,7 @@ public class AppAgent {
     protected ClusterService clusterService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-    protected DeviceClockProviderService clockService;
+    protected DeviceClockService clockService;
 
     // for Admin Service
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
@@ -493,9 +495,10 @@ public class AppAgent {
                 TrafficTreatment.Builder treat = DefaultTrafficTreatment
                         .builder();
 
-                FlowRule newf = new DefaultFlowRule(old.deviceId(),
+                FlowRule newf;
+                newf = new DefaultFlowRule(old.deviceId(),
                         old.selector(), treat.build(), old.priority(),
-                        old.appId(), old.timeout(), false);
+                        appId, old.timeout(), false, old.payLoad());
 
                 flowRuleService.removeFlowRules(old);
                 flowRuleService.applyFlowRules(newf);
@@ -663,7 +666,7 @@ public class AppAgent {
                 selector.matchEthDst(MacAddress.valueOf(ran.nextLong()));
                 FlowRule newf = new DefaultFlowRule(piece.id(),
                         selector.build(), treat.build(), ran.nextInt(32767),
-                        appId, flowTimeout, false);
+                        appId, flowTimeout, true, null);
 
                 flowRuleService.applyFlowRules(newf);
             }
@@ -688,20 +691,16 @@ public class AppAgent {
 
             while (f.hasNext()) {
                 FlowEntry old = (FlowEntry) f.next();
-                Criteria.EthTypeCriterion c = (Criteria.EthTypeCriterion) old
-                        .selector().getCriterion(Criterion.Type.ETH_TYPE);
+
+                Criterion c = old.selector().getCriterion(Criterion.Type.ETH_TYPE);
 
                 if (c != null) {
                     String type = c.toString();
 
 					/* MAC -> IP addr for IP packet */
                     if (type.contains("800")) {
-                        Criteria.EthCriterion dst = (Criteria.EthCriterion) old
-                                .selector()
-                                .getCriterion(Criterion.Type.ETH_DST);
-                        Criteria.EthCriterion src = (Criteria.EthCriterion) old
-                                .selector()
-                                .getCriterion(Criterion.Type.ETH_SRC);
+                        EthCriterion dst = (EthCriterion) old.selector().getCriterion(Criterion.Type.ETH_DST);
+                        EthCriterion src = (EthCriterion) old.selector().getCriterion(Criterion.Type.ETH_SRC);
 
                         if (dst != null && src != null) {
                             Set<Host> shost = hostService.getHostsByMac(src
@@ -725,8 +724,7 @@ public class AppAgent {
                                     .valueOf(srcIP.toOctets(),
                                             Ip4Prefix.MAX_MASK_LENGTH);
 
-                            Criteria.PortCriterion port = (Criteria.PortCriterion) old
-                                    .selector().getCriterion(
+                            PortCriterion port = (PortCriterion) old.selector().getCriterion(
                                             Criterion.Type.IN_PORT);
 
                             selector.matchInPort(port.port())
@@ -735,8 +733,8 @@ public class AppAgent {
 
                             FlowRule newf = new DefaultFlowRule(old.deviceId(),
                                     selector.build(), old.treatment(),
-                                    old.priority(), old.appId(), old.timeout(),
-                                    false);
+                                    old.priority(), this.appId, old.timeout(),
+                                    false, null);
 
                             if (!result.equals("")) {
                                 result = "Mac Address " + src.toString()
@@ -903,6 +901,7 @@ public class AppAgent {
 
     // Install a rule forwarding the packet to the specified port.
     private void installRule(PacketContext context, PortNumber portNumber) {
+        /*
         //
         // We don't support (yet) buffer IDs in the Flow Service so
         // packet out first.
@@ -1018,7 +1017,7 @@ public class AppAgent {
 
         FlowRule f = new DefaultFlowRule(context.inPacket().receivedFrom()
                 .deviceId(), builder.build(), treat.build(), flowPriority,
-                appId, flowTimeout, false);
+                appId, flowTimeout, false, null);
 
         flowRuleService.applyFlowRules(f);
 
@@ -1032,6 +1031,6 @@ public class AppAgent {
             packetOut(context, PortNumber.TABLE);
         } else {
             packetOut(context, portNumber);
-        }
+        }*/
     }
 }

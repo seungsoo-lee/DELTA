@@ -26,5 +26,5 @@ source $ONOS_ROOT/tools/dev/bash_profile
 cd $ONOS_ROOT
 mvn clean install
 
-mv ~/org.apache.karaf.features.cfg $KARAF_ROOT/etc/
+cp ~/org.apache.karaf.features.cfg-1.1 $KARAF_ROOT/etc/org.apache.karaf.features.cfg
 cp ${ONOS_ROOT}/tools/package/branding/target/onos-branding-1.1.0.jar ${KARAF_ROOT}/lib/
