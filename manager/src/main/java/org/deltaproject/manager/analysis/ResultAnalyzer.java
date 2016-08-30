@@ -54,7 +54,6 @@ public class ResultAnalyzer {
 
 		if (isSuccess) {
 			log.info("Success");
-
 		}
 
 		return true;

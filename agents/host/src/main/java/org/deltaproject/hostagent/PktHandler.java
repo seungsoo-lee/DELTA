@@ -59,7 +59,7 @@ public class PktHandler {
 
 		try {
 			System.out.println("[Host-Agent] compare latency");
-			process = Runtime.getRuntime().exec("ping " + destIP + " -c 2");
+			process = Runtime.getRuntime().exec("ping " + destIP + " -c 5");
 			stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			String lines = "";
 

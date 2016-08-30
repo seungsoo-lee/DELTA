@@ -62,6 +62,19 @@ public class ONOS implements TargetController {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+
+            Process temp = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo ps -ef | grep karaf");
+            String tempS;
+
+            BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
+
+            while ((tempS = stdOut2.readLine()) != null && !tempS.isEmpty()) {
+                if (tempS.contains("apache-karaf")) {
+                    String[] list = StringUtils.split(tempS);
+
+                    currentPID = Integer.parseInt(list[1]);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -81,12 +94,30 @@ public class ONOS implements TargetController {
                 stdIn.close();
             }
 
+            if (stdOut != null) {
+                stdOut.close();
+            }
+
+            if (this.currentPID != -1) {
+                Process pc = null;
+                try {
+                    pc = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo kill -9 " + this.currentPID);
+                    pc.getErrorStream().close();
+                    pc.getInputStream().close();
+                    pc.getOutputStream().close();
+                    pc.waitFor();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
-        this.currentPID = -1;
     }
 
     /* ONOS, AppAgent is automatically installed when the controller starts */

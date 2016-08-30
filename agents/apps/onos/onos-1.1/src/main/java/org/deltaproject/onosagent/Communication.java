@@ -61,52 +61,52 @@ public class Communication extends Thread {
 		String result = "";
 
 		if (recv.contains("3.1.020")) {
-			app.Set_Control_Message_Drop();
-			result = app.Control_Message_Drop();
+			app.setControlMessageDrop();
+			result = app.testControlMessageDrop();
 			dos.writeUTF(result);
 		} else if (recv.contains("3.1.030")) {
-			app.Set_Infinite_Loop();
+			app.setInfiniteLoop();
 			return;
 		} else if (recv.contains("3.1.040")) {
-			result = app.Internal_Storage_Abuse();
+			result = app.testInternalStorageAbuse();
 			dos.writeUTF(result);
 		} else if (recv.contains("3.1.070")) {
-			result = app.Flow_Rule_Modification();
+			result = app.testFlowRuleModification();
 			dos.writeUTF(result);
 		} else if (recv.contains("3.1.080")) {
 
 			/* loop? */
 			if (recv.contains("false"))
-				app.Flow_Table_Clearance(false);
+				app.testFlowTableClearance(false);
 			else
-				app.Flow_Table_Clearance(true);
+				app.testFlowTableClearance(true);
 
 			return;
 		} else if (recv.contains("3.1.090")) {
-			if (app.Event_Listener_Unsubscription())
+			if (app.testEventListenerUnsubscription())
 				dos.writeUTF("success");
 			else
 				dos.writeUTF("fail");
 		} else if (recv.contains("3.1.100")) {
-			result = app.Application_Eviction("fwd");
+			result = app.testApplicationEviction("fwd");
 			dos.writeUTF(result);
 		} else if (recv.contains("3.1.110")) {
-			app.Resource_Exhaustion_Mem();
+			app.testResourceExhaustionMem();
 			return;
 		} else if (recv.contains("3.1.120")) {
-			app.Resource_Exhaustion_CPU();
+			app.testResourceExhaustionCPU();
 			return;
 		} else if (recv.contains("3.1.130")) {
-			app.System_Variable_Manipulation();
+			app.testSystemVariableManipulation();
 			return;
 		} else if (recv.contains("3.1.140")) {
-			app.System_Command_Execution();
+			app.testSystemCommandExecution();
 			return;
 		} else if (recv.contains("3.1.190")) {
-			app.Flow_Rule_Flooding();
+			app.testFlowRuleFlooding();
 			return;
 		} else if (recv.contains("3.1.200")) {
-			result = app.Switch_Firmware_Misuse();
+			result = app.testSwitchFirmwareMisuse();
 			dos.writeUTF(result);
 		}
 

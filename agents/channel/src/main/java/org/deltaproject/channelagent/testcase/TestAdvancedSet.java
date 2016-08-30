@@ -239,7 +239,7 @@ public class TestAdvancedSet {
 
 			if (version != this.ofversion) {
 				// segmented TCP pkt
-				System.out.println("OFVersion Missing " + offset + ":" + totalLen);
+				// System.out.println("OFVersion Missing " + offset + ":" + totalLen);
 				return false;
 			}
 

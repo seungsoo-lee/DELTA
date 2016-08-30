@@ -82,10 +82,6 @@ public class Floodlight implements TargetController {
         return currentPID;
     }
 
-    public Process getProc() {
-        return this.process;
-    }
-
     public void killController() {
         Process pc = null;
         try {
@@ -104,6 +100,11 @@ public class Floodlight implements TargetController {
 
         this.currentPID = -1;
     }
+
+    public Process getProc() {
+        return this.process;
+    }
+
 
     /*
      * In the case of Floodlight, App-Agent is automatically installed when the

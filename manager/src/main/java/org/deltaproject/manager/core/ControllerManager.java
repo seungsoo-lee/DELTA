@@ -22,6 +22,7 @@ public class ControllerManager {
 
     private ArrayList<TargetController> targetList;
     private ArrayList<String> switchList;
+    private ArrayList<String> connectedSwitches;
 
     private Process processCbench;
 
@@ -34,6 +35,7 @@ public class ControllerManager {
         cfg = config;
 
         this.setConfig();
+        connectedSwitches = new ArrayList<String>();
     }
 
     public void setConfig() {
@@ -232,6 +234,7 @@ public class ControllerManager {
 
                 while ((tempS = stdOut.readLine()) != null) {
                     if (tempS.contains("ESTABLISHED")) {
+                        connectedSwitches.add(tempS);
                         cnt++;
                     }
                 }

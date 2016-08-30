@@ -67,7 +67,8 @@ public class TestAdvancedCase {
         } else if (code.equals("3.1.040")) {
             testInternalStorageAbuse(code);
         } else if (code.equals("3.1.050")) {
-            testSwitchTableFlooding(code);
+            // testSwitchTableFlooding(code);
+            return;
         } else if (code.equals("3.1.060")) {
             testSwitchIdentificationSpoofing(code);
         } else if (code.equals("------")) {        // testSwitchOFCase
@@ -595,7 +596,7 @@ public class TestAdvancedCase {
         appm.write(code);
 
         try {
-            Thread.sleep(1500);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -644,7 +645,7 @@ public class TestAdvancedCase {
         appm.write(code);
 
         try {
-            Thread.sleep(1500);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -701,6 +702,7 @@ public class TestAdvancedCase {
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.SWITCH_STATE);
         analyzer.checkResult(code, result);
+
         long end = System.currentTimeMillis();
         log.info("Running Time: " + (end - start));
 
@@ -734,12 +736,12 @@ public class TestAdvancedCase {
 
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.CONTROLLER_STATE);
-        analyzer.checkResult(code, result);
+        if(! analyzer.checkResult(code, result)) {
+            appm.closeSocket();
+            controllerm.killController();
+        }
         long end = System.currentTimeMillis();
         log.info("Running Time: " + (end - start));
-
-        appm.closeSocket();
-        controllerm.killController();
         return true;
     }
 
