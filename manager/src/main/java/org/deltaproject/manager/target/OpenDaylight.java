@@ -1,5 +1,7 @@
 package org.deltaproject.manager.target;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.*;
 import java.lang.reflect.Field;
 
@@ -34,52 +36,56 @@ public class OpenDaylight implements TargetController {
 	
 	public int createController() {
 		isRunning = false;
-		
-		String str = "";
+
+		String str;
+
 		try {
-			process = new ProcessBuilder(controllerPath).start();
-			Field pidField = Class.forName("java.lang.UNIXProcess")
-					.getDeclaredField("pid");
+			if (version.equals("helium-sr4")) {
+				process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 /home/vagrant/distribution-karaf-0.2.4-Helium-SR4/bin/karaf");
+			} else if (version.equals("berylium")) {
+				process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 /home/vagrant/onos-1.6.0/bin/onos-service start");
+			}
+
+			Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
 			pidField.setAccessible(true);
 			Object value = pidField.get(process);
 
 			this.currentPID = (Integer) value;
-//			System.err.println("pid = " + currentPID);
-			
-			stdOut = new BufferedReader(new InputStreamReader(
-					process.getInputStream()));
-			stdIn = new BufferedWriter(new OutputStreamWriter(
-					process.getOutputStream()));
 
-			while (!isRunning) {
-				str = stdOut.readLine();				
-				if (str.endsWith("initialized successfully")) {
+			stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+
+			while ((str = stdOut.readLine()) != null) {
+				// System.out.println(str);
+				if (str.contains("read timeout is 0")) {
 					isRunning = true;
-//					System.out.println(str);
 					break;
 				}
 			}
 
-		} catch (IOException e) {
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			Process temp = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo ps -ef | grep karaf");
+			String tempS;
+
+			BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
+
+			while ((tempS = stdOut2.readLine()) != null && !tempS.isEmpty()) {
+				if (tempS.contains("Helium-SR4")) {
+					String[] list = StringUtils.split(tempS);
+
+					currentPID = Integer.parseInt(list[1]);
+				}
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
-		} catch (NoSuchFieldException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (SecurityException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IllegalArgumentException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IllegalAccessException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
 		}
 
-		installAppAgent();
 		return currentPID;
 	}
 	
@@ -119,32 +125,36 @@ public class OpenDaylight implements TargetController {
 	
 	public void killController() {
 		try {
-			if(stdIn != null) {
-				String str = "";
-//				while ((str = stdOut.readLine()) != null) {
-//					System.out.println("{"+str+"}");
-//				}
-				
-//				System.out.println("Kill Controller");
-				stdIn.write("exit\n");
-				stdIn.flush();
-				
-//				while ((str = stdOut.readLine()) != null) {
-//					System.out.println("{"+str+"}");
-//				}
-				
-				stdIn.write("y\n");
+			if (stdIn != null) {
+				stdIn.write("system:shutdown -f\n");
 				stdIn.flush();
 				stdIn.close();
+			}
+
+			if (stdOut != null) {
 				stdOut.close();
 			}
-			
+
+			if (this.currentPID != -1) {
+				Process pc = null;
+				try {
+					pc = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo kill -9 " + this.currentPID);
+					pc.getErrorStream().close();
+					pc.getInputStream().close();
+					pc.getOutputStream().close();
+					pc.waitFor();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}	
-		
-		this.currentPID = -1;
+		}
 	}
 	
 	public Process getProc() {

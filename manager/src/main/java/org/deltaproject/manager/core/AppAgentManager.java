@@ -66,13 +66,13 @@ public class AppAgentManager {
 	}
 
 	public boolean write(String code) {		
-		if (targetController.equals("OpenDaylight")) {
-			if (code.contains("A-2-M") || code.contains("A-6-M")) {
+		if (targetController.contains("OpenDaylight")) {
+			if (code.contains("3.1.020") || code.contains("3.1.080")) {
 				try {
 					dos2.writeUTF(code);
 					dos2.flush();
 
-					if (code.contains("A-2-M")) {
+					if (code.contains("3.1.020")) {
 						dis2.readUTF();
 						dos.writeUTF(code);
 					}

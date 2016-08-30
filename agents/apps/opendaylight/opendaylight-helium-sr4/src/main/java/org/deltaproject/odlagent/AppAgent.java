@@ -1,10 +1,5 @@
 package org.deltaproject.odlagent;
 
-import org.opendaylight.controller.forwardingrulesmanager.IForwardingRulesManager;
-import org.opendaylight.controller.hosttracker.IfIptoHost;
-import org.opendaylight.controller.hosttracker.IfNewHostNotify;
-import org.opendaylight.controller.hosttracker.hostAware.HostNodeConnector;
-import org.opendaylight.controller.hosttracker.hostAware.IHostFinder;
 import org.opendaylight.controller.sal.action.Action;
 import org.opendaylight.controller.sal.action.Drop;
 import org.opendaylight.controller.sal.core.Node;
@@ -25,6 +20,11 @@ import org.opendaylight.controller.sal.routing.IListenRoutingUpdates;
 import org.opendaylight.controller.sal.routing.IRouting;
 import org.opendaylight.controller.sal.utils.EtherTypes;
 import org.opendaylight.controller.sal.utils.ServiceHelper;
+import org.opendaylight.controller.forwardingrulesmanager.IForwardingRulesManager;
+import org.opendaylight.controller.hosttracker.IfIptoHost;
+import org.opendaylight.controller.hosttracker.IfNewHostNotify;
+import org.opendaylight.controller.hosttracker.hostAware.HostNodeConnector;
+import org.opendaylight.controller.hosttracker.hostAware.IHostFinder;
 import org.opendaylight.controller.sal.utils.Status;
 import org.opendaylight.controller.statisticsmanager.IStatisticsManager;
 import org.opendaylight.controller.switchmanager.IInventoryListener;
@@ -230,7 +230,7 @@ public class AppAgent implements IListenDataPacket, IHostFinder,
 	public void connectManager() {
 		cm = new Communication();
 		cm.setAgent(this);
-		cm.setServerAddr("127.0.0.1", 3366);
+		cm.setServerAddr("10.0.2.2", 3366);
 		cm.connectServer("AppAgent");
 		cm.start();
 	}
@@ -493,7 +493,6 @@ public class AppAgent implements IListenDataPacket, IHostFinder,
 		}
 	}
 
-	@Override
 	public PacketResult receiveDataPacket(RawPacket inPkt) {
 		if (isLoop)
 			this.Infinite_Loop();
@@ -504,51 +503,31 @@ public class AppAgent implements IListenDataPacket, IHostFinder,
 		return PacketResult.KEEP_PROCESSING;
 	}
 
-	// for IfNewHostNotify
-	@Override
-	public void notifyHTClient(HostNodeConnector arg0) {
-		// TODO Auto-generated method stub
-		// System.out.println("[AppAgent] notifyHTClient");
+	public void notifyHTClient(HostNodeConnector hostNodeConnector) {
+
 	}
 
-	@Override
-	public void notifyHTClientHostRemoved(HostNodeConnector arg0) {
-		// TODO Auto-generated method stub
-		// System.out.println("[AppAgent] notifyHTClientHostRemoved");
+	public void notifyHTClientHostRemoved(HostNodeConnector hostNodeConnector) {
+
 	}
 
-	// for IListenRoutingUpdates
-	@Override
+	public void find(InetAddress inetAddress) {
+
+	}
+
+	public void probe(HostNodeConnector hostNodeConnector) {
+
+	}
+
 	public void recalculateDone() {
-		// TODO Auto-generated method stub
-		// System.out.println("[AppAgent] recalculateDone");
+
 	}
 
-	// for IInventoryListener
-	@Override
-	public void notifyNode(Node arg0, UpdateType arg1,
-			Map<String, Property> arg2) {
-		// TODO Auto-generated method stub
-		// System.out.println("[AppAgent] notifyNode");
+	public void notifyNode(Node node, UpdateType updateType, Map<String, Property> map) {
+
 	}
 
-	@Override
-	public void notifyNodeConnector(NodeConnector arg0, UpdateType arg1,
-			Map<String, Property> arg2) {
-		// TODO Auto-generated method stub
-		// System.out.println("[AppAgent] notifyNodeConnector");
-	}
+	public void notifyNodeConnector(NodeConnector nodeConnector, UpdateType updateType, Map<String, Property> map) {
 
-	// for IHostFinder
-	@Override
-	public void find(InetAddress arg0) {
-		// TODO Auto-generated method stub
-		// System.out.println("[AppAgent] find");
-	}
-
-	@Override
-	public void probe(HostNodeConnector arg0) {
-		// TODO Auto-generated method stub
-		// System.out.println("[AppAgent] probe");
 	}
 }

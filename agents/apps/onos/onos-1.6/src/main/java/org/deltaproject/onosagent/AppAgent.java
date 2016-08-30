@@ -180,7 +180,7 @@ public class AppAgent {
 
         appId = coreService.registerApplication("org.deltaproject.onosagent");
 
-        packetService.addProcessor(processor, PacketProcessor.ADVISOR_MAX + 5);
+        packetService.addProcessor(processor, PacketProcessor.ADVISOR_MAX);
         readComponentConfiguration(context);
 
         TrafficSelector.Builder selector = DefaultTrafficSelector.builder();

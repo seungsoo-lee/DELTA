@@ -776,6 +776,7 @@ public class AppAgent {
                 System.out.println(eth.toString() + "\n");
 
                 context.block();
+                context.isHandled();
             } else if (isLoop)
                 AppAgent.testInfiniteLoop();
 

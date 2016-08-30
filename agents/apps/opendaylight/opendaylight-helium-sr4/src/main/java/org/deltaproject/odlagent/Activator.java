@@ -42,7 +42,7 @@ public class Activator extends ComponentActivatorAbstractBase {
 	public void connectManager() {
 		cm = new Communication();
 		cm.setActivator(this);
-		cm.setServerAddr("127.0.0.1", 3366);
+		cm.setServerAddr("10.0.2.2", 3366);
 		cm.connectServer("ActAgent");
 		cm.start();
 	}
