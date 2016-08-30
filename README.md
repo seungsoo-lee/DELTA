@@ -38,14 +38,14 @@ $ git clone https://github.com/OpenNetworkingFoundation/DELTA.git
 + STEP 1. Install DELTA dependencies on the host machine.
 
 ```
-$ cd <DELTA>/tools/dev/
+$ cd <DELTA>/tools/dev/delta-setup/
 $ ./delta-setup-devenv-ubuntu
 ```
 
 + STEP 2. Install 3 virtual machines using vagrant system.
 
 ```
-$ cd <DELTA>/tools/dev/vagrant
+$ cd <DELTA>/tools/dev/delta-setup/vagrant/
 $ vagrant up
 ```
 
@@ -53,19 +53,10 @@ $ vagrant up
 
 ```
 $ cd <DELTA>
-$ source ./tools/dev/bash_profile
+$ source ./tools/dev/delta-setup/bash_profile
 $ mvn clean install
 ```
 
-+ STEP 4. Install jpcap library for channel agent on VM-2.
-
-```
-$ cd DELTA/agents/channel/libs/jpcap/jpcap/0.7
-$ scp libjpcap.so vagrant@10.100.100.12:/home/vagrant
-
-$ ssh vagrant@10.100.100.12
-vagrant@channel-vm:~$ sudo cp libjpcap.so /usr/lib/
-```
 
 + After installing DELTA, the test environment is automatically setup as below,
 ![Env](http://143.248.53.145/research/delta/env.png)
@@ -122,8 +113,8 @@ SWITCH_IP=10.100.100.13,10.100.100.13,10.100.100.13
 
 ```
 $ cd <DELTA>
-$ source ./tools/dev/bash_profile
-$ scp ./tools/dev/distribute-files-to-vms
+$ source ./tools/dev/delta-setup/bash_profile
+$ scp ./tools/dev/delta-setup/distribute-files-to-vms
 ```
 
 
