@@ -137,6 +137,12 @@ Command>_
 + STEP 2. Execute Channel-Agent (VM-2)
 ```
 $ sudo java -jar delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar 10.0.2.2 3366
+$ [Channel-Agent] Configuration setup
+$ [Channel-Agent] OF version/port: 1/6633
+$ [Channel-Agent] MITM NIC   : eth1
+$ [Channel-Agent] Target Controller IP: 10.100.100.11
+$ [Channel-Agent] Target Switch IP : 10.100.100.13
+$ [Channel-Agent] Cbench Root Path :/home/vagrant/oflops/cbench/_
 ```
 
 + STEP 3. Execute Host-Agent (VM-3)
@@ -145,6 +151,7 @@ $ sudo python test-advanced-topo.py 10.100.100.11 6633
 $ (the other console) ./ovs-static-rules
 
 mininet> h1 java -jar delta-agent-host-1.0-SNAPSHOT.jar 10.0.2.2 3366
+[Host-Agent] Connected with Agent-Manager_
 ```
 
 + STEP 4. Reproducing known attacks
@@ -159,12 +166,11 @@ mininet> h1 java -jar delta-agent-host-1.0-SNAPSHOT.jar 10.0.2.2 3366
 
 
 Command> k
-Select the attack code (replay all, enter the 'A')> 3.1.020
-
-Select the attack code (replay all, enter the 'A')> 3.1.020
-[main] INFO org.deltaproject.manager.testcase.TestAdvancedCase - 3.1.020 - Control Message Drop
-[main] INFO org.deltaproject.manager.testcase.TestAdvancedCase - Target controller: Floodlight
-[main] INFO org.deltaproject.manager.testcase.TestAdvancedCase - Target controller is starting..
+Select the attack code (replay all, enter the 'A')> 3.1.010
+[main] INFO TestAdvancedCase - 3.1.010 - Packet-In Flooding
+[main] INFO TestAdvancedCase - Target controller: ONOS v1.1
+[main] INFO TestAdvancedCase - Target controller is starting..
+[Thread-0] INFO AttackConductor - AppAgent is connected_
 ```
 
 
