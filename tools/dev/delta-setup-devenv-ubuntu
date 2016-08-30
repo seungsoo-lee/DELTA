@@ -12,37 +12,10 @@ sudo apt-get update && sudo apt-get install oracle-java8-installer oracle-java8-
 sudo apt-get install ant -y
 
 
-# install mininet
-sudo apt-get install mininet -y
-sudo service openvswitch-controller stop
-sudo update-rc.d openvswitch-controller disable
-
-
-# install cbench
-sudo apt-get install autoconf automake libtool libsnmp-dev libpcap-dev g++ -y
-cd ;
-git clone git://gitosis.stanford.edu/oflops.git
-cd oflops; git submodule init && git submodule update
-git clone git://gitosis.stanford.edu/openflow.git
-cd openflow; git checkout -b release/1.0.0 remotes/origin/release/1.0.0
-wget http://hyperrealm.com/libconfig/libconfig-1.4.9.tar.gz
-tar -xvzf libconfig-1.4.9.tar.gz
-cd libconfig-1.4.9
-./configure
-sudo make && sudo make install
-cd ../../netfpga-packet-generator-c-library/
-sudo ./autogen.sh && sudo ./configure && sudo make
-cd ..
-sh ./boot.sh ; ./configure --with-openflow-src-dir=$HOME/oflops/openflow; make
-sudo make install
-cd ;
-
 # install maven, karaf
 cd; mkdir Downloads Applications
 cd Downloads
-wget http://download.nextag.com/apache/karaf/3.0.5/apache-karaf-3.0.5.tar.gz
 wget http://archive.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
-tar -zxvf apache-karaf-3.0.5.tar.gz -C ../Applications/
 tar -zxvf apache-maven-3.3.9-bin.tar.gz -C ../Applications/
 
 
@@ -67,8 +40,3 @@ wget https://nexus.opendaylight.org/content/groups/public/org/opendaylight/integ
 unzip distribution-karaf-0.2.4-Helium-SR4.zip
 rm distribution-karaf-0.2.4-Helium-SR4.zip
 
-cd; mkdir onos
-cd onos
-wget http://downloads.onosproject.org/release/onos-1.1.0.zip
-unzip onos-1.1.0.zip
-rm onos-1.1.0.zip
