@@ -67,36 +67,32 @@ public class AppAgentManager {
 
     public boolean write(String code) {
         if (targetController.contains("OpenDaylight")) {
-            if (code.contains("3.1.020") || code.contains("3.1.080")) {
+            if (code.contains("3.1.090") || code.contains("3.1.100")) {
                 try {
                     dos2.writeUTF(code);
                     dos2.flush();
-
-                    if (code.contains("3.1.020")) {
-                        dis2.readUTF();
-                        dos.writeUTF(code);
-                    }
                     return true;
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                     return false;
                 }
-            } else
-                return false;
-        } else {
-            try {
-                dos.writeUTF(code);
-                dos.flush();
-                return true;
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-
-                return false;
             }
         }
+
+        try {
+            dos.writeUTF(code);
+            dos.flush();
+            return true;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+
+            return false;
+        }
+
     }
+
 
     public void startFuzzing() {
 

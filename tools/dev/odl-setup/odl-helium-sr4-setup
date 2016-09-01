@@ -14,14 +14,29 @@ sudo apt-get update && sudo apt-get install oracle-java7-installer oracle-java7-
 sudo apt-get install ant -y
 
 sudo apt-get insatll unzip -y
+sudo apt-get install git -y
+
+# install maven, karaf
+cd; mkdir Downloads Applications
+cd Downloads
+wget http://archive.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
+tar -zxvf apache-maven-3.3.9-bin.tar.gz -C ../Applications/
 
 
 # Fetch controller sources
-cd ;
-wget https://nexus.opendaylight.org/content/groups/public/org/opendaylight/integration/distribution-karaf/0.2.4-Helium-SR4/distribution-karaf-0.2.4-Helium-SR4.zip
-unzip distribution-karaf-0.2.4-Helium-SR4.zip
-rm distribution-karaf-0.2.4-Helium-SR4.zip
+#cd ;
+#wget https://nexus.opendaylight.org/content/groups/public/org/opendaylight/integration/distribution-karaf/0.2.4-Helium-SR4/distribution-karaf-0.2.4-Helium-SR4.zip
+#unzip distribution-karaf-0.2.4-Helium-SR4.zip
+#rm distribution-karaf-0.2.4-Helium-SR4.zip
 
 # install essential features manually!
 # feature:install odl-restconf odl-l2switch-switch odl-dlux-core odl-adsal-northbound
 
+cd ;
+git clone https://github.com/opendaylight/controller.git
+cd controller
+git checkout release/helium-sr3
+
+source ~/odl-helium-sr3-bash-profile
+
+mvn clean install -Dcheckstyle.skip=True -DskipTests

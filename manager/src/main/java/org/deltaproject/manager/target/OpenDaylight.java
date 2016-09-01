@@ -1,194 +1,229 @@
 package org.deltaproject.manager.target;
 
 import org.apache.commons.lang3.StringUtils;
+import org.deltaproject.manager.testcase.TestAdvancedCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Field;
 
 public class OpenDaylight implements TargetController {
 
-	public static final String HYDROGEN = "";
-	
-	private Process process = null;
-	private boolean isRunning = false;
-	
-	public String version = "";
-	public String controllerPath = "";
-	public String appPath = "";
-	
-	private int currentPID = -1;
-	private int bundleID;
-	
-	private BufferedWriter stdIn;
-	private BufferedReader stdOut;
-	
-	
-	public OpenDaylight(String controllerPath, String v) {
-		this.controllerPath = controllerPath;
-		this.version = v;
-	}
-	
-	public OpenDaylight setAppAgentPath(String path) {
-		this.appPath = path;
-		
-		return this;
-	}
-	
-	public int createController() {
-		isRunning = false;
+    public static final String HYDROGEN = "";
+    private static final Logger log = LoggerFactory.getLogger(OpenDaylight.class.getName());
 
-		String str;
+    private Process process = null;
+    private boolean isRunning = false;
 
-		try {
-			if (version.equals("helium-sr4")) {
-				process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 /home/vagrant/distribution-karaf-0.2.4-Helium-SR4/bin/karaf");
-			} else if (version.equals("berylium")) {
-				process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 /home/vagrant/onos-1.6.0/bin/onos-service start");
-			}
+    public String version = "";
+    public String controllerPath = "";
+    public String appPath = "";
 
-			Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
-			pidField.setAccessible(true);
-			Object value = pidField.get(process);
+    private int currentPID = -1;
+    private int bundleID;
 
-			this.currentPID = (Integer) value;
+    private BufferedWriter stdIn;
+    private BufferedReader stdOut;
 
-			stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
-			while ((str = stdOut.readLine()) != null) {
-				// System.out.println(str);
-				if (str.contains("read timeout is 0")) {
-					isRunning = true;
-					break;
-				}
-			}
+    public OpenDaylight(String controllerPath, String v) {
+        this.controllerPath = controllerPath;
+        this.version = v;
+    }
 
-			try {
-				Thread.sleep(10000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+    public OpenDaylight setAppAgentPath(String path) {
+        this.appPath = path;
 
-			Process temp = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo ps -ef | grep karaf");
-			String tempS;
+        return this;
+    }
 
-			BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
+    public int createController() {
+        isRunning = false;
 
-			while ((tempS = stdOut2.readLine()) != null && !tempS.isEmpty()) {
-				if (tempS.contains("Helium-SR4")) {
-					String[] list = StringUtils.split(tempS);
+        String str;
 
-					currentPID = Integer.parseInt(list[1]);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        try {
+            if (version.equals("helium-sr3")) {
+                process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 /home/vagrant/controller/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh");
+            } else if (version.equals("berylium")) {
+                process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 /home/vagrant/distribution-karaf-0.2.4-Helium-SR4/bin/karaf");
+            }
 
-		return currentPID;
-	}
-	
-	public boolean installAppAgent() {
-		boolean isInstalled = false;
+            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
+            pidField.setAccessible(true);
+            Object value = pidField.get(process);
 
-		String str = "";
+            this.currentPID = (Integer) value;
 
-		try {
-			stdIn.write("install file:" + appPath + "\n");
-			stdIn.flush();
+            stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
-			while (!isInstalled) {
-				str = stdOut.readLine();
-				if (str.contains("Installed")) {
-					isInstalled = true;
+            while ((str = stdOut.readLine()) != null) {
+                // System.out.println(str);
+                if (str.contains("initialized successfully")) {
+                    isRunning = true;
+                    break;
+                }
+            }
 
-					int idx = str.indexOf("Installed");
-					this.bundleID = Integer.parseInt(str.substring(idx - 4,
-							idx - 1));
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
-					stdIn.write("start " + bundleID + "\n");
-					stdIn.flush();
+            Process temp = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo ps -ef | grep java");
+            String tempS;
 
-//					 System.out.println("AppAgent bundle ID [" + bundleID
-//					 + "] Installed");
-				}
-			}
+            BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            while ((tempS = stdOut2.readLine()) != null && !tempS.isEmpty()) {
+                if (tempS.contains("opendaylight")) {
+                    String[] list = StringUtils.split(tempS);
 
-		return true;
-	}
-	
-	public void killController() {
-		try {
-			if (stdIn != null) {
-				stdIn.write("system:shutdown -f\n");
-				stdIn.flush();
-				stdIn.close();
-			}
+                    currentPID = Integer.parseInt(list[1]);
+                }
+            }
 
-			if (stdOut != null) {
-				stdOut.close();
-			}
+            installAppAgent();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-			if (this.currentPID != -1) {
-				Process pc = null;
-				try {
-					pc = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo kill -9 " + this.currentPID);
-					pc.getErrorStream().close();
-					pc.getInputStream().close();
-					pc.getOutputStream().close();
-					pc.waitFor();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public Process getProc() {
-		return this.process;
-	}
+        return currentPID;
+    }
 
-	@Override
-	public String getType() {
-		// TODO Auto-generated method stub
-		return "OpenDaylight";
-	}
-	
-	@Override
-	public String getVersion() {
-		// TODO Auto-generated method stub
-		return this.version;
-	}
+    public boolean installAppAgent() {
+        boolean isInstalled = false;
 
-	@Override
-	public String getPath() {
-		// TODO Auto-generated method stub
-		return this.controllerPath + "\n" + this.appPath;
-	}
+        String str = "";
 
-	@Override
-	public int getPID() {
-		// TODO Auto-generated method stub
-		return this.currentPID;
-	}
+        try {
+            stdIn.write("install file:" + "/home/vagrant/appagent.jar" + "\n");
+            stdIn.flush();
 
-	@Override
-	public BufferedReader getStdOut() {
-		// TODO Auto-generated method stub
-		return this.stdOut;
-	}
-	
+            while (!isInstalled) {
+                str = stdOut.readLine();
+                if (str.contains("Installed")) {
+                    isInstalled = true;
+
+                    int idx = str.indexOf("Installed");
+                    this.bundleID = Integer.parseInt(str.substring(idx - 4,
+                            idx - 1));
+
+                    stdIn.write("start " + bundleID + "\n");
+                    stdIn.flush();
+
+                   log.info("AppAgent bundle ID [" + bundleID +"] Installed");
+                }
+            }
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            // for Service chain interference
+            stdIn.write("install file:" + "/home/vagrant/appagent2.jar" + "\n");
+            stdIn.flush();
+
+            isInstalled = false;
+            while (!isInstalled) {
+                str = stdOut.readLine();
+                if (str.contains("Installed")) {
+                    isInstalled = true;
+
+                    int idx = str.indexOf("Installed");
+                    this.bundleID = Integer.parseInt(str.substring(idx - 4,
+                            idx - 1));
+
+                    stdIn.write("start " + bundleID + "\n");
+                    stdIn.flush();
+
+                    log.info("AppAgent bundle ID [" + bundleID +"] Installed");
+                }
+            }
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return true;
+    }
+
+    public void killController() {
+        try {
+            if (stdIn != null) {
+                stdIn.write("exit\n");
+                stdIn.flush();
+                stdIn.write("y\n");
+                stdIn.flush();
+                stdIn.close();
+            }
+
+            if (stdOut != null) {
+                stdOut.close();
+            }
+
+            if (this.currentPID != -1) {
+                Process pc = null;
+                try {
+                    pc = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo kill -9 " + this.currentPID);
+                    pc.getErrorStream().close();
+                    pc.getInputStream().close();
+                    pc.getOutputStream().close();
+                    pc.waitFor();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public Process getProc() {
+        return this.process;
+    }
+
+    @Override
+    public String getType() {
+        // TODO Auto-generated method stub
+        return "OpenDaylight";
+    }
+
+    @Override
+    public String getVersion() {
+        // TODO Auto-generated method stub
+        return this.version;
+    }
+
+    @Override
+    public String getPath() {
+        // TODO Auto-generated method stub
+        return this.controllerPath + "\n" + this.appPath;
+    }
+
+    @Override
+    public int getPID() {
+        // TODO Auto-generated method stub
+        return this.currentPID;
+    }
+
+    @Override
+    public BufferedReader getStdOut() {
+        // TODO Auto-generated method stub
+        return this.stdOut;
+    }
+
 }
