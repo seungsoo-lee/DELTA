@@ -108,10 +108,10 @@ public class AMInterface extends Thread {
 				recv = dis.readUTF();
 
 				if (recv.contains("ping")) {
-					dos.writeUTF(ha.executePing("10.0.0.2"));
+					dos.writeUTF(ha.executePing("172.16.4.102"));
 					dos.flush();
 				} else if (recv.contains("compare")) {
-					dos.writeUTF(ha.comparePing("10.0.0.2"));
+					dos.writeUTF(ha.comparePing("172.16.4.102"));
 					dos.flush();
 				} else if (recv.contains("connected")) {
 					System.out.println("[Host-Agent] Connected with Agent-Manager");
