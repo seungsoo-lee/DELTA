@@ -38,7 +38,7 @@ public class ONOS implements TargetController {
             if (version.equals("1.1")) {
                 process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 /home/vagrant/Applications/apache-karaf-3.0.5/bin/karaf clean");
             } else if (version.equals("1.6")) {
-                process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 /home/vagrant/onos-1.6.0/bin/onos-service start");
+                process = Runtime.getRuntime().exec("ssh ubuntu@10.0.4.17 /home/ubuntu/onos-1.6.0/bin/onos-service start");
             }
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
@@ -65,7 +65,7 @@ public class ONOS implements TargetController {
                 e.printStackTrace();
             }
 
-            Process temp = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo ps -ef | grep karaf");
+            Process temp = Runtime.getRuntime().exec("ssh ubuntu@10.0.4.17 sudo ps -ef | grep karaf");
             String tempS;
 
             BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
@@ -103,7 +103,7 @@ public class ONOS implements TargetController {
             if (this.currentPID != -1) {
                 Process pc = null;
                 try {
-                    pc = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo kill -9 " + this.currentPID);
+                    pc = Runtime.getRuntime().exec("ssh ubuntu@10.0.4.17 sudo kill -9 " + this.currentPID);
                     pc.getErrorStream().close();
                     pc.getInputStream().close();
                     pc.getOutputStream().close();

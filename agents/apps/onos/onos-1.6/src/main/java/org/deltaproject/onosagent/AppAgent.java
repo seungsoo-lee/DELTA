@@ -200,7 +200,7 @@ public class AppAgent {
         log.info("Started with Application ID {}", appId.id());
 
         cm = new Communication(this);
-        cm.setServerAddr("10.0.2.2", 3366);
+        cm.setServerAddr("10.0.4.1", 3366);
         cm.connectServer("AppAgent");
         cm.start();
     }

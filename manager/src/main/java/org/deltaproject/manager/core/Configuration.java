@@ -48,7 +48,9 @@ public class Configuration {
         return this.FLOODLIGHT_VER;
     }
 
-    public String getTargetVer() { return this.TARGET_VERSION; }
+    public String getTargetVer() {
+        return this.TARGET_VERSION;
+    }
 
     public String getODLRoot() {
         return this.ODL_ROOT;
@@ -130,8 +132,10 @@ public class Configuration {
 
                 if (temp.contains("ODL_ROOT"))
                     this.ODL_ROOT = temp.substring(temp.indexOf("=") + 1);
+
                 if (temp.contains("ODL_VER"))
                     this.ODL_VER = temp.substring(temp.indexOf("=") + 1);
+
                 if (temp.contains("ODL_APPAGENT"))
                     this.ODL_APPAGENT = temp.substring(temp.indexOf("=") + 1);
 
@@ -172,7 +176,6 @@ public class Configuration {
 
                 if (temp.contains("CONTROLLER_IP"))
                     this.CONTROLLER_IP = temp.substring(temp.indexOf("=") + 1);
-
 
                 if (temp.contains("MITM_NIC"))
                     this.MITM_NIC = temp.substring(temp.indexOf("=") + 1);
