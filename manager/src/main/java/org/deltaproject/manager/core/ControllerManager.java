@@ -17,6 +17,7 @@ public class ControllerManager {
     private String targetController = "";
     private String targetVersion = "";
     private String ofPort = "";
+    private String sshAddr = "";
 
     private int cbenchPID = -1;
 
@@ -36,16 +37,13 @@ public class ControllerManager {
 
         this.setConfig();
         connectedSwitches = new ArrayList<String>();
+        sshAddr = cfg.getSSH();
     }
 
     public void setConfig() {
-        TargetController fl = new Floodlight(cfg.getFloodlightRoot(), cfg.getTargetVer());
-
-
-        TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getTargetVer())
-                .setAppAgentPath(cfg.getODLAppAgent());
-
-        TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getTargetVer());
+        TargetController fl = new Floodlight(cfg.getFloodlightRoot(), cfg.getTargetVer(), cfg.getSSH());
+        TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getTargetVer(), cfg.getSSH());
+        TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getTargetVer(), cfg.getSSH());
 
         targetList.add(fl);
         targetList.add(odl);
@@ -53,11 +51,8 @@ public class ControllerManager {
 
         cbechPath = cfg.getCbenchRoot();
         targetController = cfg.getTargetController();
-
         targetVersion = "v" + cfg.getTargetVer();
-
         ofPort = cfg.getOFPort();
-
         switchList = cfg.getSwitchList();
     }
 
@@ -228,7 +223,7 @@ public class ControllerManager {
                 cnt = 0;
                 String cmd = "";
                 // temp = Runtime.getRuntime().exec(new String[] { "bash", "-c", "netstat -ap | grep " + ofPort});
-                temp = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo netstat -ap | grep " + ofPort);
+                temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo netstat -ap | grep " + ofPort);
 
                 BufferedReader stdOut = new BufferedReader(new InputStreamReader(temp.getInputStream()));
 
@@ -238,6 +233,7 @@ public class ControllerManager {
                         cnt++;
                     }
                 }
+
                 stdOut.close();
 
                 if (switchCnt == cnt) {

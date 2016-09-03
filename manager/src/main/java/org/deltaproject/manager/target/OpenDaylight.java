@@ -19,6 +19,7 @@ public class OpenDaylight implements TargetController {
     public String version = "";
     public String controllerPath = "";
     public String appPath = "";
+    public String sshAddr = "";
 
     private int currentPID = -1;
     private int bundleID;
@@ -27,9 +28,10 @@ public class OpenDaylight implements TargetController {
     private BufferedReader stdOut;
 
 
-    public OpenDaylight(String controllerPath, String v) {
-        this.controllerPath = controllerPath;
+    public OpenDaylight(String path, String v, String ssh) {
+        this.controllerPath = path + "/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh";
         this.version = v;
+        this.sshAddr = ssh;
     }
 
     public OpenDaylight setAppAgentPath(String path) {
@@ -45,9 +47,9 @@ public class OpenDaylight implements TargetController {
 
         try {
             if (version.equals("helium-sr3")) {
-                process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 /home/vagrant/controller/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh");
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + controllerPath);
             } else if (version.equals("berylium")) {
-                process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 /home/vagrant/distribution-karaf-0.2.4-Helium-SR4/bin/karaf");
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " /home/vagrant/distribution-karaf-0.2.4-Helium-SR4/bin/karaf");
             }
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
@@ -74,7 +76,7 @@ public class OpenDaylight implements TargetController {
                 e.printStackTrace();
             }
 
-            Process temp = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo ps -ef | grep java");
+            Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep java");
             String tempS;
 
             BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
@@ -116,7 +118,7 @@ public class OpenDaylight implements TargetController {
                     stdIn.write("start " + bundleID + "\n");
                     stdIn.flush();
 
-                   log.info("AppAgent bundle ID [" + bundleID +"] Installed");
+                    log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                 }
             }
 
@@ -144,7 +146,7 @@ public class OpenDaylight implements TargetController {
                     stdIn.write("start " + bundleID + "\n");
                     stdIn.flush();
 
-                    log.info("AppAgent bundle ID [" + bundleID +"] Installed");
+                    log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                 }
             }
 
@@ -173,7 +175,7 @@ public class OpenDaylight implements TargetController {
             if (this.currentPID != -1) {
                 Process pc = null;
                 try {
-                    pc = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo kill -9 " + this.currentPID);
+                    pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo kill -9 " + this.currentPID);
                     pc.getErrorStream().close();
                     pc.getInputStream().close();
                     pc.getOutputStream().close();

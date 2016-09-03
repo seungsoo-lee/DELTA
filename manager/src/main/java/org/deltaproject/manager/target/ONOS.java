@@ -10,23 +10,18 @@ public class ONOS implements TargetController {
     private boolean isRunning = false;
 
     public String version = "";
-    public String controllerPath = "";
     public String karafPath = "";
+    public String sshAddr = "";
 
     private int currentPID = -1;
 
     private BufferedWriter stdIn;
     private BufferedReader stdOut;
 
-    public ONOS(String controllerPath, String v) {
-        this.controllerPath = controllerPath;
+    public ONOS(String path, String v, String ssh) {
+        this.karafPath = path +"/apache-karaf-3.0.5/bin/karaf";
         this.version = v;
-    }
-
-    public ONOS setKarafPath(String p) {
-        this.karafPath = p;
-
-        return this;
+        this.sshAddr = ssh;
     }
 
     public int createController() {
@@ -35,11 +30,7 @@ public class ONOS implements TargetController {
         String str;
 
         try {
-            if (version.equals("1.1")) {
-                process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 /home/vagrant/Applications/apache-karaf-3.0.5/bin/karaf clean");
-            } else if (version.equals("1.6")) {
-                process = Runtime.getRuntime().exec("ssh ubuntu@10.0.4.17 /home/ubuntu/onos-1.6.0/bin/onos-service start");
-            }
+            process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + karafPath + " clean");
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
@@ -65,7 +56,7 @@ public class ONOS implements TargetController {
                 e.printStackTrace();
             }
 
-            Process temp = Runtime.getRuntime().exec("ssh ubuntu@10.0.4.17 sudo ps -ef | grep karaf");
+            Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep karaf");
             String tempS;
 
             BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
@@ -84,10 +75,6 @@ public class ONOS implements TargetController {
         return currentPID;
     }
 
-    public Process getProc() {
-        return this.process;
-    }
-
     public void killController() {
         try {
             if (stdIn != null) {
@@ -103,7 +90,7 @@ public class ONOS implements TargetController {
             if (this.currentPID != -1) {
                 Process pc = null;
                 try {
-                    pc = Runtime.getRuntime().exec("ssh ubuntu@10.0.4.17 sudo kill -9 " + this.currentPID);
+                    pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo kill -9 " + this.currentPID);
                     pc.getErrorStream().close();
                     pc.getInputStream().close();
                     pc.getOutputStream().close();
@@ -120,6 +107,11 @@ public class ONOS implements TargetController {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+
+    public Process getProc() {
+        return this.process;
     }
 
     /* ONOS, AppAgent is automatically installed when the controller starts */
@@ -143,7 +135,7 @@ public class ONOS implements TargetController {
     @Override
     public String getPath() {
         // TODO Auto-generated method stub
-        return this.controllerPath;
+        return this.karafPath;
     }
 
     @Override

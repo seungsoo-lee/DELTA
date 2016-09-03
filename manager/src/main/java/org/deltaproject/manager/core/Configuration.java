@@ -20,6 +20,7 @@ public class Configuration {
 
     private String TARGET_CONTROLLER = "";
     private String TARGET_VERSION = "";
+    private String TARGET_SSH = "";
 
     private String OF_PORT = "";
     private String OF_VERSION = "";
@@ -104,6 +105,10 @@ public class Configuration {
         return this.switchList.get(idx);
     }
 
+    public String getSSH() {
+        return this.TARGET_SSH;
+    }
+
     public String show() {
         return original;
     }
@@ -125,8 +130,8 @@ public class Configuration {
                 original += temp + "\n";
 
                 if (temp.contains("FLOODLIGHT_ROOT"))
-                    this.FLOODLIGHT_ROOT = temp
-                            .substring(temp.indexOf("=") + 1);
+                    this.FLOODLIGHT_ROOT = temp.substring(temp.indexOf("=") + 1);
+
                 if (temp.contains("FLOODLIGHT_VER"))
                     this.FLOODLIGHT_VER = temp.substring(temp.indexOf("=") + 1);
 
@@ -179,6 +184,9 @@ public class Configuration {
 
                 if (temp.contains("MITM_NIC"))
                     this.MITM_NIC = temp.substring(temp.indexOf("=") + 1);
+
+                if (temp.contains("TARGET_SSH"))
+                    this.TARGET_SSH = temp.substring(temp.indexOf("=") + 1);
 
             }
 
