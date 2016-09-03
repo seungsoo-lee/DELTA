@@ -198,8 +198,7 @@ public class AppAgent {
         }
 
         log.info("Started with Application ID {}", appId.id());
-
-        System.out.println("Connect Agent Manager");
+        
         cm = new Communication(this);
         cm.setServerAddr("192.168.4.1", 3366);
         cm.connectServer("AppAgent");
