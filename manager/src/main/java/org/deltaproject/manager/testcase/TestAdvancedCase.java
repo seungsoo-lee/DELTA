@@ -736,7 +736,7 @@ public class TestAdvancedCase {
 
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.CONTROLLER_STATE);
-        if(! analyzer.checkResult(code, result)) {
+        if(analyzer.checkResult(code, result)) {
             appm.closeSocket();
             controllerm.killController();
         }
