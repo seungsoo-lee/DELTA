@@ -14,12 +14,13 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 In order to build and run DELTA the following are required:
 + A host machine based on Ubuntu 14.04 LTS 64 bit (agent manager)
 + Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
-```
-- VM-1: Target controller + Application agent
-- VM-2: Channel agent
-- VM-3: Host agent
-```
-+ Target Controller ([OpenDaylight_Helium-S3](https://github.com/opendaylight/controller/releases/tag/release%2Fhelium-sr3), [ONOS 1.1.0](https://github.com/opennetworkinglab/onos/tree/onos-1.1) or [Floodlight-0.91](https://github.com/floodlight/floodlight/tree/v0.91)) (in VM-1)
+ + VM-1: Target controller + Application agent
+ + VM-2: Channel agent
+ + VM-3: Host agent
++ Target Controller (in VM-1)
+ + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
+ + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1.0, 1.1.6
+ + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
 + [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (in VM-2)
 + [Mininet 2.1+](http://mininet.org/download/) (in VM-3)
 + Ant build system
@@ -38,14 +39,14 @@ $ git clone https://github.com/OpenNetworkingFoundation/DELTA.git
 + STEP 1. Install DELTA dependencies on the host machine.
 
 ```
-$ cd <DELTA>/tools/dev/
+$ cd <DELTA>/tools/dev/delta-setup/
 $ ./delta-setup-devenv-ubuntu
 ```
 
 + STEP 2. Install 3 virtual machines using vagrant system.
 
 ```
-$ cd <DELTA>/tools/dev/vagrant
+$ cd <DELTA>/tools/dev/delta-setup/vagrant/
 $ vagrant up
 ```
 
@@ -53,19 +54,10 @@ $ vagrant up
 
 ```
 $ cd <DELTA>
-$ source ./tools/dev/bash_profile
+$ source ./tools/dev/delta-setup/bash_profile
 $ mvn clean install
 ```
 
-+ STEP 4. Install jpcap library for channel agent on VM-2.
-
-```
-$ cd DELTA/agents/channel/libs/jpcap/jpcap/0.7
-$ scp libjpcap.so vagrant@10.100.100.12:/home/vagrant
-
-$ ssh vagrant@10.100.100.12
-vagrant@channel-vm:~$ sudo cp libjpcap.so /usr/lib/
-```
 
 + After installing DELTA, the test environment is automatically setup as below,
 ![Env](http://143.248.53.145/research/delta/env.png)
@@ -74,6 +66,7 @@ vagrant@channel-vm:~$ sudo cp libjpcap.so /usr/lib/
 + Configure passwd-less ssh login for the VMs.
 
 ```
+$ cd ~
 $ ssh-keygen -t rsa
 
 Generating public/private rsa key pair.
@@ -97,23 +90,26 @@ The key's randomart image is:
 |            .o.. |
 +-----------------+
 
-$ ssh-copy-id -i /home/[name]/.ssh/id_rsa.pub vagrant@10.100.100.11
-
-Now, ssh to your remote as shown here.
-$ ssh vagrant@10.100.100.11
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.11
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.12
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.13
 
 Check if you will be able to access the VMs without having to enter the password.
 ```
 
 + The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. Setting.cfg contains sample configurations. You can specify your own config file by passing its path:
 ```
+CONTROLLER_SSH=vagrant@10.100.100.11
+TARGET_HOST=10.0.0.2
+ONOS_ROOT=/home/vagrant/onos-1.6.0
 CBENCH_ROOT=/home/vagrant/oflops/cbench/
 TARGET_CONTROLLER=Floodlight
+TARGET_VERSION=0.91
 OF_PORT=6633
 OF_VER=1.0
 MITM_NIC=eth1
 CONTROLLER_IP=10.100.100.11
-SWITCH_IP=10.100.100.13,10.100.100.13,10.100.100.13
+SWITCH_IP=10.100.100.11
 ```
 
 
@@ -122,10 +118,8 @@ SWITCH_IP=10.100.100.13,10.100.100.13,10.100.100.13
 
 ```
 $ cd <DELTA>
-$ scp ./agents/apps/floodlight/floodlight-0.91/target/floodlight.jar vagrant@10.100.100.11:/home/vagrant
-$ scp ./agents/channel/target/delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar vagrant@10.100.100.12:/home/vagrant
-$ scp ./agents/host/target/delta-agent-host-1.0-SNAPSHOT.jar vagrant@10.100.100.13:/home/vagrant
-$ scp ./agents/host/test-topo/* vagrant@10.100.100.13:/home/vagrant
+$ source ./tools/dev/delta-setup/bash_profile
+$ scp ./tools/dev/delta-setup/delta-agents-scp
 ```
 
 
@@ -148,6 +142,12 @@ Command>_
 + STEP 2. Execute Channel-Agent (VM-2)
 ```
 $ sudo java -jar delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar 10.0.2.2 3366
+$ [Channel-Agent] Configuration setup
+$ [Channel-Agent] OF version/port: 1/6633
+$ [Channel-Agent] MITM NIC   : eth1
+$ [Channel-Agent] Target Controller IP: 10.100.100.11
+$ [Channel-Agent] Target Switch IP : 10.100.100.13
+$ [Channel-Agent] Cbench Root Path :/home/vagrant/oflops/cbench/_
 ```
 
 + STEP 3. Execute Host-Agent (VM-3)
@@ -156,6 +156,7 @@ $ sudo python test-advanced-topo.py 10.100.100.11 6633
 $ (the other console) ./ovs-static-rules
 
 mininet> h1 java -jar delta-agent-host-1.0-SNAPSHOT.jar 10.0.2.2 3366
+[Host-Agent] Connected with Agent-Manager_
 ```
 
 + STEP 4. Reproducing known attacks
@@ -170,12 +171,11 @@ mininet> h1 java -jar delta-agent-host-1.0-SNAPSHOT.jar 10.0.2.2 3366
 
 
 Command> k
-Select the attack code (replay all, enter the 'A')> 3.1.020
-
-Select the attack code (replay all, enter the 'A')> 3.1.020
-[main] INFO org.deltaproject.manager.testcase.TestAdvancedCase - 3.1.020 - Control Message Drop
-[main] INFO org.deltaproject.manager.testcase.TestAdvancedCase - Target controller: Floodlight
-[main] INFO org.deltaproject.manager.testcase.TestAdvancedCase - Target controller is starting..
+Select the attack code (replay all, enter the 'A')> 3.1.010
+[main] INFO TestAdvancedCase - 3.1.010 - Packet-In Flooding
+[main] INFO TestAdvancedCase - Target controller: ONOS v1.1
+[main] INFO TestAdvancedCase - Target controller is starting..
+[Thread-0] INFO AttackConductor - AppAgent is connected_
 ```
 
 

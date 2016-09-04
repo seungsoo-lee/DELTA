@@ -1,223 +1,222 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>DELTA &raquo; Dashboard</title>
-  <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
-  <!-- {CSS1} -->
+    <title>DELTA &raquo; Dashboard</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'/>
+    <!-- {CSS1} -->
 
 </head>
 <body class="application">
 
-  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container-fluid">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="../">
-          <span class="glyphicon glyphicon-chevron-left"></span>
-        </a>
-        <a class="navbar-brand" href="./">DELTA &raquo; Dashboard</a>
-      </div>
-      <div class="navbar-collapse collapse">
-        <ul class="nav navbar-nav navbar-left">
-          <li><a href="./">Home</a></li>
-          <li><a href="https://github.com/OpenNetworkingFoundation/DELTA">GitHub</a></li>
-        </ul>
-      </div>
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="../">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+            </a>
+            <a class="navbar-brand" href="./">DELTA &raquo; Dashboard</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a href="./">Home</a></li>
+                <li><a href="https://github.com/OpenNetworkingFoundation/DELTA">GitHub</a></li>
+            </ul>
+        </div>
     </div>
-  </div>
+</div>
 
-  <div class="container-fluid">
+<div class="container-fluid">
 
     <div class="row">
         <div class="chart-wrapper">
-          <div class="chart-title">
-            DELTA log
-          </div>
-          <div class="chart-stage">
+            <div class="chart-title">
+                DELTA log
+            </div>
+            <div class="chart-stage">
 
-          </div>
+            </div>
         </div>
     </div>
 
     <!--<div class="row">-->
-        <!--<div class="chart-wrapper">-->
-          <!--<div class="chart-title">-->
-            <!--DELTA Configuration-->
-          <!--</div>-->
-            <!--<div class="chart-stage">-->
-                <!--<table class="delta-config">-->
-                    <!--<tr>Control-plane configuration</tr>-->
-                    <!--<tr>-->
-                        <!--<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>-->
-                        <!--<td>SDN Controller:</td>-->
-                        <!--<td>&nbsp;&nbsp;</td>-->
-                        <!--<td>-->
-                          <!--<select id="controller-type">-->
-                            <!--<option values="">&#45;&#45;Select&#45;&#45;</option>-->
-                            <!--<option>ONOS</option>-->
-                            <!--<option>OpenDaylight</option>-->
-                            <!--<option>Floodlight</option>-->
-                          <!--</select>-->
-                        <!--</td>-->
-                        <!--<td>&nbsp;&nbsp;</td>-->
-                        <!--<td>Controller Version:</td>-->
-                        <!--<td>&nbsp;&nbsp;</td>-->
-                        <!--<td>-->
-                            <!--<select style="float:left;" id="controller-version">-->
-                            <!--</select>-->
-                        <!--</td>-->
-                        <!--<td>&nbsp;&nbsp;</td>-->
-                        <!--<td>Controller IP:</td>-->
-                        <!--<td>&nbsp;&nbsp;</td>-->
-                        <!--<td><input type="text" name="controller-ip" maxlength="15" size="17" style="height:1em;"></td>-->
-                    <!--</tr>-->
+    <!--<div class="chart-wrapper">-->
+    <!--<div class="chart-title">-->
+    <!--DELTA Configuration-->
+    <!--</div>-->
+    <!--<div class="chart-stage">-->
+    <!--<table class="delta-config">-->
+    <!--<tr>Control-plane configuration</tr>-->
+    <!--<tr>-->
+    <!--<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>-->
+    <!--<td>SDN Controller:</td>-->
+    <!--<td>&nbsp;&nbsp;</td>-->
+    <!--<td>-->
+    <!--<select id="controller-type">-->
+    <!--<option values="">&#45;&#45;Select&#45;&#45;</option>-->
+    <!--<option>ONOS</option>-->
+    <!--<option>OpenDaylight</option>-->
+    <!--<option>Floodlight</option>-->
+    <!--</select>-->
+    <!--</td>-->
+    <!--<td>&nbsp;&nbsp;</td>-->
+    <!--<td>Controller Version:</td>-->
+    <!--<td>&nbsp;&nbsp;</td>-->
+    <!--<td>-->
+    <!--<select style="float:left;" id="controller-version">-->
+    <!--</select>-->
+    <!--</td>-->
+    <!--<td>&nbsp;&nbsp;</td>-->
+    <!--<td>Controller IP:</td>-->
+    <!--<td>&nbsp;&nbsp;</td>-->
+    <!--<td><input type="text" name="controller-ip" maxlength="15" size="17" style="height:1em;"></td>-->
+    <!--</tr>-->
 
-                <!--</table>-->
-          <!--</div>-->
-        <!--</div>-->
+    <!--</table>-->
+    <!--</div>-->
+    <!--</div>-->
     <!--</div>-->
 
-    <div class ="row">
+    <div class="row">
         <div class="chart-wrapper">
-          <div class="chart-title">
-            DELTA Test Cases
-          </div>
-          <div class="chart-stage">
-            <div id="test-list">
-              <table id="testcase-table" class="display select" cellspacing="0" width="100%">
-                  <thead>
-                  <tr>
-                      <th>Category</th>
-                      <th>Test Index</th>
-                      <th>Name</th>
-                  </tr>
-                  </thead>
-              </table>
-             </div>
-          </div>
+            <div class="chart-title">
+                DELTA Test Cases
+            </div>
+            <div class="chart-stage">
+                <div id="test-list">
+                    <table id="testcase-table" class="display select" cellspacing="0" width="100%">
+                        <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Test Index</th>
+                            <th>Name</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="row">
-      <div class="chart-wrapper">
-          <div class="chart-title">
-              Live Test Queue
-          </div>
-          <div class="chart-stage">
-              <div id="test-queue">
-                  <table id="queue-table" class="display select" cellspacing="0" width="100%">
-                      <thead>
-                      <tr>
-                          <th>Timestamp</th>
-                          <th>Category</th>
-                          <th>Test Index</th>
-                          <th>Name</th>
-                          <th>Status</th>
-                      </tr>
-                      </thead>
-                  </table>
-              </div>
-          </div>
-          <div class="chart-notes">
-          </div>
-      </div>
+        <div class="chart-wrapper">
+            <div class="chart-title">
+                Live Test Queue
+            </div>
+            <div class="chart-stage">
+                <div id="test-queue">
+                    <table id="queue-table" class="display select" cellspacing="0" width="100%">
+                        <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Category</th>
+                            <th>Test Index</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div class="chart-notes">
+            </div>
+        </div>
     </div>
-  </div>
+</div>
 
 
+<hr>
 
+<p class="small text-muted">Built with &#9829; by <a href="https://keen.io">Keen IO</a></p>
 
-    <hr>
+</div>
 
-    <p class="small text-muted">Built with &#9829; by <a href="https://keen.io">Keen IO</a></p>
+<!-- {JS1} -->
 
-  </div>
+<script>
 
-  <!-- {JS1} -->
-
-  <script>
-
-      $(document).ready(function (){
-          var testcase_table = $('#testcase-table').DataTable({
-              dom: 'frBtlip',
-              buttons: [
-                  'selectAll',
-                  'selectNone',
+    $(document).ready(function () {
+        var testcase_table = $('#testcase-table').DataTable({
+            dom: 'frBtlip',
+            buttons: [
+                'selectAll',
+                'selectNone',
                 {
-                  text:"Queue selected",
-                  action: function(e, dt, node, config) {
+                    text: "Queue selected",
+                    action: function (e, dt, node, config) {
 
-                      var queueArray = new Array();
-                      dt.rows({selected: true}).every( function ( rowIdx, tableLoop, rowLoop ) {
-                          queueArray.push(this.data().caseIndex);
-                      });
+                        var queueArray = new Array();
+                        dt.rows({selected: true}).every(function (rowIdx, tableLoop, rowLoop) {
+                            queueArray.push(this.data().caseIndex);
+                        });
 
-                      $.ajax({
-                          url:"/json/testqueue/post",
-                          type:"POST",
-                          data:queueArray.toString(),
-                          dataType:"text",
-                          contentType:"text/plain",
-                          async: false,
-                          success: function(data) {
-                              alert(data);
-                          },
-                          error: function (xhr, ajaxOptions, thrownError) {
-                              alert(xhr.status);
-                              alert(thrownError);
-                          }
+                        $.ajax({
+                            url: "/json/testqueue/post",
+                            type: "POST",
+                            data: queueArray.toString(),
+                            dataType: "text",
+                            contentType: "text/plain",
+                            async: false,
+                            success: function (data) {
+                                alert(data);
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                alert(xhr.status);
+                                alert(thrownError);
+                            }
 
-                      });
-                  }
+                        });
+                    }
                 }
-              ],
-              select: {
-                  style: 'multi'
-              },
-              lengthMenu: [10, 20, 50, 100],
-              searching: true,
-              'columns':[
-                  {'data':'category'},
-                  {'data':'caseIndex'},
-                  {'data':'name'}
-              ],
-              'ajax': {
-                  'url': '/json/testcases',
-                  'dataSrc':""
-              }
-          });
+            ],
+            select: {
+                style: 'multi'
+            },
+            lengthMenu: [10, 20, 50, 100],
+            searching: true,
+            'columns': [
+                {'data': 'category'},
+                {'data': 'caseIndex'},
+                {'data': 'name'}
+            ],
+            'ajax': {
+                'url': '/json/testcases',
+                'dataSrc': ""
+            }
+        });
 
-          var queue_table = $('#queue-table').DataTable({
-              dom: 'frtlip',
-              select: {
-                  style: 'multi'
-              },
-              lengthMenu: [10, 20, 50, 100],
-              searching: true,
-              'columns':[
-                  {'data':'time'},
-                  {'data':'category'},
-                  {'data':'caseIndex'},
-                  {'data':'name'},
-                  {'data':'status'}
-              ],
-              'ajax': {
-                  'url': '/json/testqueue/get',
-                  'dataSrc':""
-              }
-          });
+        var queue_table = $('#queue-table').DataTable({
+            dom: 'frtlip',
+            select: {
+                style: 'multi'
+            },
+            lengthMenu: [10, 20, 50, 100],
+            searching: true,
+            'columns': [
+                {'data': 'time'},
+                {'data': 'category'},
+                {'data': 'caseIndex'},
+                {'data': 'name'},
+                {'data': 'status'}
+            ],
+            'ajax': {
+                'url': '/json/testqueue/get',
+                'dataSrc': ""
+            }
+        });
 
-          var intervalID = setInterval(function() {
-              queue_table.ajax.reload();}, 3000);
+        var intervalID = setInterval(function () {
+            queue_table.ajax.reload();
+        }, 3000);
 
 
-      });
-  </script>
+    });
+</script>
 
 </body>
 </html>

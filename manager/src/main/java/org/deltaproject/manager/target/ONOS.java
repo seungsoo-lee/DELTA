@@ -1,135 +1,158 @@
 package org.deltaproject.manager.target;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.*;
 import java.lang.reflect.Field;
 
 public class ONOS implements TargetController {
-	private Process process = null;
-	private boolean isRunning = false;
+    private Process process = null;
+    private boolean isRunning = false;
 
-	public String version = "";
-	public String controllerPath = "";
-	public String karafPath = "";
+    public String version = "";
+    public String karafPath = "";
+    public String onosPath = "";
+    public String sshAddr = "";
 
-	private int currentPID = -1;
+    private int currentPID = -1;
 
-	private BufferedWriter stdIn;
-	private BufferedReader stdOut;
+    private BufferedWriter stdIn;
+    private BufferedReader stdOut;
 
-	public ONOS(String controllerPath, String v) {
-		this.controllerPath = controllerPath;
-		this.version = v;
-	}
+    public ONOS(String path, String v, String ssh) {
+        this.karafPath = path +"/apache-karaf-3.0.5/bin/karaf";
+        onosPath = path + "/bin/onos-service";
+        this.version = v;
+        this.sshAddr = ssh;
+    }
 
-	public ONOS setKarafPath(String p) {
-		this.karafPath = p;
-		
-		return this;
-	}
-	
-	public int createController() {
-		isRunning = false;
+    public int createController() {
+        isRunning = false;
 
-		String str = "";
-		try {
-			process = Runtime.getRuntime().exec(karafPath+" clean");
+        String str;
 
-			Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
-			pidField.setAccessible(true);
-			Object value = pidField.get(process);
+        try {
+            if(this.version.contains("1.1")) {
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + karafPath + " clean");
+            } else {
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + onosPath + " start");
+            }
 
-			this.currentPID = (Integer) value;
+            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
+            pidField.setAccessible(true);
+            Object value = pidField.get(process);
 
-			try {
-				Thread.sleep(7000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+            this.currentPID = (Integer) value;
 
-			stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
-			while ((str = stdOut.readLine()) != null) {
-				if (str.contains("ONOS.")) {
-					isRunning = true;
-					break;
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (NoSuchFieldException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (SecurityException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IllegalArgumentException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IllegalAccessException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+            while ((str = stdOut.readLine()) != null) {
+                // System.out.println(str);
+                if (str.contains("ONOS.")) {
+                    isRunning = true;
+                    break;
+                }
+            }
 
-		return currentPID;
-	}
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
-	public Process getProc() {
-		return this.process;
-	}
+            Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep karaf");
+            String tempS;
 
-	public void killController() {		
-		try {
-			if (stdIn != null) {
-				stdIn.write("system:shutdown -f\n");
-				stdIn.flush();
-			}
+            BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-			
-		this.currentPID = -1;
-	}
+            while ((tempS = stdOut2.readLine()) != null && !tempS.isEmpty()) {
+                if (tempS.contains("apache-karaf")) {
+                    String[] list = StringUtils.split(tempS);
 
-	/* ONOS, AppAgent is automatically installed when the controller starts */
-	public boolean installAppAgent() {
+                    currentPID = Integer.parseInt(list[1]);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-		return true;
-	}
+        return currentPID;
+    }
 
-	@Override
-	public String getType() {
-		// TODO Auto-generated method stub
-		return "ONOS";
-	}
-	
-	@Override
-	public String getVersion() {
-		// TODO Auto-generated method stub
-		return this.version;
-	}
-	
-	@Override
-	public String getPath() {
-		// TODO Auto-generated method stub
-		return this.controllerPath;
-	}
+    public void killController() {
+        try {
+            if (stdIn != null) {
+                stdIn.write("system:shutdown -f\n");
+                stdIn.flush();
+                stdIn.close();
+            }
 
-	@Override
-	public int getPID() {
-		// TODO Auto-generated method stub
-		return this.currentPID;
-	}
+            if (stdOut != null) {
+                stdOut.close();
+            }
 
-	@Override
-	public BufferedReader getStdOut() {
-		// TODO Auto-generated method stub
-		return this.stdOut;
-	}
+            if (this.currentPID != -1) {
+                Process pc = null;
+                try {
+                    pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo kill -9 " + this.currentPID);
+                    pc.getErrorStream().close();
+                    pc.getInputStream().close();
+                    pc.getOutputStream().close();
+                    pc.waitFor();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+
+    public Process getProc() {
+        return this.process;
+    }
+
+    /* ONOS, AppAgent is automatically installed when the controller starts */
+    public boolean installAppAgent() {
+
+        return true;
+    }
+
+    @Override
+    public String getType() {
+        // TODO Auto-generated method stub
+        return "ONOS";
+    }
+
+    @Override
+    public String getVersion() {
+        // TODO Auto-generated method stub
+        return this.version;
+    }
+
+    @Override
+    public String getPath() {
+        // TODO Auto-generated method stub
+        return this.karafPath;
+    }
+
+    @Override
+    public int getPID() {
+        // TODO Auto-generated method stub
+        return this.currentPID;
+    }
+
+    @Override
+    public BufferedReader getStdOut() {
+        // TODO Auto-generated method stub
+        return this.stdOut;
+    }
 }

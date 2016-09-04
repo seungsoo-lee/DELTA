@@ -15,12 +15,15 @@ import org.deltaproject.manager.target.TargetController;
 public class ControllerManager {
     private String cbechPath = "";
     private String targetController = "";
+    private String targetVersion = "";
     private String ofPort = "";
+    private String sshAddr = "";
 
     private int cbenchPID = -1;
 
     private ArrayList<TargetController> targetList;
     private ArrayList<String> switchList;
+    private ArrayList<String> connectedSwitches;
 
     private Process processCbench;
 
@@ -33,24 +36,23 @@ public class ControllerManager {
         cfg = config;
 
         this.setConfig();
+        connectedSwitches = new ArrayList<String>();
+        sshAddr = cfg.getSSH();
     }
 
     public void setConfig() {
-        TargetController fl = new Floodlight(cfg.getFloodlightRoot(), cfg.getFloodlightVer());
+        TargetController fl = new Floodlight(cfg.getFloodlightRoot(), cfg.getTargetVer(), cfg.getSSH());
+        TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getTargetVer(), cfg.getSSH());
+        TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getTargetVer(), cfg.getSSH());
+
         targetList.add(fl);
-
-        TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getODLVer())
-                .setAppAgentPath(cfg.getODLAppAgent());
-
         targetList.add(odl);
-
-        TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getONOSVer()).setKarafPath(cfg.getONOSKarafRoot());
         targetList.add(onos);
 
         cbechPath = cfg.getCbenchRoot();
         targetController = cfg.getTargetController();
+        targetVersion = "v" + cfg.getTargetVer();
         ofPort = cfg.getOFPort();
-
         switchList = cfg.getSwitchList();
     }
 
@@ -87,6 +89,10 @@ public class ControllerManager {
 
     public String getType() {
         return targetController;
+    }
+
+    public String getVersion() {
+        return targetVersion;
     }
 
     public String showConfig() {
@@ -212,20 +218,24 @@ public class ControllerManager {
         int switchCnt = this.switchList.size();
         int cnt = 0;
 
-        while (wait) {
+        int flag = 1;
+
+        while (flag > 0) {
             try {
                 cnt = 0;
                 String cmd = "";
                 // temp = Runtime.getRuntime().exec(new String[] { "bash", "-c", "netstat -ap | grep " + ofPort});
-                temp = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo netstat -ap | grep " + ofPort);
+                temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo netstat -ap | grep " + ofPort);
 
                 BufferedReader stdOut = new BufferedReader(new InputStreamReader(temp.getInputStream()));
 
                 while ((tempS = stdOut.readLine()) != null) {
                     if (tempS.contains("ESTABLISHED")) {
+                        connectedSwitches.add(tempS);
                         cnt++;
                     }
                 }
+
                 stdOut.close();
 
                 if (switchCnt == cnt) {
@@ -233,6 +243,10 @@ public class ControllerManager {
                 }
 
                 Thread.sleep(1000);
+
+                if(!wait) {
+                    flag = 0;
+                }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

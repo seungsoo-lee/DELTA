@@ -11,24 +11,33 @@ public class Floodlight implements TargetController {
 
     public String version = "";
     public String controllerPath = "";
+    public String sshAddr = "";
 
     private int currentPID = -1;
 
     private BufferedWriter stdIn;
     private BufferedReader stdOut;
 
-    public Floodlight(String controllerPath, String version) {
+    public Floodlight(String controllerPath, String version, String ssh) {
         this.controllerPath = controllerPath;
         this.version = version;
+        this.sshAddr = ssh;
     }
 
     public int createController() {
         isRunning = false;
 
         String str;
+        String name;
 
         try {
-            process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 java -jar floodlight.jar");
+            if (version.equals("1.2")) {
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " java -jar floodlight-1.2.jar -cf ./floodlightdefault.properties");
+                name = "floodlight-1.2.jar";
+            } else {
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " java -jar floodlight-0.91.jar");
+                name = "floodlight-0.91.jar";
+            }
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
@@ -55,13 +64,13 @@ public class Floodlight implements TargetController {
                 }
             }
 
-            Process temp = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo ps -ef | grep java");
+            Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep java");
             String tempS;
 
             BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
 
             while ((tempS = stdOut2.readLine()) != null && !tempS.isEmpty()) {
-                if (tempS.contains("floodlight.jar")) {
+                if (tempS.contains(name)) {
                     String[] list = StringUtils.split(tempS);
 
                     currentPID = Integer.parseInt(list[1]);
@@ -75,14 +84,10 @@ public class Floodlight implements TargetController {
         return currentPID;
     }
 
-    public Process getProc() {
-        return this.process;
-    }
-
     public void killController() {
         Process pc = null;
         try {
-            pc = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo kill -9 " + this.currentPID);
+            pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo kill -9 " + this.currentPID);
             pc.getErrorStream().close();
             pc.getInputStream().close();
             pc.getOutputStream().close();
@@ -97,6 +102,11 @@ public class Floodlight implements TargetController {
 
         this.currentPID = -1;
     }
+
+    public Process getProc() {
+        return this.process;
+    }
+
 
     /*
      * In the case of Floodlight, App-Agent is automatically installed when the

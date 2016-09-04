@@ -30,7 +30,7 @@ public class TestAdvancedCase {
 
     public void initController() {
         if (!controllerm.isRunning()) {
-            log.info("Target controller: " + controllerm.getType());
+            log.info("Target controller: " + controllerm.getType() + " " + controllerm.getVersion());
 
             log.info("Target controller is starting..");
             controllerm.createController();
@@ -67,7 +67,8 @@ public class TestAdvancedCase {
         } else if (code.equals("3.1.040")) {
             testInternalStorageAbuse(code);
         } else if (code.equals("3.1.050")) {
-            testSwitchTableFlooding(code);
+            // testSwitchTableFlooding(code);
+            return;
         } else if (code.equals("3.1.060")) {
             testSwitchIdentificationSpoofing(code);
         } else if (code.equals("------")) {        // testSwitchOFCase
@@ -104,7 +105,7 @@ public class TestAdvancedCase {
     }
 
     /*
-     * 3.1.10 - Packet-In Flooding
+     * 3.1.010 - Packet-In Flooding
      */
     public boolean testPacketInFlooding(String code) {
         log.info(code + " - Packet-In Flooding");
@@ -163,7 +164,7 @@ public class TestAdvancedCase {
     }
 
     /*
-     * 3.1.20 - Control Message Drop
+     * 3.1.020 - Control Message Drop
      */
     public boolean testControlMessageDrop(String code) {
         log.info(code + " - Control Message Drop");
@@ -202,7 +203,7 @@ public class TestAdvancedCase {
     }
 
     /*
-     * 3.1.30 - Infinite Loop
+     * 3.1.030 - Infinite Loop
      */
     public boolean testInfiniteLoop(String code) {
         log.info(code + " - Infinite Loop");
@@ -237,7 +238,7 @@ public class TestAdvancedCase {
     }
 
     /*
-     * 3.1.40 - Internal Storage Abuse
+     * 3.1.040 - Internal Storage Abuse
      */
     public boolean testInternalStorageAbuse(String code) {
         log.info(code + " - Internal Storage Abuse");
@@ -276,7 +277,7 @@ public class TestAdvancedCase {
     }
 
     /*
-     * 3.1.50 - Switch Table Flooding
+     * 3.1.050 - Switch Table Flooding
      */
     public boolean testSwitchTableFlooding(String code) {
         log.info(code + " - Switch Table Flooding");
@@ -306,7 +307,7 @@ public class TestAdvancedCase {
     }
 
     /*
-     * 3.1.60 - Switch Identification Spoofing
+     * 3.1.060 - Switch Identification Spoofing
      */
     public boolean testSwitchIdentificationSpoofing(String code) {
         log.info(code + " - Switch Identification Spoofing");
@@ -322,12 +323,6 @@ public class TestAdvancedCase {
         log.info("Agent-Manager retrieves result from Channel-Agent");
         String resultChannel = channelm.read();
 
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
 
 		/* step 3: try communication */
         log.info("Host-Agent sends packets to others");
@@ -392,7 +387,7 @@ public class TestAdvancedCase {
     }
 
     /*
-     * 3.1.70 - Flow Rule Modification
+     * 3.1.070 - Flow Rule Modification
      */
     public boolean testFlowRuleModification(String code) {
         log.info(code + " - Flow Rule Modification");
@@ -434,7 +429,7 @@ public class TestAdvancedCase {
     }
 
     /*
-     * 3.1.80 - Flow Table Clearance
+     * 3.1.080 - Flow Table Clearance
      */
     public boolean testFlowTableClearance(String code) {
         log.info(code + " - Flow Table Clearance");
@@ -471,7 +466,7 @@ public class TestAdvancedCase {
     }
 
     /*
-     * 3.1.90 - Event Unsubscription
+     * 3.1.090 - Event Unsubscription
      */
     public boolean testEventUnsubscription(String code) {
         if (controllerm.getType().equals("ONOS")) {
@@ -601,7 +596,7 @@ public class TestAdvancedCase {
         appm.write(code);
 
         try {
-            Thread.sleep(1500);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -650,7 +645,7 @@ public class TestAdvancedCase {
         appm.write(code);
 
         try {
-            Thread.sleep(1500);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -707,6 +702,7 @@ public class TestAdvancedCase {
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.SWITCH_STATE);
         analyzer.checkResult(code, result);
+
         long end = System.currentTimeMillis();
         log.info("Running Time: " + (end - start));
 
@@ -740,12 +736,12 @@ public class TestAdvancedCase {
 
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.CONTROLLER_STATE);
-        analyzer.checkResult(code, result);
+        if(analyzer.checkResult(code, result)) {
+            appm.closeSocket();
+            controllerm.killController();
+        }
         long end = System.currentTimeMillis();
         log.info("Running Time: " + (end - start));
-
-        appm.closeSocket();
-        controllerm.killController();
         return true;
     }
 
@@ -760,12 +756,12 @@ public class TestAdvancedCase {
         log.info(code + " - Link Fabrication");
         long start = System.currentTimeMillis();
 
-		/* step 2: conduct the attack */
+		/* step 1: conduct the attack */
         log.info("Channel-Agent starts");
         channelm.write(code);
         channelm.read();
 
-		/* step 1: create controller */
+		/* step 2: create controller */
         initController();
 
         try {
@@ -775,10 +771,17 @@ public class TestAdvancedCase {
             e.printStackTrace();
         }
 
-        appm.write(code);
-        String resultChannel = appm.read();
+        /* step 3: try communication */
+        log.info("Host-Agent sends packets to others");
+        String resultFlow = generateFlow("ping");
+        log.info("Agent-Manager retrieves result from Host-Agent");
 
-        log.info(resultChannel);
+		/* step 4: decide if the attack is feasible */
+        ResultInfo result = new ResultInfo();
+        result.addType(ResultInfo.COMMUNICATON);
+        result.setResult(resultFlow);
+        analyzer.checkResult(code, result);
+
 		/* step 4: decide if the attack is feasible */
         // analyzer.checkSwirchState(code);
 
@@ -813,7 +816,7 @@ public class TestAdvancedCase {
         log.info("Host-Agent sends packets to others");
 
         try {
-            Thread.sleep(30000);
+            Thread.sleep(30000);    // 30 seconds
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+# Script to distribute the compiled files to VMs
+#
+
+# for Floodlight
+scp $DELTA_ROOT/agents/apps/floodlight/floodlight-1.2/target/floodlight.jar vagrant@10.100.100.11:/home/vagrant/floodlight-1.2.jar
+scp $DELTA_ROOT/agents/apps/floodlight/floodlight-1.2/src/main/resources/floodlightdefault.properties vagrant@10.100.100.11:/home/vagrant
+

@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Script to distribute the compiled files to VMs
+#
+
+# for Channel agent
+scp $DELTA_ROOT/agents/channel/target/delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar vagrant@10.100.100.12:/home/vagrant
+scp $DELTA_ROOT/agents/channel/libs/jpcap/jpcap/0.7/libjpcap.so vagrant@10.100.100.12:/home/vagrant
+ssh vagrant@10.100.100.12 sudo cp /home/vagrant/libjpcap.so /usr/lib/libjpcap.so
+
+# for Host agent
+scp $DELTA_ROOT/agents/host/target/delta-agent-host-1.0-SNAPSHOT.jar vagrant@10.100.100.13:/home/vagrant
+scp $DELTA_ROOT/tools/test-topo/* vagrant@10.100.100.13:/home/vagrant

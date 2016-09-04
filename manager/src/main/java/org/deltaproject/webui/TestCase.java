@@ -61,6 +61,7 @@ public class TestCase {
         this.time = new Date();
         this.result = TestResult.UNKNOWN;
     }
+
     private Category category;
     private String caseIndex;
     private String name;
@@ -85,6 +86,7 @@ public class TestCase {
     public void setControllerVersion(String controllerVer) {
         this.controllerVer = controllerVer;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -127,6 +129,7 @@ public class TestCase {
         Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return formatter.format(time);
     }
+
     public TestResult getResult() {
         return result;
     }

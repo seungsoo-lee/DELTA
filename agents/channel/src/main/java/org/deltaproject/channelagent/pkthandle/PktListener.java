@@ -248,6 +248,8 @@ public class PktListener {
 				return;
 			}
 
+			ByteBuf newBuf = null;
+
 			if (typeOfAttacks == TestAdvancedSet.EVAESDROP) {
 				this.sendPkt(p_temp);
 				
@@ -260,7 +262,7 @@ public class PktListener {
 					}
 				}
 			} else if (typeOfAttacks == TestAdvancedSet.LINKFABRICATION) {
-				ByteBuf newBuf = null;
+
 				if (p_temp.data.length > 8) {
 					try {
 						newBuf = testAdvanced.testLinkFabrication(p_temp);
@@ -269,26 +271,7 @@ public class PktListener {
 						e.printStackTrace();
 					}
 				}
-
-				if (newBuf != null) {
-					byte[] bytes;
-					int length = newBuf.readableBytes();
-
-					if (newBuf.hasArray()) {
-						bytes = newBuf.array();
-					} else {
-						bytes = new byte[length];
-						newBuf.getBytes(newBuf.readerIndex(), bytes);
-					}
-
-					// replace packet data
-					newBuf.clear();
-					p_temp.data = bytes;
-				}
-				
-				this.sendPkt(p_temp);
 			} else if (typeOfAttacks == TestAdvancedSet.MITM) {
-				ByteBuf newBuf = null;
 				if (p_temp.data.length > 8) {
 					try {
 						newBuf = testAdvanced.testMITM(p_temp);
@@ -297,24 +280,6 @@ public class PktListener {
 						e.printStackTrace();
 					}
 				}
-
-				if (newBuf != null) {
-					byte[] bytes;
-					int length = newBuf.readableBytes();
-
-					if (newBuf.hasArray()) {
-						bytes = newBuf.array();
-					} else {
-						bytes = new byte[length];
-						newBuf.getBytes(newBuf.readerIndex(), bytes);
-					}
-
-					// replace packet data
-					newBuf.clear();
-					p_temp.data = bytes;
-				}
-				
-				this.sendPkt(p_temp);
 			} else if (typeOfAttacks == TestAdvancedSet.CONTROLMESSAGEMANIPULATION) {
 				System.out.println("\n[ATTACK] Control Message Manipulation");
 				/* Modify a Packet Here */
@@ -343,7 +308,26 @@ public class PktListener {
 					}
 				}
 				return;
-			}		
+			}
+
+			if (typeOfAttacks == TestAdvancedSet.MITM || typeOfAttacks == TestAdvancedSet.LINKFABRICATION) {
+				if (newBuf != null) {
+					byte[] bytes;
+					int length = newBuf.readableBytes();
+
+					if (newBuf.hasArray()) {
+						bytes = newBuf.array();
+					} else {
+						bytes = new byte[length];
+						newBuf.getBytes(newBuf.readerIndex(), bytes);
+					}
+
+					// replace packet data
+					newBuf.clear();
+					p_temp.data = bytes;
+				}
+				this.sendPkt(p_temp);
+			}
 			return;
 		}
 

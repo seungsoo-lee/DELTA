@@ -137,23 +137,23 @@ public class TestSwitchCase {
         dcontroller.stopNetty();
     }
 
+
     /*
-     * 1.1.10 - Port Range Violation
+     * 1.1.010 - Port Range Violation
      * Verify that the switch rejects the use of ports that are greater than
      * OFPP_MAX and are not part of the reserved ports.
      */
     public void testPortRangeViolation(String code) {
         String info = code + " - Port Range Violation";
+        log.info(info);
 
         setUpDummyController();
-
-        log.info(info);
 
         OFPortMod request = defaultFactory.buildPortMod().setXid(r_xid).setPortNo(OFPort.ANY).build();
         OFMessage response = dcontroller.sendOFMessage(request);
 
         if (response != null) {
-            log.info(response.toString());
+            log.info("response msg: " + response.toString());
         } else
             log.info("response is null");
 
@@ -161,14 +161,14 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.020 - Table Identifier Violation
      * only 1.3 Verify that the switch rejects the use of invalid table id.
      */
     public void testTableID(String code) {
         String info = code + " - Table Identifier Violation";
+        log.info(info);
 
         setUpDummyController();
-
-        log.info(info);
 
         int inport = 1;
         int outport = 2;
@@ -211,12 +211,14 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.030 - Group Identifier Violation
      * Verify that the switch rejects the use of groups that are greater than
      * OFPG_MAX and are not part of the reserved groups.
      */
     public void testGroupID(String code) {
         String info = code + " - Group Identifier Violation";
         log.info(info);
+
         setUpDummyController();
 
         int outport = 2;
@@ -253,12 +255,14 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.040 - Meter Identifier Violation
      * Verify that the switch rejects the use of meters that are greater than
      * OFPM_MAX and are not part of the virtual meters.
      */
     public void testMeterID(String code) {
         String info = code + "  - Meter Identifier Violation";
         log.info(info);
+
         setUpDummyController();
 
         OFMeterMod.Builder mmb = defaultFactory.buildMeterMod();
@@ -277,12 +281,14 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.050 - Table Loop Violation
      * Verify that the switch rejects the use of invalid Goto table id
      * requesting a table loop.
      */
     public void testTableLoop(String code) {
         String info = code + " - Table Loop Violation";
         log.info(info);
+
         setUpDummyController();
 
         int inport = 1;
@@ -329,6 +335,7 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.060 - Corrupted Control Message Type
      * Verify that the switch throws an error when it receives a control message
      * with unsupported message type.
      */
@@ -363,6 +370,7 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.070 - Unsupported Version Numebr
      * Verify that the switch throws an error when it receives a connection
      * setup message with an unsupported version number.
      */
@@ -394,6 +402,7 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.080 - Malformed Version Number
      * Verify that the switch throws an error when it receives a malformed
      * version number after establishing connection between switch and
      * controller with a different version.
@@ -426,15 +435,15 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.090 - Invalid OXM - Type
      * Verify that the switch throws an error when it receives a flow mod
      * message with invalid OXM type.
      */
     public void testInvalidOXMType(String code) {
         String info = code + " - Invalid OXM - Type";
+        log.info(info);
 
         setUpDummyController();
-
-        log.info(info);
 
         int inport = 1;
         int outport = 2;
@@ -481,15 +490,15 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.100 - Invalid OXM - Length
      * Verify that the switch throws an error when it receives a flow mod
      * message with invalid OXM length.
      */
     public void testInvalidOXMLength(String code) {
         String info = code + " - Invalid OXM - Length";
+        log.info(info);
 
         setUpDummyController();
-
-        log.info(info);
 
         int inport = 1;
         int outport = 2;
@@ -537,15 +546,15 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.110 - Invalid OXM - Value
      * Verify that the switch throws an error when it receives a flow mod
      * message with invalid message value
      */
     public void testInvalidOXMValue(String code) {
         String info = code + " - Invalid OXM - Value";
+        log.info(info);
 
         setUpDummyController();
-
-        log.info(info);
 
         int inport = 1;
         int outport = 2;
@@ -594,6 +603,7 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.120 - Disabled Table Features Request
      * If the switch has disabled the table feature request with non-empty body,
      * verify that the switch rejects this non-empty OFPMP_TABLE_FEATURES
      * request with a permission error
@@ -607,6 +617,7 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.130 - Handshake without Hello Message
      * Check if the control connection is disconnected if the hello message is
      * not exchanged within the specified default timeout.
      */
@@ -622,6 +633,7 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.140 - Control Message before Hello Message
      * In the main connection between switch and controller, check if the switch
      * processes a control message before exchanging OpenFlow hello message
      * (connection establishment).
@@ -647,6 +659,7 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.150 - Incompatible Hello after Connection Establishment
      * Verify that the switch will properly handle the abnormal condition, when
      * it receives an OFPT_ERROR message with a type field of
      * OFPET_HELLO_FAILED, a code field of OFPHFC_INCOMPATIBLE after
@@ -673,16 +686,16 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.160 - Corrupted Cookie Values
      * Verify that the switch throws an error when it receives a corrupted
      * cookie value in OpenFlow messages after establishing connection between
      * switch and controller.
      */
     public void testCorruptedCookieValue(String code) {
         String info = code + " - Corrupted Cookie Values";
+        log.info(info);
 
         setUpDummyController();
-
-        log.info(info);
 
         int inport = 1;
         int outport = 2;
@@ -721,16 +734,16 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.170 - Malformed Buffer ID Values
      * Verify that the switch throws an error when it receives a malformed
      * buffer ID value after establishing connection between switch &
      * controller.
      */
     public void testMalformedBufferIDValue(String code) {
         String info = code + " - Malformed Buffer ID Values";
+        log.info(info);
 
         setUpDummyController();
-
-        log.info(info);
 
         int inport = 1;
         int outport = 2;
@@ -768,6 +781,7 @@ public class TestSwitchCase {
     }
 
     /*
+     * 1.1.180 - Slave Controller Violation
      * Verify that the switch rejects unsupported control messages
      * (OFPT_PACKET_OUT, OFPT_FLOW_MOD, OFPT_GROUP_MOD, OFPT_PORT_MOD,
      * OFPT_TABLE_MOD requests, and OFPMP_TABLE_FEATURES) from slave
@@ -775,10 +789,9 @@ public class TestSwitchCase {
      */
     public void testSlaveControllerViolation(String code) {
         String info = code + " - Slave Controller Violation";
+        log.info(info);
 
         setUpDummyController();
-
-        log.info(info);
 
         int inport = 1;
         int outport = 2;

@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+# Script to onos-1.6.0 dependencies on Ubuntu 14.04
+#
+
+export ONOS_ROOT=~/onos-1.6.0
+export ONOS_APP=drivers,openflow,proxyarp,mobility,fwd
