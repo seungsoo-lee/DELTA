@@ -119,7 +119,7 @@ SWITCH_IP=10.100.100.11
 ```
 $ cd <DELTA>
 $ source ./tools/dev/delta-setup/bash_profile
-$ scp ./tools/dev/delta-setup/distribute-files-to-vms
+$ scp ./tools/dev/delta-setup/delta-agents-scp
 ```
 
 
