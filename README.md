@@ -20,11 +20,9 @@ In order to build and run DELTA the following are required:
 - VM-3: Host agent
 ```
 + Target Controller (in VM-1)
-```
-- [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
-- [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1.0, 1.1.6
-- [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
-```
+ + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
+ + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1.0, 1.1.6
+ + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
 + [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (in VM-2)
 + [Mininet 2.1+](http://mininet.org/download/) (in VM-3)
 + Ant build system
