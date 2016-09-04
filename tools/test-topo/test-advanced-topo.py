@@ -17,8 +17,8 @@ def DeltaNetwork():
 	s3 = net.addSwitch('s3') # for connection with DELTA
 
 #Add hosts
-	h1 = net.addHost('h1', ip='10.0.0.1', mac='00:00:00:00:00:11')
-	h2 = net.addHost('h2', ip='10.0.0.2', mac='00:00:00:00:00:22')
+	h1 = net.addHost('h1', ip='10.0.0.1/24', mac='00:00:00:00:00:11')
+	h2 = net.addHost('h2', ip='10.0.0.2/24', mac='00:00:00:00:00:22')
 
 #Add links
 	net.addLink(s0, h1)
