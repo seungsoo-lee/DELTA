@@ -11,6 +11,7 @@ public class ONOS implements TargetController {
 
     public String version = "";
     public String karafPath = "";
+    public String onosPath = "";
     public String sshAddr = "";
 
     private int currentPID = -1;
@@ -20,6 +21,7 @@ public class ONOS implements TargetController {
 
     public ONOS(String path, String v, String ssh) {
         this.karafPath = path +"/apache-karaf-3.0.5/bin/karaf";
+        onosPath = path + "/bin/onos-service";
         this.version = v;
         this.sshAddr = ssh;
     }
@@ -30,7 +32,11 @@ public class ONOS implements TargetController {
         String str;
 
         try {
-            process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + karafPath + " clean");
+            if(this.version.contains("1.1")) {
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + karafPath + " clean");
+            } else {
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + onosPath + " start");
+            }
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);

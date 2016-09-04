@@ -218,7 +218,9 @@ public class ControllerManager {
         int switchCnt = this.switchList.size();
         int cnt = 0;
 
-        while (wait) {
+        int flag = 1;
+
+        while (flag > 0) {
             try {
                 cnt = 0;
                 String cmd = "";
@@ -241,6 +243,10 @@ public class ControllerManager {
                 }
 
                 Thread.sleep(1000);
+
+                if(!wait) {
+                    flag = 0;
+                }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

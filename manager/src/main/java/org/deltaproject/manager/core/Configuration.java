@@ -20,7 +20,9 @@ public class Configuration {
 
     private String TARGET_CONTROLLER = "";
     private String TARGET_VERSION = "";
-    private String TARGET_SSH = "";
+    private String CONTROLLER_SSH = "";
+
+    private String TARGET_HOST = "";
 
     private String OF_PORT = "";
     private String OF_VERSION = "";
@@ -106,7 +108,11 @@ public class Configuration {
     }
 
     public String getSSH() {
-        return this.TARGET_SSH;
+        return this.CONTROLLER_SSH;
+    }
+
+    public String getTargetHost() {
+        return this.TARGET_HOST;
     }
 
     public String show() {
@@ -185,8 +191,11 @@ public class Configuration {
                 if (temp.contains("MITM_NIC"))
                     this.MITM_NIC = temp.substring(temp.indexOf("=") + 1);
 
-                if (temp.contains("TARGET_SSH"))
-                    this.TARGET_SSH = temp.substring(temp.indexOf("=") + 1);
+                if (temp.contains("CONTROLLER_SSH"))
+                    this.CONTROLLER_SSH = temp.substring(temp.indexOf("=") + 1);
+
+                if (temp.contains("TARGET_HOST"))
+                    this.TARGET_HOST = temp.substring(temp.indexOf("=") + 1);
 
             }
 

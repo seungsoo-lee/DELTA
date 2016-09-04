@@ -18,6 +18,8 @@ public class AMInterface extends Thread {
 
 	private PktHandler ha;
 
+	private String targetHost = "";
+
 	public AMInterface(String ip, String port) {
 		this.amIP = ip;
 		this.amPort = Integer.valueOf(port);
@@ -108,13 +110,17 @@ public class AMInterface extends Thread {
 				recv = dis.readUTF();
 
 				if (recv.contains("ping")) {
-					dos.writeUTF(ha.executePing("172.16.4.102"));
+					dos.writeUTF(ha.executePing(this.targetHost));
 					dos.flush();
 				} else if (recv.contains("compare")) {
-					dos.writeUTF(ha.comparePing("172.16.4.102"));
+					dos.writeUTF(ha.comparePing(this.targetHost));
 					dos.flush();
-				} else if (recv.contains("connected")) {
+				} else if (recv.contains("target")) {
+					this.targetHost = recv.substring(recv.indexOf(":") + 1);
 					System.out.println("[Host-Agent] Connected with Agent-Manager");
+				} else if (recv.contains("2.1.070")) {
+					dos.writeUTF("completed");
+					dos.flush();
 				}
 			}
 		} catch (Exception e) {

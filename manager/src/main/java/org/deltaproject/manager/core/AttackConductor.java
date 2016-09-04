@@ -1,6 +1,7 @@
 package org.deltaproject.manager.core;
 
 import org.deltaproject.manager.testcase.TestAdvancedCase;
+import org.deltaproject.manager.testcase.TestControllerCase;
 import org.deltaproject.manager.testcase.TestInfo;
 import org.deltaproject.manager.testcase.TestSwitchCase;
 import org.deltaproject.manager.utils.J2sshCient;
@@ -33,6 +34,7 @@ public class AttackConductor {
 
     private TestAdvancedCase testAdvancedCase;
     private TestSwitchCase testSwitchCase;
+    private TestControllerCase testControllerCase;
 
     public AttackConductor(String config) {
         infoControllerCase = new HashMap<String, String>();
@@ -56,6 +58,7 @@ public class AttackConductor {
 
         testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
         testSwitchCase = new TestSwitchCase(cfg);
+        testControllerCase = new TestControllerCase(cfg, channelm, controllerm, hostm);
     }
 
     public String showConfig() {
@@ -82,16 +85,17 @@ public class AttackConductor {
                     + ",handler:dummy" + ",cbench:" + cfg.getCbenchRoot();
 
             channelm.write(config);
-
         } else if (agentType.contains("HostAgent")) {
             hostm.setSocket(socket, dos, dis);
-            hostm.write("connected");
+            hostm.write("target:" + cfg.getTargetHost());
         }
     }
 
     public void replayKnownAttack(String code) {
         if (code.charAt(0) == '1')
             testSwitchCase.replayKnownAttack(code);
+        if (code.charAt(0) == '2')
+            testControllerCase.replayKnownAttack(code);
         if (code.charAt(0) == '3')
             testAdvancedCase.replayKnownAttack(code);
     }
