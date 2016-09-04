@@ -14,11 +14,9 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 In order to build and run DELTA the following are required:
 + A host machine based on Ubuntu 14.04 LTS 64 bit (agent manager)
 + Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
-```
-- VM-1: Target controller + Application agent
-- VM-2: Channel agent
-- VM-3: Host agent
-```
+ + VM-1: Target controller + Application agent
+ + VM-2: Channel agent
+ + VM-3: Host agent
 + Target Controller (in VM-1)
  + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
  + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1.0, 1.1.6
