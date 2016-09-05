@@ -142,12 +142,12 @@ Command>_
 + STEP 2. Execute Channel-Agent (VM-2)
 ```
 $ sudo java -jar delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar 10.0.2.2 3366
-$ [Channel-Agent] Configuration setup
-$ [Channel-Agent] OF version/port: 1/6633
-$ [Channel-Agent] MITM NIC   : eth1
-$ [Channel-Agent] Target Controller IP: 10.100.100.11
-$ [Channel-Agent] Target Switch IP : 10.100.100.13
-$ [Channel-Agent] Cbench Root Path :/home/vagrant/oflops/cbench/_
+[Thread-0] INFO AMInterface - [CA] Configuration setup
+[Thread-0] INFO AMInterface - [CA] OF version/port: 1/6633
+[Thread-0] INFO AMInterface - [CA] MITM NIC   : eth1
+[Thread-0] INFO AMInterface - [CA] Target Controller IP: 10.100.100.11
+[Thread-0] INFO AMInterface - [CA] Target Switch IP : 10.100.100.11
+[Thread-0] INFO AMInterface - [CA] Cbench Root Path :/home/vagrant/oflops/cbench/
 ```
 
 + STEP 3. Execute Host-Agent (VM-3)
