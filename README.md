@@ -146,7 +146,7 @@ $ sudo java -jar delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar 10.0
 [Thread-0] INFO AMInterface - [CA] OF version/port: 1/6633
 [Thread-0] INFO AMInterface - [CA] MITM NIC   : eth1
 [Thread-0] INFO AMInterface - [CA] Target Controller IP: 10.100.100.11
-[Thread-0] INFO AMInterface - [CA] Target Switch IP : 10.100.100.11
+[Thread-0] INFO AMInterface - [CA] Target Switch IP : 10.100.100.13
 [Thread-0] INFO AMInterface - [CA] Cbench Root Path :/home/vagrant/oflops/cbench/
 ```
 
