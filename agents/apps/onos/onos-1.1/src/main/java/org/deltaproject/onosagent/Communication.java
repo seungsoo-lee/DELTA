@@ -108,6 +108,9 @@ public class Communication extends Thread {
 		} else if (recv.contains("3.1.200")) {
 			result = app.testSwitchFirmwareMisuse();
 			dos.writeUTF(result);
+		} else if (recv.contains("2.1.060")) {
+			result = app.sendUnFlaggedFlowRemoveMsg();
+			dos.writeUTF(result);
 		}
 
 		else if (recv.contains("test")) {

@@ -18,13 +18,9 @@ public class Main {
 
         System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "TRUE");
 
-
         AgentManager am = new AgentManager(args[0]);
         am.start();
         am.showMenu();
         am.closeServerSocket();
-
-//		TestSwitchCase ts = new TestSwitchCase();
-//		ts.testSlaveControllerViolation();
     }
 }

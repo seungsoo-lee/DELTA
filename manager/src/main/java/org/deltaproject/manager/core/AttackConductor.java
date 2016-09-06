@@ -58,7 +58,7 @@ public class AttackConductor {
 
         testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
         testSwitchCase = new TestSwitchCase(cfg);
-        testControllerCase = new TestControllerCase(cfg, channelm, controllerm, hostm);
+        testControllerCase = new TestControllerCase(appm, hostm, channelm, controllerm);
     }
 
     public String showConfig() {
@@ -91,7 +91,7 @@ public class AttackConductor {
         }
     }
 
-    public void replayKnownAttack(String code) {
+    public void replayKnownAttack(String code) throws InterruptedException {
         if (code.charAt(0) == '1')
             testSwitchCase.replayKnownAttack(code);
         if (code.charAt(0) == '2')

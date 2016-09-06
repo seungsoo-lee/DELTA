@@ -4,6 +4,8 @@ import com.google.common.primitives.Longs;
 import org.deltaproject.channelagent.dummy.DummyOFData;
 import org.deltaproject.channelagent.dummy.DummyOFSwitch;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
+import org.projectfloodlight.openflow.protocol.OFFlowAdd;
+import org.projectfloodlight.openflow.protocol.OFFlowRemoved;
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.slf4j.Logger;
@@ -39,13 +41,25 @@ public class TestControllerCase {
         return ofSwitch.getHandshaked();
     }
 
-    public void startSW(int type) {
-        log.info("start dummy switch");
+    public boolean startSW(int type) {
+        log.info("Start dummy switch");
         ofSwitch = new DummyOFSwitch();
         ofSwitch.setTestHandShakeType(type);
         ofSwitch.setOFFactory(targetOFVersion);
         ofSwitch.connectTargetController(targetIP, targetPORT);
         ofSwitch.start();
+
+        if(type == DummyOFSwitch.HANDSHAKE_DEFAULT) {
+            while(!isHandshaked()) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return true;
     }
 
     public String testMalformedVersionNumber(String code) {
@@ -133,7 +147,7 @@ public class TestControllerCase {
 
     public String testMultipleMainConnectionReq(String code) {
         try {
-            ofSwitch.sendHello();
+            ofSwitch.sendHello(0);
         } catch (OFParseError ofParseError) {
             ofParseError.printStackTrace();
         }
@@ -150,6 +164,43 @@ public class TestControllerCase {
             return response.toString() +", PASS";
         } else
             return ("response is null, FAIL");
+    }
+
+    public String testUnFlaggedFlowRemoveMsgNotification(String code) throws InterruptedException {
+        String info = code + " - Un-flagged Flow Remove Message Notification";
+        log.info(info);
+
+        while(!isHandshaked()) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        log.info("building msg");
+
+        OFFlowAdd fa = ofSwitch.getBackupFlowAdd();
+        if(fa == null)
+            return "nothing";
+
+        OFFlowRemoved.Builder fm = ofSwitch.getFactory().buildFlowRemoved();
+        fm.setMatch(fa.getMatch());
+        fm.setXid(this.requestXid);
+        fm.setReason((short)1);
+
+        OFFlowRemoved msg = fm.build();
+
+        log.info("before sending msg");
+
+        ofSwitch.sendMsg(msg, -1);
+
+        // switch disconnection
+        OFMessage response = ofSwitch.getResponse();
+        if (response != null) {
+            return response.toString() +", FAIL";
+        } else
+            return ("response is null, PASS");
     }
 
     public String testTLSSupport(String code) {
@@ -169,6 +220,6 @@ public class TestControllerCase {
 
     public void exitTopo() {
         log.info("Exit test topology");
-        proc.destroy();
+        // proc.destroy();
     }
 }

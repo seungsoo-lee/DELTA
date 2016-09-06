@@ -590,6 +590,45 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         return result;
     }
 
+    public String sendUnFlaggedFlowRemoveMsg() {
+        System.out.println("[AppAgent] Send UnFlagged Flow Remove Message");
+
+        OFFactory of = null;
+
+        List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
+        for (DatapathId sw : switchService.getAllSwitchDpids()) {
+            switches.add(switchService.getSwitch(sw));
+            of = switchService.getSwitch(sw).getOFFactory();
+        }
+
+        if(switches.size() == 0)
+            return "nothing sw";
+
+        Random random = new Random();
+
+        OFActionOutput.Builder aob = of.actions().buildOutput();
+        List<OFAction> actions = new ArrayList<OFAction>();
+        actions.add(aob.build());
+
+        OFFlowMod.Builder fmb = of.buildFlowAdd();
+
+        Match.Builder mb = of.buildMatch();
+        mb.setExact(MatchField.IN_PORT, OFPort.of(1));
+        mb.setExact(MatchField.ETH_DST, MacAddress.of("00:00:00:00:00:11"));
+        mb.setExact(MatchField.ETH_SRC, MacAddress.of("00:00:00:00:00:22"));
+
+        fmb.setMatch(mb.build());
+        fmb.setActions(actions);
+        fmb.setPriority(555);
+
+        OFFlowMod msg = fmb.build();
+        for (IOFSwitch sw : switches) {
+            sw.write(msg);
+        }
+
+        return msg.toString();
+    }
+
 
     public void blockLLDPPacket() {
         /* for (DatapathId sw : switchService.getAllSwitchDpids()) {

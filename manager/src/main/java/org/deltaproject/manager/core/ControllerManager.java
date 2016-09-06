@@ -212,6 +212,31 @@ public class ControllerManager {
         }
     }
 
+    public boolean isListeningSwitch() {
+        Process temp;
+        String tempS;
+
+        boolean flag = false;
+
+        try {
+            temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo netstat -ap | grep " + ofPort);
+
+            BufferedReader stdOut = new BufferedReader(new InputStreamReader(temp.getInputStream()));
+
+            while ((tempS = stdOut.readLine()) != null) {
+                if (tempS.contains("LISTEN")) {
+                    return true;
+                }
+            }
+            stdOut.close();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
     public int isConnectedSwitch(boolean wait) {
         Process temp;
         String tempS;
@@ -244,7 +269,7 @@ public class ControllerManager {
 
                 Thread.sleep(1000);
 
-                if(!wait) {
+                if (!wait) {
                     flag = 0;
                 }
             } catch (Exception e) {

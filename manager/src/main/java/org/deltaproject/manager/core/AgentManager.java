@@ -43,14 +43,18 @@ public class AgentManager extends Thread {
                 webUI.deactivate();
                 break;
             } else {
-                processUserInput(input);
-                System.out.print("\nPress ENTER key to continue..");
-                input = sc.readLine();
+                try {
+                    processUserInput(input);
+                    System.out.print("\nPress ENTER key to continue..");
+                    input = sc.readLine();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-    public boolean processUserInput(String in) throws IOException {
+    public boolean processUserInput(String in) throws IOException, InterruptedException {
         String input = "";
 
         if (in.equalsIgnoreCase("P")) {
