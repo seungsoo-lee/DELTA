@@ -123,7 +123,13 @@ $ cd <DELTA>/tools/dev/onos-setup
 $ ./onos-<version>-scp
 (in VM-1) $ ./onos-<version>-setup
 ```
- + OpenDaylight
+ + OpenDaylight: (only JDK 1.7)
+```
+$ cd <DELTA>/tools/dev/odl-setup
+$ ./odl-<version>-scp
+(in VM-1) $ ./odl-<version>-setup
+```
+
 
 ## Running DELTA
 + STEP 0. Distribute the executable files to VMs
