@@ -111,8 +111,12 @@ MITM_NIC=eth1
 CONTROLLER_IP=10.100.100.11
 SWITCH_IP=10.100.100.11
 ```
-+ Configuring Tagret Controllers
++ Configuring Tagret Controllers to VM-1
  + Floodlight
+```
+$ cd DELTA/tools/dev/floodlight-setup
+$ ./floodlight-<version>-scp
+```
  + ONOS
  + OpenDaylight
 
