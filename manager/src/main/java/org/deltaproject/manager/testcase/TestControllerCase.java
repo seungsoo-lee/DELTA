@@ -1,9 +1,6 @@
 package org.deltaproject.manager.testcase;
 
-import org.deltaproject.manager.core.ChannelAgentManager;
-import org.deltaproject.manager.core.Configuration;
-import org.deltaproject.manager.core.ControllerManager;
-import org.deltaproject.manager.core.HostAgentManager;
+import org.deltaproject.manager.core.*;
 import org.deltaproject.manager.dummy.DummyController;
 import org.projectfloodlight.openflow.protocol.OFBarrierRequest;
 import org.projectfloodlight.openflow.protocol.OFFactory;
@@ -29,20 +26,20 @@ public class TestControllerCase {
 
     private String ofversion;
     private int ofport;
-    private Configuration cfg;
 
     private ChannelAgentManager chm;
     private ControllerManager cm;
     private HostAgentManager hm;
+    private AppAgentManager am;
 
-    public TestControllerCase(Configuration config, ChannelAgentManager cm, ControllerManager ctrm, HostAgentManager hm) {
-        this.cfg = config;
+    public TestControllerCase(AppAgentManager am, HostAgentManager hm, ChannelAgentManager cm, ControllerManager ctm) {
         this.chm = cm;
-        this.cm = ctrm;
+        this.cm = ctm;
         this.hm = hm;
+        this.am = am;
     }
 
-    public void replayKnownAttack(String code) {
+    public void replayKnownAttack(String code) throws InterruptedException {
         if (code.equals("2.1.010")) {
             testMalformedVersionNumber(code);
         } else if (code.equals("2.1.020")) {
@@ -64,13 +61,16 @@ public class TestControllerCase {
         log.info("Target controller: " + cm.getType() + " " + cm.getVersion());
         log.info("Target controller is starting..");
         cm.createController();
-        log.info("Target controller setup is completed");
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        while (!cm.isListeningSwitch()) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+
+        log.info("Target controller setup is completed");
     }
 
     public void isSWconnected() {
@@ -160,7 +160,7 @@ public class TestControllerCase {
         log.info("Check switch connections");
         int cnt = cm.isConnectedSwitch(false);
 
-        if(cnt == 0) {
+        if (cnt == 0) {
             log.info("switch disconnected, PASS");
         } else {
             log.info("switch connected, FAIL");
@@ -195,7 +195,7 @@ public class TestControllerCase {
         log.info("Check switch connections");
         int cnt = cm.isConnectedSwitch(false);
 
-        if(cnt == 0) {
+        if (cnt == 0) {
             log.info("switch disconnected, PASS");
         } else {
             log.info("switch connected, FAIL");
@@ -229,7 +229,7 @@ public class TestControllerCase {
         log.info("Check switch connections");
         int cnt = cm.isConnectedSwitch(false);
 
-        if(cnt == 0) {
+        if (cnt == 0) {
             log.info("switch disconnected, PASS");
         } else {
             log.info("switch connected, FAIL");
@@ -242,23 +242,23 @@ public class TestControllerCase {
      * 2.1.060 - Un-flagged Flow Remove Message Notification
      * Check if the controller accepts multiple main connections from the same switch.
      */
-    public void testUnFlaggedFlowRemoveMsgNotification(String code) {
-        String info = code + " - Multiple main connection requests from same switch";
+    public void testUnFlaggedFlowRemoveMsgNotification(String code) throws InterruptedException {
+        String info = code + " - Un-flagged Flow Remove Message Notification";
         log.info(info);
 
         initController();
         chm.write("startsw");
-
+        chm.read();
         isSWconnected();
-        chm.write(code);
-        log.info("Channel-agent starts");
 
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        am.write(code);
+        log.info("App-agent starts");
+        log.info(am.read());
+
+        Thread.sleep(2000);
+        chm.write(code);
+        Thread.sleep(2000);
+
         String response = chm.read();
 
         log.info(response);
@@ -274,6 +274,9 @@ public class TestControllerCase {
         log.info(info);
 
         initController();
+        chm.write("startsw");
+
+        isSWconnected();
 
         chm.write(code);
         log.info("Channel-agent starts");
@@ -288,13 +291,13 @@ public class TestControllerCase {
         log.info("Check switch connections");
         int cnt = cm.isConnectedSwitch(false);
 
-        if(cnt == 0) {
+        if (cnt == 0) {
             log.info("switch disconnected, FAIL");
         } else {
             log.info("switch connected, PASS");
         }
 
-        chm.write(code+":exit");
+        chm.write(code + ":exit");
         cm.killController();
     }
 }

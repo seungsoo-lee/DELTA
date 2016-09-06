@@ -110,6 +110,9 @@ public class Communication extends Thread {
         } else if (recv.equals("3.1.200")) {
             result = app.testSwitchFirmwareMisuse();
             dos.writeUTF(result);
+        } else if (recv.contains("2.1.060")) {
+            result = app.sendUnFlaggedFlowRemoveMsg();
+            dos.writeUTF(result);
         }
 
         dos.flush();
@@ -119,10 +122,10 @@ public class Communication extends Thread {
     public void run() {
         // TODO Auto-generated method stub
         String recv = "";
-
         try {
             while ((recv = dis.readUTF()) != null) {
                 // reads characters encoded with modified UTF-8
+                System.out.print(recv);
                 replayingKnownAttack(recv);
             }
         } catch (Exception e) {

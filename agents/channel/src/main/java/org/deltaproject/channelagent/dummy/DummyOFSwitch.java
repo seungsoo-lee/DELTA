@@ -14,18 +14,7 @@ import org.deltaproject.channelagent.core.AMInterface;
 import org.deltaproject.channelagent.fuzz.OFFuzzer;
 import org.deltaproject.channelagent.fuzz.SeedPackets;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
-import org.projectfloodlight.openflow.protocol.OFBarrierReply;
-import org.projectfloodlight.openflow.protocol.OFEchoReply;
-import org.projectfloodlight.openflow.protocol.OFFactories;
-import org.projectfloodlight.openflow.protocol.OFFactory;
-import org.projectfloodlight.openflow.protocol.OFFeaturesReply;
-import org.projectfloodlight.openflow.protocol.OFFlowRemoved;
-import org.projectfloodlight.openflow.protocol.OFHello;
-import org.projectfloodlight.openflow.protocol.OFMessage;
-import org.projectfloodlight.openflow.protocol.OFMessageReader;
-import org.projectfloodlight.openflow.protocol.OFPortStatus;
-import org.projectfloodlight.openflow.protocol.OFType;
-import org.projectfloodlight.openflow.protocol.OFVersion;
+import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.errormsg.OFErrorMsgs;
 import org.projectfloodlight.openflow.types.U16;
 
@@ -65,8 +54,10 @@ public class DummyOFSwitch extends Thread {
     private int testHandShakeType;
 
     private long requestXid = 0xeeeeeeaal;
-    boolean handshaked = false;
-    boolean synack = false;
+    private boolean handshaked = false;
+    private boolean synack = false;
+
+    private OFFlowAdd backupFlowAdd;
 
     public DummyOFSwitch() {
         res = null;
@@ -78,6 +69,10 @@ public class DummyOFSwitch extends Thread {
 
     public void setSeed(SeedPackets seed) {
         seedpkts = seed;
+    }
+
+    public OFFactory getFactory() {
+        return this.factory;
     }
 
     public void connectTargetController(String cip, String ofPort) {
@@ -146,7 +141,9 @@ public class DummyOFSwitch extends Thread {
                 // log.info(message.toString());
                 long xid = message.getXid();
 
-                if (message.getType() == OFType.FEATURES_REQUEST) {
+                if (message.getType() == OFType.HELLO) {
+                    // sendHello(xid);
+                } else if (message.getType() == OFType.FEATURES_REQUEST) {
                     sendFeatureReply(xid);
                 } else if (message.getType() == OFType.GET_CONFIG_REQUEST) {
                     sendGetConfigReply(xid);
@@ -163,6 +160,17 @@ public class DummyOFSwitch extends Thread {
                     sendEchoReply(xid);
                 } else if (message.getType() == OFType.ERROR) {
                     printError(message);
+                } else if (message.getType() == OFType.FLOW_MOD) {
+                    OFFlowMod fm = (OFFlowMod) message;
+                    if (fm.getCommand() == OFFlowModCommand.ADD) {
+                        OFFlowAdd fa = (OFFlowAdd) fm;
+                        if (fa.getPriority() == 555) {
+                            backupFlowAdd = fa;
+                            log.info("[CA] catch unflagged msg");
+                        }
+                    }
+                } else {
+                    // log.info(message.toString());
                 }
 
                 if (xid == this.requestXid) {
@@ -186,7 +194,14 @@ public class DummyOFSwitch extends Thread {
     }
 
     public void sendMsg(OFMessage msg, int len) {
-        ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(len);
+        ByteBuf buf;
+
+        if(len == -1) {
+            buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
+        } else {
+            buf = PooledByteBufAllocator.DEFAULT.directBuffer(len);
+        }
+
         msg.writeTo(buf);
 
         int length = buf.readableBytes();
@@ -202,7 +217,6 @@ public class DummyOFSwitch extends Thread {
 
         buf.clear();
         buf.release();
-        buf = null;
     }
 
     public void setReqXid(long xid) {
@@ -222,16 +236,25 @@ public class DummyOFSwitch extends Thread {
         }
     }
 
+    public OFFlowAdd getBackupFlowAdd() {
+        return backupFlowAdd;
+    }
 
     /* OF Message */
-    public void sendHello() throws OFParseError {
+    public void sendHello(long xid) throws OFParseError {
         if(testHandShakeType == DummyOFSwitch.HANDSHAKE_NO_HELLO) {
             this.sendFeatureReply(requestXid);
             return;
         }
 
         OFFactory factory = OFFactories.getFactory(OFVersion.OF_10);
-        long r_xid = 0xeeeeeeeel;
+
+        long r_xid = 0;
+
+        if(xid == 0)
+            r_xid = 0xeeeeeeeel;
+        else
+            r_xid = xid;
 
         OFHello.Builder fab = factory.buildHello();
         fab.setXid(r_xid);
@@ -242,6 +265,7 @@ public class DummyOFSwitch extends Thread {
         return;
     }
 
+    /*
     public void sendSeedHello() throws OFParseError {
         Map<OFMessage, Integer> map = seedpkts.getSeedList(OFType.HELLO).getMsgMap();
         Set<OFMessage> keys = map.keySet();
@@ -252,6 +276,7 @@ public class DummyOFSwitch extends Thread {
         sendMsg(list.get(0), map.get(list.get(0)));
         return;
     }
+    */
 
     public void sendStatReply(long xid) {
         byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.statsReply);
@@ -382,7 +407,8 @@ public class DummyOFSwitch extends Thread {
     public void run() {
         // TODO Auto-generated method stub
         byte[] recv;
-        int readlen = 0;
+        int readlen;
+        boolean synack = false;
 
         try {
             while (true) {
@@ -390,7 +416,7 @@ public class DummyOFSwitch extends Thread {
                 if ((readlen = in.read(recv, 0, recv.length)) != -1) {
                     if (!synack) {
                         synack = true;
-                        sendHello();
+                        sendHello(0);
                     } else {
                         /* after hello */
                         parseOFMsg(recv, readlen);

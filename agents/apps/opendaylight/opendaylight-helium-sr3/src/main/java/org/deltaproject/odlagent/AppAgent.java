@@ -466,6 +466,45 @@ public class AppAgent implements IListenDataPacket, IHostFinder,
         return result;
     }
 
+    public String sendUnFlaggedRemoveMsg() {
+        for (Node node : switchManager.getNodes()) {
+            Set<NodeConnector> set = switchManager.getNodeConnectors(node);
+
+            for (NodeConnector nodecon : set) {
+                InetAddress addr = null;
+                Match match = new Match();
+
+                try {
+                    String temp = "" + (ran.nextInt(252) + 1) + "."
+                            + (ran.nextInt(252) + 1) + "."
+                            + (ran.nextInt(252) + 1) + "."
+                            + (ran.nextInt(252) + 1);
+
+                    addr = InetAddress.getByName(temp);
+                } catch (UnknownHostException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                List<Action> actions = new ArrayList<Action>();
+                actions.add(new Drop());
+
+                // Create matches
+                match.setField(MatchType.DL_TYPE,
+                        EtherTypes.IPv4.shortValue());
+                match.setField(MatchType.NW_DST, addr);
+                match.setField(MatchType.IN_PORT, nodecon);
+
+                Flow flow = new Flow(match, actions);
+                flow.setIdleTimeout((short) 0);
+                flow.setHardTimeout((short) 0);
+                flow.setPriority((short) 555);
+                programmer.addFlow(node, flow);
+            }
+        }
+        return flows.toString();
+    }
+
     public void nodeconnector_AppAgent() {
         System.out.println("[AppAgent] nodeconnector_AppAgent");
         for (Node node : switchManager.getNodes()) {

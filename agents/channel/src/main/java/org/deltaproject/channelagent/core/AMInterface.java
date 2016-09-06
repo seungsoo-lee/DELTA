@@ -278,12 +278,12 @@ public class AMInterface extends Thread {
                     pktListener.setTypeOfAttacks(TestAdvancedSet.EMPTY);
                     pktListener.stopARPSpoofing();
                 } else if (recv.contains("startsw")) {
-                    if(recv.contains("nohello")) {
+                    if (recv.contains("nohello")) {
                         testController.startSW(DummyOFSwitch.HANDSHAKE_NO_HELLO);
-                    }
-                    else {
+                    } else {
                         testController.startSW(DummyOFSwitch.HANDSHAKE_DEFAULT);
                     }
+                    dos.writeUTF("ok");
                 } else if (recv.equalsIgnoreCase("stopsw")) {
 
                 } else if (recv.equalsIgnoreCase("2.1.010")) {
@@ -299,10 +299,10 @@ public class AMInterface extends Thread {
                     String res = testController.testMultipleMainConnectionReq(recv);
                     dos.writeUTF(res);
                 } else if (recv.equalsIgnoreCase("2.1.060")) {
-                    String res = testController.testMultipleMainConnectionReq(recv);
+                    String res = testController.testUnFlaggedFlowRemoveMsgNotification(recv);
                     dos.writeUTF(res);
                 } else if (recv.contains("2.1.070")) {
-                    if(recv.contains("exit")) {
+                    if (recv.contains("exit")) {
                         testController.exitTopo();
                         return;
                     } else {

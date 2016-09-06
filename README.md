@@ -18,9 +18,9 @@ In order to build and run DELTA the following are required:
  + VM-2: Channel agent
  + VM-3: Host agent
 + Target Controller (in VM-1)
- + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
- + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6
  + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
+ + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6
+ + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
 + [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (in VM-2)
 + [Mininet 2.1+](http://mininet.org/download/) (in VM-3)
 + Ant build system
@@ -97,7 +97,7 @@ $ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.13
 Check if you will be able to access the VMs without having to enter the password.
 ```
 
-+ The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. Setting.cfg contains sample configurations. You can specify your own config file by passing its path:
++ The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. [DELTA_ROOT]/tools/config/manager.cfg contains sample configurations. You can specify your own config file by passing its path:
 ```
 CONTROLLER_SSH=vagrant@10.100.100.11
 TARGET_HOST=10.0.0.2
@@ -110,6 +110,24 @@ OF_VER=1.0
 MITM_NIC=eth1
 CONTROLLER_IP=10.100.100.11
 SWITCH_IP=10.100.100.11
+```
++ Configuring Tagret Controllers to VM-1
+ + Floodlight
+```
+$ cd <DELTA>/tools/dev/floodlight-setup
+$ ./floodlight-<version>-scp
+```
+ + ONOS
+```
+$ cd <DELTA>/tools/dev/onos-setup
+$ ./onos-<version>-scp
+(in VM-1) $ ./onos-<version>-setup
+```
+ + OpenDaylight: (only JDK 1.7)
+```
+$ cd <DELTA>/tools/dev/odl-setup
+$ ./odl-<version>-scp
+(in VM-1) $ ./odl-<version>-setup
 ```
 
 
@@ -142,12 +160,12 @@ Command>_
 + STEP 2. Execute Channel-Agent (VM-2)
 ```
 $ sudo java -jar delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar 10.0.2.2 3366
-$ [Channel-Agent] Configuration setup
-$ [Channel-Agent] OF version/port: 1/6633
-$ [Channel-Agent] MITM NIC   : eth1
-$ [Channel-Agent] Target Controller IP: 10.100.100.11
-$ [Channel-Agent] Target Switch IP : 10.100.100.13
-$ [Channel-Agent] Cbench Root Path :/home/vagrant/oflops/cbench/_
+[Thread-0] INFO AMInterface - [CA] Configuration setup
+[Thread-0] INFO AMInterface - [CA] OF version/port: 1/6633
+[Thread-0] INFO AMInterface - [CA] MITM NIC   : eth1
+[Thread-0] INFO AMInterface - [CA] Target Controller IP: 10.100.100.11
+[Thread-0] INFO AMInterface - [CA] Target Switch IP : 10.100.100.13
+[Thread-0] INFO AMInterface - [CA] Cbench Root Path :/home/vagrant/oflops/cbench/
 ```
 
 + STEP 3. Execute Host-Agent (VM-3)
