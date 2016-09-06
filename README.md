@@ -114,10 +114,15 @@ SWITCH_IP=10.100.100.11
 + Configuring Tagret Controllers to VM-1
  + Floodlight
 ```
-$ cd DELTA/tools/dev/floodlight-setup
+$ cd <DELTA>/tools/dev/floodlight-setup
 $ ./floodlight-<version>-scp
 ```
  + ONOS
+```
+$ cd <DELTA>/tools/dev/onos-setup
+$ ./onos-<version>-scp
+(in VM-1) $ ./onos-<version>-setup
+```
  + OpenDaylight
 
 ## Running DELTA
