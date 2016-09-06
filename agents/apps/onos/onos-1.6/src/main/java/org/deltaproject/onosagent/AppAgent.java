@@ -423,7 +423,7 @@ public class AppAgent {
 //            flowRuleService.applyFlowRules(newf);
 
             ForwardingObjective fwd = DefaultForwardingObjective.builder()
-                    .withFlag(ForwardingObjective.Flag.VERSATILE)
+                    .withFlag(ForwardingObjective.Flag.SPECIFIC)
                     .withPriority(555).makePermanent()
                     .withSelector(selector.build()).fromApp(appId)
                     .withTreatment(treat.build()).add();
