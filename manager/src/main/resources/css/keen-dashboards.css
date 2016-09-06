@@ -96,3 +96,10 @@ body.application .return-link:hover,
   font-size: 12px;
   padding: 8px 10px 5px;
 }
+
+.fill {
+  height: 180px;
+  width: 100%;
+  overflow-y: scroll;
+  resize: none;
+}

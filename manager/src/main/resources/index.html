@@ -39,7 +39,7 @@
                 DELTA log
             </div>
             <div class="chart-stage">
-
+                <textarea readonly id="deltalog" class="fill"></textarea>
             </div>
         </div>
     </div>
@@ -210,12 +210,30 @@
             }
         });
 
-        var intervalID = setInterval(function () {
+        setInterval(function () {
             queue_table.ajax.reload();
         }, 3000);
 
+        setInterval(function () {
+
+            $.ajax({
+                url: '/text/getlog',
+                dataType: 'text',
+                contentType: "text/plain",
+                async: false,
+                success: function (data) {
+                    var old = $('#deltalog').val();
+                    if (old.length != data.length) {
+                        $('#deltalog').val(data);
+                        $('#deltalog').scrollTop($('#deltalog')[0].scrollHeight);
+                    }
+                }
+            });
+        }, 1000);
 
     });
+
+
 </script>
 
 </body>
