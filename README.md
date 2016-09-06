@@ -97,7 +97,7 @@ $ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.13
 Check if you will be able to access the VMs without having to enter the password.
 ```
 
-+ The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. Setting.cfg contains sample configurations. You can specify your own config file by passing its path:
++ The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. [DELTA_ROOT]/tools/config/manager.cfg contains sample configurations. You can specify your own config file by passing its path:
 ```
 CONTROLLER_SSH=vagrant@10.100.100.11
 TARGET_HOST=10.0.0.2
