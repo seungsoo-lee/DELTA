@@ -117,13 +117,13 @@ SWITCH_IP=10.100.100.11
 $ cd <DELTA>/tools/dev/floodlight-setup
 $ ./floodlight-<version>-scp
 ```
- + ONOS
+  + ONOS
 ```
 $ cd <DELTA>/tools/dev/onos-setup
 $ ./onos-<version>-scp
 (in VM-1) $ ./onos-<version>-setup
 ```
- + OpenDaylight: (only JDK 1.7)
+  + OpenDaylight: (only JDK 1.7)
 ```
 $ cd <DELTA>/tools/dev/odl-setup
 $ ./odl-<version>-scp
