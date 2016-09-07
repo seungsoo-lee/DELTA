@@ -112,12 +112,12 @@ CONTROLLER_IP=10.100.100.11
 SWITCH_IP=10.100.100.11
 ```
 + Configuring Tagret Controllers to VM-1
-<pre><code>Floodlight
+ + Floodlight
 ```
 $ cd <DELTA>/tools/dev/floodlight-setup
 $ ./floodlight-<version>-scp
-```</code></pre>
-### ONOS
+```
+ ++ ONOS
 ```
 $ cd <DELTA>/tools/dev/onos-setup
 $ ./onos-<version>-scp
