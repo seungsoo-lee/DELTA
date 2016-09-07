@@ -36,13 +36,71 @@
     <div class="row">
         <div class="chart-wrapper">
             <div class="chart-title">
-                DELTA log
+                Live Test Queue
             </div>
             <div class="chart-stage">
-                <textarea readonly id="deltalog" class="fill"></textarea>
+                <div id="test-queue">
+                    <table id="queue-table" class="display select" cellspacing="0" width="100%">
+                        <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Category</th>
+                            <th>Test Index</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div class="chart-notes">
             </div>
         </div>
     </div>
+
+    <div class="row">
+        <div style="width: 100%; display: table; margin-left: auto; margin-right:0;">
+
+            <div style="width:30%; display: table-cell;">
+                <div class="chart-wrapper">
+                    <div class="chart-title">
+                        DELTA configuration
+                    </div>
+                    <div class="chart-stage">
+                        <textarea readonly id="configpane" class="fill"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: table-cell;">
+                <div class="chart-wrapper">
+                    <div class="chart-title">
+                        DELTA log
+                    </div>
+                    <div class="chart-stage">
+                        <textarea readonly id="deltalog" class="fill"></textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="chart-notes">
+        </div>
+
+    </div>
+
+
+    <!--<div class="row">-->
+        <!--<div class="chart-wrapper">-->
+            <!--<div class="chart-title">-->
+                <!--DELTA configuration-->
+            <!--</div>-->
+            <!--<div class="chart-stage">-->
+                <!--<textarea readonly id="configpane" class="fill"></textarea>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+
 
     <!--<div class="row">-->
     <!--<div class="chart-wrapper">-->
@@ -103,30 +161,6 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="chart-wrapper">
-            <div class="chart-title">
-                Live Test Queue
-            </div>
-            <div class="chart-stage">
-                <div id="test-queue">
-                    <table id="queue-table" class="display select" cellspacing="0" width="100%">
-                        <thead>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>Category</th>
-                            <th>Test Index</th>
-                            <th>Name</th>
-                            <th>Status</th>
-                        </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-            <div class="chart-notes">
-            </div>
-        </div>
-    </div>
 </div>
 
 
@@ -233,6 +267,16 @@
 
     });
 
+    $.ajax({
+        url: '/text/getconfig',
+        dataType: 'text',
+        contentType: "text/plain",
+        async: false,
+        success: function (data) {
+            $('#configpane').val(data);
+            $('#configpane').scrollTop($('#configpane')[0].scrollHeight);
+        }
+    });
 
 </script>
 

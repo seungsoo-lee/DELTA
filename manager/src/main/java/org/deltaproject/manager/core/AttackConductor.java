@@ -27,7 +27,7 @@ public class AttackConductor {
     private ChannelAgentManager channelm;
     private ControllerManager controllerm;
 
-    private Configuration cfg;
+    private Configuration cfg = Configuration.getInstance();
 
     private DataOutputStream dos;
     private DataInputStream dis;
@@ -41,7 +41,7 @@ public class AttackConductor {
         infoSwitchCase = new HashMap<String, String>();
         infoAdvancedCase = new HashMap<String, String>();
 
-        cfg = new Configuration(config);
+        cfg.initialize(config);
 
         this.controllerm = new ControllerManager(cfg);
 

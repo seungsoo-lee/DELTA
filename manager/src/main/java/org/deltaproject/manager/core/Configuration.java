@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 public class Configuration {
+
     private String FLOODLIGHT_ROOT = "";
     private String FLOODLIGHT_VER = "";
 
@@ -34,10 +35,25 @@ public class Configuration {
 
     private ArrayList<String> switchList;
 
-    public Configuration(String file) {
-        switchList = new ArrayList<String>();
-        this.readConfigFile(file);
+    private static final Configuration instance = new Configuration();
+
+
+    protected Configuration() {
     }
+
+    public static Configuration getInstance() {
+        return instance;
+    }
+
+    public void initialize(String path) {
+        switchList = new ArrayList<String>();
+        readConfigFile(path);
+    }
+
+//    public Configuration(String file) {
+//        switchList = new ArrayList<String>();
+//        this.readConfigFile(file);
+//    }
 
     public ArrayList<String> getSwitchList() {
         return switchList;
