@@ -1,5 +1,6 @@
 package org.deltaproject.manager.dummy;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Longs;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -20,6 +21,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Set;
 
 /**
  * Created by seungsoo on 9/7/16.
@@ -48,8 +50,9 @@ public class DMController extends Thread {
 
     private int testHandShakeType;
 
-    private long requestXid = 0xeeeeeeaal;
+    private long requestXid = 0xeeeeeeeel;
     private long startXid = 0xffffffff;
+    private long cntXid = 1;
     private boolean handshaked = false;
     private boolean synack = false;
 
@@ -144,96 +147,6 @@ public class DMController extends Thread {
         return backupFlowAdd;
     }
 
-    /* OF Message */
-    public void sendHello(long xid) throws OFParseError {
-        if (testHandShakeType == HANDSHAKE_NO_HELLO) {
-            // this.sendFeatureReply(requestXid);
-            return;
-        }
-
-        OFFactory factory = OFFactories.getFactory(OFVersion.OF_10);
-
-        long r_xid = 0;
-
-        if (xid == 0)
-            r_xid = 0xeeeeeeeel;
-        else
-            r_xid = xid;
-
-        OFHello.Builder fab = factory.buildHello();
-        fab.setXid(r_xid);
-
-        OFHello hello = fab.build();
-        sendMsg(hello, MINIMUM_LENGTH);
-    }
-
-//    public void sendStatReply(long xid) {
-//        byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.statsReply);
-//        byte[] xidbytes = Longs.toByteArray(xid);
-//        System.arraycopy(xidbytes, 4, msg, 4, 4);
-//
-//        sendRawMsg(msg);
-//    }
-//
-//    public void sendFeatureReply(long xid) throws OFParseError {
-//        byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.featureReply);
-//        byte[] xidbytes = Longs.toByteArray(xid);
-//        System.arraycopy(xidbytes, 4, msg, 4, 4);
-//
-//        sendRawMsg(msg);
-//        return;
-//    }
-//
-//    public void sendGetConfigReply(long xid) {
-//        byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.getConfigReply);
-//        byte[] xidbytes = Longs.toByteArray(xid);
-//        System.arraycopy(xidbytes, 4, msg, 4, 4);
-//
-//        sendRawMsg(msg);
-//    }
-//
-//    public void sendExperimenter(long xid) {
-//        byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.experimenter);
-//        byte[] xidbytes = Longs.toByteArray(xid);
-//        System.arraycopy(xidbytes, 4, msg, 4, 4);
-//
-//        sendRawMsg(msg);
-//    }
-//
-//    public void sendBarrierRes(long xid) {
-//        OFBarrierReply.Builder builder = factory.buildBarrierReply();
-//
-//        builder.setXid(xid);
-//        OFBarrierReply msg = builder.build();
-//        sendMsg(msg, 8);
-//    }
-//
-//    public void sendEchoReply(long xid) {
-//        OFEchoReply.Builder builder = factory.buildEchoReply();
-//        builder.setXid(xid);
-//        OFEchoReply msg = builder.build();
-//        sendMsg(msg, 8);
-//    }
-//
-//    public void sendError() throws OFParseError {
-//        long r_xid = 0xeeeeeeeel;
-//
-//        OFErrorMsgs msg = factory.errorMsgs();
-//        OFFeaturesReply.Builder frb = factory.buildFeaturesReply();
-//        OFFeaturesReply fr = frb.build();
-//
-//        return;
-//    }
-//
-//    public boolean sendPacketIn() throws OFParseError {
-//        byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.packetin);
-//        byte[] xidbytes = Longs.toByteArray(0xeeeeeeeel);
-//        System.arraycopy(xidbytes, 4, msg, 4, 4);
-//
-//        sendRawMsg(msg);
-//        return true;
-//    }
-
     public ByteBuf sendFlowRemoved() throws OFParseError {
         OFFactory factory = OFFactories.getFactory(OFVersion.OF_10);
         long r_xid = 0xeeeeeeeel;
@@ -300,10 +213,11 @@ public class DMController extends Thread {
     }
 
     public void listeningSwitch() {
+        log.info("Listening switches on " + this.port);
         try {
             serverSock = new ServerSocket(this.port);
             Socket temp = serverSock.accept();
-            log.info(temp.toString());
+            log.info("Switch connected from  " + temp.toString());
             setTargetSock(temp);
         } catch (IOException e) {
             e.printStackTrace();
@@ -314,6 +228,74 @@ public class DMController extends Thread {
         return this.handshaked;
     }
 
+    public void sendExperimenter(long xid) {
+        byte[] msg = DMData.hexStringToByteArray(DMData.VENDOR);
+        byte[] xidbytes = Longs.toByteArray(xid);
+        System.arraycopy(xidbytes, 4, msg, 4, 4);
+
+        sendRawMsg(msg);
+    }
+
+    public void sendStatReq(long xid) throws OFParseError {
+        if (this.version == OFVersion.OF_10) {
+            byte[] msg = DMData.hexStringToByteArray(DMData.STATS_REQ);
+            byte[] xidbytes = Longs.toByteArray(xid);
+            System.arraycopy(xidbytes, 4, msg, 4, 4);
+
+            sendRawMsg(msg);
+            return;
+        } else if (this.version == OFVersion.OF_13) {
+            OFAggregateStatsRequest.Builder builder = factory.buildAggregateStatsRequest();
+            Set<OFStatsRequestFlags> flagset = ImmutableSet.<OFStatsRequestFlags>of();
+
+            builder.setFlags(flagset);
+            builder.setXid(xid);
+
+            sendMsg(builder.build(), -1);
+        }
+    }
+
+    public void sendSetConfig(long xid) throws OFParseError {
+        OFSetConfig.Builder builder = factory.buildSetConfig();
+        builder.setMissSendLen(0xffff);
+        builder.setXid(xid);
+
+        sendMsg(builder.build(), -1);
+    }
+
+    public void sendGetConfigReq(long xid) throws OFParseError {
+        OFGetConfigRequest.Builder builder = factory.buildGetConfigRequest();
+        builder.setXid(xid);
+
+        sendMsg(builder.build(), -1);
+    }
+
+    public void sendFeatureReq(long xid) throws OFParseError {
+        OFFeaturesRequest.Builder builder = factory.buildFeaturesRequest();
+        builder.setXid(xid);
+
+        sendMsg(builder.build(), -1);
+    }
+
+    public void sendEchoReply(long xid) {
+        OFEchoReply.Builder builder = factory.buildEchoReply();
+        builder.setXid(xid);
+
+        sendMsg(builder.build(), -1);
+    }
+
+    public void sendHello(long xid) throws OFParseError {
+        if (testHandShakeType == HANDSHAKE_NO_HELLO) {
+            // this.sendFeatureReply(requestXid);
+            return;
+        }
+
+        OFHello.Builder fab = factory.buildHello();
+        fab.setXid(xid);
+
+        OFHello hello = fab.build();
+        sendMsg(hello, MINIMUM_LENGTH);
+    }
 
     public boolean parseOFMsg(byte[] recv, int len) throws OFParseError {
         // for OpenFlow Message
@@ -337,17 +319,28 @@ public class DMController extends Thread {
 
             try {
                 OFMessage message = reader.readFrom(bb);
-                // log.info(message.toString());
+
                 long xid = message.getXid();
 
                 if (message.getType() == OFType.HELLO) {
                     sendHello(startXid);
-                } else {
-                    // log.info(message.toString());
-                }
+                    sendFeatureReq(startXid - (cntXid++));
+                } else if (message.getType() == OFType.FEATURES_REPLY) {
+                    sendSetConfig(startXid - (cntXid++));
+                    sendGetConfigReq(startXid - (cntXid++));
+                } else if (message.getType() == OFType.GET_CONFIG_REPLY) {
+                    sendStatReq(startXid - (cntXid++));
+                } else if (message.getType() == OFType.STATS_REPLY) {
+                    sendExperimenter(startXid - (cntXid++));
 
-                if (xid == this.requestXid) {
-                    res = message;
+                    //send vendor
+                    handshaked = true;
+                } else if (message.getType() == OFType.ECHO_REQUEST) {
+                    sendEchoReply(xid);
+                } else if (message.getType() == OFType.ERROR) {
+                    if (xid == this.requestXid) {
+                        res = message;
+                    }
                 }
 
             } catch (OFParseError e) {
@@ -370,25 +363,34 @@ public class DMController extends Thread {
         boolean ack = false;
 
         try {
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 recv = new byte[2048];
                 if ((readlen = in.read(recv, 0, recv.length)) != -1) {
                     parseOFMsg(recv, readlen);
-                } else
+                } else {
+                    in.close();
+                    out.close();
+                    serverSock.close();
+                    targetSock.close();
                     break; // end of connection
+                }
             }
         } catch (Exception e) {
             // if any error occurs
-            // e.printStackTrace();
+            e.printStackTrace();
 
-            if (in != null)
-                try {
-                    in.close();
-                    log.info("Closed from Switch");
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+        } finally {
+            try {
+                in.close();
+                out.close();
+                serverSock.close();
+                targetSock.close();
+
+                log.info("Dummy Controller Closed");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 }

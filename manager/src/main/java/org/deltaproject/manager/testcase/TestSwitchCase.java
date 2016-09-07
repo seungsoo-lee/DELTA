@@ -51,7 +51,7 @@ public class TestSwitchCase {
         ofport = Integer.parseInt(cfg.getOFPort());
     }
 
-    public void replayKnownAttack(String code) {
+    public void replayKnownAttack(String code) throws InterruptedException {
         switch (code) {
             case "1.1.010":
                 testPortRangeViolation(code);
@@ -131,46 +131,47 @@ public class TestSwitchCase {
     }
 
     public void setUpDummyController() {
-//        dcontroller = new DummyController(this.ofversion, ofport);
-//        dcontroller.bootstrapNetty();
-//
-//        while (!dcontroller.isOFHandlerActive()) {
-//            try {
-//                Thread.sleep(100);
-//            } catch (InterruptedException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
-//        }
-
         dmcnt = new DMController(ofversion, ofport);
         dmcnt.listeningSwitch();
-
-
         dmcnt.start();
+
+        while (!dmcnt.getHandshaked()) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
     public void stopDummyController() {
-        dcontroller.stopNetty();
+        // dcontroller.stopNetty();
+        dmcnt.interrupt();
     }
 
 
     /*
      * 1.1.010 - Port Range Violation
-     * Verify that the switch rejects the use of ports that are greater than
+     * Verify that the switch rejects the use of ports that are greater thanc
      * OFPP_MAX and are not part of the reserved ports.
      */
-    public void testPortRangeViolation(String code) {
+    public void testPortRangeViolation(String code) throws InterruptedException {
         String info = code + " - Port Range Violation";
         log.info(info);
 
         setUpDummyController();
 
-        OFPortMod request = defaultFactory.buildPortMod().setXid(r_xid).setPortNo(OFPort.ofShort((short)-1)).build();
-        OFMessage response = dcontroller.sendOFMessage(request);
+        OFPortMod request = defaultFactory.buildPortMod().setXid(r_xid).setPortNo(OFPort.ANY).build();
+        log.info("Send msg: " + request.toString());
+        dmcnt.sendMsg(request, -1);
+
+        Thread.sleep(1000);
+
+        OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
-            log.info("response msg: " + response.toString()+", PASS");
+            log.info("Response msg: " + response.toString() + ", PASS");
         } else
             log.info("response is null, FAIL");
 
@@ -181,7 +182,7 @@ public class TestSwitchCase {
      * 1.1.020 - Table Identifier Violation
      * only 1.3 Verify that the switch rejects the use of invalid table id.
      */
-    public void testTableID(String code) {
+    public void testTableID(String code) throws InterruptedException {
         String info = code + " - Table Identifier Violation";
         log.info(info);
 
@@ -210,19 +211,24 @@ public class TestSwitchCase {
         OFFlowAdd.Builder fab = defaultFactory.buildFlowAdd();
         fab.setPriority(10);
         fab.setXid(r_xid);
-        fab.setTableId(TableId.of(255));
+        fab.setTableId(TableId.of(255));                // table num
         fab.setMatch(mb.build());
         fab.setInstructions(inst);
         fab.setBufferId(OFBufferId.NO_BUFFER);
         fab.setFlags(set);
 
         OFFlowAdd request = fab.build();
-        OFMessage response = dcontroller.sendOFMessage(request);
+        log.info("Send msg: " + request.toString());
+        dmcnt.sendMsg(request, -1);
+
+        Thread.sleep(1000);
+
+        OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
-            log.info(response.toString());
+            log.info("Response msg: " + response.toString() + ", PASS");
         } else
-            log.info("response is null");
+            log.info("response is null, FAIL");
 
         stopDummyController();
     }
