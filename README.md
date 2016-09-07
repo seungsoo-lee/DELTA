@@ -112,18 +112,18 @@ CONTROLLER_IP=10.100.100.11
 SWITCH_IP=10.100.100.11
 ```
 + Configuring Tagret Controllers to VM-1
- + Floodlight
++ 1) Floodlight
 ```
 $ cd <DELTA>/tools/dev/floodlight-setup
 $ ./floodlight-<version>-scp
 ```
- ++ ONOS
+ + 2) ONOS
 ```
 $ cd <DELTA>/tools/dev/onos-setup
 $ ./onos-<version>-scp
 (in VM-1) $ ./onos-<version>-setup
 ```
-### OpenDaylight: (only JDK 1.7)
++ 3) OpenDaylight: (only JDK 1.7)
 ```
 $ cd <DELTA>/tools/dev/odl-setup
 $ ./odl-<version>-scp
