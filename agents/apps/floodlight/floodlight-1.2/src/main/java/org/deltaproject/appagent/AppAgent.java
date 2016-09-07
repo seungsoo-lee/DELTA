@@ -1,6 +1,5 @@
 package org.deltaproject.appagent;
 
-import com.google.common.primitives.UnsignedLong;
 import com.google.common.util.concurrent.ListenableFuture;
 import net.floodlightcontroller.core.*;
 import net.floodlightcontroller.core.internal.IOFSwitchService;
@@ -26,7 +25,6 @@ import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
 import org.projectfloodlight.openflow.protocol.match.Match;
 import org.projectfloodlight.openflow.protocol.match.MatchField;
-import org.projectfloodlight.openflow.protocol.ver13.OFMeterSerializerVer13;
 import org.projectfloodlight.openflow.types.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +86,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
     private HashMap<String, Integer> map = new HashMap<>();
 
     private IStaticFlowEntryPusherService fservice;
-    private Communication cm;
+    private AMInterface cm;
 
     private int flownum;
 
@@ -155,7 +153,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
                 .getServiceImpl(ILinkDiscoveryService.class);
 
 
-        cm = new Communication(this);
+        cm = new AMInterface(this);
         cm.setServerAddr();
         cm.connectServer("AppAgent");
         cm.start();

@@ -1,16 +1,15 @@
 package org.deltaproject.manager.core;
 
+import org.deltaproject.manager.target.Floodlight;
+import org.deltaproject.manager.target.ONOS;
+import org.deltaproject.manager.target.OpenDaylight;
+import org.deltaproject.manager.target.TargetController;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
-
-import org.deltaproject.manager.target.Floodlight;
-import org.deltaproject.manager.target.ONOS;
-import org.deltaproject.manager.target.OpenDaylight;
-import org.deltaproject.manager.target.TargetController;
 
 public class ControllerManager {
     private String cbechPath = "";

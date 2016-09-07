@@ -17,8 +17,8 @@ public class AgentManager extends Thread {
     private WebUI webUI = new WebUI();
 
     public AgentManager(String path) {
-        this.conductor = new AttackConductor(path);
-        this.webUI.activate();
+        conductor = new AttackConductor(path);
+        webUI.activate();
     }
 
     public void showMenu() throws IOException {

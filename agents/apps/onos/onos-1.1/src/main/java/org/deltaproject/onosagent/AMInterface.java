@@ -1,14 +1,12 @@
-package org.deltaproject.appagent;
+package org.deltaproject.onosagent;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
+import java.util.Properties;
 
-public class Communication extends Thread {
+public class AMInterface extends Thread {
     int result = 1;
 
     private AppAgent app;
@@ -22,16 +20,59 @@ public class Communication extends Thread {
     private String serverIP;
     private int serverPort;
 
-//	private DataFuzzing fuzzing;
-
-    public Communication(AppAgent in) {
+    public AMInterface(AppAgent in) {
         this.app = in;
     }
 
     public void setServerAddr() {
-        // for static
+        // default
         this.serverIP = "10.0.2.2";
         this.serverPort = 3366;
+
+        String path = ".";
+
+        Properties props = System.getProperties();
+        Enumeration en = props.keys();
+        while (en.hasMoreElements()) {
+            String key = (String) en.nextElement();
+
+            if (key.equals("HOME"))
+                path = (String) props.get(key);
+
+        }
+
+        BufferedReader br = null;
+        InputStreamReader isr = null;
+        FileInputStream fis = null;
+        File file = new File(path + "/connection.cfg");
+        String temp;
+
+        try {
+            fis = new FileInputStream(file);
+            isr = new InputStreamReader(fis, "UTF-8");
+            br = new BufferedReader(isr);
+
+            while ((temp = br.readLine()) != null) {
+                if (temp.contains("AM_IP"))
+                    this.serverIP = temp.substring(temp.indexOf("=") + 1);
+
+                if (temp.contains("AM_PORT"))
+                    this.serverPort = Integer.parseInt(temp.substring(temp.indexOf("=") + 1));
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fis.close();
+                isr.close();
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void connectServer(String agent) {
@@ -67,66 +108,82 @@ public class Communication extends Thread {
     public void replayingKnownAttack(String recv) throws IOException {
         String result = "";
 
-        if (recv.equals("3.1.020")) {
+        if (recv.contains("3.1.020")) {
             app.setControlMessageDrop();
             result = app.testControlMessageDrop();
             dos.writeUTF(result);
-        } else if (recv.equals("3.1.030")) {
+        } else if (recv.contains("3.1.030")) {
             app.setInfiniteLoop();
             return;
-        } else if (recv.equals("3.1.040")) {
+        } else if (recv.contains("3.1.040")) {
             result = app.testInternalStorageAbuse();
             dos.writeUTF(result);
-        } else if (recv.equals("3.1.070")) {
+        } else if (recv.contains("3.1.070")) {
             result = app.testFlowRuleModification();
             dos.writeUTF(result);
         } else if (recv.contains("3.1.080")) {
+
+			/* loop? */
             if (recv.contains("false"))
-                app.testFlowTableClearance(false);  // only once
+                app.testFlowTableClearance(false);
             else
-                app.testFlowTableClearance(true);   // infinite
+                app.testFlowTableClearance(true);
+
             return;
-        } else if (recv.equals("3.1.090")) {
-            result = app.testEventListenerUnsubscription();
+        } else if (recv.contains("3.1.090")) {
+            if (app.testEventListenerUnsubscription())
+                dos.writeUTF("success");
+            else
+                dos.writeUTF("fail");
+        } else if (recv.contains("3.1.100")) {
+            result = app.testApplicationEviction("fwd");
             dos.writeUTF(result);
-        } else if (recv.equals("3.1.110")) {
+        } else if (recv.contains("3.1.110")) {
             app.testResourceExhaustionMem();
             return;
-        } else if (recv.equals("3.1.120")) {
+        } else if (recv.contains("3.1.120")) {
             app.testResourceExhaustionCPU();
             return;
-        } else if (recv.equals("3.1.130")) {
+        } else if (recv.contains("3.1.130")) {
             app.testSystemVariableManipulation();
             return;
-        } else if (recv.equals("3.1.140")) {
+        } else if (recv.contains("3.1.140")) {
             app.testSystemCommandExecution();
             return;
-        } else if (recv.equals("3.1.160")) {
-            result = app.testLinkFabrication();
-            dos.writeUTF(result);
-        } else if (recv.equals("3.1.190")) {
+        } else if (recv.contains("3.1.190")) {
             app.testFlowRuleFlooding();
             return;
-        } else if (recv.equals("3.1.200")) {
+        } else if (recv.contains("3.1.200")) {
             result = app.testSwitchFirmwareMisuse();
             dos.writeUTF(result);
         } else if (recv.contains("2.1.060")) {
             result = app.sendUnFlaggedFlowRemoveMsg();
             dos.writeUTF(result);
+        } else if (recv.contains("test")) {
+            app.test();
+            return;
         }
 
         dos.flush();
+    }
+
+    public void findingUnkwonAttack(String recv) {
+
     }
 
     @Override
     public void run() {
         // TODO Auto-generated method stub
         String recv = "";
+
         try {
             while ((recv = dis.readUTF()) != null) {
                 // reads characters encoded with modified UTF-8
-                System.out.print(recv);
-                replayingKnownAttack(recv);
+                if (recv.contains("umode")) {
+                    findingUnkwonAttack(recv);
+                } else {
+                    replayingKnownAttack(recv);
+                }
             }
         } catch (Exception e) {
             // if any error occurs
@@ -136,7 +193,6 @@ public class Communication extends Thread {
                 dis.close();
                 dos.close();
             } catch (IOException e) {
-
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }

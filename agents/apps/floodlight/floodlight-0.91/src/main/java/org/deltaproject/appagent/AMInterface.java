@@ -12,8 +12,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
+import java.util.Properties;
 
-public class Communication extends Thread {
+public class AMInterface extends Thread {
     int result = 1;
 
     private AppAgent app;
@@ -29,7 +31,7 @@ public class Communication extends Thread {
 
     // private DataFuzzing fuzzing;
 
-    public Communication(AppAgent in) {
+    public AMInterface(AppAgent in) {
         this.app = in;
     }
 
@@ -37,6 +39,51 @@ public class Communication extends Thread {
         // for static
         this.serverIP = "10.0.2.2";
         this.serverPort = 3366;
+
+        String path = ".";
+
+        Properties props = System.getProperties();
+        Enumeration en = props.keys();
+        while (en.hasMoreElements()) {
+            String key = (String) en.nextElement();
+
+            if (key.equals("HOME"))
+                path = (String) props.get(key);
+
+        }
+
+        BufferedReader br = null;
+        InputStreamReader isr = null;
+        FileInputStream fis = null;
+        File file = new File(path + "/connection.cfg");
+        String temp;
+
+        try {
+            fis = new FileInputStream(file);
+            isr = new InputStreamReader(fis, "UTF-8");
+            br = new BufferedReader(isr);
+
+            while ((temp = br.readLine()) != null) {
+                if (temp.contains("AM_IP"))
+                    this.serverIP = temp.substring(temp.indexOf("=") + 1);
+
+                if (temp.contains("AM_PORT"))
+                    this.serverPort = Integer.parseInt(temp.substring(temp.indexOf("=") + 1));
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fis.close();
+                isr.close();
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void connectServer(String agent) {
@@ -73,7 +120,7 @@ public class Communication extends Thread {
         String result = "";
 
         if (recv.equals("3.1.020")) {
-            app.Set_Control_Message_Drop();
+            app.setControlMessageDrop();
             result = app.Control_Message_Drop();
             dos.writeUTF(result);
         } else if (recv.equals("3.1.030")) {

@@ -2,14 +2,14 @@ package org.deltaproject.manager.core;
 
 import org.deltaproject.manager.testcase.TestAdvancedCase;
 import org.deltaproject.manager.testcase.TestControllerCase;
-import org.deltaproject.manager.testcase.TestInfo;
+import org.deltaproject.manager.testcase.CaseInfo;
 import org.deltaproject.manager.testcase.TestSwitchCase;
-import org.deltaproject.manager.utils.J2sshCient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.lang.reflect.Field;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,9 +52,9 @@ public class AttackConductor {
         this.channelm = new ChannelAgentManager();
 
 		/* Update Test Cases */
-        TestInfo.updateAdvancedCase(infoAdvancedCase);
-        TestInfo.updateControllerCase(infoControllerCase);
-        TestInfo.updateSwitchCase(infoSwitchCase);
+        CaseInfo.updateAdvancedCase(infoAdvancedCase);
+        CaseInfo.updateControllerCase(infoControllerCase);
+        CaseInfo.updateSwitchCase(infoSwitchCase);
 
         testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
         testSwitchCase = new TestSwitchCase(cfg);
@@ -101,19 +101,9 @@ public class AttackConductor {
     }
 
     public void printAttackList() {
-        System.out.println("\nControl Plane Test Set (under developping)");
-
-        Iterator<String> treeMapIter = infoControllerCase.keySet().iterator();
-
-        while (treeMapIter.hasNext()) {
-            String key = treeMapIter.next();
-            String value = infoControllerCase.get(key);
-            System.out.println(String.format("%s\t: %s", key, value));
-        }
-
         System.out.println("\nData Plane Test Set");
         TreeMap<String, String> treeMap = new TreeMap<String, String>(infoSwitchCase);
-        treeMapIter = treeMap.keySet().iterator();
+        Iterator<String> treeMapIter = treeMap.keySet().iterator();
         while (treeMapIter.hasNext()) {
 
             String key = (String) treeMapIter.next();
@@ -121,8 +111,16 @@ public class AttackConductor {
             System.out.println(String.format("%s\t: %s", key, value));
         }
 
-        System.out.println("\nAdvanced Test Set");
+        System.out.println("\nControl Plane Test Set (under developping)");
+        treeMap = new TreeMap<String, String>(infoControllerCase);
+        treeMapIter = treeMap.keySet().iterator();
+        while (treeMapIter.hasNext()) {
+            String key = (String) treeMapIter.next();
+            String value = (String) treeMap.get(key);
+            System.out.println(String.format("%s\t: %s", key, value));
+        }
 
+        System.out.println("\nAdvanced Test Set");
         treeMap = new TreeMap<String, String>(infoAdvancedCase);
         treeMapIter = treeMap.keySet().iterator();
         while (treeMapIter.hasNext()) {

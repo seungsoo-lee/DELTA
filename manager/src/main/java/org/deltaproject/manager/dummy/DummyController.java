@@ -124,8 +124,8 @@ public class DummyController implements Runnable {
     }
 
     public boolean isOFHandlerActive() {
-        if (this.initializer.getHandler() != null && this.initializer.getHandler().isChannelActive()) {
-            handler = this.initializer.getHandler();
+        if (initializer.getHandler() != null && initializer.getHandler().isChannelActive()) {
+            handler = initializer.getHandler();
             return true;
         } else
             return false;

@@ -1,24 +1,23 @@
 package org.deltaproject.appagent;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
-import org.openflow.protocol.OFFlowMod;
-import org.openflow.protocol.OFMatch;
-import org.openflow.protocol.OFMessage;
-import org.openflow.protocol.OFPacketIn;
-import org.openflow.protocol.OFPacketOut;
-import org.openflow.protocol.OFStatisticsRequest;
-import org.openflow.protocol.OFType;
-import org.openflow.protocol.Wildcards;
+import net.floodlightcontroller.core.*;
+import net.floodlightcontroller.core.module.FloodlightModuleContext;
+import net.floodlightcontroller.core.module.FloodlightModuleException;
+import net.floodlightcontroller.core.module.IFloodlightModule;
+import net.floodlightcontroller.core.module.IFloodlightService;
+import net.floodlightcontroller.devicemanager.IDeviceService;
+import net.floodlightcontroller.linkdiscovery.ILinkDiscovery;
+import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryListener;
+import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryService;
+import net.floodlightcontroller.packet.Ethernet;
+import net.floodlightcontroller.packet.IPacket;
+import net.floodlightcontroller.packet.IPv4;
+import net.floodlightcontroller.staticflowentry.IStaticFlowEntryPusherService;
+import net.floodlightcontroller.storage.IResultSet;
+import net.floodlightcontroller.storage.IStorageSourceService;
+import net.floodlightcontroller.storage.memory.MemoryStorageSource;
+import net.floodlightcontroller.topology.TopologyManager;
+import org.openflow.protocol.*;
 import org.openflow.protocol.Wildcards.Flag;
 import org.openflow.protocol.action.OFAction;
 import org.openflow.protocol.action.OFActionOutput;
@@ -30,30 +29,39 @@ import org.openflow.util.HexString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.floodlightcontroller.core.FloodlightContext;
-import net.floodlightcontroller.core.IFloodlightProviderService;
-import net.floodlightcontroller.core.IOFMessageListener;
-import net.floodlightcontroller.core.IOFSwitch;
-import net.floodlightcontroller.core.IOFSwitch.PortChangeType;
-import net.floodlightcontroller.core.IOFSwitchListener;
-import net.floodlightcontroller.core.ImmutablePort;
-import net.floodlightcontroller.core.module.FloodlightModuleContext;
-import net.floodlightcontroller.core.module.FloodlightModuleException;
-import net.floodlightcontroller.core.module.IFloodlightModule;
-import net.floodlightcontroller.core.module.IFloodlightService;
-import net.floodlightcontroller.devicemanager.IDeviceService;
-import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryListener;
-import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryService;
-import net.floodlightcontroller.packet.Ethernet;
-import net.floodlightcontroller.packet.IPacket;
-import net.floodlightcontroller.packet.IPv4;
-import net.floodlightcontroller.staticflowentry.IStaticFlowEntryPusherService;
-import net.floodlightcontroller.storage.IResultSet;
-import net.floodlightcontroller.storage.IStorageSourceService;
-import net.floodlightcontroller.storage.memory.MemoryStorageSource;
-import net.floodlightcontroller.topology.TopologyManager;
+import java.util.*;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDiscoveryListener, IOFSwitchListener {
+
+    public void linkDiscoveryUpdate(LDUpdate update) {
+
+    }
+
+    public void linkDiscoveryUpdate(List<LDUpdate> updateList) {
+
+    }
+
+    public void switchAdded(long switchId) {
+
+    }
+
+    public void switchRemoved(long switchId) {
+
+    }
+
+    public void switchActivated(long switchId) {
+
+    }
+
+    public void switchPortChanged(long switchId, ImmutablePort port, IOFSwitch.PortChangeType type) {
+
+    }
+
+    public void switchChanged(long switchId) {
+
+    }
 
     class CPU extends Thread {
         int result = 1;
@@ -96,11 +104,19 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
     private HashMap<String, Integer> map = new HashMap<String, Integer>();
 
     private IStaticFlowEntryPusherService fservice;
-    private Communication cm;
+    private AMInterface cm;
 
     public String getName() {
         // TODO Auto-generated method stub
         return AppAgent.class.getSimpleName();
+    }
+
+    public boolean isCallbackOrderingPrereq(OFType type, String name) {
+        return false;
+    }
+
+    public boolean isCallbackOrderingPostreq(OFType type, String name) {
+        return false;
     }
 
     @Override
@@ -140,7 +156,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         dservice = context.getServiceImpl(IDeviceService.class);
         fservice = context.getServiceImpl(IStaticFlowEntryPusherService.class);
 
-        cm = new Communication(this);
+        cm = new AMInterface(this);
         cm.setServerAddr();
         cm.connectServer("AppAgent");
         cm.start();
@@ -173,8 +189,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         floodlightProvider.addOFMessageListener(OFType.STATS_REQUEST, this);
     }
 
-    // A-2-M
-    public boolean Set_Control_Message_Drop() {
+    public boolean setControlMessageDrop() {
         System.out.println("[AppAgent] Control_Message_Drop");
         isDrop = true;
 
@@ -248,7 +263,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return true;
     }
 
-    // A-3-M
     public String Internal_Storage_Abuse() {
         logger.info("[ATTACK] Internal Storage Manipulation");
         String deletedInfo = "nothing";
@@ -280,7 +294,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return deletedInfo;
     }
 
-    // A-5-M
     public String Flow_Rule_Modification() {
         System.out.println("[AppAgent] Flow_Rule_Modification");
 
@@ -378,7 +391,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         }
     }
 
-    // A-6-M
     public String Event_Listener_Unsubscription() {
         List<IOFMessageListener> listeners = floodlightProvider.getListeners().get(OFType.PACKET_IN);
 
@@ -399,9 +411,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return removed;
     }
 
-    /*
-     * A-7-M
-     */
     public void Resource_Exhaustion_Mem() {
         System.out.println("[AppAgent] Resource Exhausion : Mem");
         ArrayList<long[][]> arry;
@@ -425,9 +434,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return true;
     }
 
-    /*
-     * A-8-M
-     */
     public boolean System_Variable_Manipulation() {
         System.out.println("[AppAgent] System_Variable_Manipulation");
         this.sys = new SystemTime();
@@ -435,9 +441,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return true;
     }
 
-    /*
-     * A-9-M
-     */
     public boolean System_Command_Execution() {
         System.out.println("[AppAgent] System_Command_Execution");
         System.exit(0);
@@ -488,9 +491,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return fakeLinks;
     }
 
-    /*
-     * C-1-A
-     */
     public boolean Flow_Rule_Flooding() {
         System.out.println("[AppAgent] Flow_Rule_Flooding");
 
@@ -538,9 +538,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return true;
     }
 
-    /*
-     * C-2-M
-     */
     public String Switch_Firmware_Misuse() {
         String result = "";
 
@@ -733,49 +730,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
 
     }
 
-    @Override
-    public Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
-        // TODO Auto-generated method stub
-        switch (msg.getType()) {
-            case PACKET_IN:
-                OFPacketIn pi = (OFPacketIn) msg;
-
-                Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
-
-                IPacket pkt = eth.getPayload();
-                IPv4 ip_pkt = null;
-
-                if (pkt instanceof IPv4) {
-                    ip_pkt = (IPv4) pkt;
-
-                    map.put(HexString.toHexString(eth.getDestinationMACAddress()), ip_pkt.getDestinationAddress());
-                    map.put(HexString.toHexString(eth.getSourceMACAddress()), ip_pkt.getSourceAddress());
-
-                }
-
-                if (isDrop) {
-                    if (droppedPacket == null)
-                        droppedPacket = pi;
-
-                    return Command.STOP;
-                } else if (isLoop) {
-                    this.Infinite_Loop();
-                }
-
-                testFunc();
-
-                return Command.CONTINUE;
-        }
-
-        return Command.CONTINUE;
-    }
-
-    public void looping() {
-        while (true) {
-            System.out.println("Hlelo");
-        }
-    }
-
     public void sniffingListener() {
         List<IOFMessageListener> packetin_listeners = floodlightProvider.getListeners().get(OFType.PACKET_IN);
         List<IOFMessageListener> features_listeners = floodlightProvider.getListeners().get(OFType.FEATURES_REPLY);
@@ -816,57 +770,39 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
     }
 
     @Override
-    public boolean isCallbackOrderingPrereq(OFType type, String name) {
+    public Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
         // TODO Auto-generated method stub
-        return false;
-    }
+        switch (msg.getType()) {
+            case PACKET_IN:
+                OFPacketIn pi = (OFPacketIn) msg;
 
-    @Override
-    public boolean isCallbackOrderingPostreq(OFType type, String name) {
-        // TODO Auto-generated method stub
-        return false;
-    }
+                Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
 
-    @Override
-    public void linkDiscoveryUpdate(LDUpdate update) {
-        System.out.println("HellO?");
-        // TODO Auto-generated method stub
-    }
+                IPacket pkt = eth.getPayload();
+                IPv4 ip_pkt = null;
 
-    @Override
-    public void linkDiscoveryUpdate(List<LDUpdate> updateList) {
-        // TODO Auto-generated method stub
-        System.out.println("HellO?");
+                if (pkt instanceof IPv4) {
+                    ip_pkt = (IPv4) pkt;
 
-    }
+                    map.put(HexString.toHexString(eth.getDestinationMACAddress()), ip_pkt.getDestinationAddress());
+                    map.put(HexString.toHexString(eth.getSourceMACAddress()), ip_pkt.getSourceAddress());
 
-    @Override
-    public void switchAdded(long switchId) {
-        // TODO Auto-generated method stub
+                }
 
-    }
+                if (isDrop) {
+                    if (droppedPacket == null)
+                        droppedPacket = pi;
 
-    @Override
-    public void switchRemoved(long switchId) {
-        // TODO Auto-generated method stub
+                    return Command.STOP;
+                } else if (isLoop) {
+                    this.Infinite_Loop();
+                }
 
-    }
+                testFunc();
 
-    @Override
-    public void switchActivated(long switchId) {
-        // TODO Auto-generated method stub
+                return Command.CONTINUE;
+        }
 
-    }
-
-    @Override
-    public void switchPortChanged(long switchId, ImmutablePort port, PortChangeType type) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void switchChanged(long switchId) {
-        // TODO Auto-generated method stub
-
+        return Command.CONTINUE;
     }
 }

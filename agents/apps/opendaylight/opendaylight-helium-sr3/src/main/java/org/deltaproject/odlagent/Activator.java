@@ -30,7 +30,7 @@ public class Activator extends ComponentActivatorAbstractBase {
     private Component c;
     private Object imp;
     private String containerName;
-    private Communication cm;
+    private AMInterface cm;
 
     protected static final Logger logger = LoggerFactory
             .getLogger(Activator.class);
@@ -40,9 +40,9 @@ public class Activator extends ComponentActivatorAbstractBase {
     }
 
     public void connectManager() {
-        cm = new Communication();
+        cm = new AMInterface();
         cm.setActivator(this);
-        cm.setServerAddr("10.0.2.2", 3366);
+        cm.setServerAddr();
         cm.connectServer("ActAgent");
         cm.start();
     }

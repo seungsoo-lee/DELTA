@@ -163,7 +163,7 @@ public class AppAgent {
             + "default is false")
     private boolean matchIcmpFields = false;
 
-    private Communication cm;
+    private AMInterface cm;
     private ComponentContext contextbk;
     private SystemTimeSet systime;
     private boolean isDrop = false;
@@ -197,8 +197,8 @@ public class AppAgent {
 
         log.info("Started with Application ID {}", appId.id());
 
-        cm = new Communication(this);
-        cm.setServerAddr("10.0.2.2", 3366);
+        cm = new AMInterface(this);
+        cm.setServerAddr();
         cm.connectServer("AppAgent");
         cm.start();
     }

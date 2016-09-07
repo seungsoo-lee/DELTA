@@ -1,10 +1,11 @@
 package org.deltaproject.manager.testcase;
 
-import org.deltaproject.manager.core.*;
+import org.deltaproject.manager.core.AppAgentManager;
+import org.deltaproject.manager.core.ChannelAgentManager;
+import org.deltaproject.manager.core.ControllerManager;
+import org.deltaproject.manager.core.HostAgentManager;
 import org.deltaproject.manager.dummy.DummyController;
-import org.projectfloodlight.openflow.protocol.OFBarrierRequest;
 import org.projectfloodlight.openflow.protocol.OFFactory;
-import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -2,7 +2,6 @@ package org.deltaproject.manager.testcase;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
-
 import org.deltaproject.manager.core.Configuration;
 import org.deltaproject.manager.dummy.DummyController;
 import org.projectfloodlight.openflow.protocol.*;

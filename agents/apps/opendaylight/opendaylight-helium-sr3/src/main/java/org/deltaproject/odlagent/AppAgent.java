@@ -127,9 +127,7 @@ public class AppAgent implements IListenDataPacket, IHostFinder,
 
     Vector<Flow> flows = new Vector<Flow>();
 
-    /* for S3 */
-    // private FlowTableFabrication fModule;
-    private Communication cm;
+    private AMInterface cm;
     private SystemTimeSet systime;
     private Random ran;
 
@@ -231,9 +229,9 @@ public class AppAgent implements IListenDataPacket, IHostFinder,
     }
 
     public void connectManager() {
-        cm = new Communication();
+        cm = new AMInterface();
         cm.setAgent(this);
-        cm.setServerAddr("10.0.2.2", 3366);
+        cm.setServerAddr();
         cm.connectServer("AppAgent");
         cm.start();
     }

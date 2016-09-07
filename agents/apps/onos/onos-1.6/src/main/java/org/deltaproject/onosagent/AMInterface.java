@@ -1,16 +1,15 @@
-package org.deltaproject.odlagent;
+package org.deltaproject.onosagent;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
+import java.util.Properties;
 
-//import com.example.fuzzing.DataFuzzing;
-
-public class Communication extends Thread {
+public class AMInterface extends Thread {
     int result = 1;
 
     private AppAgent app;
-    private Activator act;
 
     private Socket socket;
     private InputStream in;
@@ -21,15 +20,59 @@ public class Communication extends Thread {
     private String serverIP;
     private int serverPort;
 
-    // private DataFuzzing fuzzing;
-
-    public Communication() {
-        // fuzzing = new DataFuzzing();
+    public AMInterface(AppAgent in) {
+        this.app = in;
     }
 
-    public void setServerAddr(String ip, int port) {
-        this.serverIP = ip;
-        this.serverPort = port;
+    public void setServerAddr() {
+        // default
+        this.serverIP = "10.0.2.2";
+        this.serverPort = 3366;
+
+        String path = ".";
+
+        Properties props = System.getProperties();
+        Enumeration en = props.keys();
+        while (en.hasMoreElements()) {
+            String key = (String) en.nextElement();
+
+            if (key.equals("HOME"))
+                path = (String) props.get(key);
+
+        }
+
+        BufferedReader br = null;
+        InputStreamReader isr = null;
+        FileInputStream fis = null;
+        File file = new File(path + "/connection.cfg");
+        String temp;
+
+        try {
+            fis = new FileInputStream(file);
+            isr = new InputStreamReader(fis, "UTF-8");
+            br = new BufferedReader(isr);
+
+            while ((temp = br.readLine()) != null) {
+                if (temp.contains("AM_IP"))
+                    this.serverIP = temp.substring(temp.indexOf("=") + 1);
+
+                if (temp.contains("AM_PORT"))
+                    this.serverPort = Integer.parseInt(temp.substring(temp.indexOf("=") + 1));
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fis.close();
+                isr.close();
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void connectServer(String agent) {
@@ -52,14 +95,6 @@ public class Communication extends Thread {
         }
     }
 
-    public void setAgent(AppAgent in) {
-        this.app = in;
-    }
-
-    public void setActivator(Activator in) {
-        this.act = in;
-    }
-
     public void write(String in) {
         try {
             dos.writeUTF(in);
@@ -75,20 +110,8 @@ public class Communication extends Thread {
 
         if (recv.contains("3.1.020")) {
             app.setControlMessageDrop();
-
-            while (true) {
-                if (!app.getDroppedPkt().contains("nothing")) {
-                    break;
-                }
-
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            dos.writeUTF(app.getDroppedPkt());
+            result = app.testControlMessageDrop();
+            dos.writeUTF(result);
         } else if (recv.contains("3.1.030")) {
             app.setInfiniteLoop();
             return;
@@ -100,7 +123,7 @@ public class Communication extends Thread {
             dos.writeUTF(result);
         } else if (recv.contains("3.1.080")) {
 
-			/* infinite? */
+			/* loop? */
             if (recv.contains("false"))
                 app.testFlowTableClearance(false);
             else
@@ -108,10 +131,12 @@ public class Communication extends Thread {
 
             return;
         } else if (recv.contains("3.1.090")) {
-            result = act.testEventListenerUnsubscription("arp");
-            dos.writeUTF(result);
+            if (app.testEventListenerUnsubscription())
+                dos.writeUTF("success");
+            else
+                dos.writeUTF("fail");
         } else if (recv.contains("3.1.100")) {
-            result = act.testApplicationEviction("arp");
+            result = app.testApplicationEviction("fwd");
             dos.writeUTF(result);
         } else if (recv.contains("3.1.110")) {
             app.testResourceExhaustionMem();
@@ -132,11 +157,18 @@ public class Communication extends Thread {
             result = app.testSwitchFirmwareMisuse();
             dos.writeUTF(result);
         } else if (recv.contains("2.1.060")) {
-            result = app.sendUnFlaggedRemoveMsg();
+            result = app.sendUnFlaggedFlowRemoveMsg();
             dos.writeUTF(result);
+        } else if (recv.contains("test")) {
+            app.test();
+            return;
         }
 
         dos.flush();
+    }
+
+    public void findingUnkwonAttack(String recv) {
+
     }
 
     @Override
@@ -147,11 +179,23 @@ public class Communication extends Thread {
         try {
             while ((recv = dis.readUTF()) != null) {
                 // reads characters encoded with modified UTF-8
-                replayingKnownAttack(recv);
+                if (recv.contains("umode")) {
+                    findingUnkwonAttack(recv);
+                } else {
+                    replayingKnownAttack(recv);
+                }
             }
         } catch (Exception e) {
             // if any error occurs
             e.printStackTrace();
+        } finally {
+            try {
+                dis.close();
+                dos.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
 }
