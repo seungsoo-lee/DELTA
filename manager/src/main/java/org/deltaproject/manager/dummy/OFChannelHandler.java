@@ -40,7 +40,7 @@ import java.util.concurrent.RejectedExecutionException;
 /**
  * Channel handler deals with the switch connection and dispatches messages to
  * the higher orders of control.
- * 
+ *
  * @author Jason Parraga <Jason.Parraga@Bigswitch.com>
  */
 class OFChannelHandler extends SimpleChannelInboundHandler<Iterable<OFMessage>> {
@@ -132,7 +132,7 @@ class OFChannelHandler extends SimpleChannelInboundHandler<Iterable<OFMessage>> 
 		/**
 		 * enter this state. Can initialize the handler, send the necessary
 		 * messages, etc.
-		 * 
+		 *
 		 * @throws IOException
 		 */
 		void enterState() throws IOException {
@@ -143,7 +143,7 @@ class OFChannelHandler extends SimpleChannelInboundHandler<Iterable<OFMessage>> 
 		 * Get a string specifying the switch connection, state, and message
 		 * received. To be used as message for SwitchStateException or log
 		 * messages
-		 * 
+		 *
 		 * @param h
 		 *            The channel handler (to get switch information_
 		 * @param m
@@ -163,7 +163,7 @@ class OFChannelHandler extends SimpleChannelInboundHandler<Iterable<OFMessage>> 
 		 * We have an OFMessage we didn't expect given the current state and we
 		 * want to treat this as an error. We currently throw an exception that
 		 * will terminate the connection However, we could be more forgiving
-		 * 
+		 *
 		 * @param h
 		 *            the channel handler that received the message
 		 * @param m
@@ -180,7 +180,7 @@ class OFChannelHandler extends SimpleChannelInboundHandler<Iterable<OFMessage>> 
 		/**
 		 * We have an OFMessage we didn't expect given the current state and we
 		 * want to ignore the message
-		 * 
+		 *
 		 * @param h
 		 *            the channel handler the received the message
 		 * @param m
@@ -195,7 +195,7 @@ class OFChannelHandler extends SimpleChannelInboundHandler<Iterable<OFMessage>> 
 
 		/**
 		 * Log an OpenFlow error message from a switch
-		 * 
+		 *
 		 * @param sw
 		 *            The switch that sent the error
 		 * @param error
@@ -209,7 +209,7 @@ class OFChannelHandler extends SimpleChannelInboundHandler<Iterable<OFMessage>> 
 		/**
 		 * Log an OpenFlow error message from a switch and disconnect the
 		 * channel
-		 * 
+		 *
 		 * @param sw
 		 *            The switch that sent the error
 		 * @param error
@@ -533,7 +533,7 @@ class OFChannelHandler extends SimpleChannelInboundHandler<Iterable<OFMessage>> 
 	/**
 	 * Determine the highest supported version of OpenFlow in common between
 	 * both our OFVersion bitmap and the switch's.
-	 * 
+	 *
 	 * @param theirs,
 	 *            the version bitmaps of the switch
 	 * @return the highest OFVersion in common b/t the two
@@ -738,7 +738,7 @@ class OFChannelHandler extends SimpleChannelInboundHandler<Iterable<OFMessage>> 
 	/**
 	 * Return a string describing this switch based on the already available
 	 * information (DPID and/or remote socket)
-	 * 
+	 *
 	 * @return
 	 */
 	private String getConnectionInfoString() {
@@ -767,7 +767,7 @@ class OFChannelHandler extends SimpleChannelInboundHandler<Iterable<OFMessage>> 
 
 	/**
 	 * Update the channels state. Only called from the state machine.
-	 * 
+	 *
 	 * @param state
 	 * @throws IOException
 	 */
@@ -780,7 +780,7 @@ class OFChannelHandler extends SimpleChannelInboundHandler<Iterable<OFMessage>> 
 	/**
 	 * Send a features request message to the switch using the handshake
 	 * transactions ids.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	private void sendFeaturesRequest() throws IOException {
@@ -797,7 +797,7 @@ class OFChannelHandler extends SimpleChannelInboundHandler<Iterable<OFMessage>> 
 
 	/**
 	 * Send a hello message to the switch using the handshake transactions ids.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	private void sendHelloMessage() throws IOException {

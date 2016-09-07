@@ -1,7 +1,10 @@
 package org.deltaproject.manager.core;
 
+import org.deltaproject.manager.testcase.TestControllerCase;
 import org.deltaproject.manager.utils.ProgressBar;
 import org.deltaproject.webui.WebUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,6 +13,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class AgentManager extends Thread {
+    private static final Logger log = LoggerFactory.getLogger(AgentManager.class);
     private AttackConductor conductor;
     private ServerSocket listenAgent;
     private int portNum = 3366;
@@ -17,8 +21,8 @@ public class AgentManager extends Thread {
     private WebUI webUI = new WebUI();
 
     public AgentManager(String path) {
-        conductor = new AttackConductor(path);
-        webUI.activate();
+        this.conductor = new AttackConductor(path);
+        this.webUI.activate();
     }
 
     public void showMenu() throws IOException {
@@ -46,7 +50,7 @@ public class AgentManager extends Thread {
                 try {
                     processUserInput(input);
                     System.out.print("\nPress ENTER key to continue..");
-                    input = sc.readLine();
+                    sc.readLine();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -55,12 +59,12 @@ public class AgentManager extends Thread {
     }
 
     public boolean processUserInput(String in) throws IOException, InterruptedException {
-        String input = "";
+        String input;
 
         if (in.equalsIgnoreCase("P")) {
             conductor.printAttackList();
         } else if (in.equalsIgnoreCase("K")) {
-            System.out.print("\nSelect the attack code (replay all, enter the 'A')> ");
+            System.out.print("\nSelect the attack code> ");
             input = sc.readLine();
 
             if (input.equalsIgnoreCase("A")) {
@@ -71,7 +75,6 @@ public class AgentManager extends Thread {
                 System.out.println("Attack Code [" + input + "] is not available");
                 return false;
             }
-
         } else if (in.equalsIgnoreCase("C")) {
             System.out.println(conductor.showConfig());
         } else if (in.equalsIgnoreCase("U")) {

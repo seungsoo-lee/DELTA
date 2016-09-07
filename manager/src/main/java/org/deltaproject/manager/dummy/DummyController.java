@@ -133,9 +133,12 @@ public class DummyController implements Runnable {
 
     public void stopNetty() {
         ChannelGroupFuture cf = cg.close();
-        cf.awaitUninterruptibly();
-        bossGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();
+        // cf.awaitUninterruptibly();
+
+        bossGroup.shutdown();
+        workerGroup.shutdown();
+//        bossGroup.shutdownGracefully();
+//        workerGroup.shutdownGracefully();
 
         log.info("Stop Dummy Controller");
     }

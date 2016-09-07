@@ -3,6 +3,7 @@ package org.deltaproject.manager.testcase;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.deltaproject.manager.core.Configuration;
+import org.deltaproject.manager.dummy.DMController;
 import org.deltaproject.manager.dummy.DummyController;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
@@ -27,6 +28,7 @@ public class TestSwitchCase {
     public static final int HANDSHAKE_INCOMPATIBLE_HELLO = 2;
 
     private DummyController dcontroller;
+    private DMController dmcnt;
     private OFFactory defaultFactory;
     private Random random;
 
@@ -50,40 +52,58 @@ public class TestSwitchCase {
     }
 
     public void replayKnownAttack(String code) {
-        if (code.equals("1.1.010")) {
-            testPortRangeViolation(code);
-        } else if (code.equals("1.1.020")) {
-            testTableID(code);
-        } else if (code.equals("1.1.030")) {
-            testGroupID(code);
-        } else if (code.equals("1.1.040")) {
-            testMeterID(code);
-        } else if (code.equals("1.1.050")) {
-            testTableLoop(code);
-        } else if (code.equals("1.1.060")) {
-            testCorruptedControlMsgType(code);
-        } else if (code.equals("1.1.070")) {
-            testUnsupportedVersionNumber(code);
-        } else if (code.equals("1.1.080")) {
-            testMalformedVersionNumber(code);
-        } else if (code.equals("1.1.090")) {
-            testInvalidOXMType(code);
-        } else if (code.equals("1.1.100")) {
-            testInvalidOXMLength(code);
-        } else if (code.equals("1.1.110")) {
-            testInvalidOXMValue(code);
-        } else if (code.equals("1.1.120")) {
-            testDisabledTableFeatureRequest(code);
-        } else if (code.equals("1.1.130")) {
-            testHandshakeWithoutHello(code);
-        } else if (code.equals("1.1.140")) {
-            testControlMsgBeforeHello(code);
-        } else if (code.equals("1.1.150")) {
-            testIncompatibleHelloAfterConnection(code);
-        } else if (code.equals("1.1.160")) {
-            testCorruptedCookieValue(code);
-        } else if (code.equals("1.1.170")) {
-            testMalformedBufferIDValue(code);
+        switch (code) {
+            case "1.1.010":
+                testPortRangeViolation(code);
+                break;
+            case "1.1.020":
+                testTableID(code);
+                break;
+            case "1.1.030":
+                testGroupID(code);
+                break;
+            case "1.1.040":
+                testMeterID(code);
+                break;
+            case "1.1.050":
+                testTableLoop(code);
+                break;
+            case "1.1.060":
+                testCorruptedControlMsgType(code);
+                break;
+            case "1.1.070":
+                testUnsupportedVersionNumber(code);
+                break;
+            case "1.1.080":
+                testMalformedVersionNumber(code);
+                break;
+            case "1.1.090":
+                testInvalidOXMType(code);
+                break;
+            case "1.1.100":
+                testInvalidOXMLength(code);
+                break;
+            case "1.1.110":
+                testInvalidOXMValue(code);
+                break;
+            case "1.1.120":
+                testDisabledTableFeatureRequest(code);
+                break;
+            case "1.1.130":
+                testHandshakeWithoutHello(code);
+                break;
+            case "1.1.140":
+                testControlMsgBeforeHello(code);
+                break;
+            case "1.1.150":
+                testIncompatibleHelloAfterConnection(code);
+                break;
+            case "1.1.160":
+                testCorruptedCookieValue(code);
+                break;
+            case "1.1.170":
+                testMalformedBufferIDValue(code);
+                break;
         }
     }
 
@@ -111,25 +131,23 @@ public class TestSwitchCase {
     }
 
     public void setUpDummyController() {
-        dcontroller = new DummyController(this.ofversion, ofport);
-        dcontroller.bootstrapNetty();
+//        dcontroller = new DummyController(this.ofversion, ofport);
+//        dcontroller.bootstrapNetty();
+//
+//        while (!dcontroller.isOFHandlerActive()) {
+//            try {
+//                Thread.sleep(100);
+//            } catch (InterruptedException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//        }
 
-        while (!dcontroller.isOFHandlerActive()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+        dmcnt = new DMController(ofversion, ofport);
+        dmcnt.listeningSwitch();
 
-        // echo req-res
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+
+        dmcnt.start();
     }
 
     public void stopDummyController() {
@@ -148,13 +166,13 @@ public class TestSwitchCase {
 
         setUpDummyController();
 
-        OFPortMod request = defaultFactory.buildPortMod().setXid(r_xid).setPortNo(OFPort.ANY).build();
+        OFPortMod request = defaultFactory.buildPortMod().setXid(r_xid).setPortNo(OFPort.ofShort((short)-1)).build();
         OFMessage response = dcontroller.sendOFMessage(request);
 
         if (response != null) {
-            log.info("response msg: " + response.toString());
+            log.info("response msg: " + response.toString()+", PASS");
         } else
-            log.info("response is null");
+            log.info("response is null, FAIL");
 
         stopDummyController();
     }
