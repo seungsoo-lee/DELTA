@@ -112,24 +112,28 @@ CONTROLLER_IP=10.100.100.11
 SWITCH_IP=10.100.100.11
 ```
 + Configuring Tagret Controllers to VM-1
- + Floodlight
++ 1) Floodlight
 ```
 $ cd <DELTA>/tools/dev/floodlight-setup
 $ ./floodlight-<version>-scp
 ```
- + ONOS
+ + 2) ONOS
 ```
 $ cd <DELTA>/tools/dev/onos-setup
 $ ./onos-<version>-scp
 (in VM-1) $ ./onos-<version>-setup
 ```
- + OpenDaylight: (only JDK 1.7)
++ 3) OpenDaylight: (only JDK 1.7)
 ```
 $ cd <DELTA>/tools/dev/odl-setup
 $ ./odl-<version>-scp
 (in VM-1) $ ./odl-<version>-setup
 ```
-
++ The AppAgent (in VM-1) needs connection.cfg file in order to connect to agent-manager.
+```
+AM_IP=10.0.2.2
+AM_PORT=3366
+```
 
 ## Running DELTA
 + STEP 0. Distribute the executable files to VMs

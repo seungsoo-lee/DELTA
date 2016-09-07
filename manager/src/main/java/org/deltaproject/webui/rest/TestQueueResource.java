@@ -3,6 +3,8 @@ package org.deltaproject.webui.rest;
 import org.deltaproject.webui.TestCase;
 import org.deltaproject.webui.TestCaseDirectory;
 import org.deltaproject.webui.TestQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -21,6 +23,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 @Path("/json/testqueue")
 public class TestQueueResource {
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
 
     @GET
@@ -48,6 +52,9 @@ public class TestQueueResource {
                 TestQueue.getQueue().add(testCase);
                 count++;
             }
+        }
+        if (count > 0) {
+            log.info(count + " test case(s) queued.");
         }
 
         return Response.status(201).
