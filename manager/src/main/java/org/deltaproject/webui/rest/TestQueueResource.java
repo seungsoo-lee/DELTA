@@ -14,9 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Collection;
 
 /**
  * Created by changhoon on 7/7/16.
@@ -31,8 +29,8 @@ public class TestQueueResource {
     @Path("/get")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getTestQueue() {
-        GenericEntity<ConcurrentLinkedQueue<TestCase>> queuelist =
-                new GenericEntity<ConcurrentLinkedQueue<TestCase>>(TestQueue.getQueue()){};
+        GenericEntity<Collection<TestCase>> queuelist =
+                new GenericEntity<Collection<TestCase>>(TestQueue.getInstance().getTestcases()){};
 
         return Response.ok(queuelist).build();
     }
@@ -49,7 +47,7 @@ public class TestQueueResource {
             if (TestCaseDirectory.getDirectory().containsKey(indexList[i].trim())) {
                 TestCase testCase = new TestCase(indexList[i].trim());
                 testCase.setStatus(TestCase.Status.QUEUED);
-                TestQueue.getQueue().add(testCase);
+                TestQueue.getInstance().push(testCase);
                 count++;
             }
         }

@@ -5,6 +5,7 @@ import io.netty.buffer.PooledByteBufAllocator;
 import org.deltaproject.manager.core.Configuration;
 import org.deltaproject.manager.dummy.DMController;
 import org.deltaproject.manager.dummy.DummyController;
+import org.deltaproject.webui.TestCase;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
@@ -51,58 +52,58 @@ public class TestSwitchCase {
         ofport = Integer.parseInt(cfg.getOFPort());
     }
 
-    public void replayKnownAttack(String code) throws InterruptedException {
-        switch (code) {
+    public void replayKnownAttack(TestCase test) throws InterruptedException {
+        switch (test.getcasenum()) {
             case "1.1.010":
-                testPortRangeViolation(code);
+                testPortRangeViolation(test);
                 break;
             case "1.1.020":
-                testTableID(code);
+                testTableID(test);
                 break;
             case "1.1.030":
-                testGroupID(code);
+                testGroupID(test);
                 break;
             case "1.1.040":
-                testMeterID(code);
+                testMeterID(test);
                 break;
             case "1.1.050":
-                testTableLoop(code);
+                testTableLoop(test);
                 break;
             case "1.1.060":
-                testCorruptedControlMsgType(code);
+                testCorruptedControlMsgType(test);
                 break;
             case "1.1.070":
-                testUnsupportedVersionNumber(code);
+                testUnsupportedVersionNumber(test);
                 break;
             case "1.1.080":
-                testMalformedVersionNumber(code);
+                testMalformedVersionNumber(test);
                 break;
             case "1.1.090":
-                testInvalidOXMType(code);
+                testInvalidOXMType(test);
                 break;
             case "1.1.100":
-                testInvalidOXMLength(code);
+                testInvalidOXMLength(test);
                 break;
             case "1.1.110":
-                testInvalidOXMValue(code);
+                testInvalidOXMValue(test);
                 break;
             case "1.1.120":
-                testDisabledTableFeatureRequest(code);
+                testDisabledTableFeatureRequest(test);
                 break;
             case "1.1.130":
-                testHandshakeWithoutHello(code);
+                testHandshakeWithoutHello(test);
                 break;
             case "1.1.140":
-                testControlMsgBeforeHello(code);
+                testControlMsgBeforeHello(test);
                 break;
             case "1.1.150":
-                testIncompatibleHelloAfterConnection(code);
+                testIncompatibleHelloAfterConnection(test);
                 break;
             case "1.1.160":
-                testCorruptedCookieValue(code);
+                testCorruptedCookieValue(test);
                 break;
             case "1.1.170":
-                testMalformedBufferIDValue(code);
+                testMalformedBufferIDValue(test);
                 break;
         }
     }
@@ -156,8 +157,8 @@ public class TestSwitchCase {
      * Verify that the switch rejects the use of ports that are greater thanc
      * OFPP_MAX and are not part of the reserved ports.
      */
-    public void testPortRangeViolation(String code) throws InterruptedException {
-        String info = code + " - Port Range Violation";
+    public void testPortRangeViolation(TestCase test) throws InterruptedException {
+        String info = test.getcasenum() + " - Port Range Violation";
         log.info(info);
 
         setUpDummyController();
@@ -171,10 +172,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(TestCase.TestResult.PASS);
             log.info("Response msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
             log.info("response is null, FAIL");
-
+        }
         stopDummyController();
     }
 
@@ -182,8 +185,8 @@ public class TestSwitchCase {
      * 1.1.020 - Table Identifier Violation
      * only 1.3 Verify that the switch rejects the use of invalid table id.
      */
-    public void testTableID(String code) throws InterruptedException {
-        String info = code + " - Table Identifier Violation";
+    public void testTableID(TestCase test) throws InterruptedException {
+        String info = test.getcasenum() + " - Table Identifier Violation";
         log.info(info);
 
         setUpDummyController();
@@ -226,10 +229,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(TestCase.TestResult.PASS);
             log.info("Response msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
             log.info("response is null, FAIL");
-
+        }
         stopDummyController();
     }
 
@@ -238,8 +243,8 @@ public class TestSwitchCase {
      * Verify that the switch rejects the use of groups that are greater than
      * OFPG_MAX and are not part of the reserved groups.
      */
-    public void testGroupID(String code) {
-        String info = code + " - Group Identifier Violation";
+    public void testGroupID(TestCase test) {
+        String info = test.getcasenum() + " - Group Identifier Violation";
         log.info(info);
 
         setUpDummyController();
@@ -269,9 +274,12 @@ public class TestSwitchCase {
         OFMessage response = dcontroller.sendOFMessage(request);
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("Response msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("response is null, FAIL");
+        }
 
         stopDummyController();
 
@@ -282,8 +290,8 @@ public class TestSwitchCase {
      * Verify that the switch rejects the use of meters that are greater than
      * OFPM_MAX and are not part of the virtual meters.
      */
-    public void testMeterID(String code) {
-        String info = code + "  - Meter Identifier Violation";
+    public void testMeterID(TestCase test) {
+        String info = test.getcasenum() + "  - Meter Identifier Violation";
         log.info(info);
 
         setUpDummyController();
@@ -296,10 +304,12 @@ public class TestSwitchCase {
         OFMessage response = dcontroller.sendOFMessage(request);
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
-
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("Response msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("response is null, FAIL");
+        }
         stopDummyController();
     }
 
@@ -308,8 +318,8 @@ public class TestSwitchCase {
      * Verify that the switch rejects the use of invalid Goto table id
      * requesting a table loop.
      */
-    public void testTableLoop(String code) {
-        String info = code + " - Table Loop Violation";
+    public void testTableLoop(TestCase test) {
+        String info = test.getcasenum() + " - Table Loop Violation";
         log.info(info);
 
         setUpDummyController();
@@ -350,9 +360,12 @@ public class TestSwitchCase {
         OFMessage response = dcontroller.sendOFMessage(request);
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("Response msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -362,8 +375,8 @@ public class TestSwitchCase {
      * Verify that the switch throws an error when it receives a control message
      * with unsupported message type.
      */
-    public void testCorruptedControlMsgType(String code) {
-        String info = code + " - Corrupted Control Message Type";
+    public void testCorruptedControlMsgType(TestCase test) {
+        String info = test.getcasenum() + " - Corrupted Control Message Type";
         log.info(info);
 
         setUpDummyController();
@@ -385,10 +398,12 @@ public class TestSwitchCase {
 
         OFMessage response = dcontroller.sendRawPacket(rawPkt);
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
-
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("Response msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("response is null, FAIL");
+        }
         stopDummyController();
     }
 
@@ -397,8 +412,8 @@ public class TestSwitchCase {
      * Verify that the switch throws an error when it receives a connection
      * setup message with an unsupported version number.
      */
-    public void testUnsupportedVersionNumber(String code) {
-        String info = code + " - Unsupported Version Numebr";
+    public void testUnsupportedVersionNumber(TestCase test) {
+        String info = test.getcasenum() + " - Unsupported Version Numebr";
         log.info(info);
 
         setUpDummyController();
@@ -417,10 +432,12 @@ public class TestSwitchCase {
         // switch disconnection
         OFMessage response = dcontroller.sendRawPacket(rawPkt);
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
-
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("Response msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("response is null, FAIL");
+        }
         stopDummyController();
     }
 
@@ -430,8 +447,8 @@ public class TestSwitchCase {
      * version number after establishing connection between switch and
      * controller with a different version.
      */
-    public void testMalformedVersionNumber(String code) {
-        String info = code + " - Malformed Version Number";
+    public void testMalformedVersionNumber(TestCase test) {
+        String info = test.getcasenum() + " - Malformed Version Number";
         log.info(info);
 
         setUpDummyController();
@@ -450,10 +467,12 @@ public class TestSwitchCase {
         // switch disconnection
         OFMessage response = dcontroller.sendRawPacket(rawPkt);
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
-
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("Response msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("response is null, FAIL");
+        }
         stopDummyController();
     }
 
@@ -462,8 +481,8 @@ public class TestSwitchCase {
      * Verify that the switch throws an error when it receives a flow mod
      * message with invalid OXM type.
      */
-    public void testInvalidOXMType(String code) {
-        String info = code + " - Invalid OXM - Type";
+    public void testInvalidOXMType(TestCase test) {
+        String info = test.getcasenum() + " - Invalid OXM - Type";
         log.info(info);
 
         setUpDummyController();
@@ -505,9 +524,12 @@ public class TestSwitchCase {
         buf.clear();
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("Response msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -517,8 +539,8 @@ public class TestSwitchCase {
      * Verify that the switch throws an error when it receives a flow mod
      * message with invalid OXM length.
      */
-    public void testInvalidOXMLength(String code) {
-        String info = code + " - Invalid OXM - Length";
+    public void testInvalidOXMLength(TestCase test) {
+        String info = test.getcasenum() + " - Invalid OXM - Length";
         log.info(info);
 
         setUpDummyController();
@@ -561,10 +583,12 @@ public class TestSwitchCase {
         buf.clear();
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
-
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("Response msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("response is null, FAIL");
+        }
         stopDummyController();
     }
 
@@ -573,8 +597,8 @@ public class TestSwitchCase {
      * Verify that the switch throws an error when it receives a flow mod
      * message with invalid message value
      */
-    public void testInvalidOXMValue(String code) {
-        String info = code + " - Invalid OXM - Value";
+    public void testInvalidOXMValue(TestCase test) {
+        String info = test.getcasenum() + " - Invalid OXM - Value";
         log.info(info);
 
         setUpDummyController();
@@ -618,10 +642,12 @@ public class TestSwitchCase {
         buf.clear();
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
-
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("Response msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("response is null, FAIL");
+        }
         stopDummyController();
     }
 
@@ -631,8 +657,8 @@ public class TestSwitchCase {
      * verify that the switch rejects this non-empty OFPMP_TABLE_FEATURES
      * request with a permission error
      */
-    public void testDisabledTableFeatureRequest(String code) {
-        String info = code + " - Disabled Table Features Request";
+    public void testDisabledTableFeatureRequest(TestCase test) {
+        String info = test.getcasenum() + " - Disabled Table Features Request";
 
         log.info(info);
 
@@ -644,8 +670,8 @@ public class TestSwitchCase {
      * Check if the control connection is disconnected if the hello message is
      * not exchanged within the specified default timeout.
      */
-    public void testHandshakeWithoutHello(String code) {
-        String info = code + " - Handshake without Hello Message";
+    public void testHandshakeWithoutHello(TestCase test) {
+        String info = test.getcasenum() + " - Handshake without Hello Message";
         log.info(info);
 
         setUpDummyControllerWithNoHello(TestSwitchCase.HANDSHAKE_NO_HELLO);
@@ -661,8 +687,8 @@ public class TestSwitchCase {
      * processes a control message before exchanging OpenFlow hello message
      * (connection establishment).
      */
-    public void testControlMsgBeforeHello(String code) {
-        String info = code + " - Control Message before Hello Message";
+    public void testControlMsgBeforeHello(TestCase test) {
+        String info = test.getcasenum() + " - Control Message before Hello Message";
         log.info(info);
 
         OFBarrierRequest.Builder brb = defaultFactory.buildBarrierRequest();
@@ -674,10 +700,12 @@ public class TestSwitchCase {
         long timeout = this.dcontroller.getTimeOut();
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
-
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("Response msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("response is null, FAIL");
+        }
         stopDummyController();
     }
 
@@ -689,8 +717,8 @@ public class TestSwitchCase {
      * establishing connection between switch and controller with a both agreed
      * version.
      */
-    public void testIncompatibleHelloAfterConnection(String code) {
-        String info = code + " - Incompatible Hello after Connection Establishment";
+    public void testIncompatibleHelloAfterConnection(TestCase test) {
+        String info = test.getcasenum() + " - Incompatible Hello after Connection Establishment";
         log.info(info);
 
         OFHelloFailedErrorMsg.Builder hfb = defaultFactory.errorMsgs().buildHelloFailedErrorMsg();
@@ -701,10 +729,12 @@ public class TestSwitchCase {
         OFMessage response = dcontroller.sendOFMessage(hfb.build());
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
-
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("Response msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("response is null, FAIL");
+        }
         stopDummyController();
     }
 
@@ -714,8 +744,8 @@ public class TestSwitchCase {
      * cookie value in OpenFlow messages after establishing connection between
      * switch and controller.
      */
-    public void testCorruptedCookieValue(String code) {
-        String info = code + " - Corrupted Cookie Values";
+    public void testCorruptedCookieValue(TestCase test) {
+        String info = test.getcasenum() + " - Corrupted Cookie Values";
         log.info(info);
 
         setUpDummyController();
@@ -749,10 +779,12 @@ public class TestSwitchCase {
         OFMessage response = dcontroller.sendOFMessage(fab.build());
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
-
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("Response msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("response is null, FAIL");
+        }
         stopDummyController();
     }
 
@@ -762,8 +794,8 @@ public class TestSwitchCase {
      * buffer ID value after establishing connection between switch &
      * controller.
      */
-    public void testMalformedBufferIDValue(String code) {
-        String info = code + " - Malformed Buffer ID Values";
+    public void testMalformedBufferIDValue(TestCase test) {
+        String info = test.getcasenum() + " - Malformed Buffer ID Values";
         log.info(info);
 
         setUpDummyController();
@@ -796,9 +828,12 @@ public class TestSwitchCase {
         OFMessage response = dcontroller.sendOFMessage(fab.build());
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("Response msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -810,8 +845,8 @@ public class TestSwitchCase {
      * OFPT_TABLE_MOD requests, and OFPMP_TABLE_FEATURES) from slave
      * controllers.
      */
-    public void testSlaveControllerViolation(String code) {
-        String info = code + " - Slave Controller Violation";
+    public void testSlaveControllerViolation(TestCase test) {
+        String info = test.getcasenum() + " - Slave Controller Violation";
         log.info(info);
 
         setUpDummyController();

@@ -43,11 +43,13 @@
                     <table id="queue-table" class="display select" cellspacing="0" width="100%">
                         <thead>
                         <tr>
+                            <th>#</th>
                             <th>Timestamp</th>
                             <th>Category</th>
-                            <th>Test Index</th>
+                            <th>Testcase #</th>
                             <th>Name</th>
                             <th>Status</th>
+                            <th>Result</th>
                         </tr>
                         </thead>
                     </table>
@@ -151,7 +153,7 @@
                         <thead>
                         <tr>
                             <th>Category</th>
-                            <th>Test Index</th>
+                            <th>Testcase #</th>
                             <th>Name</th>
                         </tr>
                         </thead>
@@ -186,7 +188,7 @@
 
                         var queueArray = new Array();
                         dt.rows({selected: true}).every(function (rowIdx, tableLoop, rowLoop) {
-                            queueArray.push(this.data().caseIndex);
+                            queueArray.push(this.data().casenum);
                         });
 
                         $.ajax({
@@ -215,7 +217,7 @@
             searching: true,
             'columns': [
                 {'data': 'category'},
-                {'data': 'caseIndex'},
+                {'data': 'casenum'},
                 {'data': 'name'}
             ],
             'ajax': {
@@ -232,15 +234,33 @@
             lengthMenu: [10, 20, 50, 100],
             searching: true,
             'columns': [
+                {'data': 'index'},
                 {'data': 'time'},
                 {'data': 'category'},
-                {'data': 'caseIndex'},
+                {'data': 'casenum'},
                 {'data': 'name'},
-                {'data': 'status'}
+                {'data': 'status'},
+                {'data': 'result'}
             ],
             'ajax': {
                 'url': '/json/testqueue/get',
                 'dataSrc': ""
+            },
+            "fnRowCallback": function(nRow, aData) {
+                if ( aData['status'] == "RUNNING" ) {
+                    $('td', nRow).css('background-color', '#ffff99');
+                }
+                else if ( aData['status'] == "COMPLETE" ) {
+                    if ( aData['result'] == "FAIL" ) {
+                        $('td', nRow).css('background-color', '#ff9999');
+                    }
+                    else if ( aData['result'] == "PASS" ) {
+                        $('td', nRow).css('background-color', '#ccff99');
+                    }
+                    else {
+                        $('td', nRow).css('background-color', '#ffffff');
+                    }
+                }
             }
         });
 

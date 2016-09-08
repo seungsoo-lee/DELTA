@@ -24,7 +24,7 @@ public class TestCaseResource {
 
         for (String index: TestCaseDirectory.getDirectory().keySet()) {
             TestCase test = TestCaseDirectory.getDirectory().get(index);
-            test.setCaseIndex(index);
+            test.setcasenum(index);
             testcases.add(test);
         }
 

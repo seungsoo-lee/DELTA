@@ -38,10 +38,20 @@ public class TestCase {
         FAIL,
     }
 
+    private Integer index = -1;
+    private Category category;
+    private String casenum;
+    private String name;
+    private ControllerType controllerType;
+    private String controllerVer;
+    private Status status;
+    private Date time;
+    private TestResult result;
 
-    public TestCase(String caseIndex) {
-        this.caseIndex = caseIndex;
-        TestCase testCase = TestCaseDirectory.getDirectory().get(caseIndex);
+
+    public TestCase(String casenum) {
+        this.casenum = casenum;
+        TestCase testCase = TestCaseDirectory.getDirectory().get(casenum);
         this.name = testCase.getName();
         this.category = testCase.getCategory();
         this.controllerType = testCase.getControllerType();
@@ -51,9 +61,9 @@ public class TestCase {
         this.result = TestResult.UNKNOWN;
     }
 
-    public TestCase(Category category, String caseIndex, String name) {
+    public TestCase(Category category, String casenum, String name) {
         this.category = category;
-        this.caseIndex = caseIndex;
+        this.casenum = casenum;
         this.name = name;
         this.controllerType = ControllerType.UNSPECIFIED;
         this.controllerVer = "";
@@ -62,21 +72,16 @@ public class TestCase {
         this.result = TestResult.UNKNOWN;
     }
 
-    private Category category;
-    private String caseIndex;
-    private String name;
-    private ControllerType controllerType;
-    private String controllerVer;
-    private Status status;
-    private Date time;
-    private TestResult result;
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
 
     public void setCategory(Category category) {
         this.category = category;
     }
 
-    public void setCaseIndex(String caseIndex) {
-        this.caseIndex = caseIndex;
+    public void setcasenum(String casenum) {
+        this.casenum = casenum;
     }
 
     public void setControllerType(ControllerType controllerType) {
@@ -100,12 +105,16 @@ public class TestCase {
         this.result = result;
     }
 
+    public Integer getIndex() {
+        return index;
+    }
+
     public Category getCategory() {
         return category;
     }
 
-    public String getCaseIndex() {
-        return caseIndex;
+    public String getcasenum() {
+        return casenum;
     }
 
     public String getName() {
@@ -137,7 +146,8 @@ public class TestCase {
     @Override
     public String toString() {
         return "[category=" + category.name() +
-                ", caseIndex=" + caseIndex +
+                ", index=" + index +
+                ", casenum=" + casenum +
                 ", controllerType=" + controllerType.name() +
                 ", controllerVer=" + controllerVer +
                 ", status=" + status.name() +
