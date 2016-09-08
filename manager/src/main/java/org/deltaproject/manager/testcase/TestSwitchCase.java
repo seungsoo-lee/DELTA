@@ -5,6 +5,7 @@ import io.netty.buffer.PooledByteBufAllocator;
 import org.deltaproject.manager.core.Configuration;
 import org.deltaproject.manager.dummy.DMController;
 import org.deltaproject.manager.dummy.DummyController;
+import org.deltaproject.webui.TestCase;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
@@ -62,58 +63,58 @@ public class TestSwitchCase {
         ofport = Integer.parseInt(cfg.getOFPort());
     }
 
-    public void replayKnownAttack(String code) throws InterruptedException {
-        switch (code) {
+    public void replayKnownAttack(TestCase test) throws InterruptedException {
+        switch (test.getcasenum()) {
             case "1.1.010":
-                testPortRangeViolation(code);
+                testPortRangeViolation(test);
                 break;
             case "1.1.020":
-                testTableID(code);
+                testTableID(test);
                 break;
             case "1.1.030":
-                testGroupID(code);
+                testGroupID(test);
                 break;
             case "1.1.040":
-                testMeterID(code);
+                testMeterID(test);
                 break;
             case "1.1.050":
-                testTableLoop(code);
+                testTableLoop(test);
                 break;
             case "1.1.060":
-                testCorruptedControlMsgType(code);
+                testCorruptedControlMsgType(test);
                 break;
             case "1.1.070":
-                testUnsupportedVersionNumber(code);
+                testUnsupportedVersionNumber(test);
                 break;
             case "1.1.080":
-                testMalformedVersionNumber(code);
+                testMalformedVersionNumber(test);
                 break;
             case "1.1.090":
-                testInvalidOXMType(code);
+                testInvalidOXMType(test);
                 break;
             case "1.1.100":
-                testInvalidOXMLength(code);
+                testInvalidOXMLength(test);
                 break;
             case "1.1.110":
-                testInvalidOXMValue(code);
+                testInvalidOXMValue(test);
                 break;
             case "1.1.120":
-                testDisabledTableFeatureRequest(code);
+                testDisabledTableFeatureRequest(test);
                 break;
             case "1.1.130":
-                testHandshakeWithoutHello(code);
+                testHandshakeWithoutHello(test);
                 break;
             case "1.1.140":
-                testControlMsgBeforeHello(code);
+                testControlMsgBeforeHello(test);
                 break;
             case "1.1.150":
-                testIncompatibleHelloAfterConnection(code);
+                testIncompatibleHelloAfterConnection(test);
                 break;
             case "1.1.160":
-                testCorruptedCookieValue(code);
+                testCorruptedCookieValue(test);
                 break;
             case "1.1.170":
-                testMalformedBufferIDValue(code);
+                testMalformedBufferIDValue(test);
                 break;
         }
     }
@@ -199,9 +200,8 @@ public class TestSwitchCase {
      * Verify that the switch rejects the use of ports that are greater thanc
      * OFPP_MAX and are not part of the reserved ports.
      */
-    public void testPortRangeViolation(String code) throws InterruptedException {
-        String info = code + " - Port Range Violation";
-        log.info(info);
+    public void testPortRangeViolation(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Port Range Violation");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -225,14 +225,13 @@ public class TestSwitchCase {
      * 1.1.020 - Table Identifier Violation (OF 1.3~)
      * Verify that the switch rejects the use of invalid table id.
      */
-    public void testTableID(String code) throws InterruptedException {
+    public void testTableID(TestCase test) throws InterruptedException {
         if (this.ofversion.equals("1.0")) {
             log.info("OF 1.0 is not available.");
             return;
         }
 
-        String info = code + " - Table Identifier Violation";
-        log.info(info);
+        log.info(test.getcasenum() + " - Table Identifier Violation");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -288,14 +287,13 @@ public class TestSwitchCase {
      * Verify that the switch rejects the use of groups that are greater than
      * OFPG_MAX and are not part of the reserved groups.
      */
-    public void testGroupID(String code) throws InterruptedException {
+    public void testGroupID(TestCase test) throws InterruptedException {
         if (this.ofversion.equals("1.0")) {
             log.info("OF 1.0 is not available.");
             return;
         }
 
-        String info = code + " - Group Identifier Violation";
-        log.info(info);
+        log.info(test.getcasenum() + " - Group Identifier Violation");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -342,14 +340,13 @@ public class TestSwitchCase {
      * Verify that the switch rejects the use of meters that are greater than
      * OFPM_MAX and are not part of the virtual meters.
      */
-    public void testMeterID(String code) throws InterruptedException {
+    public void testMeterID(TestCase test) throws InterruptedException {
         if (this.ofversion.equals("1.0")) {
             log.info("OF 1.0 is not available.");
             return;
         }
 
-        String info = code + "  - Meter Identifier Violation";
-        log.info(info);
+        log.info(test.getcasenum() + " - Meter Identifier Violation");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -379,14 +376,13 @@ public class TestSwitchCase {
      * Verify that the switch rejects the use of invalid Goto table id
      * requesting a table loop.
      */
-    public void testTableLoop(String code) throws InterruptedException {
+    public void testTableLoop(TestCase test) throws InterruptedException {
         if (this.ofversion.equals("1.0")) {
             log.info("OF 1.0 is not available.");
             return;
         }
 
-        String info = code + " - Table Loop Violation";
-        log.info(info);
+        log.info(test.getcasenum() + " - Table Loop Violation");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -443,9 +439,8 @@ public class TestSwitchCase {
      * Verify that the switch throws an error when it receives a control message
      * with unsupported message type.
      */
-    public void testCorruptedControlMsgType(String code) throws InterruptedException {
-        String info = code + " - Corrupted Control Message Type";
-        log.info(info);
+    public void testCorruptedControlMsgType(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Corrupted Control Message Type");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -480,13 +475,12 @@ public class TestSwitchCase {
     }
 
     /*
-     * 1.1.070 - Unsupported Version Numebr
+     * 1.1.070 - Unsupported Version Numeber
      * Verify that the switch throws an error when it receives a connection
      * setup message with an unsupported version number.
      */
-    public void testUnsupportedVersionNumber(String code) throws InterruptedException {
-        String info = code + " - Unsupported Version Numebr";
-        log.info(info);
+    public void testUnsupportedVersionNumber(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Unsupported Version Numeber");
 
         setUpDummyController(HANDSHAKE_INCOMPATIBLE_HELLO);
 
@@ -508,9 +502,8 @@ public class TestSwitchCase {
      * version number after establishing connection between switch and
      * controller with a different version.
      */
-    public void testMalformedVersionNumber(String code) throws InterruptedException {
-        String info = code + " - Malformed Version Number";
-        log.info(info);
+    public void testMalformedVersionNumber(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Malformed Version Number");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -552,9 +545,8 @@ public class TestSwitchCase {
      * Verify that the switch throws an error when it receives a flow mod
      * message with invalid OXM type.
      */
-    public void testInvalidOXMType(String code) throws InterruptedException {
-        String info = code + " - Invalid OXM - Type";
-        log.info(info);
+    public void testInvalidOXMType(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Invalid OXM - Type");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -611,14 +603,13 @@ public class TestSwitchCase {
      * Verify that the switch throws an error when it receives a flow mod
      * message with invalid OXM length.
      */
-    public void testInvalidOXMLength(String code) throws InterruptedException {
+    public void testInvalidOXMLength(TestCase test) throws InterruptedException {
         if (this.ofversion.equals("1.0")) {
             log.info("OF 1.0 is not available.");
             return;
         }
 
-        String info = code + " - Invalid OXM - Length";
-        log.info(info);
+        log.info(test.getcasenum() + " - Invalid OXM - Length");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -669,14 +660,13 @@ public class TestSwitchCase {
      * Verify that the switch throws an error when it receives a flow mod
      * message with invalid message value
      */
-    public void testInvalidOXMValue(String code) throws InterruptedException {
+    public void testInvalidOXMValue(TestCase test) throws InterruptedException {
         if (this.ofversion.equals("1.0")) {
             log.info("OF 1.0 is not available.");
             return;
         }
 
-        String info = code + " - Invalid OXM - Value";
-        log.info(info);
+        log.info(test.getcasenum() + " - Invalid OXM - Value");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -735,15 +725,13 @@ public class TestSwitchCase {
      * verify that the switch rejects this non-empty OFPMP_TABLE_FEATURES
      * request with a permission error
      */
-    public void testDisabledTableFeatureRequest(String code) throws InterruptedException {
+    public void testDisabledTableFeatureRequest(TestCase test) throws InterruptedException {
         if (this.ofversion.equals("1.0")) {
             log.info("OF 1.0 is not available.");
             return;
         }
 
-        String info = code + " - Disabled Table Features Request";
-
-        log.info(info);
+        log.info(test.getcasenum() + " - Disabled Table Features Request");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -770,9 +758,8 @@ public class TestSwitchCase {
      * Check if the control connection is disconnected if the hello message is
      * not exchanged within the specified default timeout.
      */
-    public void testHandshakeWithoutHello(String code) throws InterruptedException {
-        String info = code + " - Handshake without Hello Message";
-        log.info(info);
+    public void testHandshakeWithoutHello(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Handshake without Hello Message");
 
         setUpDummyController(TestSwitchCase.NO_HANDSHAKE);
         log.info("The hello message is not exchanged within the specified default timeout");
@@ -792,9 +779,8 @@ public class TestSwitchCase {
      * processes a control message before exchanging OpenFlow hello message
      * (connection establishment).
      */
-    public void testControlMsgBeforeHello(String code) throws InterruptedException {
-        String info = code + " - Control Message before Hello Message";
-        log.info(info);
+    public void testControlMsgBeforeHello(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Control Message before Hello Message");
 
         OFBarrierRequest.Builder brb = defaultFactory.buildBarrierRequest();
         brb.setXid(r_xid);
@@ -824,9 +810,8 @@ public class TestSwitchCase {
      * establishing connection between switch and controller with a both agreed
      * version.
      */
-    public void testIncompatibleHelloAfterConnection(String code) throws InterruptedException {
-        String info = code + " - Incompatible Hello after Connection Establishment";
-        log.info(info);
+    public void testIncompatibleHelloAfterConnection(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Incompatible Hello after Connection Establishment");
 
         setUpDummyController(TestSwitchCase.HANDSHAKE_DEFAULT);
 
@@ -855,9 +840,8 @@ public class TestSwitchCase {
      * cookie value in OpenFlow messages after establishing connection between
      * switch and controller.
      */
-    public void testCorruptedCookieValue(String code) throws InterruptedException {
-        String info = code + " - Corrupted Cookie Values";
-        log.info(info);
+    public void testCorruptedCookieValue(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Corrupted Cookie Values");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -908,9 +892,8 @@ public class TestSwitchCase {
      * buffer ID value after establishing connection between switch &
      * controller.
      */
-    public void testMalformedBufferIDValue(String code) throws InterruptedException {
-        String info = code + " - Malformed Buffer ID Values";
-        log.info(info);
+    public void testMalformedBufferIDValue(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Malformed Buffer ID Values");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -966,14 +949,12 @@ public class TestSwitchCase {
      * OFPT_TABLE_MOD requests, and OFPMP_TABLE_FEATURES) from slave
      * controllers.
      */
-    public void testSlaveControllerViolation(String code) {
+    public void testSlaveControllerViolation(TestCase test) {
         if (this.ofversion.equals("1.0")) {
             log.info("OF 1.0 is not available.");
             return;
         }
-        
-        String info = code + " - Slave Controller Violation";
-        log.info(info);
+        log.info(test.getcasenum() + " - Slave Controller Violation");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -1002,7 +983,7 @@ public class TestSwitchCase {
             OFRoleRequest.Builder rrb2 = defaultFactory.buildRoleRequest();
             rrb2.setRole(OFControllerRole.ROLE_SLAVE);
             rrb2.setGenerationId(gen);
-            rrb2.setXid(r_xid-1);
+            rrb2.setXid(r_xid - 1);
 
             request = rrb2.build();
             dmcnt.sendMsg(request, -1);
