@@ -10,15 +10,17 @@ public class TestCaseExecutor extends Thread {
 
     private AttackConductor conductor;
     private TestQueue queue = TestQueue.getInstance();
+    private boolean running;
 
     public TestCaseExecutor(AttackConductor conductor) {
         this.conductor = conductor;
+        running = true;
     }
 
     @Override
     public void run() {
 
-        while(true) {
+        while(running) {
             if (!queue.isEmpty()) {
                 TestCase test = queue.getNext();
                 try {
@@ -27,14 +29,13 @@ public class TestCaseExecutor extends Thread {
                     test.setStatus(COMPLETE);
                 } catch (InterruptedException e) {
                     test.setStatus(UNAVAILABLE);
-                    e.printStackTrace();
                 }
             }
 
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                running = false;
             }
         }
 

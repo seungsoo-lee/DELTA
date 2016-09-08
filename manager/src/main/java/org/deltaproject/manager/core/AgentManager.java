@@ -52,6 +52,7 @@ public class AgentManager extends Thread {
             if (input.equalsIgnoreCase("q")) {
                 closeServerSocket();
                 webUI.deactivate();
+                testCaseExecutor.interrupt();
                 break;
             } else {
                 try {
