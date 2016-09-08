@@ -44,7 +44,7 @@ public class TestQueue {
     }
 
     public static boolean isEmpty() {
-        return TEST_CASE_QUEUE.isEmpty();
+        return INDEX_QUEUE.isEmpty();
     }
 
     public static void update(Integer index, TestCase testcase) {
