@@ -5,11 +5,14 @@ import org.deltaproject.manager.core.ChannelAgentManager;
 import org.deltaproject.manager.core.ControllerManager;
 import org.deltaproject.manager.core.HostAgentManager;
 import org.deltaproject.manager.dummy.DummyController;
+import org.deltaproject.webui.TestCase;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Random;
+
+import static org.deltaproject.webui.TestCase.TestResult.*;
 
 /**
  * Created by seungsoo on 9/3/16.
@@ -40,28 +43,28 @@ public class TestControllerCase {
         this.am = am;
     }
 
-    public void replayKnownAttack(String code) throws InterruptedException {
-        switch (code) {
+    public void replayKnownAttack(TestCase test) throws InterruptedException {
+        switch (test.getcasenum()) {
             case "2.1.010":
-                testMalformedVersionNumber(code);
+                testMalformedVersionNumber(test);
                 break;
             case "2.1.020":
-                testCorruptedControlMsgType(code);
+                testCorruptedControlMsgType(test);
                 break;
             case "2.1.030":
-                testHandShakeWithoutHello(code);
+                testHandShakeWithoutHello(test);
                 break;
             case "2.1.040":
-                testControlMsgBeforeHello(code);
+                testControlMsgBeforeHello(test);
                 break;
             case "2.1.050":
-                testMultipleMainConnectionReq(code);
+                testMultipleMainConnectionReq(test);
                 break;
             case "2.1.060":
-                testUnFlaggedFlowRemoveMsgNotification(code);
+                testUnFlaggedFlowRemoveMsgNotification(test);
                 break;
             case "2.1.070":
-                testTLSupport(code);
+                testTLSupport(test);
                 break;
         }
     }
@@ -102,8 +105,8 @@ public class TestControllerCase {
     * version number after establishing connection between switch and
     * controller with a different version.
     */
-    public void testMalformedVersionNumber(String code) {
-        String info = code + " - Malformed Version Number";
+    public void testMalformedVersionNumber(TestCase test) {
+        String info = test.getcasenum() + " - Malformed Version Number";
         log.info(info);
 
         initController();
@@ -112,7 +115,7 @@ public class TestControllerCase {
         chm.write("startsw");
         isSWconnected();
 
-        chm.write(code);
+        chm.write(test.getcasenum());
 
         String response = chm.read();
 
@@ -125,8 +128,8 @@ public class TestControllerCase {
     * Verify that the controller throws an error when it receives a control message
     * with unsupported message type.
     */
-    public void testCorruptedControlMsgType(String code) {
-        String info = code + " - Corrupted Control Message Type";
+    public void testCorruptedControlMsgType(TestCase test) {
+        String info = test.getcasenum() + " - Corrupted Control Message Type";
         log.info(info);
 
         initController();
@@ -135,7 +138,7 @@ public class TestControllerCase {
         chm.write("startsw");
         isSWconnected();
 
-        chm.write(code);
+        chm.write(test.getcasenum());
 
         String response = chm.read();
 
@@ -149,14 +152,14 @@ public class TestControllerCase {
      * Check if the control connection is disconnected if the hello message is
      * not exchanged within the specified default timeout.
      */
-    public void testHandShakeWithoutHello(String code) {
-        String info = code + " - Handshake without Hello Message";
+    public void testHandShakeWithoutHello(TestCase test) {
+        String info = test.getcasenum() + " - Handshake without Hello Message";
         log.info(info);
 
         initController();
         chm.write("startsw|nohello");
 
-        chm.write(code);
+        chm.write(test.getcasenum());
         log.info("Channel-agent starts");
 
         try {
@@ -170,8 +173,10 @@ public class TestControllerCase {
         int cnt = cm.isConnectedSwitch(false);
 
         if (cnt == 0) {
+            test.setResult(PASS);
             log.info("switch disconnected, PASS");
         } else {
+            test.setResult(FAIL);
             log.info("switch connected, FAIL");
         }
 
@@ -184,14 +189,14 @@ public class TestControllerCase {
      * processes a control message before exchanging OpenFlow hello message
      * (connection establishment).
      */
-    public void testControlMsgBeforeHello(String code) {
-        String info = code + " - Control Message before Hello Message";
+    public void testControlMsgBeforeHello(TestCase test) {
+        String info = test.getcasenum() + " - Control Message before Hello Message";
         log.info(info);
 
         initController();
         chm.write("startsw|nohello");
 
-        chm.write(code);
+        chm.write(test.getcasenum());
         log.info("Channel-agent starts");
 
         try {
@@ -205,8 +210,10 @@ public class TestControllerCase {
         int cnt = cm.isConnectedSwitch(false);
 
         if (cnt == 0) {
+            test.setResult(PASS);
             log.info("switch disconnected, PASS");
         } else {
+            test.setResult(FAIL);
             log.info("switch connected, FAIL");
         }
 
@@ -217,15 +224,15 @@ public class TestControllerCase {
      * 2.1.050 - Multiple main connection requests from same switch
      * Check if the controller accepts multiple main connections from the same switch.
      */
-    public void testMultipleMainConnectionReq(String code) {
-        String info = code + " - Multiple main connection requests from same switch";
+    public void testMultipleMainConnectionReq(TestCase test) {
+        String info = test.getcasenum() + " - Multiple main connection requests from same switch";
         log.info(info);
 
         initController();
         chm.write("startsw");
 
         isSWconnected();
-        chm.write(code);
+        chm.write(test.getcasenum());
         log.info("Channel-agent starts");
 
         try {
@@ -239,8 +246,10 @@ public class TestControllerCase {
         int cnt = cm.isConnectedSwitch(false);
 
         if (cnt == 0) {
+            test.setResult(PASS);
             log.info("switch disconnected, PASS");
         } else {
+            test.setResult(FAIL);
             log.info("switch connected, FAIL");
         }
 
@@ -251,8 +260,8 @@ public class TestControllerCase {
      * 2.1.060 - Un-flagged Flow Remove Message Notification
      * Check if the controller accepts multiple main connections from the same switch.
      */
-    public void testUnFlaggedFlowRemoveMsgNotification(String code) throws InterruptedException {
-        String info = code + " - Un-flagged Flow Remove Message Notification";
+    public void testUnFlaggedFlowRemoveMsgNotification(TestCase test) throws InterruptedException {
+        String info = test.getcasenum() + " - Un-flagged Flow Remove Message Notification";
         log.info(info);
 
         initController();
@@ -260,12 +269,12 @@ public class TestControllerCase {
         chm.read();
         isSWconnected();
 
-        am.write(code);
+        am.write(test.getcasenum());
         log.info("App-agent starts");
         log.info(am.read());
 
         Thread.sleep(2000);
-        chm.write(code);
+        chm.write(test.getcasenum());
         Thread.sleep(2000);
 
         String response = chm.read();
@@ -278,8 +287,8 @@ public class TestControllerCase {
      * 2.1.070 - Test TLS Support
      * Check if the controller supports Transport Layer Security (TLS).
      */
-    public void testTLSupport(String code) {
-        String info = code + " - Test TLS Support";
+    public void testTLSupport(TestCase test) {
+        String info = test.getcasenum() + " - Test TLS Support";
         log.info(info);
 
         initController();
@@ -287,7 +296,7 @@ public class TestControllerCase {
 
         isSWconnected();
 
-        chm.write(code);
+        chm.write(test.getcasenum());
         log.info("Channel-agent starts");
 
         try {
@@ -306,7 +315,7 @@ public class TestControllerCase {
             log.info("switch connected, PASS");
         }
 
-        chm.write(code + ":exit");
+        chm.write(test.getcasenum() + ":exit");
         cm.killController();
     }
 }

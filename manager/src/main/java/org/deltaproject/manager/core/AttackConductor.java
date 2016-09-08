@@ -4,6 +4,7 @@ import org.deltaproject.manager.testcase.TestAdvancedCase;
 import org.deltaproject.manager.testcase.TestControllerCase;
 import org.deltaproject.manager.testcase.CaseInfo;
 import org.deltaproject.manager.testcase.TestSwitchCase;
+import org.deltaproject.webui.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,13 +92,25 @@ public class AttackConductor {
         }
     }
 
-    public void replayKnownAttack(String code) throws InterruptedException {
-        if (code.charAt(0) == '1')
-            testSwitchCase.replayKnownAttack(code);
-        if (code.charAt(0) == '2')
-            testControllerCase.replayKnownAttack(code);
-        if (code.charAt(0) == '3')
-            testAdvancedCase.replayKnownAttack(code);
+//    public void replayKnownAttack(String code) throws InterruptedException {
+//        if (code.charAt(0) == '1')
+//            testSwitchCase.replayKnownAttack(code);
+//        if (code.charAt(0) == '2')
+//            testControllerCase.replayKnownAttack(code);
+//        if (code.charAt(0) == '3')
+//            testAdvancedCase.replayKnownAttack(code);
+//    }
+
+    public void executeTestCase(TestCase test) throws InterruptedException {
+        if (test.getcasenum().charAt(0) == '1') {
+            testSwitchCase.replayKnownAttack(test);
+        }
+        else if (test.getcasenum().charAt(0) == '2') {
+            testControllerCase.replayKnownAttack(test);
+        }
+        else if (test.getcasenum().charAt(0) == '3') {
+            testAdvancedCase.replayKnownAttack(test);
+        }
     }
 
     public void printAttackList() {
