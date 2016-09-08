@@ -58,49 +58,70 @@ public class TestAdvancedCase {
     }
 
     public void replayKnownAttack(String code) {
-        if (code.equals("3.1.010")) {
-            testPacketInFlooding(code);
-        } else if (code.equals("3.1.020")) {
-            testControlMessageDrop(code);
-        } else if (code.equals("3.1.030")) {
-            testInfiniteLoop(code);
-        } else if (code.equals("3.1.040")) {
-            testInternalStorageAbuse(code);
-        } else if (code.equals("3.1.050")) {
-            // testSwitchTableFlooding(code);
-            return;
-        } else if (code.equals("3.1.060")) {
-            testSwitchIdentificationSpoofing(code);
-        } else if (code.equals("------")) {        // testSwitchOFCase
-            testMalformedControlMessage(code);
-        } else if (code.equals("3.1.070")) {
-            testFlowRuleModification(code);
-        } else if (code.equals("3.1.080")) {
-            testFlowTableClearance(code);
-        } else if (code.equals("3.1.090")) {
-            testEventUnsubscription(code);
-        } else if (code.equals("3.1.100")) {
-            testApplicationEviction(code);
-        } else if (code.equals("3.1.110")) {
-            testMemoryExhaustion(code);
-        } else if (code.equals("3.1.120")) {
-            testCPUExhaustion(code);
-        } else if (code.equals("3.1.130")) {
-            testSystemVariableManipulation(code);
-        } else if (code.equals("3.1.140")) {
-            testSystemCommandExecution(code);
-        } else if (code.equals("3.1.160")) {
-            testLinkFabrication(code);
-        } else if (code.equals("3.1.170")) {
-            testEvaseDrop(code);
-        } else if (code.equals("3.1.180")) {
-            testManInTheMiddle(code);
-        } else if (code.equals("3.1.190")) {
-            testFlowRuleFlooding(code);
-        } else if (code.equals("3.1.200")) {
-            testSwitchFirmwareMisuse(code);
-        } else if (code.equals("------")) {         // testControllerOFCase
-            testControlMessageManipulation(code);
+        switch (code) {
+            case "3.1.010":
+                testPacketInFlooding(code);
+                break;
+            case "3.1.020":
+                testControlMessageDrop(code);
+                break;
+            case "3.1.030":
+                testInfiniteLoop(code);
+                break;
+            case "3.1.040":
+                testInternalStorageAbuse(code);
+                break;
+            case "3.1.050":
+                // testSwitchTableFlooding(code);
+                return;
+            case "3.1.060":
+                testSwitchIdentificationSpoofing(code);
+                break;
+            case "------1":         // testSwitchOFCase
+                testMalformedControlMessage(code);
+                break;
+            case "3.1.070":
+                testFlowRuleModification(code);
+                break;
+            case "3.1.080":
+                testFlowTableClearance(code);
+                break;
+            case "3.1.090":
+                testEventUnsubscription(code);
+                break;
+            case "3.1.100":
+                testApplicationEviction(code);
+                break;
+            case "3.1.110":
+                testMemoryExhaustion(code);
+                break;
+            case "3.1.120":
+                testCPUExhaustion(code);
+                break;
+            case "3.1.130":
+                testSystemVariableManipulation(code);
+                break;
+            case "3.1.140":
+                testSystemCommandExecution(code);
+                break;
+            case "3.1.160":
+                testLinkFabrication(code);
+                break;
+            case "3.1.170":
+                testEvaseDrop(code);
+                break;
+            case "3.1.180":
+                testManInTheMiddle(code);
+                break;
+            case "3.1.190":
+                testFlowRuleFlooding(code);
+                break;
+            case "3.1.200":
+                testSwitchFirmwareMisuse(code);
+                break;
+            case "------2":          // testControllerOFCase
+                testControlMessageManipulation(code);
+                break;
         }
     }
 

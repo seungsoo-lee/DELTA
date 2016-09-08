@@ -31,6 +31,7 @@ public class DMController extends Thread {
 
     public static final int HANDSHAKE_DEFAULT = 0;
     public static final int HANDSHAKE_NO_HELLO = 1;
+    public static final int HANDSHAKE_INCOMPATIBLE_HELLO = 2;
 
     public static final int MINIMUM_LENGTH = 8;
 
@@ -48,7 +49,7 @@ public class DMController extends Thread {
     private OFMessageReader<OFMessage> reader;
     private OFMessage res;
 
-    private int testHandShakeType;
+    private int handShakeType;
 
     private long requestXid = 0xeeeeeeeel;
     private long startXid = 0xffffffff;
@@ -73,8 +74,8 @@ public class DMController extends Thread {
         this.port = port;
     }
 
-    public void setTestHandShakeType(int type) {
-        this.testHandShakeType = type;
+    public void setHandShakeType(int type) {
+        this.handShakeType = type;
     }
 
     public OFFactory getFactory() {
@@ -141,6 +142,22 @@ public class DMController extends Thread {
             // TODO Auto-gaenerated catch block
             e.printStackTrace();
         }
+    }
+
+    public void sendRawMsg(ByteBuf buf) {
+        int length = buf.readableBytes();
+        byte[] bytes = new byte[length];
+        buf.getBytes(buf.readerIndex(), bytes);
+
+        try {
+            this.out.write(bytes, 0, length);
+        } catch (IOException e) {
+            // TODO Auto-gaenerated catch block
+            e.printStackTrace();
+        }
+
+        buf.clear();
+        buf.release();
     }
 
     public OFFlowAdd getBackupFlowAdd() {
@@ -233,6 +250,10 @@ public class DMController extends Thread {
         byte[] xidbytes = Longs.toByteArray(xid);
         System.arraycopy(xidbytes, 4, msg, 4, 4);
 
+        if (this.version == OFVersion.OF_13) {
+            msg[0] = (byte) 0x04;
+        }
+
         sendRawMsg(msg);
     }
 
@@ -285,8 +306,23 @@ public class DMController extends Thread {
     }
 
     public void sendHello(long xid) throws OFParseError {
-        if (testHandShakeType == HANDSHAKE_NO_HELLO) {
+        if (handShakeType == HANDSHAKE_NO_HELLO) {
             // this.sendFeatureReply(requestXid);
+            return;
+        } else if (handShakeType == HANDSHAKE_INCOMPATIBLE_HELLO) {
+            byte[] rawPkt = new byte[8];
+            rawPkt[0] = (byte) 0xee;    // unsupported version
+            rawPkt[1] = 0x00;           // hello
+            rawPkt[2] = 0x00;
+            rawPkt[3] = 0x08;
+
+            rawPkt[4] = (byte) 0xee;
+            rawPkt[5] = (byte) 0xee;
+            rawPkt[6] = (byte) 0xee;
+            rawPkt[7] = (byte) 0xee;
+
+            log.info("Send msg: OF_HELLO with unsupported version -> 0xee");
+            this.sendRawMsg(rawPkt);
             return;
         }
 
@@ -324,6 +360,10 @@ public class DMController extends Thread {
 
                 if (message.getType() == OFType.HELLO) {
                     sendHello(startXid);
+
+                    if (!(handShakeType == HANDSHAKE_DEFAULT))
+                        return true;
+
                     sendFeatureReq(startXid - (cntXid++));
                 } else if (message.getType() == OFType.FEATURES_REPLY) {
                     sendSetConfig(startXid - (cntXid++));
@@ -331,9 +371,8 @@ public class DMController extends Thread {
                 } else if (message.getType() == OFType.GET_CONFIG_REPLY) {
                     sendStatReq(startXid - (cntXid++));
                 } else if (message.getType() == OFType.STATS_REPLY) {
-                    sendExperimenter(startXid - (cntXid++));
+                    // sendExperimenter(startXid - (cntXid++));
 
-                    //send vendor
                     handshaked = true;
                 } else if (message.getType() == OFType.ECHO_REQUEST) {
                     sendEchoReply(xid);
