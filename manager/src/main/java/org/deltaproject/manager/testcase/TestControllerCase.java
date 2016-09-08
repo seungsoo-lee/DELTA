@@ -4,7 +4,6 @@ import org.deltaproject.manager.core.AppAgentManager;
 import org.deltaproject.manager.core.ChannelAgentManager;
 import org.deltaproject.manager.core.ControllerManager;
 import org.deltaproject.manager.core.HostAgentManager;
-import org.deltaproject.manager.dummy.DummyController;
 import org.deltaproject.webui.TestCase;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.slf4j.Logger;

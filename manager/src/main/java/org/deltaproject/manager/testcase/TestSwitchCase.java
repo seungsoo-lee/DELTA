@@ -4,22 +4,16 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.deltaproject.manager.core.Configuration;
 import org.deltaproject.manager.dummy.DMController;
-import org.deltaproject.manager.dummy.DummyController;
 import org.deltaproject.webui.TestCase;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
-import org.projectfloodlight.openflow.protocol.errormsg.OFFlowModFailedErrorMsg;
-import org.projectfloodlight.openflow.protocol.errormsg.OFGroupModFailedErrorMsg;
 import org.projectfloodlight.openflow.protocol.errormsg.OFHelloFailedErrorMsg;
-import org.projectfloodlight.openflow.protocol.errormsg.OFPortModFailedErrorMsg;
 import org.projectfloodlight.openflow.protocol.instruction.OFInstruction;
 import org.projectfloodlight.openflow.protocol.instruction.OFInstructionApplyActions;
 import org.projectfloodlight.openflow.protocol.instruction.OFInstructionGotoTable;
 import org.projectfloodlight.openflow.protocol.match.Match;
 import org.projectfloodlight.openflow.protocol.match.MatchField;
-import org.projectfloodlight.openflow.protocol.match.MatchFields;
-import org.projectfloodlight.openflow.protocol.ver13.OFStatsRequestFlagsSerializerVer13;
 import org.projectfloodlight.openflow.types.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +33,6 @@ public class TestSwitchCase {
 
     public static final int DEFAULT_TIMEOUT = 5000;
 
-    private DummyController dcontroller;
     private DMController dmcnt;
     private OFFactory defaultFactory;
     private Random random;
@@ -125,21 +118,6 @@ public class TestSwitchCase {
             return 1;
 
         return l;
-    }
-
-    public void setUpDummyControllerWithNoHello(int type) {
-        dcontroller = new DummyController(this.ofversion, ofport);
-        dcontroller.setHandShakeTest(type);
-        dcontroller.bootstrapNetty();
-
-        while (!dcontroller.isOFHandlerActive()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
     }
 
     public void setUpDummyController(int type) {
