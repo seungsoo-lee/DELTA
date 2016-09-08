@@ -2,6 +2,9 @@ package org.deltaproject.manager.core;
 
 import org.deltaproject.manager.testcase.TestControllerCase;
 import org.deltaproject.manager.utils.ProgressBar;
+import org.deltaproject.webui.TestCase;
+import org.deltaproject.webui.TestCaseDirectory;
+import org.deltaproject.webui.TestQueue;
 import org.deltaproject.webui.WebUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,8 +72,11 @@ public class AgentManager extends Thread {
 
             if (input.equalsIgnoreCase("A")) {
                 conductor.replayAllKnownAttacks();
-            } else if (conductor.isPossibleAttack(input)) {
-                conductor.replayKnownAttack(input);
+            } else if (conductor.isPossibleAttack(input) && TestCaseDirectory.getDirectory().containsKey(input.trim())) {
+//                conductor.replayKnownAttack(input);
+                TestCase testCase = new TestCase(input.trim());
+                testCase.setStatus(TestCase.Status.QUEUED);
+                TestQueue.getInstance().push(testCase);
             } else {
                 System.out.println("Attack Code [" + input + "] is not available");
                 return false;

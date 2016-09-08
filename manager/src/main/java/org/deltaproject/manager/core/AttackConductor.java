@@ -92,14 +92,14 @@ public class AttackConductor {
         }
     }
 
-    public void replayKnownAttack(String code) throws InterruptedException {
-        if (code.charAt(0) == '1')
-            testSwitchCase.replayKnownAttack(code);
-        if (code.charAt(0) == '2')
-            testControllerCase.replayKnownAttack(code);
-        if (code.charAt(0) == '3')
-            testAdvancedCase.replayKnownAttack(code);
-    }
+//    public void replayKnownAttack(String code) throws InterruptedException {
+//        if (code.charAt(0) == '1')
+//            testSwitchCase.replayKnownAttack(code);
+//        if (code.charAt(0) == '2')
+//            testControllerCase.replayKnownAttack(code);
+//        if (code.charAt(0) == '3')
+//            testAdvancedCase.replayKnownAttack(code);
+//    }
 
     public void executeTestCase(TestCase test) throws InterruptedException {
         if (test.getcasenum().charAt(0) == '1') {

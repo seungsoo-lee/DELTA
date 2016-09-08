@@ -2,11 +2,14 @@ package org.deltaproject.manager.analysis;
 
 import org.deltaproject.manager.core.ControllerManager;
 import org.deltaproject.manager.testcase.TestAdvancedCase;
+import org.deltaproject.webui.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+
+import static org.deltaproject.webui.TestCase.TestResult.*;
 
 public class ResultAnalyzer {
     private static final Logger log = LoggerFactory.getLogger(TestAdvancedCase.class);
@@ -56,7 +59,7 @@ public class ResultAnalyzer {
         return true;
     }
 
-    public boolean checkResult(String code, ResultInfo result) {
+    public boolean checkResult(TestCase test, ResultInfo result) {
         ArrayList<Integer> types = result.types();
         boolean isSuccess = false;
 
@@ -88,13 +91,15 @@ public class ResultAnalyzer {
             }
 
             if (isSuccess) {
-                log.info(code + ", FAIL");
+                test.setResult(PASS);
+                log.info(test.getcasenum() + ", FAIL");
                 break;
             }
         }
 
         if (!isSuccess) {
-            log.info(code + ", PASS");
+            test.setResult(FAIL);
+            log.info(test.getcasenum() + ", PASS");
             return true;
         } else
             return false;
