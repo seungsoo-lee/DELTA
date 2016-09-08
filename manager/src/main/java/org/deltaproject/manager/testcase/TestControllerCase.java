@@ -41,20 +41,28 @@ public class TestControllerCase {
     }
 
     public void replayKnownAttack(String code) throws InterruptedException {
-        if (code.equals("2.1.010")) {
-            testMalformedVersionNumber(code);
-        } else if (code.equals("2.1.020")) {
-            testCorruptedControlMsgType(code);
-        } else if (code.equals("2.1.030")) {
-            testHandShakeWithoutHello(code);
-        } else if (code.equals("2.1.040")) {
-            testControlMsgBeforeHello(code);
-        } else if (code.equals("2.1.050")) {
-            testMultipleMainConnectionReq(code);
-        } else if (code.equals("2.1.060")) {
-            testUnFlaggedFlowRemoveMsgNotification(code);
-        } else if (code.equals("2.1.070")) {
-            testTLSupport(code);
+        switch (code) {
+            case "2.1.010":
+                testMalformedVersionNumber(code);
+                break;
+            case "2.1.020":
+                testCorruptedControlMsgType(code);
+                break;
+            case "2.1.030":
+                testHandShakeWithoutHello(code);
+                break;
+            case "2.1.040":
+                testControlMsgBeforeHello(code);
+                break;
+            case "2.1.050":
+                testMultipleMainConnectionReq(code);
+                break;
+            case "2.1.060":
+                testUnFlaggedFlowRemoveMsgNotification(code);
+                break;
+            case "2.1.070":
+                testTLSupport(code);
+                break;
         }
     }
 
