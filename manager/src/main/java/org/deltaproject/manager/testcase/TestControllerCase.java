@@ -23,7 +23,6 @@ public class TestControllerCase {
     public static final int HANDSHAKE_NO_HELLO = 1;
     public static final int HANDSHAKE_INCOMPATIBLE_HELLO = 2;
 
-    private DummyController dcontroller;
     private OFFactory defaultFactory;
     private Random random;
 
