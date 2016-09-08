@@ -4,6 +4,7 @@ import org.deltaproject.manager.testcase.TestControllerCase;
 import org.deltaproject.manager.utils.ProgressBar;
 import org.deltaproject.webui.TestCase;
 import org.deltaproject.webui.TestCaseDirectory;
+import org.deltaproject.webui.TestCaseExecutor;
 import org.deltaproject.webui.TestQueue;
 import org.deltaproject.webui.WebUI;
 import org.slf4j.Logger;
@@ -22,10 +23,13 @@ public class AgentManager extends Thread {
     private int portNum = 3366;
     private BufferedReader sc;
     private WebUI webUI = new WebUI();
+    private TestCaseExecutor testCaseExecutor;
 
     public AgentManager(String path) {
-        this.conductor = new AttackConductor(path);
-        this.webUI.activate();
+        conductor = new AttackConductor(path);
+        testCaseExecutor = new TestCaseExecutor(conductor);
+        testCaseExecutor.start();
+        webUI.activate();
     }
 
     public void showMenu() throws IOException {

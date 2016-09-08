@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
+import static org.deltaproject.webui.TestCase.TestResult.*;
+
 public class TestSwitchCase {
     private static final Logger log = LoggerFactory.getLogger(TestSwitchCase.class);
 
@@ -192,9 +194,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(PASS);
             log.info("Response err msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -253,9 +258,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(PASS);
             log.info("Response err msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -305,9 +313,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(PASS);
             log.info("Response err msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
 
@@ -342,9 +353,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(PASS);
             log.info("Response err msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -405,9 +419,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(PASS);
             log.info("Response err msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -445,9 +462,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(PASS);
             log.info("Response err msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -467,9 +487,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(PASS);
             log.info("Response err msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -511,9 +534,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(PASS);
             log.info("Response err msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -569,9 +595,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(PASS);
             log.info("Response err msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -626,9 +655,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(PASS);
             log.info("Response err msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -690,9 +722,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(PASS);
             log.info("Response err msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -724,9 +759,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
         log.info("Send msg :" + request.toString());
         if (response != null) {
+            test.setResult(PASS);
             log.info("Response err msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -745,9 +783,12 @@ public class TestSwitchCase {
         Thread.sleep(DEFAULT_TIMEOUT);
 
         if (getConnectedSwitch() == 0) {
+            test.setResult(PASS);
             log.info("Switch disconnected, PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Switch is not disconnected, FAIL");
+        }
         stopDummyController();
     }
 
@@ -773,9 +814,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
         log.info("Send msg :" + request.toString());
         if (response != null) {
-            log.info("Response msg: " + response.toString() + ", FAIL");
-        } else
-            log.info("Response is null, PASS");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -805,9 +849,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
         log.info("Send msg :" + request.toString());
         if (response != null) {
-            log.info("Response msg: " + response.toString() + ", PASS");
-        } else
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -857,9 +904,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(PASS);
             log.info("Response err msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -911,9 +961,12 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
+            test.setResult(PASS);
             log.info("Response err msg: " + response.toString() + ", PASS");
-        } else
+        } else {
+            test.setResult(FAIL);
             log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
 
