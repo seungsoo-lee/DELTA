@@ -32,6 +32,7 @@ public class DMController extends Thread {
     public static final int HANDSHAKE_DEFAULT = 0;
     public static final int HANDSHAKE_NO_HELLO = 1;
     public static final int HANDSHAKE_INCOMPATIBLE_HELLO = 2;
+    public static final int NO_HANDSHAKE = 3;
 
     public static final int MINIMUM_LENGTH = 8;
 
@@ -307,7 +308,7 @@ public class DMController extends Thread {
 
     public void sendHello(long xid) throws OFParseError {
         if (handShakeType == HANDSHAKE_NO_HELLO) {
-            // this.sendFeatureReply(requestXid);
+            sendFeatureReq(startXid - (cntXid++));
             return;
         } else if (handShakeType == HANDSHAKE_INCOMPATIBLE_HELLO) {
             byte[] rawPkt = new byte[8];
@@ -324,7 +325,8 @@ public class DMController extends Thread {
             log.info("Send msg: OF_HELLO with unsupported version -> 0xee");
             this.sendRawMsg(rawPkt);
             return;
-        }
+        } else if (handShakeType == NO_HANDSHAKE)
+            return;
 
         OFHello.Builder fab = factory.buildHello();
         fab.setXid(xid);
@@ -361,7 +363,7 @@ public class DMController extends Thread {
                 if (message.getType() == OFType.HELLO) {
                     sendHello(startXid);
 
-                    if (!(handShakeType == HANDSHAKE_DEFAULT))
+                    if (handShakeType != HANDSHAKE_DEFAULT)
                         return true;
 
                     sendFeatureReq(startXid - (cntXid++));
@@ -380,6 +382,10 @@ public class DMController extends Thread {
                     if (xid == this.requestXid) {
                         res = message;
                     }
+                }
+
+                if (xid == this.requestXid) {
+                    res = message;
                 }
 
             } catch (OFParseError e) {
@@ -424,8 +430,6 @@ public class DMController extends Thread {
                 out.close();
                 serverSock.close();
                 targetSock.close();
-
-                log.info("Dummy Controller Closed");
             } catch (IOException e) {
                 e.printStackTrace();
             }
