@@ -1,5 +1,6 @@
 package org.deltaproject.manager.testcase;
 
+import org.apache.commons.lang3.StringUtils;
 import org.deltaproject.manager.core.AppAgentManager;
 import org.deltaproject.manager.core.ChannelAgentManager;
 import org.deltaproject.manager.core.ControllerManager;
@@ -80,12 +81,11 @@ public class TestControllerCase {
             }
         }
 
-        log.info("Target controller setup is completed");
+        log.info("Listening to switches..");
     }
 
     public void isSWconnected() {
         /* waiting for switches */
-        log.info("Listening to switches..");
         cm.isConnectedSwitch(true);
         log.info("All switches are connected");
 
@@ -109,15 +109,17 @@ public class TestControllerCase {
 
         initController();
 
-        log.info("Channel-agent starts");
+        log.info("Dummy Switch starts");
         chm.write("startsw");
-        isSWconnected();
 
-        chm.write(test.getcasenum());
+        if (chm.read().contains("switchok"))
+            chm.write(test.getcasenum());
 
         String response = chm.read();
 
-        log.info(response);
+        String[] split = StringUtils.split(response, "\n");
+        log.info(split[0]);
+        log.info(split[1]);
         cm.killController();
     }
 

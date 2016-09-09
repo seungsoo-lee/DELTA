@@ -8,10 +8,9 @@ import jpcap.packet.IPPacket;
 import jpcap.packet.Packet;
 import jpcap.packet.TCPPacket;
 import org.deltaproject.channelagent.core.Utils;
-import org.deltaproject.channelagent.dummy.DummyOFSwitch;
 import org.deltaproject.channelagent.fuzz.SeedPackets;
 import org.deltaproject.channelagent.networknode.TopoInfo;
-import org.deltaproject.channelagent.testcase.TestAdvancedSet;
+import org.deltaproject.channelagent.testcase.TestAdvancedCase;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.OFFactories;
 import org.projectfloodlight.openflow.protocol.OFFactory;
@@ -19,7 +18,6 @@ import org.projectfloodlight.openflow.protocol.OFVersion;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +56,7 @@ public class PktListener {
 	private String ofPort;
 	private byte ofversion;
 
-	protected TestAdvancedSet testAdvanced;
+	protected TestAdvancedCase testAdvanced;
 	private SeedPackets seedPkts;
 
 	public PktListener(NetworkInterface mydevice, String controllerip, String switchip, byte OFversion, String port,
@@ -84,12 +82,12 @@ public class PktListener {
 		else if (OFversion == 0x04)
 			factory = OFFactories.getFactory(OFVersion.OF_13);
 		if (factory != null)
-			testAdvanced = new TestAdvancedSet(factory, this.ofversion);
+			testAdvanced = new TestAdvancedCase(factory, this.ofversion);
 
 		// set Handler
 		this.handler = new middle_handler();
 
-		typeOfAttacks = TestAdvancedSet.EMPTY;
+		typeOfAttacks = TestAdvancedCase.EMPTY;
 		seedPkts = new SeedPackets(factory);
 	}
 
@@ -250,7 +248,7 @@ public class PktListener {
 
 			ByteBuf newBuf = null;
 
-			if (typeOfAttacks == TestAdvancedSet.EVAESDROP) {
+			if (typeOfAttacks == TestAdvancedCase.EVAESDROP) {
 				this.sendPkt(p_temp);
 				
 				if (p_temp.data.length > 8) {					
@@ -261,7 +259,7 @@ public class PktListener {
 						e.printStackTrace();
 					}
 				}
-			} else if (typeOfAttacks == TestAdvancedSet.LINKFABRICATION) {
+			} else if (typeOfAttacks == TestAdvancedCase.LINKFABRICATION) {
 
 				if (p_temp.data.length > 8) {
 					try {
@@ -271,7 +269,7 @@ public class PktListener {
 						e.printStackTrace();
 					}
 				}
-			} else if (typeOfAttacks == TestAdvancedSet.MITM) {
+			} else if (typeOfAttacks == TestAdvancedCase.MITM) {
 				if (p_temp.data.length > 8) {
 					try {
 						newBuf = testAdvanced.testMITM(p_temp);
@@ -280,14 +278,14 @@ public class PktListener {
 						e.printStackTrace();
 					}
 				}
-			} else if (typeOfAttacks == TestAdvancedSet.CONTROLMESSAGEMANIPULATION) {
+			} else if (typeOfAttacks == TestAdvancedCase.CONTROLMESSAGEMANIPULATION) {
 				System.out.println("\n[ATTACK] Control Message Manipulation");
 				/* Modify a Packet Here */
 				if (this.dst_ip.equals(controllerIP)) {
 					(p.data)[2] = 0x77;
 					(p.data)[3] = 0x77;
 				}
-			} else if (typeOfAttacks == TestAdvancedSet.MALFORMEDCONTROLMESSAGE) {
+			} else if (typeOfAttacks == TestAdvancedCase.MALFORMEDCONTROLMESSAGE) {
 				System.out.println("\n[ATTACK] Malformed Control Message");
 				/* Modify a Packet Here */
 				if (this.dst_ip.equals(switchIP)) {
@@ -296,7 +294,7 @@ public class PktListener {
 					(p.data)[3] = 0x01;
 					// }
 				}
-			} else if (typeOfAttacks == TestAdvancedSet.SEED) {
+			} else if (typeOfAttacks == TestAdvancedCase.SEED) {
 				/* Modify a Packet Here */
 				if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
 					// System.out.print(switchIP + " -> " + controllerIP + " ");
@@ -310,7 +308,7 @@ public class PktListener {
 				return;
 			}
 
-			if (typeOfAttacks == TestAdvancedSet.MITM || typeOfAttacks == TestAdvancedSet.LINKFABRICATION) {
+			if (typeOfAttacks == TestAdvancedCase.MITM || typeOfAttacks == TestAdvancedCase.LINKFABRICATION) {
 				if (newBuf != null) {
 					byte[] bytes;
 					int length = newBuf.readableBytes();

@@ -14,7 +14,7 @@ import java.lang.reflect.Field;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import org.deltaproject.channelagent.dummy.DummyOFSwitch;
+import org.deltaproject.channelagent.dummy.DMOFSwitch;
 import org.deltaproject.channelagent.pkthandle.NIC;
 import org.deltaproject.channelagent.pkthandle.PktListener;
 import org.deltaproject.channelagent.testcase.*;
@@ -40,10 +40,6 @@ public class AMInterface extends Thread {
     private String amIP;
     private int amPort;
 
-    private SwitchTableFlooder tableFlooding;
-    private SwitchIdentificationSpoofer idSpoofing;
-    private LinkFabricator linkDeception;
-
     private PktListener pktListener;
 
     private NetworkInterface device;
@@ -54,7 +50,7 @@ public class AMInterface extends Thread {
     private String controllerIP;
     private String switchIP;
 
-    private DummyOFSwitch dummysw;
+    private DMOFSwitch dummysw;
 
     private TestControllerCase testController;
 
@@ -62,7 +58,7 @@ public class AMInterface extends Thread {
         amIP = ip;
         amPort = Integer.parseInt(port);
 
-        dummysw = new DummyOFSwitch();
+        dummysw = new DMOFSwitch();
     }
 
     public AMInterface(String config) {
@@ -228,7 +224,7 @@ public class AMInterface extends Thread {
                     dos.writeUTF("success");
                 } else if (recv.equalsIgnoreCase("3.1.160")) {
                     System.out.println("\n[Channel-Agent] LinkFabrication test starts");
-                    pktListener.setTypeOfAttacks(TestAdvancedSet.LINKFABRICATION);
+                    pktListener.setTypeOfAttacks(TestAdvancedCase.LINKFABRICATION);
                     pktListener.startListening();
                     pktListener.startARPSpoofing();
 
@@ -237,7 +233,7 @@ public class AMInterface extends Thread {
                     dos.writeUTF("success");
                 } else if (recv.equalsIgnoreCase("3.1.170")) {
                     System.out.println("\n[Channel-Agent] Evaesdrop test starts");
-                    pktListener.setTypeOfAttacks(TestAdvancedSet.EVAESDROP);
+                    pktListener.setTypeOfAttacks(TestAdvancedCase.EVAESDROP);
                     pktListener.startListening();
                     pktListener.startARPSpoofing();
                 } else if (recv.equalsIgnoreCase("3.1.170-2")) {
@@ -252,14 +248,12 @@ public class AMInterface extends Thread {
                     dos.writeUTF(result);
                 } else if (recv.equalsIgnoreCase("3.1.180")) {
                     System.out.println("\n[Channel-Agent] MITM test start");
-                    pktListener.setTypeOfAttacks(TestAdvancedSet.MITM);
+                    pktListener.setTypeOfAttacks(TestAdvancedCase.MITM);
                     pktListener.startListening();
                     pktListener.startARPSpoofing();
                     dos.writeUTF("success");
                 } else if (recv.equalsIgnoreCase("3.1.050")) { // Switch Table
                     // Flooding
-                    tableFlooding = new SwitchTableFlooder();
-                    tableFlooding.startSwitchTableFlooding();
 
                     Thread.sleep(15000);
 
@@ -275,15 +269,15 @@ public class AMInterface extends Thread {
                     // dummysw.setSeed(pktListener.getSeedPackets());
                     dummysw.start();
                 } else if (recv.equalsIgnoreCase("exit")) {
-                    pktListener.setTypeOfAttacks(TestAdvancedSet.EMPTY);
+                    pktListener.setTypeOfAttacks(TestAdvancedCase.EMPTY);
                     pktListener.stopARPSpoofing();
                 } else if (recv.contains("startsw")) {
                     if (recv.contains("nohello")) {
-                        testController.startSW(DummyOFSwitch.HANDSHAKE_NO_HELLO);
+                        testController.startSW(DMOFSwitch.HANDSHAKE_NO_HELLO);
                     } else {
-                        testController.startSW(DummyOFSwitch.HANDSHAKE_DEFAULT);
+                        testController.startSW(DMOFSwitch.HANDSHAKE_DEFAULT);
                     }
-                    dos.writeUTF("ok");
+                    dos.writeUTF("switchok");
                 } else if (recv.equalsIgnoreCase("stopsw")) {
 
                 } else if (recv.equalsIgnoreCase("2.1.010")) {

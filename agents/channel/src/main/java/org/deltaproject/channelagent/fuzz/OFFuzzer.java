@@ -2,7 +2,7 @@ package org.deltaproject.channelagent.fuzz;
 
 import java.util.Random;
 
-import org.deltaproject.channelagent.dummy.DummyOFData;
+import org.deltaproject.channelagent.dummy.DMDataOF10;
 import org.deltaproject.channelagent.fuzz.OFPktStructure.PACKET_IN;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 
@@ -19,7 +19,7 @@ public class OFFuzzer {
 		 * bytes in_port - 2 bytes reason - 1 byte pad - 1 byte
 		 */
 
-		byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.packetin);
+		byte[] msg = DMDataOF10.hexStringToByteArray(DMDataOF10.PACKET_IN);
 
 		PACKET_IN[] fields = PACKET_IN.values();
 		int idx = random.nextInt(fields.length);
@@ -34,8 +34,8 @@ public class OFFuzzer {
 		random.nextBytes(crafted);
 		System.arraycopy(crafted, 0, msg, target.getStartOff(), crafted.length);
 
-		System.out.println("PACKET_IN\t" + target.name() + ":" + DummyOFData.bytesToHex(original) + " -> "
-				+ DummyOFData.bytesToHex(crafted));
+		System.out.println("PACKET_IN\t" + target.name() + ":" + DMDataOF10.bytesToHex(original) + " -> "
+				+ DMDataOF10.bytesToHex(crafted));
 
 		return msg;
 	}

@@ -104,11 +104,9 @@ public class AttackConductor {
     public void executeTestCase(TestCase test) throws InterruptedException {
         if (test.getcasenum().charAt(0) == '1') {
             testSwitchCase.replayKnownAttack(test);
-        }
-        else if (test.getcasenum().charAt(0) == '2') {
+        } else if (test.getcasenum().charAt(0) == '2') {
             testControllerCase.replayKnownAttack(test);
-        }
-        else if (test.getcasenum().charAt(0) == '3') {
+        } else if (test.getcasenum().charAt(0) == '3') {
             testAdvancedCase.replayKnownAttack(test);
         }
     }

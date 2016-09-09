@@ -72,6 +72,29 @@ public class TestCaseDirectory {
         directory.put("1.2.050",
                 new TestCase(DATA_PLANE_OF, "1.1.010", "Auxiliary Connection - Unsupported Messages"));
 
+        directory.put("2.1.010",
+                new TestCase(CONTROL_PLANE_OF, "2.1.010", "Malformed Version Number (supported but not negotiated version)"));
+        directory.put("2.1.020",
+                new TestCase(CONTROL_PLANE_OF, "2.1.020", "Corrupted Control Message Type"));
+        directory.put("2.1.030",
+                new TestCase(CONTROL_PLANE_OF, "2.1.030", "Handshake without Hello Message"));
+        directory.put("2.1.040",
+                new TestCase(CONTROL_PLANE_OF, "2.1.040", "Control Message before Hello Message (Main Connection)"));
+        directory.put("2.1.050",
+                new TestCase(CONTROL_PLANE_OF, "2.1.050", "Multiple main connection request from same switch"));
+        directory.put("2.1.060",
+                new TestCase(CONTROL_PLANE_OF, "2.1.060", "n-flagged Flow Remove Message notification"));
+        directory.put("2.1.070",
+                new TestCase(CONTROL_PLANE_OF, "2.1.070", "TLS Support"));
+        directory.put("2.1.071",
+                new TestCase(CONTROL_PLANE_OF, "2.1.071", "Startup Behaviour with Failed TLS Connection"));
+        directory.put("2.1.072",
+                new TestCase(CONTROL_PLANE_OF, "2.1.072", "Handling Invalid Authentication Credentials"));
+        directory.put("2.1.073",
+                new TestCase(CONTROL_PLANE_OF, "2.1.073", "Handling Control Packet Modification"));
+        directory.put("2.1.080",
+                new TestCase(CONTROL_PLANE_OF, "2.1.080", "Auxiliary Connection Mismatch with main connection"));
+
         directory.put("3.1.010",
                 new TestCase(ADVANCED, "3.1.010", "Packet-In Flooding"));
         directory.put("3.1.020",

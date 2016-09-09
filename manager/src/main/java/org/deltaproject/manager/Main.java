@@ -11,7 +11,7 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String args[]) throws IOException {
-        if (args.length != 1) {
+        if (args.length < 1) {
             System.err.println("Usage: java -jar target/delta-manager-1.0-SNAPSHOT-jar-with-dependencies.jar ../tools/config/manager.cfg");
             System.exit(1);
         }

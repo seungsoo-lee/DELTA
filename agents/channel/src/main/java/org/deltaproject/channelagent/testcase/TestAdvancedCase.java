@@ -1,27 +1,5 @@
 package org.deltaproject.channelagent.testcase;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.deltaproject.channelagent.core.Utils;
-import org.deltaproject.channelagent.dummy.DummyOFSwitch;
-import org.deltaproject.channelagent.networknode.NetworkNode;
-import org.deltaproject.channelagent.networknode.TopoInfo;
-import org.projectfloodlight.openflow.exceptions.OFParseError;
-import org.projectfloodlight.openflow.protocol.OFFactory;
-import org.projectfloodlight.openflow.protocol.OFFlowMod;
-import org.projectfloodlight.openflow.protocol.OFFlowModCommand;
-import org.projectfloodlight.openflow.protocol.OFMessage;
-import org.projectfloodlight.openflow.protocol.OFMessageReader;
-import org.projectfloodlight.openflow.protocol.OFPacketIn;
-import org.projectfloodlight.openflow.protocol.OFPacketOut;
-import org.projectfloodlight.openflow.protocol.OFType;
-import org.projectfloodlight.openflow.protocol.action.OFAction;
-import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
-import org.projectfloodlight.openflow.types.OFPort;
-import org.projectfloodlight.openflow.types.U16;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -29,8 +7,22 @@ import jpcap.packet.EthernetPacket;
 import jpcap.packet.IPPacket;
 import jpcap.packet.Packet;
 import jpcap.packet.TCPPacket;
+import org.deltaproject.channelagent.core.Utils;
+import org.deltaproject.channelagent.dummy.DMOFSwitch;
+import org.deltaproject.channelagent.networknode.NetworkNode;
+import org.deltaproject.channelagent.networknode.TopoInfo;
+import org.projectfloodlight.openflow.exceptions.OFParseError;
+import org.projectfloodlight.openflow.protocol.*;
+import org.projectfloodlight.openflow.protocol.action.OFAction;
+import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
+import org.projectfloodlight.openflow.types.OFPort;
+import org.projectfloodlight.openflow.types.U16;
 
-public class TestAdvancedSet {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class TestAdvancedCase {
 	static final int MINIMUM_LENGTH = 8;
 
 	public static final int TEST = -1;
@@ -47,9 +39,9 @@ public class TestAdvancedSet {
 	private OFMessageReader<OFMessage> reader;
 	private byte ofversion;
 
-	private ArrayList<DummyOFSwitch> switches;
+	private ArrayList<DMOFSwitch> switches;
 	
-	public TestAdvancedSet(OFFactory f, byte of) {
+	public TestAdvancedCase(OFFactory f, byte of) {
 		this.factory = f;
 		this.reader = factory.getReader();
 		this.ofversion = of;
@@ -65,7 +57,7 @@ public class TestAdvancedSet {
 	}
 
 	public boolean testSwitchIdentificationSpoofing(String controllerIP, String ofPort, byte OFVersion) {
-		switches = new ArrayList<DummyOFSwitch>();
+		switches = new ArrayList<DMOFSwitch>();
 		
 		for (int i = 0; i < 50; i++) {
 
@@ -76,7 +68,7 @@ public class TestAdvancedSet {
 			}
 
 			System.out.println("[Channel-Agent] Switch Spoofing "+i);
-			DummyOFSwitch dummysw = new DummyOFSwitch();
+			DMOFSwitch dummysw = new DMOFSwitch();
 			dummysw.connectTargetController(controllerIP, ofPort);
 			dummysw.setOFFactory(OFVersion);
 			dummysw.start();

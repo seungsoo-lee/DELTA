@@ -1,17 +1,16 @@
 package org.deltaproject.channelagent.testcase;
 
 import com.google.common.primitives.Longs;
-import org.deltaproject.channelagent.dummy.DummyOFData;
-import org.deltaproject.channelagent.dummy.DummyOFSwitch;
+import org.deltaproject.channelagent.core.Utils;
+import org.deltaproject.channelagent.dummy.DMDataOF10;
+import org.deltaproject.channelagent.dummy.DMDataOF13;
+import org.deltaproject.channelagent.dummy.DMOFSwitch;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
-import org.projectfloodlight.openflow.protocol.OFFlowAdd;
-import org.projectfloodlight.openflow.protocol.OFFlowRemoved;
-import org.projectfloodlight.openflow.protocol.OFMessage;
-import org.projectfloodlight.openflow.protocol.action.OFAction;
+import org.projectfloodlight.openflow.protocol.*;
+import org.projectfloodlight.openflow.types.OFPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 
 /**
@@ -20,11 +19,11 @@ import java.lang.reflect.Field;
 public class TestControllerCase {
     private static final Logger log = LoggerFactory.getLogger(TestControllerCase.class);
 
-    private DummyOFSwitch ofSwitch;
+    private DMOFSwitch ofSwitch;
     private String targetIP;
     private String targetPORT;
 
-    private long requestXid = 0xeeeeeeaal;
+    private long requestXid = 0xeeeeeeeel;
     private OFMessage response;
     private byte targetOFVersion;
 
@@ -43,14 +42,19 @@ public class TestControllerCase {
 
     public boolean startSW(int type) {
         log.info("Start dummy switch");
-        ofSwitch = new DummyOFSwitch();
+        ofSwitch = new DMOFSwitch();
         ofSwitch.setTestHandShakeType(type);
         ofSwitch.setOFFactory(targetOFVersion);
         ofSwitch.connectTargetController(targetIP, targetPORT);
+        try {
+            ofSwitch.sendHello(0);
+        } catch (OFParseError ofParseError) {
+            ofParseError.printStackTrace();
+        }
         ofSwitch.start();
 
-        if(type == DummyOFSwitch.HANDSHAKE_DEFAULT) {
-            while(!isHandshaked()) {
+        if (type == DMOFSwitch.HANDSHAKE_DEFAULT) {
+            while (!isHandshaked()) {
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
@@ -58,12 +62,12 @@ public class TestControllerCase {
                 }
             }
         }
-
+        log.info("OF Handshake completed");
         return true;
     }
 
     public String testMalformedVersionNumber(String code) {
-        while(!isHandshaked()) {
+        while (!isHandshaked()) {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -71,16 +75,26 @@ public class TestControllerCase {
             }
         }
 
-        byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.packetin);
+        String result;
+
+        byte[] msg;
+        if (targetOFVersion == 4) {
+            msg = Utils.hexStringToByteArray(DMDataOF13.PACKET_IN);
+            msg[0] = (byte) 0x01;
+            result = "Send Packet-In msg with OF version 1.0\n";
+        } else {
+            msg = Utils.hexStringToByteArray(DMDataOF10.PACKET_IN);
+            msg[0] = (byte) 0x04;
+            result = "Send Packet-In msg with OF version 1.3\n";
+        }
+
         byte[] xidbytes = Longs.toByteArray(requestXid);
         System.arraycopy(xidbytes, 4, msg, 4, 4);
-
-        msg[0] = (byte) 0x05;               // malformed version (0x05)
 
         ofSwitch.sendRawMsg(msg);
 
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -88,13 +102,15 @@ public class TestControllerCase {
         // switch disconnection
         OFMessage response = ofSwitch.getResponse();
         if (response != null) {
-            return response.toString() +", PASS";
+            result += "Response msg : " + response.toString() + ", PASS";
         } else
-            return ("response is null, FAIL");
+            result += "response is null, FAIL";
+
+        return result;
     }
 
     public String testCorruptedControlMsgType(String code) {
-        while(!isHandshaked()) {
+        while (!isHandshaked()) {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -102,7 +118,8 @@ public class TestControllerCase {
             }
         }
 
-        byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.packetin);
+
+        byte[] msg = DMDataOF10.hexStringToByteArray(DMDataOF10.PACKET_IN);
         byte[] xidbytes = Longs.toByteArray(requestXid);
         System.arraycopy(xidbytes, 4, msg, 4, 4);
 
@@ -119,13 +136,13 @@ public class TestControllerCase {
         // switch disconnection
         OFMessage response = ofSwitch.getResponse();
         if (response != null) {
-            return response.toString() +", PASS";
+            return response.toString() + ", PASS";
         } else
             return ("response is null, FAIL");
     }
 
     public String testControlMsgBeforeHello(String code) {
-        byte[] msg = DummyOFData.hexStringToByteArray(DummyOFData.packetin);
+        byte[] msg = DMDataOF10.hexStringToByteArray(DMDataOF10.PACKET_IN);
         byte[] xidbytes = Longs.toByteArray(requestXid);
         System.arraycopy(xidbytes, 4, msg, 4, 4);
 
@@ -140,7 +157,7 @@ public class TestControllerCase {
         // switch disconnection
         OFMessage response = ofSwitch.getResponse();
         if (response != null) {
-            return response.toString() +", PASS";
+            return response.toString() + ", PASS";
         } else
             return ("response is null, FAIL");
     }
@@ -161,7 +178,7 @@ public class TestControllerCase {
         // switch disconnection
         OFMessage response = ofSwitch.getResponse();
         if (response != null) {
-            return response.toString() +", PASS";
+            return response.toString() + ", PASS";
         } else
             return ("response is null, FAIL");
     }
@@ -170,7 +187,7 @@ public class TestControllerCase {
         String info = code + " - Un-flagged Flow Remove Message Notification";
         log.info(info);
 
-        while(!isHandshaked()) {
+        while (!isHandshaked()) {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -181,13 +198,13 @@ public class TestControllerCase {
         log.info("building msg");
 
         OFFlowAdd fa = ofSwitch.getBackupFlowAdd();
-        if(fa == null)
+        if (fa == null)
             return "nothing";
 
         OFFlowRemoved.Builder fm = ofSwitch.getFactory().buildFlowRemoved();
         fm.setMatch(fa.getMatch());
         fm.setXid(this.requestXid);
-        fm.setReason((short)1);
+        fm.setReason((short) 1);
 
         OFFlowRemoved msg = fm.build();
 
@@ -198,7 +215,7 @@ public class TestControllerCase {
         // switch disconnection
         OFMessage response = ofSwitch.getResponse();
         if (response != null) {
-            return response.toString() +", FAIL";
+            return response.toString() + ", FAIL";
         } else
             return ("response is null, PASS");
     }
@@ -206,7 +223,7 @@ public class TestControllerCase {
     public String testTLSSupport(String code) {
         log.info("Test TLS Support");
         try {
-            proc = Runtime.getRuntime().exec("python ./test-controller-topo.py "+targetIP+" "+targetPORT);
+            proc = Runtime.getRuntime().exec("python ./test-controller-topo.py " + targetIP + " " + targetPORT);
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
             Object value = pidField.get(proc);
