@@ -1,5 +1,7 @@
 package org.deltaproject.webui;
 
+import org.deltaproject.manager.core.AttackConductor;
+
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -47,7 +49,6 @@ public class TestCase {
     private Status status;
     private Date time;
     private TestResult result;
-
 
     public TestCase(String casenum) {
         this.casenum = casenum;

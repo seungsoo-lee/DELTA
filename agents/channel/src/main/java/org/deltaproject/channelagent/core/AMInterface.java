@@ -278,8 +278,8 @@ public class AMInterface extends Thread {
                         testController.startSW(DMOFSwitch.HANDSHAKE_DEFAULT);
                     }
                     dos.writeUTF("switchok");
-                } else if (recv.equalsIgnoreCase("stopsw")) {
-
+                } else if (recv.equalsIgnoreCase("stoptemp")) {
+                    testController.stopTempSW();
                 } else if (recv.equalsIgnoreCase("2.1.010")) {
                     String res = testController.testMalformedVersionNumber(recv);
                     dos.writeUTF(res);
@@ -298,7 +298,7 @@ public class AMInterface extends Thread {
                 } else if (recv.contains("2.1.070")) {
                     if (recv.contains("exit")) {
                         testController.exitTopo();
-                        return;
+                        continue;
                     } else {
                         String res = testController.testTLSSupport(recv);
                         dos.writeUTF(res);

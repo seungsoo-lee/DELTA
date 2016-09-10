@@ -14,10 +14,7 @@ import org.projectfloodlight.openflow.types.U16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -36,7 +33,6 @@ public class DMController extends Thread {
 
     public static final int MINIMUM_LENGTH = 8;
 
-    private ServerSocket serverSock;
     private Socket targetSock;
     private InputStream in;
     private OutputStream out;
@@ -59,6 +55,7 @@ public class DMController extends Thread {
     private boolean synack = false;
 
     private OFFlowAdd backupFlowAdd;
+    private ServerSocket serverSock;
 
     public DMController(String ver, int port) {
         res = null;
@@ -233,7 +230,8 @@ public class DMController extends Thread {
     public void listeningSwitch() {
         log.info("Listening switches on " + this.port);
         try {
-            serverSock = new ServerSocket(this.port);
+            serverSock = new ServerSocket(port);
+            serverSock.setReuseAddress(true);
             Socket temp = serverSock.accept();
             log.info("Switch connected from  " + temp.toString());
             setTargetSock(temp);
@@ -398,6 +396,10 @@ public class DMController extends Thread {
 
         bb.clear();
         return true;
+    }
+
+    public boolean isSockClosed() {
+        return serverSock.isClosed();
     }
 
     @Override

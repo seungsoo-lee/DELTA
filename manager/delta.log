@@ -1,9 +1,12 @@
-[2016.09.08 23:35:58 KST] [main] INFO WebUI - WebUI started @ localhost:7070
-[2016.09.08 23:36:06 KST] [Thread-4] INFO TestControllerCase - 2.1.010 - Malformed Version Number
-[2016.09.08 23:36:06 KST] [Thread-4] INFO TestControllerCase - Target controller: ONOS v1.6
-[2016.09.08 23:36:06 KST] [Thread-4] INFO TestControllerCase - Target controller is starting..
-[2016.09.08 23:36:23 KST] [Thread-0] INFO AttackConductor - AppAgent is connected
-[2016.09.08 23:36:25 KST] [Thread-4] INFO TestControllerCase - Listening to switches..
-[2016.09.08 23:36:25 KST] [Thread-4] INFO TestControllerCase - Dummy Switch starts
-[2016.09.08 23:36:26 KST] [Thread-4] INFO TestControllerCase - Send Packet-In msg with OF version 1.0
-[2016.09.08 23:36:26 KST] [Thread-4] INFO TestControllerCase - response is null, FAIL
+[2016.09.10 12:01:43 KST] [main] INFO WebUI - WebUI started @ localhost:7070
+[2016.09.10 12:02:05 KST] [grizzly-http-server-31] INFO TestQueueResource - 1 test case(s) queued.
+[2016.09.10 12:02:06 KST] [Thread-4] INFO AttackConductor -  
+[2016.09.10 12:02:06 KST] [Thread-4] INFO TestAdvancedCase - Run channel/host agent..
+[2016.09.10 12:02:07 KST] [Thread-0] INFO AttackConductor - Host agent is connected
+[2016.09.10 12:02:07 KST] [Thread-0] INFO AttackConductor - Channel agent is connected
+[2016.09.10 12:02:09 KST] [Thread-4] INFO TestAdvancedCase - 3.1.020 - Control Message Drop
+[2016.09.10 12:02:09 KST] [Thread-4] INFO TestAdvancedCase - Target controller: ONOS v1.6
+[2016.09.10 12:02:09 KST] [Thread-4] INFO TestAdvancedCase - Target controller is starting..
+[2016.09.10 12:02:31 KST] [Thread-4] INFO TestAdvancedCase - Target controller setup is completed
+[2016.09.10 12:02:31 KST] [Thread-4] INFO TestAdvancedCase - Listening to switches..
+[2016.09.10 12:02:34 KST] [Thread-0] INFO AttackConductor - AppAgent is connected

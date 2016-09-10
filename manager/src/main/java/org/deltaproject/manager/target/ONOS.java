@@ -41,7 +41,6 @@ public class ONOS implements TargetController {
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
             Object value = pidField.get(process);
-
             this.currentPID = (Integer) value;
 
             stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));

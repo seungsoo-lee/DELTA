@@ -55,7 +55,7 @@ public class DMOFSwitch extends Thread {
 
     private int testHandShakeType;
 
-    private long requestXid = 0xeeeeeeaal;
+    private long requestXid = 0xeeeeeeeel;
     private boolean handshaked = false;
     private boolean synack = false;
 
@@ -243,7 +243,7 @@ public class DMOFSwitch extends Thread {
     /* OF HandShake */
     public void sendHello(long xid) throws OFParseError {
         if (testHandShakeType == DMOFSwitch.HANDSHAKE_NO_HELLO) {
-            this.sendFeatureReply(requestXid);
+            // this.sendFeatureReply(requestXid);
             return;
         }
 
@@ -290,20 +290,29 @@ public class DMOFSwitch extends Thread {
     }
 
     public void sendStatReply(OFMessage input, long xid) {
-        byte[] msg = null;
+        byte[] msg;
 
         if (factory.getVersion() == OFVersion.OF_13) {
             OFStatsRequest req = (OFStatsRequest) input;
             switch (req.getStatsType()) {
-                case FLOW:
-                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_FLOW);
+                case PORT_DESC:
+                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_PORT_DESC);
                     break;
-                case AGGREGATE:
+                case DESC:
+                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_DESC);
                     break;
-                case TABLE:
+                case METER:
+                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_METER);
                     break;
                 case PORT:
                     msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_PORT_STATS);
+                    break;
+                case FLOW:
+                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_FLOW);
+                    break;
+                /* case AGGREGATE:
+                    break;
+                case TABLE:
                     break;
                 case QUEUE:
                     break;
@@ -315,28 +324,20 @@ public class DMOFSwitch extends Thread {
                     break;
                 case GROUP_FEATURES:
                     break;
-                case METER:
-                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_METER);
-                    break;
                 case METER_CONFIG:
                     break;
                 case METER_FEATURES:
                     break;
                 case TABLE_FEATURES:
                     break;
-                case PORT_DESC:
-                    log.info("OF PORT_DESC");
-                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_PORT_DESC);
-                    break;
                 case TABLE_DESC:
                     break;
                 case QUEUE_DESC:
                     break;
                 case FLOW_MONITOR:
-                    break;
-                case DESC:
-                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_DESC);
-                    break;
+                    break; */
+                default:
+                    return;
             }
         } else {
             msg = Utils.hexStringToByteArray(DMDataOF10.STATS_REPLY);
@@ -443,6 +444,7 @@ public class DMOFSwitch extends Thread {
                 }
 
                 if (xid == this.requestXid) {
+                    log.info("[CA] receive Response msg");
                     res = message;
                 }
 
@@ -466,14 +468,12 @@ public class DMOFSwitch extends Thread {
         boolean synack = false;
 
         try {
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 recv = new byte[2048];
                 if ((readlen = in.read(recv, 0, recv.length)) != -1) {
                     if (!synack) {
-                        log.info(readlen + ":" + recv.toString());
                         synack = true;
                     } else {
-                        /* after hello */
                         parseOFMsg(recv, readlen);
                     }
                 } else
@@ -481,14 +481,17 @@ public class DMOFSwitch extends Thread {
             }
         } catch (Exception e) {
             // if any error occurs
-            // e.printStackTrace();
-
+            e.printStackTrace();
+        } finally {
             if (in != null)
                 try {
                     in.close();
+
+                    if(socket != null)
+                        socket.close();
                 } catch (IOException e1) {
                     // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    e1.printStackTrace();
                 }
         }
     }

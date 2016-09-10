@@ -15,6 +15,6 @@ public class ConfigurationResource {
     @Produces(MediaType.TEXT_PLAIN)
     public Response getConfiguration() {
 
-        return Response.ok(Configuration.getInstance().show()).build();
+        return Response.ok(Configuration.getInstance().showWEB()).build();
     }
 }

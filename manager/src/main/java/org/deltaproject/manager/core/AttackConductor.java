@@ -38,17 +38,14 @@ public class AttackConductor {
     private TestControllerCase testControllerCase;
 
     public AttackConductor(String config) {
+        cfg.initialize(config);
+
         infoControllerCase = new HashMap<String, String>();
         infoSwitchCase = new HashMap<String, String>();
         infoAdvancedCase = new HashMap<String, String>();
 
-        cfg.initialize(config);
-
-        this.controllerm = new ControllerManager(cfg);
-
+        this.controllerm = new ControllerManager();
         this.appm = new AppAgentManager();
-        this.appm.setControllerType(cfg.getTargetController());
-
         this.hostm = new HostAgentManager();
         this.channelm = new ChannelAgentManager();
 
@@ -57,13 +54,18 @@ public class AttackConductor {
         CaseInfo.updateControllerCase(infoControllerCase);
         CaseInfo.updateSwitchCase(infoSwitchCase);
 
-        testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
-        testSwitchCase = new TestSwitchCase(cfg);
+        testSwitchCase = new TestSwitchCase();
         testControllerCase = new TestControllerCase(appm, hostm, channelm, controllerm);
+        testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
     }
 
     public String showConfig() {
         return cfg.show();
+    }
+
+    public void stopAgents() {
+        hostm.stopAgent();
+        channelm.stopAgent();
     }
 
     public void setSocket(Socket socket) throws IOException {
@@ -86,22 +88,17 @@ public class AttackConductor {
                     + ",handler:dummy" + ",cbench:" + cfg.getCbenchRoot();
 
             channelm.write(config);
+            log.info("Channel agent is connected");
         } else if (agentType.contains("HostAgent")) {
             hostm.setSocket(socket, dos, dis);
             hostm.write("target:" + cfg.getTargetHost());
+            log.info("Host agent is connected");
         }
     }
 
-//    public void replayKnownAttack(String code) throws InterruptedException {
-//        if (code.charAt(0) == '1')
-//            testSwitchCase.replayKnownAttack(code);
-//        if (code.charAt(0) == '2')
-//            testControllerCase.replayKnownAttack(code);
-//        if (code.charAt(0) == '3')
-//            testAdvancedCase.replayKnownAttack(code);
-//    }
-
     public void executeTestCase(TestCase test) throws InterruptedException {
+        log.info(" ");
+
         if (test.getcasenum().charAt(0) == '1') {
             testSwitchCase.replayKnownAttack(test);
         } else if (test.getcasenum().charAt(0) == '2') {
@@ -157,11 +154,19 @@ public class AttackConductor {
             return false;
     }
 
-    public void test(String code) {
-
+    public AppAgentManager getAppAgentManager() {
+        return this.appm;
     }
 
-    public void replayAllKnownAttacks() {
+    public ChannelAgentManager getChannelManager() {
+        return channelm;
+    }
 
+    public HostAgentManager getHostManager() {
+        return hostm;
+    }
+
+    public ControllerManager getControllerManager() {
+        return controllerm;
     }
 }

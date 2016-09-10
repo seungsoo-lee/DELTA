@@ -91,18 +91,20 @@ public class ResultAnalyzer {
             }
 
             if (isSuccess) {
-                test.setResult(PASS);
+                test.setResult(FAIL);
                 log.info(test.getcasenum() + ", FAIL");
                 break;
             }
         }
 
         if (!isSuccess) {
-            test.setResult(FAIL);
+            test.setResult(PASS);
             log.info(test.getcasenum() + ", PASS");
             return true;
-        } else
+        } else {
+            test.setResult(FAIL);
             return false;
+        }
     }
 
     public boolean checkCommunication(String in) {

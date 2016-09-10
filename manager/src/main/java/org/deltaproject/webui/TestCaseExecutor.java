@@ -3,6 +3,7 @@ package org.deltaproject.webui;
 import org.deltaproject.manager.core.AttackConductor;
 
 import static org.deltaproject.webui.TestCase.Status.*;
+
 /**
  * Created by changhoon on 9/8/16.
  */
@@ -19,8 +20,7 @@ public class TestCaseExecutor extends Thread {
 
     @Override
     public void run() {
-
-        while(running) {
+        while (running) {
             if (!queue.isEmpty()) {
                 TestCase test = queue.getNext();
                 try {
@@ -33,12 +33,10 @@ public class TestCaseExecutor extends Thread {
             }
 
             try {
-                Thread.sleep(1000);
+                Thread.sleep(999);
             } catch (InterruptedException e) {
                 running = false;
             }
         }
-
     }
-
 }

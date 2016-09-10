@@ -1,15 +1,13 @@
 package org.deltaproject.manager.testcase;
 
 import org.apache.commons.lang3.StringUtils;
-import org.deltaproject.manager.core.AppAgentManager;
-import org.deltaproject.manager.core.ChannelAgentManager;
-import org.deltaproject.manager.core.ControllerManager;
-import org.deltaproject.manager.core.HostAgentManager;
+import org.deltaproject.manager.core.*;
 import org.deltaproject.webui.TestCase;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.util.Random;
 
 import static org.deltaproject.webui.TestCase.TestResult.*;
@@ -24,16 +22,17 @@ public class TestControllerCase {
     public static final int HANDSHAKE_NO_HELLO = 1;
     public static final int HANDSHAKE_INCOMPATIBLE_HELLO = 2;
 
-    private OFFactory defaultFactory;
-    private Random random;
+    public static final int DEFAULT_TIMEOUT = 5000;
 
-    private String ofversion;
-    private int ofport;
+    private Configuration cfg = Configuration.getInstance();
 
     private ChannelAgentManager chm;
     private ControllerManager cm;
     private HostAgentManager hm;
     private AppAgentManager am;
+
+    private Process proc;
+    private int procPID;
 
     public TestControllerCase(AppAgentManager am, HostAgentManager hm, ChannelAgentManager cm, ControllerManager ctm) {
         this.chm = cm;
@@ -42,7 +41,24 @@ public class TestControllerCase {
         this.am = am;
     }
 
+    public void runRemoteAgents() {
+        chm.runAgent();
+        log.info("Run channel agent..");
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void stopRemoteAgents() {
+        chm.stopAgent();
+    }
+
     public void replayKnownAttack(TestCase test) throws InterruptedException {
+        runRemoteAgents();
+
         switch (test.getcasenum()) {
             case "2.1.010":
                 testMalformedVersionNumber(test);
@@ -66,6 +82,8 @@ public class TestControllerCase {
                 testTLSupport(test);
                 break;
         }
+
+        stopRemoteAgents();
     }
 
     public void initController() {
@@ -109,7 +127,7 @@ public class TestControllerCase {
 
         initController();
 
-        log.info("Dummy Switch starts");
+        log.info("Dummy switch starts");
         chm.write("startsw");
 
         if (chm.read().contains("switchok"))
@@ -120,6 +138,12 @@ public class TestControllerCase {
         String[] split = StringUtils.split(response, "\n");
         log.info(split[0]);
         log.info(split[1]);
+
+        if (split[1].contains("PASS"))
+            test.setResult(PASS);
+        else
+            test.setResult(FAIL);
+
         cm.killController();
     }
 
@@ -134,15 +158,23 @@ public class TestControllerCase {
 
         initController();
 
-        log.info("Channel-agent starts");
+        log.info("Dummy switch starts");
         chm.write("startsw");
-        isSWconnected();
 
-        chm.write(test.getcasenum());
+        if (chm.read().contains("switchok"))
+            chm.write(test.getcasenum());
 
         String response = chm.read();
 
-        log.info(response);
+        String[] split = StringUtils.split(response, "\n");
+        log.info(split[0]);
+        log.info(split[1]);
+
+        if (split[1].contains("PASS"))
+            test.setResult(PASS);
+        else
+            test.setResult(FAIL);
+
         cm.killController();
     }
 
@@ -158,12 +190,12 @@ public class TestControllerCase {
 
         initController();
         chm.write("startsw|nohello");
+        chm.read();
 
-        chm.write(test.getcasenum());
-        log.info("Channel-agent starts");
+        log.info("Dummy switch dosen't send hello message");
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(DEFAULT_TIMEOUT);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -174,10 +206,10 @@ public class TestControllerCase {
 
         if (cnt == 0) {
             test.setResult(PASS);
-            log.info("switch disconnected, PASS");
+            log.info("Switch disconnected, PASS");
         } else {
             test.setResult(FAIL);
-            log.info("switch connected, FAIL");
+            log.info("Switch connected, FAIL");
         }
 
         cm.killController();
@@ -194,28 +226,23 @@ public class TestControllerCase {
         log.info(info);
 
         initController();
+
+        log.info("Dummy switch starts");
         chm.write("startsw|nohello");
 
-        chm.write(test.getcasenum());
-        log.info("Channel-agent starts");
+        if (chm.read().contains("switchok"))
+            chm.write(test.getcasenum());
 
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        String response = chm.read();
 
-        log.info("Check switch connections");
-        int cnt = cm.isConnectedSwitch(false);
+        String[] split = StringUtils.split(response, "\n");
+        log.info(split[0]);
+        log.info(split[1]);
 
-        if (cnt == 0) {
+        if (split[1].contains("PASS"))
             test.setResult(PASS);
-            log.info("switch disconnected, PASS");
-        } else {
+        else
             test.setResult(FAIL);
-            log.info("switch connected, FAIL");
-        }
 
         cm.killController();
     }
@@ -229,14 +256,18 @@ public class TestControllerCase {
         log.info(info);
 
         initController();
+
+        log.info("Dummy switch starts");
         chm.write("startsw");
 
-        isSWconnected();
-        chm.write(test.getcasenum());
-        log.info("Channel-agent starts");
+        if (chm.read().contains("switchok"))
+            chm.write(test.getcasenum());
+
+        String response = chm.read();
+        log.info(response);
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -245,14 +276,15 @@ public class TestControllerCase {
         log.info("Check switch connections");
         int cnt = cm.isConnectedSwitch(false);
 
-        if (cnt == 0) {
+        if (cnt == 1) {
             test.setResult(PASS);
-            log.info("switch disconnected, PASS");
+            log.info("Reject other same switches, PASS");
         } else {
             test.setResult(FAIL);
-            log.info("switch connected, FAIL");
+            log.info("Accept other same switches, FAIL");
         }
 
+        chm.write("stoptemp");
         cm.killController();
     }
 
@@ -265,21 +297,29 @@ public class TestControllerCase {
         log.info(info);
 
         initController();
+
+        log.info("Dummy switch starts");
         chm.write("startsw");
-        chm.read();
-        isSWconnected();
+
+        if (!chm.read().contains("switchok"))
+            return;
 
         am.write(test.getcasenum());
-        log.info("App-agent starts");
+        log.info("App-agent sends FLOW_ADD with un-flagged removed");
         log.info(am.read());
 
         Thread.sleep(2000);
-        chm.write(test.getcasenum());
-        Thread.sleep(2000);
-
         String response = chm.read();
 
-        log.info(response);
+        String[] split = StringUtils.split(response, "\n");
+        log.info(split[0]);
+        log.info(split[1]);
+
+        if (split[1].contains("PASS"))
+            test.setResult(PASS);
+        else
+            test.setResult(FAIL);
+
         cm.killController();
     }
 
@@ -292,27 +332,26 @@ public class TestControllerCase {
         log.info(info);
 
         initController();
-        chm.write("startsw");
-
-        isSWconnected();
 
         chm.write(test.getcasenum());
-        log.info("Channel-agent starts");
+        log.info("Dummy Switch initiates a connection using TLS");
 
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
-        log.info("Check switch connections");
+        log.info("Check the switch connection");
         int cnt = cm.isConnectedSwitch(false);
 
         if (cnt == 0) {
-            log.info("switch disconnected, FAIL");
+            test.setResult(FAIL);
+            log.info("Switch disconnected, FAIL");
         } else {
-            log.info("switch connected, PASS");
+            test.setResult(PASS);
+            log.info("Switch connected, PASS");
         }
 
         chm.write(test.getcasenum() + ":exit");

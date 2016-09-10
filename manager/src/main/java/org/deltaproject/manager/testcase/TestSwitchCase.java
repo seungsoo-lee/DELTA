@@ -2,6 +2,7 @@ package org.deltaproject.manager.testcase;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import org.deltaproject.manager.core.AttackConductor;
 import org.deltaproject.manager.core.Configuration;
 import org.deltaproject.manager.dummy.DMController;
 import org.deltaproject.webui.TestCase;
@@ -21,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.net.ServerSocket;
 import java.util.*;
 
 import static org.deltaproject.webui.TestCase.TestResult.*;
@@ -35,6 +38,8 @@ public class TestSwitchCase {
 
     public static final int DEFAULT_TIMEOUT = 5000;
 
+    private Configuration cfg = Configuration.getInstance();
+
     private DMController dmcnt;
     private OFFactory defaultFactory;
     private Random random;
@@ -43,11 +48,12 @@ public class TestSwitchCase {
 
     private String ofversion;
     private int ofport;
-    private Configuration cfg;
 
-    public TestSwitchCase(Configuration in) {
+    private Process proc;
+    private int procPID;
+
+    public TestSwitchCase() {
         random = new Random();
-        cfg = in;
 
         ofversion = cfg.getOFVer();
         if (ofversion.equals("1.0"))
@@ -58,7 +64,55 @@ public class TestSwitchCase {
         ofport = Integer.parseInt(cfg.getOFPort());
     }
 
+    public void runRemoteAgents() {
+        log.info("Run test mininet topology");
+
+        String mininet;
+
+        if (ofversion.equals("1.0"))
+            mininet = " sudo python $HOME/test-switch-topo.py " + cfg.getDMCIP() + " " + cfg.getDMCPort() + " OpenFlow10";
+        else
+            mininet = " sudo python $HOME/test-switch-topo.py " + cfg.getDMCIP() + " " + cfg.getDMCPort() + " OpenFlow13";
+
+        try {
+            proc = Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + mininet);
+
+            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
+            pidField.setAccessible(true);
+            Object value = pidField.get(proc);
+            this.procPID = (Integer) value;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void stopRemoteAgents() {
+        if (procPID != -1)
+            try {
+                proc = Runtime.getRuntime().exec("sudo kill -9 " + this.procPID);
+                proc.waitFor();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        else
+            procPID = -1;
+
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void replayKnownAttack(TestCase test) throws InterruptedException {
+        runRemoteAgents();
+
         switch (test.getcasenum()) {
             case "1.1.010":
                 testPortRangeViolation(test);
@@ -112,6 +166,8 @@ public class TestSwitchCase {
                 testMalformedBufferIDValue(test);
                 break;
         }
+
+        stopRemoteAgents();
     }
 
     public long genXid() {
@@ -125,7 +181,6 @@ public class TestSwitchCase {
     public void setUpDummyController(int type) {
         dmcnt = new DMController(ofversion, ofport);
         dmcnt.listeningSwitch();
-
         dmcnt.setHandShakeType(type);
         dmcnt.start();
 
@@ -134,7 +189,7 @@ public class TestSwitchCase {
 
         while (!dmcnt.getHandshaked()) {
             try {
-                Thread.sleep(500);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -143,9 +198,16 @@ public class TestSwitchCase {
     }
 
     public void stopDummyController() {
-        // dcontroller.stopNetty();
-        log.info("Dummy Controller Closed");
         dmcnt.interrupt();
+
+        while (!dmcnt.isSockClosed()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
     public int getConnectedSwitch() {
@@ -189,7 +251,7 @@ public class TestSwitchCase {
         log.info("Send msg: " + request.toString());
         dmcnt.sendMsg(request, -1);
 
-        Thread.sleep(1000);
+        Thread.sleep(999);
 
         OFMessage response = dmcnt.getResponse();
 

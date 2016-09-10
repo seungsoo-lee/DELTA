@@ -19,12 +19,10 @@ public class AppAgentManager {
 
     private String targetController;
 
+    private Configuration cfg = Configuration.getInstance();
+
     public AppAgentManager() {
-
-    }
-
-    public void setControllerType(String in) {
-        this.targetController = in;
+        this.targetController = cfg.getTargetController();
     }
 
     public void closeSocket() {

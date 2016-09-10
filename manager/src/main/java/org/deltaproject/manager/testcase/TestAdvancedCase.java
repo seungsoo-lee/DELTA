@@ -2,16 +2,17 @@ package org.deltaproject.manager.testcase;
 
 import org.deltaproject.manager.analysis.ResultAnalyzer;
 import org.deltaproject.manager.analysis.ResultInfo;
-import org.deltaproject.manager.core.AppAgentManager;
-import org.deltaproject.manager.core.ChannelAgentManager;
-import org.deltaproject.manager.core.ControllerManager;
-import org.deltaproject.manager.core.HostAgentManager;
+import org.deltaproject.manager.core.*;
 import org.deltaproject.webui.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
+
 public class TestAdvancedCase {
     private static final Logger log = LoggerFactory.getLogger(TestAdvancedCase.class.getName());
+
+    private Configuration cfg = Configuration.getInstance();
 
     private AppAgentManager appm;
     private HostAgentManager hostm;
@@ -29,36 +30,33 @@ public class TestAdvancedCase {
         this.analyzer = new ResultAnalyzer(controllerm);
     }
 
-    public void initController() {
-        if (!controllerm.isRunning()) {
-            log.info("Target controller: " + controllerm.getType() + " " + controllerm.getVersion());
+    public void runRemoteAgents() {
+        channelm.runAgent();
+        hostm.runAgent();
+        log.info("Run channel/host agent..");
 
-            log.info("Target controller is starting..");
-            controllerm.createController();
-            log.info("Target controller setup is completed");
-
-			/* waiting for switches */
-            log.info("Listening to switches..");
-            controllerm.isConnectedSwitch(true);
-            log.info("All switches are connected");
-
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
-    public String generateFlow(String proto) {
-        hostm.write(proto);
-        String result = hostm.read();
+    public void stopRemoteAgents() {
+        log.info("Stop channel/host agent..");
+        hostm.stopAgent();
+        channelm.stopAgent();
 
-        return result;
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void replayKnownAttack(TestCase test) {
+        runRemoteAgents();
+
         switch (test.getcasenum()) {
             case "3.1.010":
                 testPacketInFlooding(test);
@@ -124,6 +122,37 @@ public class TestAdvancedCase {
                 testControlMessageManipulation(test);
                 break;
         }
+
+        stopRemoteAgents();
+    }
+
+    public void initController() {
+        if (!controllerm.isRunning()) {
+            log.info("Target controller: " + controllerm.getType() + " " + controllerm.getVersion());
+
+            log.info("Target controller is starting..");
+            controllerm.createController();
+            log.info("Target controller setup is completed");
+
+			/* waiting for switches */
+            log.info("Listening to switches..");
+            controllerm.isConnectedSwitch(true);
+            log.info("All switches are connected");
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public String generateFlow(String proto) {
+        hostm.write(proto);
+        String result = hostm.read();
+
+        return result;
     }
 
     /*

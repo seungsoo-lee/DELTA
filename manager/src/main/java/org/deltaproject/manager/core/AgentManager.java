@@ -20,6 +20,7 @@ public class AgentManager extends Thread {
     private static final Logger log = LoggerFactory.getLogger(AgentManager.class);
     private AttackConductor conductor;
     private ServerSocket listenAgent;
+
     private int portNum = 3366;
     private BufferedReader sc;
     private WebUI webUI = new WebUI();
@@ -27,13 +28,14 @@ public class AgentManager extends Thread {
 
     public AgentManager(String path) {
         conductor = new AttackConductor(path);
+
         testCaseExecutor = new TestCaseExecutor(conductor);
         testCaseExecutor.start();
         webUI.activate();
     }
 
     public void showMenu() throws IOException {
-        String input = "";
+        String input;
 
         sc = new BufferedReader(new InputStreamReader(System.in));
 
@@ -76,9 +78,9 @@ public class AgentManager extends Thread {
             input = sc.readLine();
 
             if (input.equalsIgnoreCase("A")) {
-                conductor.replayAllKnownAttacks();
+                // conductor.replayAllKnownAttacks();
             } else if (conductor.isPossibleAttack(input) && TestCaseDirectory.getDirectory().containsKey(input.trim())) {
-//                conductor.replayKnownAttack(input);
+                // conductor.replayKnownAttack(input);
                 TestCase testCase = new TestCase(input.trim());
                 testCase.setStatus(TestCase.Status.QUEUED);
                 TestQueue.getInstance().push(testCase);
@@ -94,8 +96,6 @@ public class AgentManager extends Thread {
             System.out.println(" [iI]\t- Intra-controller control message");
 
             System.out.print("\nSelect target control message> ");
-
-            conductor.test("test");
         }
         return true;
     }
@@ -120,6 +120,7 @@ public class AgentManager extends Thread {
         } catch (IOException e) {
             closeServerSocket();
         } finally {
+            conductor.stopAgents();
             closeServerSocket();
         }
     }

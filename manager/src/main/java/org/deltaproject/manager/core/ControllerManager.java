@@ -26,23 +26,21 @@ public class ControllerManager {
 
     private Process processCbench;
 
-    private Configuration cfg;
+    private Configuration cfg = Configuration.getInstance();
 
-    public ControllerManager(Configuration config) {
+    public ControllerManager() {
         targetList = new ArrayList<TargetController>();
         switchList = new ArrayList<String>();
 
-        cfg = config;
-
         this.setConfig();
         connectedSwitches = new ArrayList<String>();
-        sshAddr = cfg.getSSH();
+        sshAddr = cfg.getAppSSH();
     }
 
     public void setConfig() {
-        TargetController fl = new Floodlight(cfg.getFloodlightRoot(), cfg.getTargetVer(), cfg.getSSH());
-        TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getTargetVer(), cfg.getSSH());
-        TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getTargetVer(), cfg.getSSH());
+        TargetController fl = new Floodlight(cfg.getFloodlightRoot(), cfg.getTargetVer(), cfg.getAppSSH());
+        TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getTargetVer(), cfg.getAppSSH());
+        TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getTargetVer(), cfg.getAppSSH());
 
         targetList.add(fl);
         targetList.add(odl);
