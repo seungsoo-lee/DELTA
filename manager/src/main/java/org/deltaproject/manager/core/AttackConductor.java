@@ -37,6 +37,8 @@ public class AttackConductor {
     private TestSwitchCase testSwitchCase;
     private TestControllerCase testControllerCase;
 
+    private String agentType;
+
     public AttackConductor(String config) {
         cfg.initialize(config);
 
@@ -72,7 +74,7 @@ public class AttackConductor {
         dos = new DataOutputStream(socket.getOutputStream());
         dis = new DataInputStream(socket.getInputStream());
 
-        String agentType = dis.readUTF();
+        agentType = dis.readUTF();
 
         if (agentType.contains("AppAgent")) {
             appm.setAppSocket(socket, dos, dis);
@@ -97,8 +99,6 @@ public class AttackConductor {
     }
 
     public void executeTestCase(TestCase test) throws InterruptedException {
-        log.info(" ");
-
         if (test.getcasenum().charAt(0) == '1') {
             testSwitchCase.replayKnownAttack(test);
         } else if (test.getcasenum().charAt(0) == '2') {
@@ -106,6 +106,7 @@ public class AttackConductor {
         } else if (test.getcasenum().charAt(0) == '3') {
             testAdvancedCase.replayKnownAttack(test);
         }
+        log.info("\n");
     }
 
     public void replayKnownAttack() {

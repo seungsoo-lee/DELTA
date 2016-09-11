@@ -1,5 +1,8 @@
 package org.deltaproject.manager.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -7,6 +10,7 @@ import java.lang.reflect.Field;
 import java.net.Socket;
 
 public class HostAgentManager extends Thread {
+    private static final Logger log = LoggerFactory.getLogger(HostAgentManager.class);
     private Socket socket;
 
     private DataInputStream dis;
@@ -78,8 +82,10 @@ public class HostAgentManager extends Thread {
             if (dis != null)
                 dis.close();
 
-            socket.close();
-            socket = null;
+            if (socket != null) {
+                socket.close();
+                socket = null;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

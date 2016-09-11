@@ -30,10 +30,9 @@ public class TestAdvancedCase {
         this.analyzer = new ResultAnalyzer(controllerm);
     }
 
-    public void runRemoteAgents() {
+    public void runRemoteAgents(boolean channel, boolean host) {
         channelm.runAgent();
         hostm.runAgent();
-        log.info("Run channel/host agent..");
 
         try {
             Thread.sleep(3000);
@@ -55,67 +54,83 @@ public class TestAdvancedCase {
     }
 
     public void replayKnownAttack(TestCase test) {
-        runRemoteAgents();
-
         switch (test.getcasenum()) {
             case "3.1.010":
+                runRemoteAgents(false, true);
                 testPacketInFlooding(test);
                 break;
             case "3.1.020":
+                runRemoteAgents(false, true);
                 testControlMessageDrop(test);
                 break;
             case "3.1.030":
+                runRemoteAgents(false, true);
                 testInfiniteLoop(test);
                 break;
             case "3.1.040":
+                runRemoteAgents(false, true);
                 testInternalStorageAbuse(test);
                 break;
             case "3.1.050":
                 // testSwitchTableFlooding(test);
                 return;
             case "3.1.060":
+                runRemoteAgents(true, true);
                 testSwitchIdentificationSpoofing(test);
                 break;
             case "------1":         // testSwitchOFCase
                 testMalformedControlMessage(test);
                 break;
             case "3.1.070":
+                runRemoteAgents(false, true);
                 testFlowRuleModification(test);
                 break;
             case "3.1.080":
+                runRemoteAgents(false, true);
                 testFlowTableClearance(test);
                 break;
             case "3.1.090":
+                runRemoteAgents(false, true);
                 testEventUnsubscription(test);
                 break;
             case "3.1.100":
+                runRemoteAgents(false, true);
                 testApplicationEviction(test);
                 break;
             case "3.1.110":
+                runRemoteAgents(false, true);
                 testMemoryExhaustion(test);
                 break;
             case "3.1.120":
+                runRemoteAgents(false, true);
                 testCPUExhaustion(test);
                 break;
             case "3.1.130":
+                runRemoteAgents(false, true);
                 testSystemVariableManipulation(test);
                 break;
             case "3.1.140":
+                runRemoteAgents(false, true);
                 testSystemCommandExecution(test);
                 break;
             case "3.1.160":
+                runRemoteAgents(true, true);
                 testLinkFabrication(test);
                 break;
             case "3.1.170":
+                runRemoteAgents(true, true);
                 testEvaseDrop(test);
                 break;
             case "3.1.180":
+                runRemoteAgents(true, true);
                 testManInTheMiddle(test);
                 break;
             case "3.1.190":
+                runRemoteAgents(false, true);
                 testFlowRuleFlooding(test);
                 break;
             case "3.1.200":
+                runRemoteAgents(false, true);
                 testSwitchFirmwareMisuse(test);
                 break;
             case "------2":          // testControllerOFCase

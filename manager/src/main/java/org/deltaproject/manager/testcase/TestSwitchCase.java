@@ -70,9 +70,9 @@ public class TestSwitchCase {
         String mininet;
 
         if (ofversion.equals("1.0"))
-            mininet = " sudo python $HOME/test-switch-topo.py " + cfg.getDMCIP() + " " + cfg.getDMCPort() + " OpenFlow10";
+            mininet = " sudo python test-switch-topo.py " + cfg.getDMCIP() + " " + cfg.getDMCPort() + " OpenFlow10";
         else
-            mininet = " sudo python $HOME/test-switch-topo.py " + cfg.getDMCIP() + " " + cfg.getDMCPort() + " OpenFlow13";
+            mininet = " sudo python test-switch-topo.py " + cfg.getDMCIP() + " " + cfg.getDMCPort() + " OpenFlow13";
 
         try {
             proc = Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + mininet);

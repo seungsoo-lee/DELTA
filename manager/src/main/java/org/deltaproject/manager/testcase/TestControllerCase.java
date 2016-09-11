@@ -43,7 +43,6 @@ public class TestControllerCase {
 
     public void runRemoteAgents() {
         chm.runAgent();
-        log.info("Run channel agent..");
 
         try {
             Thread.sleep(3000);

@@ -26,6 +26,8 @@ public class AgentManager extends Thread {
     private WebUI webUI = new WebUI();
     private TestCaseExecutor testCaseExecutor;
 
+    private Socket temp;
+
     public AgentManager(String path) {
         conductor = new AttackConductor(path);
 
@@ -111,17 +113,18 @@ public class AgentManager extends Thread {
 
     @Override
     public void run() {
+        log.info("Start Server socket");
         try {
             listenAgent = new ServerSocket(portNum);
+            listenAgent.setReuseAddress(true);
+
             while (true) {
-                Socket temp = listenAgent.accept();
+                temp = listenAgent.accept();
                 conductor.setSocket(temp);
             }
         } catch (IOException e) {
-            closeServerSocket();
-        } finally {
-            conductor.stopAgents();
-            closeServerSocket();
+            e.printStackTrace();
+            //closeServerSocket();
         }
     }
 }

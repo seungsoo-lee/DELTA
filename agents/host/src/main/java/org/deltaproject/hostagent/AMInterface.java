@@ -84,6 +84,12 @@ public class AMInterface extends Thread {
 			out = socket.getOutputStream();
 			dos = new DataOutputStream(out);
 
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
 			dos.writeUTF("HostAgent");
 			dos.flush();
 		} catch (UnknownHostException e) {

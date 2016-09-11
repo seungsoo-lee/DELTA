@@ -1,5 +1,8 @@
 package org.deltaproject.manager.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -7,6 +10,8 @@ import java.lang.reflect.Field;
 import java.net.Socket;
 
 public class ChannelAgentManager extends Thread {
+    private static final Logger log = LoggerFactory.getLogger(ChannelAgentManager.class);
+
     private Socket socket;
 
     private DataInputStream dis;
@@ -57,9 +62,10 @@ public class ChannelAgentManager extends Thread {
 
     public boolean runAgent() {
         String amAddr = cfg.getAMIP() + " " + cfg.getAMPort();
+        String command = "ssh " + cfg.getChannelSSH() + " sudo java -jar delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar " + amAddr;
 
         try {
-            proc = Runtime.getRuntime().exec("ssh " + cfg.getChannelSSH() + " sudo java -jar $HOME/delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar " + amAddr);
+            proc = Runtime.getRuntime().exec(command);
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
             Object value = pidField.get(proc);
@@ -79,8 +85,10 @@ public class ChannelAgentManager extends Thread {
             if (dis != null)
                 dis.close();
 
-            socket.close();
-            socket = null;
+            if (socket != null) {
+                socket.close();
+                socket = null;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

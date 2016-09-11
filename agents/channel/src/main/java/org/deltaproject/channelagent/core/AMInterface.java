@@ -185,7 +185,7 @@ public class AMInterface extends Thread {
     public void connectAgentManager() {
         try {
             socket = new Socket(amIP, amPort);
-            socket.setReuseAddress(true);
+            // socket.setReuseAddress(true);
 
             in = socket.getInputStream();
             dis = new DataInputStream(in);
@@ -196,9 +196,7 @@ public class AMInterface extends Thread {
             dos.writeUTF("ChannelAgent");
             dos.flush();
 
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.info("connection completed");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -309,8 +307,7 @@ public class AMInterface extends Thread {
             }
         } catch (Exception e) {
             // if any error occurs
-            log.info("exit");
-            // e.printStackTrace();
+            e.printStackTrace();
 
             if (dis != null)
                 try {
@@ -320,7 +317,23 @@ public class AMInterface extends Thread {
                     // e.printStackTrace();
                 }
 
-            System.exit(0);
+            if (dos != null)
+                try {
+                    dos.close();
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    // e.printStackTrace();
+                }
+
+            if (socket != null)
+                try {
+                    socket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            // System.exit(0);
         }
+
+        log.info("Thread exit");
     }
 }

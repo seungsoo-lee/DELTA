@@ -40,13 +40,13 @@ def DeltaNetwork():
 
         h1.cmd("ifconfig eth0 10.0.2.10/24 netmask 255.255.255.0")
         #h1.cmd("dhclient eth0")
-        h1.cmd("java -jar $HOME/delta-agent-host-1.0-SNAPSHOT.jar "+sys.argv[3]+" "+sys.argv[4])
 
 #connect a controller
         os.system("sudo ovs-vsctl set-controller s0 tcp:"+sys.argv[1]+":"+sys.argv[2])
         os.system("sudo ovs-vsctl set-controller s1 tcp:"+sys.argv[1]+":"+sys.argv[2])
         os.system("sudo ovs-vsctl set-controller s2 tcp:"+sys.argv[1]+":"+sys.argv[2])
 
+        h1.cmd("java -jar $HOME/delta-agent-host-1.0-SNAPSHOT.jar "+sys.argv[3]+" "+sys.argv[4])
         CLI(net)
         net.stop()
 
