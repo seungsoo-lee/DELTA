@@ -101,7 +101,7 @@ public class AttackConductor {
     }
 
     public void printAttackList() {
-        System.out.println("\nControl Plane Test Set (under developping)");
+        System.out.println("\nControl Plane Test Set (under development)");
 
         Iterator<String> treeMapIter = infoControllerCase.keySet().iterator();
 
