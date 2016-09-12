@@ -60,9 +60,9 @@ public class TestInfo {
         map.put("3.1.140", "System Command Execution");
         map.put("3.1.150", "Host Location Hijacking");
         map.put("3.1.160", "Link Fabrication");
-        map.put("3.1.170", "Evasedrop");
+        map.put("3.1.170", "Eavesdrop");
         map.put("3.1.180", "Man-In-The-Middle");
         map.put("3.1.190", "Flow Rule Flooding");
-        map.put("3.1.200", "Switch Firmware Absuse");
+        map.put("3.1.200", "Switch Firmware Abuse");
     }
 }
