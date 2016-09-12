@@ -1,63 +1,50 @@
-[2016.09.11 13:25:04 KST] [main] INFO WebUI - WebUI started @ localhost:7070
-[2016.09.11 13:25:05 KST] [Thread-0] INFO AgentManager - Start Server socket
-[2016.09.11 13:25:25 KST] [Thread-0] INFO AttackConductor - Host agent is connected
-[2016.09.11 13:25:53 KST] [Thread-0] INFO AttackConductor - Host agent is connected
-[2016.09.11 13:26:18 KST] [grizzly-http-server-3] INFO TestQueueResource - 1 test case(s) queued.
-[2016.09.11 13:26:18 KST] [Thread-4] INFO ChannelAgentManager - ssh vagrant@10.100.100.12 sudo java -jar delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar 10.0.2.2 3366 PIC 4472
-[2016.09.11 13:26:18 KST] [Thread-4] INFO TestAdvancedCase - Run channel/host agent..
-[2016.09.11 13:26:18 KST] [Thread-0] INFO AttackConductor - Channel agent is connected
-[2016.09.11 13:26:19 KST] [Thread-0] INFO AttackConductor - Host agent is connected
-[2016.09.11 13:26:21 KST] [Thread-4] INFO TestAdvancedCase - 3.1.020 - Control Message Drop
-[2016.09.11 13:26:21 KST] [Thread-4] INFO TestAdvancedCase - Target controller: ONOS v1.6
-[2016.09.11 13:26:21 KST] [Thread-4] INFO TestAdvancedCase - Target controller is starting..
-[2016.09.11 13:26:37 KST] [Thread-4] INFO TestAdvancedCase - Target controller setup is completed
-[2016.09.11 13:26:37 KST] [Thread-4] INFO TestAdvancedCase - Listening to switches..
-[2016.09.11 13:26:40 KST] [Thread-0] INFO AttackConductor - AppAgent is connected
-[2016.09.11 13:26:43 KST] [Thread-4] INFO TestAdvancedCase - All switches are connected
-[2016.09.11 13:26:48 KST] [Thread-4] INFO TestAdvancedCase - App-Agent starts
-[2016.09.11 13:26:48 KST] [Thread-4] INFO TestAdvancedCase - Host-Agent sends packets to others
-[2016.09.11 13:26:53 KST] [Thread-4] INFO TestAdvancedCase - Agent-Manager retrieves result from Host-Agent
-[2016.09.11 13:26:53 KST] [Thread-4] INFO TestAdvancedCase - Dropped packet: 
-arp
-dl_vlan: untagged
-dl_vlan_pcp: 0
-dl_src: 000000000011
-dl_dst: ffffffffffff
-nw_src: 10.0.0.1
-nw_dst: 10.0.0.2
-[2016.09.11 13:26:53 KST] [Thread-4] INFO TestAdvancedCase - Ping response host unreachable
-[2016.09.11 13:26:53 KST] [Thread-4] INFO TestAdvancedCase - 3.1.020, FAIL
-[2016.09.11 13:26:53 KST] [Thread-4] INFO TestAdvancedCase - Running Time: 5024
-[2016.09.11 13:26:53 KST] [Thread-4] INFO TestAdvancedCase - Stop channel/host agent..
-[2016.09.11 13:26:55 KST] [Thread-4] INFO AttackConductor - 
+[2016.09.12 08:55:53 KST] [main] INFO WebUI - WebUI started @ localhost:7070
+[2016.09.12 08:55:54 KST] [Thread-0] INFO AgentManager - Start Server socket
+[2016.09.12 08:56:14 KST] [grizzly-http-server-26] INFO TestQueueResource - 1 test case(s) queued.
+[2016.09.12 08:56:15 KST] [Thread-4] INFO TestSwitchCase - Run test mininet topology
+[2016.09.12 08:56:18 KST] [Thread-4] INFO TestSwitchCase - 1.1.030 - Group Identifier Violation
+[2016.09.12 08:56:18 KST] [Thread-4] INFO DMController - Listening switches on 6633
+[2016.09.12 08:56:22 KST] [Thread-4] INFO DMController - Switch connected from  Socket[addr=/127.0.0.1,port=49352,localport=6633]
+[2016.09.12 08:56:23 KST] [Thread-4] INFO TestSwitchCase - Send msg: OFGroupModifyVer13(xid=4008636142, groupType=ALL, group=max, buckets=[OFBucketVer13(weight=0, watchPort=any, watchGroup=all, actions=[OFActionOutputVer13(port=2, maxLen=2147483647)])])
+[2016.09.12 08:56:24 KST] [Thread-4] INFO TestSwitchCase - Response err msg: OFBadRequestErrorMsgVer13(xid=4008636142, code=BAD_TYPE, data=OFGroupModifyVer13(xid=4008636142, groupType=ALL, group=max, buckets=[OFBucketVer13(weight=0, watchPort=any, watchGroup=all, actions=[OFActionOutputVer13(port=2, maxLen=65535)])])), PASS
+[2016.09.12 08:56:26 KST] [Thread-4] INFO AttackConductor - 
 
-[2016.09.11 13:27:35 KST] [grizzly-http-server-11] INFO TestQueueResource - 1 test case(s) queued.
-[2016.09.11 13:27:36 KST] [Thread-4] INFO ChannelAgentManager - ssh vagrant@10.100.100.12 sudo java -jar delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar 10.0.2.2 3366 PIC 4498
-[2016.09.11 13:27:36 KST] [Thread-4] INFO TestAdvancedCase - Run channel/host agent..
-[2016.09.11 13:27:36 KST] [Thread-0] INFO AttackConductor - Channel agent is connected
-[2016.09.11 13:27:37 KST] [Thread-0] INFO AttackConductor - Host agent is connected
-[2016.09.11 13:27:39 KST] [Thread-4] INFO TestAdvancedCase - 3.1.080 - Flow Table Clearance
-[2016.09.11 13:27:39 KST] [Thread-4] INFO TestAdvancedCase - Target controller: ONOS v1.6
-[2016.09.11 13:27:39 KST] [Thread-4] INFO TestAdvancedCase - Target controller is starting..
-[2016.09.11 13:27:54 KST] [Thread-4] INFO TestAdvancedCase - Target controller setup is completed
-[2016.09.11 13:27:54 KST] [Thread-4] INFO TestAdvancedCase - Listening to switches..
-[2016.09.11 13:27:57 KST] [Thread-0] INFO AttackConductor - AppAgent is connected
-[2016.09.11 13:28:00 KST] [Thread-4] INFO TestAdvancedCase - All switches are connected
-[2016.09.11 13:28:05 KST] [Thread-4] INFO TestAdvancedCase - Host-Agent sends packets to others (before)
-[2016.09.11 13:28:18 KST] [Thread-4] INFO TestAdvancedCase - App-Agent starts
-[2016.09.11 13:28:18 KST] [Thread-4] INFO TestAdvancedCase - Host-Agent sends packets to others (after)
-[2016.09.11 13:28:31 KST] [Thread-4] INFO TestAdvancedCase - Latency (us) before :47 < After :47
-[2016.09.11 13:28:31 KST] [Thread-4] INFO TestAdvancedCase - 3.1.080, PASS
-[2016.09.11 13:28:31 KST] [Thread-4] INFO TestAdvancedCase - Running Time: 26175
-[2016.09.11 13:28:32 KST] [Thread-4] INFO TestAdvancedCase - Stop channel/host agent..
-[2016.09.11 13:28:33 KST] [Thread-4] INFO AttackConductor - 
+[2016.09.12 08:56:32 KST] [grizzly-http-server-1] INFO TestQueueResource - 1 test case(s) queued.
+[2016.09.12 08:56:33 KST] [Thread-0] INFO AttackConductor - Channel agent is connected
+[2016.09.12 08:56:35 KST] [Thread-4] INFO TestControllerCase - 2.1.020 - Corrupted Control Message Type
+[2016.09.12 08:56:35 KST] [Thread-4] INFO TestControllerCase - Target controller: ONOS v1.6
+[2016.09.12 08:56:35 KST] [Thread-4] INFO TestControllerCase - Target controller is starting..
+[2016.09.12 08:56:53 KST] [Thread-0] INFO AttackConductor - AppAgent is connected
+[2016.09.12 08:56:54 KST] [Thread-4] INFO TestControllerCase - Listening to switches..
+[2016.09.12 08:56:54 KST] [Thread-4] INFO TestControllerCase - Dummy switch starts
+[2016.09.12 08:56:56 KST] [Thread-4] INFO TestControllerCase - Send a packet-in message with unknown message message type
+[2016.09.12 08:56:56 KST] [Thread-4] INFO TestControllerCase - Response is null, FAIL
+[2016.09.12 08:56:57 KST] [Thread-4] INFO AttackConductor - 
 
-[2016.09.11 13:30:38 KST] [grizzly-http-server-14] INFO TestQueueResource - 1 test case(s) queued.
-[2016.09.11 13:30:39 KST] [Thread-4] INFO TestSwitchCase - Run test mininet topology
-[2016.09.11 13:30:42 KST] [Thread-4] INFO TestSwitchCase - 1.1.170 - Malformed Buffer ID Values
-[2016.09.11 13:30:42 KST] [Thread-4] INFO DMController - Listening switches on 6633
-[2016.09.11 13:30:46 KST] [Thread-4] INFO DMController - Switch connected from  Socket[addr=/127.0.0.1,port=48746,localport=6633]
-[2016.09.11 13:30:47 KST] [Thread-4] INFO TestSwitchCase - Send msg :OFFlowAddVer13(xid=4008636142, cookie=0x0000000000000000, cookieMask=0x0000000000000000, tableId=0x0, idleTimeout=0, hardTimeout=1000, priority=0, bufferId=45095, outPort=any, outGroup=any, flags=[], match=OFMatchV3Ver13(in_port=1), instructions=[OFInstructionApplyActionsVer13(actions=[OFActionOutputVer13(port=2, maxLen=2147483647)])]) with malformed buffer ID values
-[2016.09.11 13:30:48 KST] [Thread-4] INFO TestSwitchCase - Response err msg: OFBadRequestErrorMsgVer13(xid=4008636142, code=BUFFER_UNKNOWN, data=[unparsed: 04 0e 00 58 ee ee ee ee 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 03 e8 00 00 00 00 b0 27 ff ff ff ff ff ff ff ff 00 00 00 00 00 01 00 0c 80 00 00 04 00 00 00 01 00 00 00 00]), PASS
-[2016.09.11 13:30:51 KST] [Thread-4] INFO AttackConductor - 
+[2016.09.12 08:57:14 KST] [grizzly-http-server-8] INFO TestQueueResource - 2 test case(s) queued.
+[2016.09.12 08:57:16 KST] [Thread-0] INFO AttackConductor - Channel agent is connected
+[2016.09.12 08:57:16 KST] [Thread-0] INFO AttackConductor - Host agent is connected
+[2016.09.12 08:57:18 KST] [Thread-4] INFO TestAdvancedCase - 3.1.100 - Application Eviction
+[2016.09.12 08:57:18 KST] [Thread-4] INFO TestAdvancedCase - Target controller: ONOS v1.6
+[2016.09.12 08:57:18 KST] [Thread-4] INFO TestAdvancedCase - Target controller is starting..
+[2016.09.12 08:57:33 KST] [Thread-4] INFO TestAdvancedCase - Target controller setup is completed
+[2016.09.12 08:57:33 KST] [Thread-4] INFO TestAdvancedCase - Listening to switches..
+[2016.09.12 08:57:37 KST] [Thread-0] INFO AttackConductor - AppAgent is connected
+[2016.09.12 08:57:40 KST] [Thread-4] INFO TestAdvancedCase - All switches are connected
+[2016.09.12 08:57:45 KST] [Thread-4] INFO TestAdvancedCase - App-Agent starts
+[2016.09.12 08:57:45 KST] [Thread-4] INFO TestAdvancedCase - Removed Item: fail
+[2016.09.12 08:57:55 KST] [Thread-4] INFO TestAdvancedCase - Host-Agent sends packets to others
+[2016.09.12 08:58:07 KST] [Thread-4] INFO TestAdvancedCase - Agent-Manager retrieves result from Host-Agent
+[2016.09.12 08:58:07 KST] [Thread-4] INFO TestAdvancedCase - 100% Packet loss
+[2016.09.12 08:58:07 KST] [Thread-4] INFO TestAdvancedCase - 3.1.100, FAIL
+[2016.09.12 08:58:07 KST] [Thread-4] INFO TestAdvancedCase - Running Time: 22159
+[2016.09.12 08:58:08 KST] [Thread-4] INFO TestAdvancedCase - Stop channel/host agent..
+[2016.09.12 08:58:10 KST] [Thread-4] INFO AttackConductor - 
 
+[2016.09.12 08:58:11 KST] [Thread-0] INFO AttackConductor - Channel agent is connected
+[2016.09.12 08:58:11 KST] [Thread-0] INFO AttackConductor - Host agent is connected
+[2016.09.12 08:58:14 KST] [Thread-4] INFO TestAdvancedCase - 3.1.030 - Infinite Loop
+[2016.09.12 08:58:14 KST] [Thread-4] INFO TestAdvancedCase - Target controller: ONOS v1.6
+[2016.09.12 08:58:14 KST] [Thread-4] INFO TestAdvancedCase - Target controller is starting..
+[2016.09.12 08:58:24 KST] [Thread-4] INFO TestAdvancedCase - Target controller setup is completed
+[2016.09.12 08:58:24 KST] [Thread-4] INFO TestAdvancedCase - Listening to switches..
