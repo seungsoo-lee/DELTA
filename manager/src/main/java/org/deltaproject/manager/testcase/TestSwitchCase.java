@@ -144,7 +144,7 @@ public class TestSwitchCase {
      * OFPP_MAX and are not part of the reserved ports.
      */
     public void testPortRangeViolation(String code) {
-        String info = code + " - Port Range Violation";
+        String info = code + " - Port Range Violation - Test switch protection against disallowed ports";
         log.info(info);
 
         setUpDummyController();
@@ -165,7 +165,7 @@ public class TestSwitchCase {
      * only 1.3 Verify that the switch rejects the use of invalid table id.
      */
     public void testTableID(String code) {
-        String info = code + " - Table Identifier Violation";
+        String info = code + " - Table Identifier Violation - Test switch protection against invalid table ID";
         log.info(info);
 
         setUpDummyController();
@@ -216,7 +216,7 @@ public class TestSwitchCase {
      * OFPG_MAX and are not part of the reserved groups.
      */
     public void testGroupID(String code) {
-        String info = code + " - Group Identifier Violation";
+        String info = code + " - Group Identifier Violation - Test switch protection against disallowed group numbers";
         log.info(info);
 
         setUpDummyController();
@@ -260,7 +260,7 @@ public class TestSwitchCase {
      * OFPM_MAX and are not part of the virtual meters.
      */
     public void testMeterID(String code) {
-        String info = code + "  - Meter Identifier Violation";
+        String info = code + "  - Meter Identifier Violation - Test switch protection against disallowed meter numbers";
         log.info(info);
 
         setUpDummyController();
@@ -286,7 +286,7 @@ public class TestSwitchCase {
      * requesting a table loop.
      */
     public void testTableLoop(String code) {
-        String info = code + " - Table Loop Violation";
+        String info = code + " - Table Loop Violation - Test switch protection against invalid GoToTable request";
         log.info(info);
 
         setUpDummyController();
@@ -340,7 +340,7 @@ public class TestSwitchCase {
      * with unsupported message type.
      */
     public void testCorruptedControlMsgType(String code) {
-        String info = code + " - Corrupted Control Message Type";
+        String info = code + " - Corrupted Control Message Type - Test switch protection against control message with unsupported type";
         log.info(info);
 
         setUpDummyController();
@@ -375,7 +375,7 @@ public class TestSwitchCase {
      * setup message with an unsupported version number.
      */
     public void testUnsupportedVersionNumber(String code) {
-        String info = code + " - Unsupported Version Numebr";
+        String info = code + " - Unsupported Version Number - Test switch protection against connection setup request with unsupported version number";
         log.info(info);
 
         setUpDummyController();
@@ -408,7 +408,7 @@ public class TestSwitchCase {
      * controller with a different version.
      */
     public void testMalformedVersionNumber(String code) {
-        String info = code + " - Malformed Version Number";
+        String info = code + " - Malformed Version Number - Test switch protection against communication with mismatched OpenFlow versions";
         log.info(info);
 
         setUpDummyController();
@@ -440,7 +440,7 @@ public class TestSwitchCase {
      * message with invalid OXM type.
      */
     public void testInvalidOXMType(String code) {
-        String info = code + " - Invalid OXM - Type";
+        String info = code + " - Invalid OXM - Type - Test switch protection against flow mod with invalid message type";
         log.info(info);
 
         setUpDummyController();
@@ -495,7 +495,7 @@ public class TestSwitchCase {
      * message with invalid OXM length.
      */
     public void testInvalidOXMLength(String code) {
-        String info = code + " - Invalid OXM - Length";
+        String info = code + " - Invalid OXM - Length - Test switch protection against flow mod with invalid message length";
         log.info(info);
 
         setUpDummyController();
@@ -551,7 +551,7 @@ public class TestSwitchCase {
      * message with invalid message value
      */
     public void testInvalidOXMValue(String code) {
-        String info = code + " - Invalid OXM - Value";
+        String info = code + " - Invalid OXM - Value - Test switch protection against flow mod with invalid message value";
         log.info(info);
 
         setUpDummyController();
@@ -609,8 +609,8 @@ public class TestSwitchCase {
      * request with a permission error
      */
     public void testDisabledTableFeatureRequest(String code) {
-        String info = code + " - Disabled Table Features Request";
-
+        String info = code + " - Disabled Table Features Request - Test under development";
+	// String info = code + " - Disabled Table Features Request - Test for switch protection against table features request when feature is disabled";
         log.info(info);
 
         // Not implemented yet.
@@ -622,7 +622,7 @@ public class TestSwitchCase {
      * not exchanged within the specified default timeout.
      */
     public void testHandshakeWithoutHello(String code) {
-        String info = code + " - Handshake without Hello Message";
+        String info = code + " - Handshake without Hello Message - Test for switch protection against incomplete control connection left open";
         log.info(info);
 
         setUpDummyControllerWithNoHello(TestSwitchCase.HANDSHAKE_NO_HELLO);
@@ -639,7 +639,7 @@ public class TestSwitchCase {
      * (connection establishment).
      */
     public void testControlMsgBeforeHello(String code) {
-        String info = code + " - Control Message before Hello Message";
+        String info = code + " - Control Message before Hello Message - Test for switch protection against control communication prior to completed connection establishment";
         log.info(info);
 
         OFBarrierRequest.Builder brb = defaultFactory.buildBarrierRequest();
@@ -667,7 +667,7 @@ public class TestSwitchCase {
      * version.
      */
     public void testIncompatibleHelloAfterConnection(String code) {
-        String info = code + " - Incompatible Hello after Connection Establishment";
+        String info = code + " - Incompatible Hello after Connection Establishment - Test for switch protection against abuse of the Hello_Failed error message";
         log.info(info);
 
         OFHelloFailedErrorMsg.Builder hfb = defaultFactory.errorMsgs().buildHelloFailedErrorMsg();
@@ -692,7 +692,7 @@ public class TestSwitchCase {
      * switch and controller.
      */
     public void testCorruptedCookieValue(String code) {
-        String info = code + " - Corrupted Cookie Values";
+        String info = code + " - Corrupted Cookie Values - Test for switch protection against replay attacks";
         log.info(info);
 
         setUpDummyController();
@@ -740,7 +740,7 @@ public class TestSwitchCase {
      * controller.
      */
     public void testMalformedBufferIDValue(String code) {
-        String info = code + " - Malformed Buffer ID Values";
+        String info = code + " - Malformed Buffer ID Values - Test for switch protection against disallowed buffer ID values";
         log.info(info);
 
         setUpDummyController();
@@ -788,7 +788,7 @@ public class TestSwitchCase {
      * controllers.
      */
     public void testSlaveControllerViolation(String code) {
-        String info = code + " - Slave Controller Violation";
+        String info = code + " - Slave Controller Violation - Test for switch protection against manipulation of the network by the slave controller";
         log.info(info);
 
         setUpDummyController();
