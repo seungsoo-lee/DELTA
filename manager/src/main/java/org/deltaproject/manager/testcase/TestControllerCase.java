@@ -94,7 +94,7 @@ public class TestControllerCase {
     * controller with a different version.
     */
     public void testMalformedVersionNumber(String code) {
-        String info = code + " - Malformed Version Number";
+        String info = code + " - Malformed Version Number - Test for controller protection against communication with mismatched OpenFlow versions";
         log.info(info);
 
         initController();
@@ -117,7 +117,7 @@ public class TestControllerCase {
     * with unsupported message type.
     */
     public void testCorruptedControlMsgType(String code) {
-        String info = code + " - Corrupted Control Message Type";
+        String info = code + " - Corrupted Control Message Type - Test for controller protection against control messages with corrupted content";
         log.info(info);
 
         initController();
@@ -141,7 +141,7 @@ public class TestControllerCase {
      * not exchanged within the specified default timeout.
      */
     public void testHandShakeWithoutHello(String code) {
-        String info = code + " - Handshake without Hello Message";
+        String info = code + " - Handshake without Hello Message - Test for controller protection against incomplete control connection left open";
         log.info(info);
 
         initController();
@@ -176,7 +176,7 @@ public class TestControllerCase {
      * (connection establishment).
      */
     public void testControlMsgBeforeHello(String code) {
-        String info = code + " - Control Message before Hello Message";
+        String info = code + " - Control Message before Hello Message - Test for controller protection against control communication prior to completed connection establishment";
         log.info(info);
 
         initController();
@@ -209,7 +209,7 @@ public class TestControllerCase {
      * Check if the controller accepts multiple main connections from the same switch.
      */
     public void testMultipleMainConnectionReq(String code) {
-        String info = code + " - Multiple main connection requests from same switch";
+        String info = code + " - Multiple main connection requests from same switch - Test for controller protection against multiple control requests";
         log.info(info);
 
         initController();
@@ -240,10 +240,10 @@ public class TestControllerCase {
 
     /*
      * 2.1.060 - Un-flagged Flow Remove Message Notification
-     * Check if the controller accepts multiple main connections from the same switch.
+     * Check if the controller accepts a flow remove message notification without requesting the delete event.
      */
     public void testUnFlaggedFlowRemoveMsgNotification(String code) throws InterruptedException {
-        String info = code + " - Un-flagged Flow Remove Message Notification";
+        String info = code + " - Un-flagged Flow Remove Message Notification - Test for controller protection against unacknowledged manipulation of the network";
         log.info(info);
 
         initController();
@@ -270,7 +270,7 @@ public class TestControllerCase {
      * Check if the controller supports Transport Layer Security (TLS).
      */
     public void testTLSupport(String code) {
-        String info = code + " - Test TLS Support";
+        String info = code + " - Test TLS Support - Test for controller support for Transport Layer Security";
         log.info(info);
 
         initController();
