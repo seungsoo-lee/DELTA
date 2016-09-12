@@ -108,7 +108,7 @@ public class TestAdvancedCase {
      * 3.1.010 - Packet-In Flooding
      */
     public boolean testPacketInFlooding(String code) {
-        log.info(code + " - Packet-In Flooding");
+        log.info(code + " - Packet-In Flooding - Test for controller protection against Packet-In Flooding");
 
 		/* step 1: create controller */
         initController();
@@ -167,7 +167,7 @@ public class TestAdvancedCase {
      * 3.1.020 - Control Message Drop
      */
     public boolean testControlMessageDrop(String code) {
-        log.info(code + " - Control Message Drop");
+        log.info(code + " - Control Message Drop - Test for controller protection against application dropping control messages");
 
 		/* step 1: create controller */
         initController();
@@ -206,7 +206,7 @@ public class TestAdvancedCase {
      * 3.1.030 - Infinite Loop
      */
     public boolean testInfiniteLoop(String code) {
-        log.info(code + " - Infinite Loop");
+        log.info(code + " - Infinite Loop - Test for controller protection against application creating infinite loop");
 
 		/* step 1: create controller */
         initController();
@@ -241,7 +241,7 @@ public class TestAdvancedCase {
      * 3.1.040 - Internal Storage Abuse
      */
     public boolean testInternalStorageAbuse(String code) {
-        log.info(code + " - Internal Storage Abuse");
+        log.info(code + " - Internal Storage Abuse - Test for controller protection against application manipulating network information base");
 
 		/* step 1: create controller */
         initController();
@@ -280,7 +280,7 @@ public class TestAdvancedCase {
      * 3.1.050 - Switch Table Flooding
      */
     public boolean testSwitchTableFlooding(String code) {
-        log.info(code + " - Switch Table Flooding");
+        log.info(code + " - Switch Table Flooding - Test for switch protection against flow table flooding");
 
 		/* step 1: create controller */
         initController();
@@ -310,7 +310,7 @@ public class TestAdvancedCase {
      * 3.1.060 - Switch Identification Spoofing
      */
     public boolean testSwitchIdentificationSpoofing(String code) {
-        log.info(code + " - Switch Identification Spoofing");
+        log.info(code + " - Switch Identification Spoofing - Test for switch protection against ID spoofing");
 
 		/* step 1: create controller */
         initController();
@@ -349,7 +349,7 @@ public class TestAdvancedCase {
      * ---- Malformed Control Message
      */
     public boolean testMalformedControlMessage(String code) {
-        log.info(code + " - Malformed Control Message");
+        log.info(code + " - Malformed Control Message - Test for switch protection against malformed control message");
 
 		/* step 1: create controller */
         initController();
@@ -390,7 +390,7 @@ public class TestAdvancedCase {
      * 3.1.070 - Flow Rule Modification
      */
     public boolean testFlowRuleModification(String code) {
-        log.info(code + " - Flow Rule Modification");
+        log.info(code + " - Flow Rule Modification - Test for switch protection against application modifying flow rule");
 
 		/* step 1: create controller */
         initController();
@@ -432,7 +432,7 @@ public class TestAdvancedCase {
      * 3.1.080 - Flow Table Clearance
      */
     public boolean testFlowTableClearance(String code) {
-        log.info(code + " - Flow Table Clearance");
+        log.info(code + " - Flow Table Clearance - Test for controller protection against flow table flushing");
 
 		/* step 1: create controller */
         initController();
@@ -470,11 +470,11 @@ public class TestAdvancedCase {
      */
     public boolean testEventUnsubscription(String code) {
         if (controllerm.getType().equals("ONOS")) {
-            System.out.println("\nONOS is impossible to replay [" + code + "] ");
+            System.out.println("\nIt is not possible to replay [" + code + "] in ONOS => Test PASS");
             return false;
         }
 
-        log.info(code + " - Event Unsubscription");
+        log.info(code + " - Event Unsubscription - Test for controller protection against application unsubscribing neighbour application from events");
 
 		/* step 1: create controller */
         initController();
@@ -524,11 +524,11 @@ public class TestAdvancedCase {
      */
     public boolean testApplicationEviction(String code) {
         if (controllerm.getType().equals("Floodlight")) {
-            System.out.println("\nFloodlight is impossible to replay [" + code + "] ");
+            System.out.println("\nIt is not possible to replay [" + code + "]in Floodlight => Test PASS");
             return false;
         }
 
-        log.info(code + " - Application Eviction");
+        log.info(code + " - Application Eviction - Test for controller protection against one application uninstalling another application");
 
 		/* step 1: create controller */
         initController();
@@ -577,7 +577,7 @@ public class TestAdvancedCase {
      * 3.1.110 - Memory Exhaustion
      */
     public boolean testMemoryExhaustion(String code) {
-        log.info(code + " - Memory Exhaustion");
+        log.info(code + " - Memory Exhaustion - Test for controller protection against an application exhausting controller memory");
 
 		/* step 1: create controller */
         initController();
@@ -626,7 +626,7 @@ public class TestAdvancedCase {
      * 3.1.120 - CPU Exhaustion
      */
     public boolean testCPUExhaustion(String code) {
-        log.info(code + " - CPU Exhaustion");
+        log.info(code + " - CPU Exhaustion - Test for controller protection against an application exhausting controller CPU");
 
 		/* step 1: create controller */
         initController();
@@ -675,7 +675,7 @@ public class TestAdvancedCase {
      * 3.1.130 - System Variable Manipulation
      */
     public boolean testSystemVariableManipulation(String code) {
-        log.info(code + " - System Variable Manipulation");
+        log.info(code + " - System Variable Manipulation - Test for controller protection against an application manipulating a system variable");
 
 		/* step 1: create controller */
         initController();
@@ -715,7 +715,7 @@ public class TestAdvancedCase {
      * 3.1.140 - System Command Execution
      */
     public boolean testSystemCommandExecution(String code) {
-        log.info(code + " - System Command Execution");
+        log.info(code + " - System Command Execution - Test for controller protection against an application accessing a system command");
 
 		/* step 1: create controller */
         initController();
@@ -753,7 +753,7 @@ public class TestAdvancedCase {
      * 3.1.160 - Link Fabrication ; incomplete
      */
     public boolean testLinkFabrication(String code) {
-        log.info(code + " - Link Fabrication");
+        log.info(code + " - Link Fabrication - Test for controller protection against application creating fictitious link");
         long start = System.currentTimeMillis();
 
 		/* step 1: conduct the attack */
@@ -797,11 +797,11 @@ public class TestAdvancedCase {
     }
 
     /*
-     * 3.1.170 - Evaesdrop
+     * 3.1.170 - Eavesdrop
      */
     public boolean testEvaseDrop(String code) {
         controllerm.flushARPcache();
-        log.info(code + " - Evaesdrop");
+        log.info(code + " - Eavesdrop - Test for control channel protection against malicious host sniffing the control channel");
         String resultChannel;
 
 		/* step 1: create controller */
@@ -847,7 +847,7 @@ public class TestAdvancedCase {
      */
     public boolean testManInTheMiddle(String code) {
         controllerm.flushARPcache();
-        log.info(code + " - Man-In-The-Middle attack");
+        log.info(code + " - Man-In-The-Middle attack - Test for control channel protection against MITM attack");
 
 		/* step 1: create controller */
         initController();
@@ -882,7 +882,7 @@ public class TestAdvancedCase {
      * 3.1.190 - Flow Rule Flooding
      */
     public boolean testFlowRuleFlooding(String code) {
-        log.info(code + " - Flow Rule Flooding");
+        log.info(code + " - Flow Rule Flooding - Test for switch protection against flow rule flooding");
 
 		/* step 1: create controller */
         initController();
@@ -932,7 +932,7 @@ public class TestAdvancedCase {
      * 3.1.200 - Switch Firmware Misuse
      */
     public boolean testSwitchFirmwareMisuse(String code) {
-        log.info(code + " - Switch Firmware Misuse");
+        log.info(code + " - Switch Firmware Misuse - Test for switch protection against application installing unsupported flow rules");
 
 		/* step 1: create controller */
         initController();
