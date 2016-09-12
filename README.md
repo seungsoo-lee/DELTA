@@ -11,7 +11,7 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 ![Delta architecture](http://143.248.53.145/research/delta/arch.png)
 
 ## Prerequisites
-In order to build and run DELTA the following are required:
+In order to build and run DELTA, the following are required:
 + A host machine based on Ubuntu 14.04 LTS 64 bit (agent manager)
 + Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
  + VM-1: Target controller + Application agent
@@ -29,7 +29,7 @@ In order to build and run DELTA the following are required:
 + JDK 1.7+
 
 ## Installing DELTA
-DELTA installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the sub-agents.
+DELTA installation depends on maven and ant build systems. The mvn command is used to install the agent-manager and the sub-agents.
 
 + STEP 0. Get the source
 ```
@@ -43,10 +43,10 @@ $ cd <DELTA>/tools/dev/delta-setup/
 $ ./delta-setup-devenv-ubuntu
 ```
 
-+ STEP 2. Install 3 virtual machines using vagrant system.
++ STEP 2. Install 3 virtual machines using the vagrant system.
 
 ```
-$ cd <DELTA>/tools/dev/delta-setup/vagrant/
+$ cd <DELTA>/tools/dev/vagrant/
 $ vagrant up
 ```
 
@@ -59,7 +59,7 @@ $ mvn clean install
 ```
 
 
-+ After installing DELTA, the test environment is automatically setup as below,
++ After installing DELTA, the test environment is automatically setup as below.
 ![Env](http://143.248.53.145/research/delta/env.png)
 
 ## Configuring your own experiments
@@ -111,7 +111,7 @@ MITM_NIC=eth1
 CONTROLLER_IP=10.100.100.11
 SWITCH_IP=10.100.100.11
 ```
-+ Configuring Tagret Controllers to VM-1
++ Configuring Target Controllers for VM-1
  + Floodlight
 ```
 $ cd <DELTA>/tools/dev/floodlight-setup
