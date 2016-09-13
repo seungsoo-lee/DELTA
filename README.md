@@ -3,7 +3,7 @@
 ## What is DELTA?
 DELTA is a penetration testing framework that regenerates known attack scenarios for diverse test cases. This framework also provides the capability of discovering unknown security problems in SDN by employing a fuzzing technique.
 
-+ Agent-Manger is the control tower. It takes full control over all the agents deployed to the target SDN network.
++ Agent-Manager is the control tower. It takes full control over all the agents deployed to the target SDN network.
 + Application-Agent is a legitimate SDN application that conducts attack procedures and is controller-dependent. The known malicious functions are implemented as application-agent functions.
 + Channel-Agent is deployed between the controller and the OpenFlow-enabled switch. The agent sniffs and modifies the unencrypted control messages. It is controller-independent.
 + Host-Agent behaves as if it was a legitimate host participating in the target SDN network. The agent demonstrates an attack in which a host attempts to compromise the control plane.
