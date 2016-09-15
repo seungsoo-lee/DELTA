@@ -280,7 +280,7 @@ public class TestAdvancedCase {
      * 3.1.050 - Switch Table Flooding
      */
     public boolean testSwitchTableFlooding(String code) {
-        log.info(code + " - Switch Table Flooding - Test for switch protection against flow table flooding");
+        log.info(code + " - Switch Memory Flooding - Test for switch protection against switch table flooding");
 
 		/* step 1: create controller */
         initController();
