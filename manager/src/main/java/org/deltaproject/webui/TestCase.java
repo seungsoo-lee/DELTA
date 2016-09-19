@@ -44,6 +44,7 @@ public class TestCase {
     private Category category;
     private String casenum;
     private String name;
+    private String desc;
     private ControllerType controllerType;
     private String controllerVer;
     private Status status;
@@ -54,6 +55,7 @@ public class TestCase {
         this.casenum = casenum;
         TestCase testCase = TestCaseDirectory.getDirectory().get(casenum);
         this.name = testCase.getName();
+        this.desc = testCase.getDesc();
         this.category = testCase.getCategory();
         this.controllerType = testCase.getControllerType();
         this.controllerVer = testCase.getControllerVersion();
@@ -62,7 +64,7 @@ public class TestCase {
         this.result = TestResult.UNKNOWN;
     }
 
-    public TestCase(Category category, String casenum, String name) {
+    public TestCase(Category category, String casenum, String name, String desc) {
         this.category = category;
         this.casenum = casenum;
         this.name = name;
@@ -71,6 +73,7 @@ public class TestCase {
         this.status = Status.UNKNOWN;
         this.time = new Date();
         this.result = TestResult.UNKNOWN;
+        this.desc = desc;
     }
 
     public void setIndex(Integer index) {
@@ -132,6 +135,10 @@ public class TestCase {
 
     public Status getStatus() {
         return status;
+    }
+
+    public String getDesc() {
+        return desc;
     }
 
     public String getTime() {

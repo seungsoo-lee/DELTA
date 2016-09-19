@@ -174,7 +174,7 @@ public class TestAdvancedCase {
      * 3.1.010 - Packet-In Flooding
      */
     public boolean testPacketInFlooding(TestCase test) {
-        log.info(test.getcasenum() + " - Packet-In Flooding");
+        log.info(test.getcasenum() + " - Packet-In Flooding - Test for controller protection against Packet-In Flooding");
 
 		/* step 1: create controller */
         initController();
@@ -233,7 +233,7 @@ public class TestAdvancedCase {
      * 3.1.020 - Control Message Drop
      */
     public boolean testControlMessageDrop(TestCase test) {
-        log.info(test.getcasenum() + " - Control Message Drop");
+        log.info(test.getcasenum() + " - Control Message Drop - Test for controller protection against application dropping control messages");
 
 		/* step 1: create controller */
         initController();
@@ -272,7 +272,7 @@ public class TestAdvancedCase {
      * 3.1.030 - Infinite Loop
      */
     public boolean testInfiniteLoop(TestCase test) {
-        log.info(test.getcasenum() + " - Infinite Loop");
+        log.info(test.getcasenum() + " - Infinite Loop - Test for controller protection against application creating infinite loop");
 
 		/* step 1: create controller */
         initController();
@@ -307,7 +307,7 @@ public class TestAdvancedCase {
      * 3.1.040 - Internal Storage Abuse
      */
     public boolean testInternalStorageAbuse(TestCase test) {
-        log.info(test.getcasenum() + " - Internal Storage Abuse");
+        log.info(test.getcasenum() + " - Internal Storage Abuse - Test for controller protection against application manipulating network information base");
 
 		/* step 1: create controller */
         initController();
@@ -346,7 +346,7 @@ public class TestAdvancedCase {
      * 3.1.050 - Switch Table Flooding
      */
     public boolean testSwitchTableFlooding(TestCase test) {
-        log.info(test.getcasenum() + " - Switch Table Flooding");
+        log.info(test.getcasenum() + " - Device Inventory Table Flooding - Test for controller protection against device inventory table flooding");
 
 		/* step 1: create controller */
         initController();
@@ -376,7 +376,7 @@ public class TestAdvancedCase {
      * 3.1.060 - Switch Identification Spoofing
      */
     public boolean testSwitchIdentificationSpoofing(TestCase test) {
-        log.info(test.getcasenum() + " - Switch Identification Spoofing");
+        log.info(test.getcasenum() + " - Switch Identification Spoofing - Test for switch protection against ID spoofing");
 
 		/* step 1: create controller */
         initController();
@@ -456,7 +456,7 @@ public class TestAdvancedCase {
      * 3.1.070 - Flow Rule Modification
      */
     public boolean testFlowRuleModification(TestCase test) {
-        log.info(test.getcasenum() + " - Flow Rule Modification");
+        log.info(test.getcasenum() + " - Flow Rule Modification - Test for switch protection against application modifying flow rule");
 
 		/* step 1: create controller */
         initController();
@@ -498,7 +498,7 @@ public class TestAdvancedCase {
      * 3.1.080 - Flow Table Clearance
      */
     public boolean testFlowTableClearance(TestCase test) {
-        log.info(test.getcasenum() + " - Flow Table Clearance");
+        log.info(test.getcasenum() + " - Flow Table Clearance - Test for controller protection against flow table flushing");
 
 		/* step 1: create controller */
         initController();
@@ -540,7 +540,7 @@ public class TestAdvancedCase {
             return false;
         }
 
-        log.info(test.getcasenum() + " - Event Unsubscription");
+        log.info(test.getcasenum() + " - Event Unsubscription - Test for controller protection against application unsubscribing neighbour application from events");
 
 		/* step 1: create controller */
         initController();
@@ -594,7 +594,7 @@ public class TestAdvancedCase {
             return false;
         }
 
-        log.info(test.getcasenum() + " - Application Eviction");
+        log.info(test.getcasenum() + " - Application Eviction - Test for controller protection against one application uninstalling another application");
 
 		/* step 1: create controller */
         initController();
@@ -643,7 +643,7 @@ public class TestAdvancedCase {
      * 3.1.110 - Memory Exhaustion
      */
     public boolean testMemoryExhaustion(TestCase test) {
-        log.info(test.getcasenum() + " - Memory Exhaustion");
+        log.info(test.getcasenum() + " - Memory Exhaustion - Test for controller protection against an application exhausting controller memory");
 
 		/* step 1: create controller */
         initController();
@@ -692,7 +692,7 @@ public class TestAdvancedCase {
      * 3.1.120 - CPU Exhaustion
      */
     public boolean testCPUExhaustion(TestCase test) {
-        log.info(test.getcasenum() + " - CPU Exhaustion");
+        log.info(test.getcasenum() + " - CPU Exhaustion - Test for controller protection against an application exhausting controller CPU");
 
 		/* step 1: create controller */
         initController();
@@ -741,7 +741,7 @@ public class TestAdvancedCase {
      * 3.1.130 - System Variable Manipulation
      */
     public boolean testSystemVariableManipulation(TestCase test) {
-        log.info(test.getcasenum() + " - System Variable Manipulation");
+        log.info(test.getcasenum() + " - System Variable Manipulation - Test for controller protection against an application manipulating a system variable");
 
 		/* step 1: create controller */
         initController();
@@ -781,7 +781,7 @@ public class TestAdvancedCase {
      * 3.1.140 - System Command Execution
      */
     public boolean testSystemCommandExecution(TestCase test) {
-        log.info(test.getcasenum() + " - System Command Execution");
+        log.info(test.getcasenum() + " - System Command Execution - Test for controller protection against an application accessing a system command");
 
 		/* step 1: create controller */
         initController();
@@ -819,7 +819,7 @@ public class TestAdvancedCase {
      * 3.1.160 - Link Fabrication ; incomplete
      */
     public boolean testLinkFabrication(TestCase test) {
-        log.info(test.getcasenum() + " - Link Fabrication");
+        log.info(test.getcasenum() + " - Link Fabrication - Test for controller protection against application creating fictitious link");
         long start = System.currentTimeMillis();
 
 		/* step 1: conduct the attack */
@@ -867,7 +867,7 @@ public class TestAdvancedCase {
      */
     public boolean testEvaseDrop(TestCase test) {
         controllerm.flushARPcache();
-        log.info(test.getcasenum() + " - Evaesdrop");
+        log.info(test.getcasenum() + " - Evaesdrop - Test for control channel protection against malicious host sniffing the control channel");
         String resultChannel;
 
 		/* step 1: create controller */
@@ -913,7 +913,7 @@ public class TestAdvancedCase {
      */
     public boolean testManInTheMiddle(TestCase test) {
         controllerm.flushARPcache();
-        log.info(test.getcasenum() + " - Man-In-The-Middle attack");
+        log.info(test.getcasenum() + " - Man-In-The-Middle attack - Test for control channel protection against MITM attack");
 
 		/* step 1: create controller */
         initController();
@@ -948,7 +948,7 @@ public class TestAdvancedCase {
      * 3.1.190 - Flow Rule Flooding
      */
     public boolean testFlowRuleFlooding(TestCase test) {
-        log.info(test.getcasenum() + " - Flow Rule Flooding");
+        log.info(test.getcasenum() + " - Flow Rule Flooding - Test for switch protection against flow rule flooding");
 
 		/* step 1: create controller */
         initController();
@@ -998,7 +998,7 @@ public class TestAdvancedCase {
      * 3.1.200 - Switch Firmware Misuse
      */
     public boolean testSwitchFirmwareMisuse(TestCase test) {
-        log.info(test.getcasenum() + " - Switch Firmware Misuse");
+        log.info(test.getcasenum() + " - Switch Firmware Misuse - Test for switch protection against application installing degraded flow rules");
 
 		/* step 1: create controller */
         initController();

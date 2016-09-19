@@ -243,7 +243,7 @@ public class TestSwitchCase {
      * OFPP_MAX and are not part of the reserved ports.
      */
     public void testPortRangeViolation(TestCase test) throws InterruptedException {
-        log.info(test.getcasenum() + " - Port Range Violation");
+        log.info(test.getcasenum() + " - Port Range Violation - Test switch protection against disallowed ports");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -276,7 +276,7 @@ public class TestSwitchCase {
             return;
         }
 
-        log.info(test.getcasenum() + " - Table Identifier Violation");
+        log.info(test.getcasenum() + " - Table Identifier Violation - Test switch protection against invalid table ID");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -341,7 +341,7 @@ public class TestSwitchCase {
             return;
         }
 
-        log.info(test.getcasenum() + " - Group Identifier Violation");
+        log.info(test.getcasenum() + " - Group Identifier Violation - Test switch protection against disallowed group numbers");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -397,7 +397,7 @@ public class TestSwitchCase {
             return;
         }
 
-        log.info(test.getcasenum() + " - Meter Identifier Violation");
+        log.info(test.getcasenum() + " - Meter Identifier Violation - Test switch protection against disallowed meter numbers");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -436,7 +436,7 @@ public class TestSwitchCase {
             return;
         }
 
-        log.info(test.getcasenum() + " - Table Loop Violation");
+        log.info(test.getcasenum() + " - Table Loop Violation - Test switch protection against invalid GoToTable request");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -497,7 +497,7 @@ public class TestSwitchCase {
      * with unsupported message type.
      */
     public void testCorruptedControlMsgType(TestCase test) throws InterruptedException {
-        log.info(test.getcasenum() + " - Corrupted Control Message Type");
+        log.info(test.getcasenum() + " - Corrupted Control Message Type - Test switch protection against control message with unsupported type");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -540,7 +540,7 @@ public class TestSwitchCase {
      * setup message with an unsupported version number.
      */
     public void testUnsupportedVersionNumber(TestCase test) throws InterruptedException {
-        log.info(test.getcasenum() + " - Unsupported Version Numeber");
+        log.info(test.getcasenum() + " - Unsupported Version Numeber - Test switch protection against connection setup request with unsupported version number");
 
         setUpDummyController(HANDSHAKE_INCOMPATIBLE_HELLO);
 
@@ -566,7 +566,7 @@ public class TestSwitchCase {
      * controller with a different version.
      */
     public void testMalformedVersionNumber(TestCase test) throws InterruptedException {
-        log.info(test.getcasenum() + " - Malformed Version Number");
+        log.info(test.getcasenum() + " - Malformed Version Number - Test switch protection against communication with mismatched OpenFlow versions");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -612,7 +612,7 @@ public class TestSwitchCase {
      * message with invalid OXM type.
      */
     public void testInvalidOXMType(TestCase test) throws InterruptedException {
-        log.info(test.getcasenum() + " - Invalid OXM - Type");
+        log.info(test.getcasenum() + " - Invalid OXM - Type - Test switch protection against flow mod with invalid message type");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -678,7 +678,7 @@ public class TestSwitchCase {
             return;
         }
 
-        log.info(test.getcasenum() + " - Invalid OXM - Length");
+        log.info(test.getcasenum() + " - Invalid OXM - Length - Test switch protection against flow mod with invalid message length");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -738,7 +738,7 @@ public class TestSwitchCase {
             return;
         }
 
-        log.info(test.getcasenum() + " - Invalid OXM - Value");
+        log.info(test.getcasenum() + " - Invalid OXM - Value - Test switch protection against flow mod with invalid message value");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -806,7 +806,7 @@ public class TestSwitchCase {
             return;
         }
 
-        log.info(test.getcasenum() + " - Disabled Table Features Request");
+        log.info(test.getcasenum() + " - Disabled Table Features Request - Test for switch protection against table features request when feature is disabled");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -837,7 +837,7 @@ public class TestSwitchCase {
      * not exchanged within the specified default timeout.
      */
     public void testHandshakeWithoutHello(TestCase test) throws InterruptedException {
-        log.info(test.getcasenum() + " - Handshake without Hello Message");
+        log.info(test.getcasenum() + " - Handshake without Hello Message - Test for switch protection against incomplete control connection left open");
 
         setUpDummyController(TestSwitchCase.NO_HANDSHAKE);
         log.info("The hello message is not exchanged within the specified default timeout");
@@ -861,7 +861,7 @@ public class TestSwitchCase {
      * (connection establishment).
      */
     public void testControlMsgBeforeHello(TestCase test) throws InterruptedException {
-        log.info(test.getcasenum() + " - Control Message before Hello Message");
+        log.info(test.getcasenum() + " - Control Message before Hello Message - Test for switch protection against control communication prior to completed connection establishment");
 
         OFBarrierRequest.Builder brb = defaultFactory.buildBarrierRequest();
         brb.setXid(r_xid);
@@ -895,7 +895,7 @@ public class TestSwitchCase {
      * version.
      */
     public void testIncompatibleHelloAfterConnection(TestCase test) throws InterruptedException {
-        log.info(test.getcasenum() + " - Incompatible Hello after Connection Establishment");
+        log.info(test.getcasenum() + " - Incompatible Hello after Connection Establishment - Test for switch protection against abuse of the Hello_Failed error message");
 
         setUpDummyController(TestSwitchCase.HANDSHAKE_DEFAULT);
 
@@ -928,7 +928,7 @@ public class TestSwitchCase {
      * switch and controller.
      */
     public void testCorruptedCookieValue(TestCase test) throws InterruptedException {
-        log.info(test.getcasenum() + " - Corrupted Cookie Values");
+        log.info(test.getcasenum() + " - Corrupted Cookie Values - Test for switch protection against replay attacks");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -983,7 +983,7 @@ public class TestSwitchCase {
      * controller.
      */
     public void testMalformedBufferIDValue(TestCase test) throws InterruptedException {
-        log.info(test.getcasenum() + " - Malformed Buffer ID Values");
+        log.info(test.getcasenum() + " - Malformed Buffer ID Values - Test for switch protection against disallowed buffer ID values");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
@@ -1047,7 +1047,7 @@ public class TestSwitchCase {
             log.info("OF 1.0 is not available.");
             return;
         }
-        log.info(test.getcasenum() + " - Slave Controller Violation");
+        log.info(test.getcasenum() + " - Slave Controller Violation - Test for switch protection against manipulation of the network by the slave controller");
 
         setUpDummyController(HANDSHAKE_DEFAULT);
 
