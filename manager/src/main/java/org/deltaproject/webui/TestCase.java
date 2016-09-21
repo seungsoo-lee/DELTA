@@ -156,6 +156,7 @@ public class TestCase {
         return "[category=" + category.name() +
                 ", index=" + index +
                 ", casenum=" + casenum +
+                ", desc=" + desc +
                 ", controllerType=" + controllerType.name() +
                 ", controllerVer=" + controllerVer +
                 ", status=" + status.name() +

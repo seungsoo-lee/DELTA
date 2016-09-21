@@ -218,12 +218,20 @@
             'columns': [
                 {'data': 'category'},
                 {'data': 'casenum'},
-                {'data': 'name'}
+                {'data': 'name'},
             ],
             'ajax': {
                 'url': '/json/testcases',
                 'dataSrc': ""
-            }
+            },
+            "createdRow": function( row, data) {
+                $(row).attr('title',data['desc']);
+                $(row).tooltip({
+                    "delay": 0,
+                    "track": true,
+                    "fade": 250
+                });
+            },
         });
 
         var queue_table = $('#queue-table').DataTable({
@@ -261,7 +269,15 @@
                         $('td', nRow).css('background-color', '#ffffff');
                     }
                 }
-            }
+            },
+            "createdRow": function( row, data ) {
+                $(row).attr('title',data['desc']);
+                $(row).tooltip({
+                    "delay": 0,
+                    "track": true,
+                    "fade": 250
+                });
+            },
         });
 
         setInterval(function () {
