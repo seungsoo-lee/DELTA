@@ -101,17 +101,23 @@ Check if you will be able to access the VMs without having to enter the password
 
 + The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. [DELTA_ROOT]/tools/config/manager.cfg contains sample configurations. You can specify your own config file by passing its path:
 ```
-CONTROLLER_SSH=vagrant@10.100.100.11
+ONTROLLER_SSH=vagrant@10.100.100.11
+CHANNEL_SSH=vagrant@10.100.100.12
+HOST_SSH=vagrant@10.100.100.13
 TARGET_HOST=10.0.0.2
 ONOS_ROOT=/home/vagrant/onos-1.6.0
 CBENCH_ROOT=/home/vagrant/oflops/cbench/
 TARGET_CONTROLLER=Floodlight
 TARGET_VERSION=0.91
 OF_PORT=6633
-OF_VER=1.0
+OF_VER=1.3
 MITM_NIC=eth1
 CONTROLLER_IP=10.100.100.11
-SWITCH_IP=10.100.100.11
+SWITCH_IP=10.100.100.13,10.100.100.13,10.100.100.13
+DUMMY_CONT_IP=10.0.2.2
+DUMMY_CONT_PORT=6633
+AM_IP=10.0.2.2
+AM_PORT=3366
 ```
 + Configuring Tagret Controllers to VM-1
 + 1) Floodlight
