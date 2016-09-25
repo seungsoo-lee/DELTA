@@ -119,13 +119,9 @@ DUMMY_CONT_PORT=6633
 AM_IP=10.0.2.2
 AM_PORT=3366
 ```
-<<<<<<< HEAD
+
 + Configuring Tagret Controllers to VM-1
 + 1) Floodlight
-=======
-+ Configuring Target Controllers for VM-1
- + Floodlight
->>>>>>> b61840a1953c871cb14b8b6cd5b99c0ac737dd7d
 ```
 $ cd <DELTA>/tools/dev/floodlight-setup
 $ ./floodlight-<version>-scp
