@@ -59,10 +59,7 @@ $ mvn clean install
 ```
 
 + STEP 4. Add NAT to VM3 (mininet)
-- Create NAT in Virtualbox as follows;
-![NAT](http://143.248.53.145/research/NAT1.png)
-- Modify network configuration of VM3 like this;
-![NAT2](http://143.248.53.145/research/NAT2.png)
+![NAT](http://143.248.53.145/research/nat.png)
 
 + After installing DELTA, the test environment is automatically setup as below,
 ![Env](http://143.248.53.145/research/delta/env.png)
