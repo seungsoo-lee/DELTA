@@ -1,6 +1,5 @@
 package org.deltaproject.manager.utils;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -9,21 +8,15 @@ import org.apache.commons.lang3.StringUtils;
 import com.sshtools.j2ssh.SshClient;
 import com.sshtools.j2ssh.authentication.AuthenticationProtocolState;
 import com.sshtools.j2ssh.authentication.PasswordAuthenticationClient;
-import com.sshtools.j2ssh.authentication.PublicKeyAuthenticationClient;
 import com.sshtools.j2ssh.configuration.SshConnectionProperties;
 import com.sshtools.j2ssh.session.SessionChannelClient;
-import com.sshtools.j2ssh.transport.publickey.SshPrivateKey;
-import com.sshtools.j2ssh.transport.publickey.SshPrivateKeyFile;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.deltaproject.manager.utils.AlwaysAllowingConsoleKnownHostsKeyVerification;
+
 
 
 /**
  * Created by seungsoo on 7/4/16.
  */
 public class J2sshCient {
-    private Log log = LogFactory.getLog(this.getClass());
     private SshClient ssh = null;
     private SessionChannelClient session = null;
     private String hostPrompt = null;

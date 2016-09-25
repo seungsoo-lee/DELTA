@@ -8,7 +8,7 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 + Channel-Agent is deployed between the controller and the OpenFlow-enabled switch. The agent sniffs and modifies the unencrypted control messages. It is controller-independent.
 + Host-Agent behaves as if it was a legitimate host participating in the target SDN network. The agent demonstrates an attack in which a host attempts to compromise the control plane.
 
-![Delta architecture](http://143.248.53.145/research/delta/arch.png)
+![Delta architecture](http://143.248.53.145/research/arch.png)
 
 ## Prerequisites
 In order to build and run DELTA the following are required:
@@ -18,9 +18,9 @@ In order to build and run DELTA the following are required:
  + VM-2: Channel agent
  + VM-3: Host agent
 + Target Controller (in VM-1)
- + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
- + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6
  + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
+ + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6
+ + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
 + [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (in VM-2)
 + [Mininet 2.1+](http://mininet.org/download/) (in VM-3)
 + Ant build system
@@ -58,9 +58,11 @@ $ source ./tools/dev/delta-setup/bash_profile
 $ mvn clean install
 ```
 
++ STEP 4. Add NAT to VM3 (mininet)
+![NAT](http://143.248.53.145/research/nat1.png)
 
 + After installing DELTA, the test environment is automatically setup as below,
-![Env](http://143.248.53.145/research/delta/env.png)
+![Env](http://143.248.53.145/research/env.png)
 
 ## Configuring your own experiments
 + Configure passwd-less ssh login for the VMs.
@@ -97,24 +99,52 @@ $ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.13
 Check if you will be able to access the VMs without having to enter the password.
 ```
 
-+ The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. Setting.cfg contains sample configurations. You can specify your own config file by passing its path:
++ The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. [DELTA_ROOT]/tools/config/manager.cfg contains sample configurations. You can specify your own config file by passing its path:
 ```
-CONTROLLER_SSH=vagrant@10.100.100.11
+ONTROLLER_SSH=vagrant@10.100.100.11
+CHANNEL_SSH=vagrant@10.100.100.12
+HOST_SSH=vagrant@10.100.100.13
 TARGET_HOST=10.0.0.2
 ONOS_ROOT=/home/vagrant/onos-1.6.0
 CBENCH_ROOT=/home/vagrant/oflops/cbench/
 TARGET_CONTROLLER=Floodlight
 TARGET_VERSION=0.91
 OF_PORT=6633
-OF_VER=1.0
+OF_VER=1.3
 MITM_NIC=eth1
 CONTROLLER_IP=10.100.100.11
-SWITCH_IP=10.100.100.11
+SWITCH_IP=10.100.100.13,10.100.100.13,10.100.100.13
+DUMMY_CONT_IP=10.0.2.2
+DUMMY_CONT_PORT=6633
+AM_IP=10.0.2.2
+AM_PORT=3366
+```
++ Configuring Tagret Controllers to VM-1
++ 1) Floodlight
+```
+$ cd <DELTA>/tools/dev/floodlight-setup
+$ ./floodlight-<version>-scp
+```
+ + 2) ONOS
+```
+$ cd <DELTA>/tools/dev/onos-setup
+$ ./onos-<version>-scp
+(in VM-1) $ ./onos-<version>-setup
+```
++ 3) OpenDaylight: (only JDK 1.7)
+```
+$ cd <DELTA>/tools/dev/odl-setup
+$ ./odl-<version>-scp
+(in VM-1) $ ./odl-<version>-setup
+```
++ The AppAgent (in VM-1) needs connection.cfg file in order to connect to agent-manager.
+```
+AM_IP=10.0.2.2
+AM_PORT=3366
 ```
 
-
 ## Running DELTA
-+ STEP 0. Distribute the executable files to VMs
++ STEP 1. Distribute the executable files to VMs
 
 ```
 $ cd <DELTA>
@@ -123,7 +153,7 @@ $ scp ./tools/dev/delta-setup/delta-agents-scp
 ```
 
 
-+ STEP 1. Execute Agent-Manager first
++ STEP 2. Execute Agent-Manager first
 ```
 $ cd <DELTA>/manager
 $ java -jar target/delta-manager-1.0-SNAPSHOT-jar-with-dependencies.jar ../tools/config/manager.cfg
@@ -139,44 +169,9 @@ $ java -jar target/delta-manager-1.0-SNAPSHOT-jar-with-dependencies.jar ../tools
 Command>_
 ```
 
-+ STEP 2. Execute Channel-Agent (VM-2)
-```
-$ sudo java -jar delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar 10.0.2.2 3366
-$ [Channel-Agent] Configuration setup
-$ [Channel-Agent] OF version/port: 1/6633
-$ [Channel-Agent] MITM NIC   : eth1
-$ [Channel-Agent] Target Controller IP: 10.100.100.11
-$ [Channel-Agent] Target Switch IP : 10.100.100.13
-$ [Channel-Agent] Cbench Root Path :/home/vagrant/oflops/cbench/_
-```
++ STEP 3. Connect Web-based UI (port number is 7070)
 
-+ STEP 3. Execute Host-Agent (VM-3)
-```
-$ sudo python test-advanced-topo.py 10.100.100.11 6633
-$ (the other console) ./ovs-static-rules
-
-mininet> h1 java -jar delta-agent-host-1.0-SNAPSHOT.jar 10.0.2.2 3366
-[Host-Agent] Connected with Agent-Manager_
-```
-
-+ STEP 4. Reproducing known attacks
-```
- DELTA: A Penetration Testing Framework for Software-Defined Networks
-
- [pP]	- Show all known attacks
- [cC]	- Show configuration info
- [kK]	- Replaying known attack(s)
- [uU]	- Finding an unknown attack
- [qQ]	- Quit Scanner
-
-
-Command> k
-Select the attack code (replay all, enter the 'A')> 3.1.010
-[main] INFO TestAdvancedCase - 3.1.010 - Packet-In Flooding
-[main] INFO TestAdvancedCase - Target controller: ONOS v1.1
-[main] INFO TestAdvancedCase - Target controller is starting..
-[Thread-0] INFO AttackConductor - AppAgent is connected_
-```
+![web](http://143.248.53.145/research/webui2.png)
 
 
 ## Questions?

@@ -2,9 +2,10 @@ package org.deltaproject.manager.testcase;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
-
+import org.deltaproject.manager.core.AttackConductor;
 import org.deltaproject.manager.core.Configuration;
-import org.deltaproject.manager.dummy.DummyController;
+import org.deltaproject.manager.dummy.DMController;
+import org.deltaproject.webui.TestCase;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
@@ -18,16 +19,28 @@ import org.projectfloodlight.openflow.types.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.net.ServerSocket;
 import java.util.*;
+
+import static org.deltaproject.webui.TestCase.TestResult.*;
 
 public class TestSwitchCase {
     private static final Logger log = LoggerFactory.getLogger(TestSwitchCase.class);
 
-    public static final int VALID_HANDSHAKE = 0;
+    public static final int HANDSHAKE_DEFAULT = 0;
     public static final int HANDSHAKE_NO_HELLO = 1;
     public static final int HANDSHAKE_INCOMPATIBLE_HELLO = 2;
+    public static final int NO_HANDSHAKE = 3;
 
-    private DummyController dcontroller;
+    public static final int DEFAULT_TIMEOUT = 5000;
+
+    private Configuration cfg = Configuration.getInstance();
+
+    private DMController dmcnt;
     private OFFactory defaultFactory;
     private Random random;
 
@@ -35,11 +48,12 @@ public class TestSwitchCase {
 
     private String ofversion;
     private int ofport;
-    private Configuration cfg;
 
-    public TestSwitchCase(Configuration in) {
+    private Process proc;
+    private int procPID;
+
+    public TestSwitchCase() {
         random = new Random();
-        cfg = in;
 
         ofversion = cfg.getOFVer();
         if (ofversion.equals("1.0"))
@@ -50,42 +64,110 @@ public class TestSwitchCase {
         ofport = Integer.parseInt(cfg.getOFPort());
     }
 
-    public void replayKnownAttack(String code) {
-        if (code.equals("1.1.010")) {
-            testPortRangeViolation(code);
-        } else if (code.equals("1.1.020")) {
-            testTableID(code);
-        } else if (code.equals("1.1.030")) {
-            testGroupID(code);
-        } else if (code.equals("1.1.040")) {
-            testMeterID(code);
-        } else if (code.equals("1.1.050")) {
-            testTableLoop(code);
-        } else if (code.equals("1.1.060")) {
-            testCorruptedControlMsgType(code);
-        } else if (code.equals("1.1.070")) {
-            testUnsupportedVersionNumber(code);
-        } else if (code.equals("1.1.080")) {
-            testMalformedVersionNumber(code);
-        } else if (code.equals("1.1.090")) {
-            testInvalidOXMType(code);
-        } else if (code.equals("1.1.100")) {
-            testInvalidOXMLength(code);
-        } else if (code.equals("1.1.110")) {
-            testInvalidOXMValue(code);
-        } else if (code.equals("1.1.120")) {
-            testDisabledTableFeatureRequest(code);
-        } else if (code.equals("1.1.130")) {
-            testHandshakeWithoutHello(code);
-        } else if (code.equals("1.1.140")) {
-            testControlMsgBeforeHello(code);
-        } else if (code.equals("1.1.150")) {
-            testIncompatibleHelloAfterConnection(code);
-        } else if (code.equals("1.1.160")) {
-            testCorruptedCookieValue(code);
-        } else if (code.equals("1.1.170")) {
-            testMalformedBufferIDValue(code);
+    public void runRemoteAgents() {
+        log.info("Run test mininet topology");
+
+        String mininet;
+
+        if (ofversion.equals("1.0"))
+            mininet = " sudo python test-switch-topo.py " + cfg.getDMCIP() + " " + cfg.getDMCPort() + " OpenFlow10";
+        else
+            mininet = " sudo python test-switch-topo.py " + cfg.getDMCIP() + " " + cfg.getDMCPort() + " OpenFlow13";
+
+        try {
+            proc = Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + mininet);
+
+            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
+            pidField.setAccessible(true);
+            Object value = pidField.get(proc);
+            this.procPID = (Integer) value;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void stopRemoteAgents() {
+        if (procPID != -1)
+            try {
+                proc = Runtime.getRuntime().exec("sudo kill -9 " + this.procPID);
+                proc.waitFor();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        else
+            procPID = -1;
+
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void replayKnownAttack(TestCase test) throws InterruptedException {
+        runRemoteAgents();
+
+        switch (test.getcasenum()) {
+            case "1.1.010":
+                testPortRangeViolation(test);
+                break;
+            case "1.1.020":
+                testTableID(test);
+                break;
+            case "1.1.030":
+                testGroupID(test);
+                break;
+            case "1.1.040":
+                testMeterID(test);
+                break;
+            case "1.1.050":
+                testTableLoop(test);
+                break;
+            case "1.1.060":
+                testCorruptedControlMsgType(test);
+                break;
+            case "1.1.070":
+                testUnsupportedVersionNumber(test);
+                break;
+            case "1.1.080":
+                testMalformedVersionNumber(test);
+                break;
+            case "1.1.090":
+                testInvalidOXMType(test);
+                break;
+            case "1.1.100":
+                testInvalidOXMLength(test);
+                break;
+            case "1.1.110":
+                testInvalidOXMValue(test);
+                break;
+            case "1.1.120":
+                testDisabledTableFeatureRequest(test);
+                break;
+            case "1.1.130":
+                testHandshakeWithoutHello(test);
+                break;
+            case "1.1.140":
+                testControlMsgBeforeHello(test);
+                break;
+            case "1.1.150":
+                testIncompatibleHelloAfterConnection(test);
+                break;
+            case "1.1.160":
+                testCorruptedCookieValue(test);
+                break;
+            case "1.1.170":
+                testMalformedBufferIDValue(test);
+                break;
+        }
+
+        stopRemoteAgents();
     }
 
     public long genXid() {
@@ -96,79 +178,107 @@ public class TestSwitchCase {
         return l;
     }
 
-    public void setUpDummyControllerWithNoHello(int type) {
-        dcontroller = new DummyController(this.ofversion, ofport);
-        dcontroller.setHandShakeTest(type);
-        dcontroller.bootstrapNetty();
+    public void setUpDummyController(int type) {
+        dmcnt = new DMController(ofversion, ofport);
+        dmcnt.listeningSwitch();
+        dmcnt.setHandShakeType(type);
+        dmcnt.start();
 
-        while (!dcontroller.isOFHandlerActive()) {
+        if (type != HANDSHAKE_DEFAULT)
+            return;
+
+        while (!dmcnt.getHandshaked()) {
             try {
-                Thread.sleep(100);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-        }
-    }
-
-    public void setUpDummyController() {
-        dcontroller = new DummyController(this.ofversion, ofport);
-        dcontroller.bootstrapNetty();
-
-        while (!dcontroller.isOFHandlerActive()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-        // echo req-res
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 
     public void stopDummyController() {
-        dcontroller.stopNetty();
+        dmcnt.interrupt();
+
+        while (!dmcnt.isSockClosed()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public int getConnectedSwitch() {
+        Process temp;
+        String tempS;
+
+        int cnt = 0;
+
+        String cmd = "";
+
+        try {
+            temp = Runtime.getRuntime().exec("sudo netstat -ap | grep " + this.ofport);
+            BufferedReader stdOut = new BufferedReader(new InputStreamReader(temp.getInputStream()));
+
+            while ((tempS = stdOut.readLine()) != null) {
+                if (tempS.contains("ESTABLISHED")) {
+                    cnt++;
+                }
+            }
+
+            stdOut.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return cnt;
     }
 
 
     /*
      * 1.1.010 - Port Range Violation
-     * Verify that the switch rejects the use of ports that are greater than
+     * Verify that the switch rejects the use of ports that are greater thanc
      * OFPP_MAX and are not part of the reserved ports.
      */
-    public void testPortRangeViolation(String code) {
-        String info = code + " - Port Range Violation";
-        log.info(info);
+    public void testPortRangeViolation(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Port Range Violation - Test switch protection against disallowed ports");
 
-        setUpDummyController();
+        setUpDummyController(HANDSHAKE_DEFAULT);
 
         OFPortMod request = defaultFactory.buildPortMod().setXid(r_xid).setPortNo(OFPort.ANY).build();
-        OFMessage response = dcontroller.sendOFMessage(request);
+        log.info("Send msg: " + request.toString());
+        dmcnt.sendMsg(request, -1);
+
+        Thread.sleep(999);
+
+        OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
-            log.info("response msg: " + response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
 
     /*
-     * 1.1.020 - Table Identifier Violation
-     * only 1.3 Verify that the switch rejects the use of invalid table id.
+     * 1.1.020 - Table Identifier Violation (OF 1.3~)
+     * Verify that the switch rejects the use of invalid table id.
      */
-    public void testTableID(String code) {
-        String info = code + " - Table Identifier Violation";
-        log.info(info);
+    public void testTableID(TestCase test) throws InterruptedException {
+        if (this.ofversion.equals("1.0")) {
+            log.info("OF 1.0 is not available.");
+            return;
+        }
 
-        setUpDummyController();
+        log.info(test.getcasenum() + " - Table Identifier Violation - Test switch protection against invalid table ID");
+
+        setUpDummyController(HANDSHAKE_DEFAULT);
 
         int inport = 1;
         int outport = 2;
@@ -193,33 +303,47 @@ public class TestSwitchCase {
         OFFlowAdd.Builder fab = defaultFactory.buildFlowAdd();
         fab.setPriority(10);
         fab.setXid(r_xid);
-        fab.setTableId(TableId.of(255));
+
+        Random ran = new Random();
+        fab.setTableId(TableId.of(255));                // table num
         fab.setMatch(mb.build());
         fab.setInstructions(inst);
         fab.setBufferId(OFBufferId.NO_BUFFER);
         fab.setFlags(set);
 
         OFFlowAdd request = fab.build();
-        OFMessage response = dcontroller.sendOFMessage(request);
+        log.info("Send msg: " + request.toString());
+        dmcnt.sendMsg(request, -1);
+
+        Thread.sleep(1000);
+
+        OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
 
     /*
-     * 1.1.030 - Group Identifier Violation
+     * 1.1.030 - Group Identifier Violation (OF 1.3~)
      * Verify that the switch rejects the use of groups that are greater than
      * OFPG_MAX and are not part of the reserved groups.
      */
-    public void testGroupID(String code) {
-        String info = code + " - Group Identifier Violation";
-        log.info(info);
+    public void testGroupID(TestCase test) throws InterruptedException {
+        if (this.ofversion.equals("1.0")) {
+            log.info("OF 1.0 is not available.");
+            return;
+        }
 
-        setUpDummyController();
+        log.info(test.getcasenum() + " - Group Identifier Violation - Test switch protection against disallowed group numbers");
+
+        setUpDummyController(HANDSHAKE_DEFAULT);
 
         int outport = 2;
 
@@ -236,60 +360,85 @@ public class TestSwitchCase {
         List<OFBucket> bklist = new ArrayList<OFBucket>();
         bklist.add(bb.build());
 
-        OFGroupAdd.Builder gab = defaultFactory.buildGroupAdd();
+        OFGroupModify.Builder gab = defaultFactory.buildGroupModify();
         gab.setGroupType(OFGroupType.ALL);
-        gab.setGroup(OFGroup.ANY);
+        gab.setGroup(OFGroup.MAX);
         gab.setBuckets(bklist);
         gab.setXid(this.r_xid);
 
-        OFGroupAdd request = gab.build();
-        OFMessage response = dcontroller.sendOFMessage(request);
+        OFGroupModify request = gab.build();
+        log.info("Send msg: " + request.toString());
+        dmcnt.sendMsg(request, -1);
+
+        Thread.sleep(1000);
+
+        OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
 
     }
 
     /*
-     * 1.1.040 - Meter Identifier Violation
+     * 1.1.040 - Meter Identifier Violation (OF 1.3~)
      * Verify that the switch rejects the use of meters that are greater than
      * OFPM_MAX and are not part of the virtual meters.
      */
-    public void testMeterID(String code) {
-        String info = code + "  - Meter Identifier Violation";
-        log.info(info);
+    public void testMeterID(TestCase test) throws InterruptedException {
+        if (this.ofversion.equals("1.0")) {
+            log.info("OF 1.0 is not available.");
+            return;
+        }
 
-        setUpDummyController();
+        log.info(test.getcasenum() + " - Meter Identifier Violation - Test switch protection against disallowed meter numbers");
+
+        setUpDummyController(HANDSHAKE_DEFAULT);
 
         OFMeterMod.Builder mmb = defaultFactory.buildMeterMod();
         mmb.setXid(this.r_xid);
         mmb.setMeterId(0xFFFFFFFFl);
 
         OFMeterMod request = mmb.build();
-        OFMessage response = dcontroller.sendOFMessage(request);
+
+        log.info("Send msg: " + request.toString());
+        dmcnt.sendMsg(request, -1);
+
+        Thread.sleep(1000);
+
+        OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
 
     /*
-     * 1.1.050 - Table Loop Violation
+     * 1.1.050 - Table Loop Violation (OF 1.3~)
      * Verify that the switch rejects the use of invalid Goto table id
      * requesting a table loop.
      */
-    public void testTableLoop(String code) {
-        String info = code + " - Table Loop Violation";
-        log.info(info);
+    public void testTableLoop(TestCase test) throws InterruptedException {
+        if (this.ofversion.equals("1.0")) {
+            log.info("OF 1.0 is not available.");
+            return;
+        }
 
-        setUpDummyController();
+        log.info(test.getcasenum() + " - Table Loop Violation - Test switch protection against invalid GoToTable request");
+
+        setUpDummyController(HANDSHAKE_DEFAULT);
 
         int inport = 1;
         int outport = 2;
@@ -305,7 +454,7 @@ public class TestSwitchCase {
         actions.add(aob.build());
 
         OFInstructionApplyActions apa = defaultFactory.instructions().applyActions(actions);
-        OFInstructionGotoTable gotoinst = defaultFactory.instructions().gotoTable(TableId.of(5));
+        OFInstructionGotoTable gotoinst = defaultFactory.instructions().gotoTable(TableId.of(1));
 
         List<OFInstruction> inst = new ArrayList<OFInstruction>();
         inst.add(apa);
@@ -324,12 +473,20 @@ public class TestSwitchCase {
         fab.setFlags(set);
 
         OFFlowAdd request = fab.build();
-        OFMessage response = dcontroller.sendOFMessage(request);
+        log.info("Send msg: " + request.toString());
+        dmcnt.sendMsg(request, -1);
+
+        Thread.sleep(1000);
+
+        OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -339,11 +496,10 @@ public class TestSwitchCase {
      * Verify that the switch throws an error when it receives a control message
      * with unsupported message type.
      */
-    public void testCorruptedControlMsgType(String code) {
-        String info = code + " - Corrupted Control Message Type";
-        log.info(info);
+    public void testCorruptedControlMsgType(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Corrupted Control Message Type - Test switch protection against control message with unsupported type");
 
-        setUpDummyController();
+        setUpDummyController(HANDSHAKE_DEFAULT);
 
         byte[] rawPkt = new byte[8];
         if (this.ofversion.equals("1.3"))
@@ -360,43 +516,45 @@ public class TestSwitchCase {
         rawPkt[6] = (byte) 0xee;
         rawPkt[7] = (byte) 0xee;
 
-        OFMessage response = dcontroller.sendRawPacket(rawPkt);
+        log.info("Send msg with unsupported of type (97)");
+        dmcnt.sendRawMsg(rawPkt);
+
+        Thread.sleep(1000);
+
+        OFMessage response = dmcnt.getResponse();
+
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
 
     /*
-     * 1.1.070 - Unsupported Version Numebr
+     * 1.1.070 - Unsupported Version Numeber
      * Verify that the switch throws an error when it receives a connection
      * setup message with an unsupported version number.
      */
-    public void testUnsupportedVersionNumber(String code) {
-        String info = code + " - Unsupported Version Numebr";
-        log.info(info);
+    public void testUnsupportedVersionNumber(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Unsupported Version Numeber - Test switch protection against connection setup request with unsupported version number");
 
-        setUpDummyController();
+        setUpDummyController(HANDSHAKE_INCOMPATIBLE_HELLO);
 
-        byte[] rawPkt = new byte[8];
-        rawPkt[0] = 0x05; // version 1.4
-        rawPkt[1] = 0x0a; // Type == 10
-        rawPkt[2] = 0x00;
-        rawPkt[3] = 0x08;
+        Thread.sleep(1000);
 
-        rawPkt[4] = (byte) 0xee;
-        rawPkt[5] = (byte) 0xee;
-        rawPkt[6] = (byte) 0xee;
-        rawPkt[7] = (byte) 0xee;
+        OFMessage response = dmcnt.getResponse();
 
-        // switch disconnection
-        OFMessage response = dcontroller.sendRawPacket(rawPkt);
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -407,43 +565,56 @@ public class TestSwitchCase {
      * version number after establishing connection between switch and
      * controller with a different version.
      */
-    public void testMalformedVersionNumber(String code) {
-        String info = code + " - Malformed Version Number";
-        log.info(info);
+    public void testMalformedVersionNumber(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Malformed Version Number - Test switch protection against communication with mismatched OpenFlow versions");
 
-        setUpDummyController();
+        setUpDummyController(HANDSHAKE_DEFAULT);
 
-        byte[] rawPkt = new byte[8];
-        rawPkt[0] = 0x00; // version = 0
-        rawPkt[1] = 0x00; // Type == 0
-        rawPkt[2] = 0x00;
-        rawPkt[3] = 0x08;
+        OFPortMod request = defaultFactory.buildPortMod().setXid(r_xid).setPortNo(OFPort.of(1)).setConfig(1).build();
 
-        rawPkt[4] = (byte) 0xee;
-        rawPkt[5] = (byte) 0xee;
-        rawPkt[6] = (byte) 0xee;
-        rawPkt[7] = (byte) 0xee;
+        ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
 
-        // switch disconnection
-        OFMessage response = dcontroller.sendRawPacket(rawPkt);
+        request.writeTo(buf);
+
+        int length = buf.readableBytes();
+        byte[] bytes = new byte[length];
+        buf.getBytes(buf.readerIndex(), bytes);
+
+        if (this.ofversion.equals("1.3"))
+            bytes[0] = 0x01; // version
+        else if (this.ofversion.equals("1.0"))
+            bytes[0] = 0x04;
+
+        log.info("Send msg :" + request.toString());
+        dmcnt.sendRawMsg(bytes);
+
+        buf.clear();
+        buf.release();
+
+        Thread.sleep(2000);
+
+        OFMessage response = dmcnt.getResponse();
+
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
 
     /*
-     * 1.1.090 - Invalid OXM - Type
+     * 1.1.090 - Invalid OXM - Type (Command)
      * Verify that the switch throws an error when it receives a flow mod
      * message with invalid OXM type.
      */
-    public void testInvalidOXMType(String code) {
-        String info = code + " - Invalid OXM - Type";
-        log.info(info);
+    public void testInvalidOXMType(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Invalid OXM - Type - Test switch protection against flow mod with invalid message type");
 
-        setUpDummyController();
+        setUpDummyController(HANDSHAKE_DEFAULT);
 
         int inport = 1;
         int outport = 2;
@@ -458,47 +629,58 @@ public class TestSwitchCase {
         List<OFAction> actions = new ArrayList<OFAction>();
         actions.add(aob.build());
 
-        OFInstructionApplyActions apa = defaultFactory.instructions().applyActions(actions);
-
+        /*OFInstructionApplyActions apa = defaultFactory.instructions().applyActions(actions);
         List<OFInstruction> inst = new ArrayList<OFInstruction>();
-        inst.add(apa);
+        inst.add(apa);*/
 
         OFFlowAdd.Builder fab = defaultFactory.buildFlowAdd();
-        fab.setTableId(TableId.of(10));
         fab.setXid(r_xid);
         fab.setMatch(mb.build());
-        fab.setInstructions(inst);
+        fab.setActions(actions);
         fab.setHardTimeout(1000);
 
-        ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(88);
+        ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
 
         OFFlowAdd request = fab.build();
         request.writeTo(buf);
 
-        buf.setByte(1, 0x10); // type : 14 (FlowMod) -> 16 (PortMod)
+        if (this.ofversion.equals("1.3"))
+            buf.setByte(25, 0x5);                   // unknown command 0x05
+        else if (this.ofversion.equals("1.0"))
+            buf.setByte(57, 0x5);
 
-        OFMessage response = dcontroller.sendRawPacket(buf);
+        log.info("Send msg :" + request.toString() + "with unknown command (0x05) FlowMod");
+        dmcnt.sendRawMsg(buf);
 
-        buf.clear();
+        Thread.sleep(2000);
+
+        OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
 
     /*
-     * 1.1.100 - Invalid OXM - Length
+     * 1.1.100 - Invalid OXM - Length (OF 1.3~)
      * Verify that the switch throws an error when it receives a flow mod
      * message with invalid OXM length.
      */
-    public void testInvalidOXMLength(String code) {
-        String info = code + " - Invalid OXM - Length";
-        log.info(info);
+    public void testInvalidOXMLength(TestCase test) throws InterruptedException {
+        if (this.ofversion.equals("1.0")) {
+            log.info("OF 1.0 is not available.");
+            return;
+        }
 
-        setUpDummyController();
+        log.info(test.getcasenum() + " - Invalid OXM - Length - Test switch protection against flow mod with invalid message length");
+
+        setUpDummyController(HANDSHAKE_DEFAULT);
 
         int inport = 1;
         int outport = 2;
@@ -513,48 +695,52 @@ public class TestSwitchCase {
         List<OFAction> actions = new ArrayList<OFAction>();
         actions.add(aob.build());
 
-        OFInstructionApplyActions apa = defaultFactory.instructions().applyActions(actions);
-
-        List<OFInstruction> inst = new ArrayList<OFInstruction>();
-        inst.add(apa);
-
         OFFlowAdd.Builder fab = defaultFactory.buildFlowAdd();
-        fab.setTableId(TableId.of(10));
         fab.setXid(r_xid);
         fab.setMatch(mb.build());
-        fab.setInstructions(inst);
+        fab.setActions(actions);
         fab.setHardTimeout(1000);
 
-        ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(88);
+        ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
 
         OFFlowAdd request = fab.build();
         request.writeTo(buf);
 
-        buf.setByte(2, 0x27); // length : 10000
-        buf.setByte(3, 0x10); //
+        if (this.ofversion.equals("1.3"))
+            buf.setByte(55, 0x5);                   // before length 4 -> after 5
 
-        OFMessage response = dcontroller.sendRawPacket(buf);
+        log.info("Send msg :" + request.toString() + "with invalid OXM length");
+        dmcnt.sendRawMsg(buf);
 
-        buf.clear();
+        Thread.sleep(2000);
+
+        OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
 
     /*
-     * 1.1.110 - Invalid OXM - Value
+     * 1.1.110 - Invalid OXM - Value (OF 1.3~)
      * Verify that the switch throws an error when it receives a flow mod
      * message with invalid message value
      */
-    public void testInvalidOXMValue(String code) {
-        String info = code + " - Invalid OXM - Value";
-        log.info(info);
+    public void testInvalidOXMValue(TestCase test) throws InterruptedException {
+        if (this.ofversion.equals("1.0")) {
+            log.info("OF 1.0 is not available.");
+            return;
+        }
 
-        setUpDummyController();
+        log.info(test.getcasenum() + " - Invalid OXM - Value - Test switch protection against flow mod with invalid message value");
+
+        setUpDummyController(HANDSHAKE_DEFAULT);
 
         int inport = 1;
         int outport = 2;
@@ -583,37 +769,66 @@ public class TestSwitchCase {
         fab.setInstructions(inst);
         fab.setHardTimeout(1000);
 
-        ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(96);
+        ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
 
         OFFlowAdd request = fab.build();
         request.writeTo(buf);
 
-        buf.setByte(70, 0x40); // OXM Value : 63(0x3f) -> 64(0x40)
+        buf.setByte(70, 0x40); // DSCP_63 Value : 63(0x3f) -> 64(0x40)
 
-        OFMessage response = dcontroller.sendRawPacket(buf);
+        log.info("Send msg :" + request.toString() + "with invalid IP_DSCP value 63(0x3f) -> 64(0x40)");
+        dmcnt.sendRawMsg(buf);
 
-        buf.clear();
+        Thread.sleep(2000);
+
+        OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
 
     /*
-     * 1.1.120 - Disabled Table Features Request
+     * 1.1.120 - Disabled Table Features Request (OF 1.3 ~)
      * If the switch has disabled the table feature request with non-empty body,
      * verify that the switch rejects this non-empty OFPMP_TABLE_FEATURES
      * request with a permission error
      */
-    public void testDisabledTableFeatureRequest(String code) {
-        String info = code + " - Disabled Table Features Request";
+    public void testDisabledTableFeatureRequest(TestCase test) throws InterruptedException {
+        if (this.ofversion.equals("1.0")) {
+            log.info("OF 1.0 is not available.");
+            return;
+        }
 
-        log.info(info);
+        log.info(test.getcasenum() + " - Disabled Table Features Request - Test for switch protection against table features request when feature is disabled");
 
-        // Not implemented yet.
+        setUpDummyController(HANDSHAKE_DEFAULT);
+
+        OFTableFeaturesStatsRequest.Builder table = defaultFactory.buildTableFeaturesStatsRequest();
+        table.setXid(r_xid);
+        OFMessage request = table.build();
+
+        dmcnt.sendMsg(request, -1);
+
+        Thread.sleep(2000);
+
+        OFMessage response = dmcnt.getResponse();
+        log.info("Send msg :" + request.toString());
+        if (response != null) {
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
+
+        stopDummyController();
     }
 
     /*
@@ -621,14 +836,21 @@ public class TestSwitchCase {
      * Check if the control connection is disconnected if the hello message is
      * not exchanged within the specified default timeout.
      */
-    public void testHandshakeWithoutHello(String code) {
-        String info = code + " - Handshake without Hello Message";
-        log.info(info);
+    public void testHandshakeWithoutHello(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Handshake without Hello Message - Test for switch protection against incomplete control connection left open");
 
-        setUpDummyControllerWithNoHello(TestSwitchCase.HANDSHAKE_NO_HELLO);
+        setUpDummyController(TestSwitchCase.NO_HANDSHAKE);
+        log.info("The hello message is not exchanged within the specified default timeout");
 
-        long timeout = this.dcontroller.getTimeOut();
+        Thread.sleep(DEFAULT_TIMEOUT);
 
+        if (getConnectedSwitch() == 0) {
+            test.setResult(PASS);
+            log.info("Switch disconnected, PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Switch is not disconnected, FAIL");
+        }
         stopDummyController();
     }
 
@@ -638,22 +860,28 @@ public class TestSwitchCase {
      * processes a control message before exchanging OpenFlow hello message
      * (connection establishment).
      */
-    public void testControlMsgBeforeHello(String code) {
-        String info = code + " - Control Message before Hello Message";
-        log.info(info);
+    public void testControlMsgBeforeHello(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Control Message before Hello Message - Test for switch protection against control communication prior to completed connection establishment");
 
         OFBarrierRequest.Builder brb = defaultFactory.buildBarrierRequest();
         brb.setXid(r_xid);
 
-        setUpDummyControllerWithNoHello(TestSwitchCase.HANDSHAKE_NO_HELLO);
+        setUpDummyController(TestSwitchCase.NO_HANDSHAKE);
 
-        OFMessage response = dcontroller.sendOFMessage(brb.build());
-        long timeout = this.dcontroller.getTimeOut();
+        OFMessage request = brb.build();
+        dmcnt.sendMsg(request, -1);
 
+        Thread.sleep(1000);
+
+        OFMessage response = dmcnt.getResponse();
+        log.info("Send msg :" + request.toString());
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -666,21 +894,29 @@ public class TestSwitchCase {
      * establishing connection between switch and controller with a both agreed
      * version.
      */
-    public void testIncompatibleHelloAfterConnection(String code) {
-        String info = code + " - Incompatible Hello after Connection Establishment";
-        log.info(info);
+    public void testIncompatibleHelloAfterConnection(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Incompatible Hello after Connection Establishment - Test for switch protection against abuse of the Hello_Failed error message");
+
+        setUpDummyController(TestSwitchCase.HANDSHAKE_DEFAULT);
 
         OFHelloFailedErrorMsg.Builder hfb = defaultFactory.errorMsgs().buildHelloFailedErrorMsg();
         hfb.setXid(r_xid);
         hfb.setCode(OFHelloFailedCode.INCOMPATIBLE);
 
-        setUpDummyControllerWithNoHello(TestSwitchCase.HANDSHAKE_INCOMPATIBLE_HELLO);
-        OFMessage response = dcontroller.sendOFMessage(hfb.build());
+        OFMessage request = hfb.build();
+        dmcnt.sendMsg(request, -1);
 
+        Thread.sleep(1000);
+
+        OFMessage response = dmcnt.getResponse();
+        log.info("Send msg :" + request.toString());
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -691,11 +927,10 @@ public class TestSwitchCase {
      * cookie value in OpenFlow messages after establishing connection between
      * switch and controller.
      */
-    public void testCorruptedCookieValue(String code) {
-        String info = code + " - Corrupted Cookie Values";
-        log.info(info);
+    public void testCorruptedCookieValue(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Corrupted Cookie Values - Test for switch protection against replay attacks");
 
-        setUpDummyController();
+        setUpDummyController(HANDSHAKE_DEFAULT);
 
         int inport = 1;
         int outport = 2;
@@ -710,25 +945,33 @@ public class TestSwitchCase {
         List<OFAction> actions = new ArrayList<OFAction>();
         actions.add(aob.build());
 
-        OFInstructionApplyActions apa = defaultFactory.instructions().applyActions(actions);
-
-        List<OFInstruction> inst = new ArrayList<OFInstruction>();
-        inst.add(apa);
-
         OFFlowAdd.Builder fab = defaultFactory.buildFlowAdd();
-        fab.setTableId(TableId.of(1));
         fab.setXid(r_xid);
         fab.setMatch(mb.build());
-        fab.setBufferId(OFBufferId.NO_BUFFER);
-        fab.setInstructions(inst);
-        fab.setCookie(U64.of(0xffffffffffffffffl));
+        fab.setActions(actions);
+        fab.setHardTimeout(1000);
 
-        OFMessage response = dcontroller.sendOFMessage(fab.build());
+        fab.setCookie(U64.of(0xFFFFFFFFFFFFFFFFl));
+
+        ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
+
+        OFFlowAdd request = fab.build();
+        request.writeTo(buf);
+
+        log.info("Send msg :" + request.toString() + " with corrupted cookie value");
+        dmcnt.sendRawMsg(buf);
+
+        Thread.sleep(1000);
+
+        OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
     }
@@ -739,11 +982,10 @@ public class TestSwitchCase {
      * buffer ID value after establishing connection between switch &
      * controller.
      */
-    public void testMalformedBufferIDValue(String code) {
-        String info = code + " - Malformed Buffer ID Values";
-        log.info(info);
+    public void testMalformedBufferIDValue(TestCase test) throws InterruptedException {
+        log.info(test.getcasenum() + " - Malformed Buffer ID Values - Test for switch protection against disallowed buffer ID values");
 
-        setUpDummyController();
+        setUpDummyController(HANDSHAKE_DEFAULT);
 
         int inport = 1;
         int outport = 2;
@@ -758,40 +1000,56 @@ public class TestSwitchCase {
         List<OFAction> actions = new ArrayList<OFAction>();
         actions.add(aob.build());
 
-        OFInstructionApplyActions apa = defaultFactory.instructions().applyActions(actions);
-
-        List<OFInstruction> inst = new ArrayList<OFInstruction>();
-        inst.add(apa);
-
         OFFlowAdd.Builder fab = defaultFactory.buildFlowAdd();
-        fab.setTableId(TableId.of(1));
         fab.setXid(r_xid);
         fab.setMatch(mb.build());
-        fab.setBufferId(OFBufferId.of(1243));
-        fab.setInstructions(inst);
+        fab.setActions(actions);
+        fab.setHardTimeout(1000);
 
-        OFMessage response = dcontroller.sendOFMessage(fab.build());
+        Random ran = new Random();
+
+        fab.setBufferId(OFBufferId.of(ran.nextInt(0xffff) + 1));
+
+        ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
+
+        OFFlowAdd request = fab.build();
+        request.writeTo(buf);
+
+        log.info("Send msg :" + request.toString() + " with malformed buffer ID values");
+        dmcnt.sendRawMsg(buf);
+
+        Thread.sleep(1000);
+
+        OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
-            log.info(response.toString());
-        } else
-            log.info("response is null");
+            test.setResult(PASS);
+            log.info("Response err msg: " + response.toString() + ", PASS");
+        } else {
+            test.setResult(FAIL);
+            log.info("Response is null, FAIL");
+        }
 
         stopDummyController();
+
+
     }
 
     /*
-     * 1.1.180 - Slave Controller Violation
+     * 1.2.010 - Slave Controller Violation (OF 1.3 ~)
      * Verify that the switch rejects unsupported control messages
      * (OFPT_PACKET_OUT, OFPT_FLOW_MOD, OFPT_GROUP_MOD, OFPT_PORT_MOD,
      * OFPT_TABLE_MOD requests, and OFPMP_TABLE_FEATURES) from slave
      * controllers.
      */
-    public void testSlaveControllerViolation(String code) {
-        String info = code + " - Slave Controller Violation";
-        log.info(info);
+    public void testSlaveControllerViolation(TestCase test) {
+        if (this.ofversion.equals("1.0")) {
+            log.info("OF 1.0 is not available.");
+            return;
+        }
+        log.info(test.getcasenum() + " - Slave Controller Violation - Test for switch protection against manipulation of the network by the slave controller");
 
-        setUpDummyController();
+        setUpDummyController(HANDSHAKE_DEFAULT);
 
         int inport = 1;
         int outport = 2;
@@ -801,7 +1059,10 @@ public class TestSwitchCase {
         rrb.setGenerationId(U64.ZERO);
         rrb.setXid(r_xid);
 
-        OFMessage response = dcontroller.sendOFMessage(rrb.build());
+        OFRoleRequest request = rrb.build();
+        dmcnt.sendMsg(request, -1);
+
+        OFMessage response = dmcnt.getResponse();
 
         if (response != null) {
             log.info(response.toString());
@@ -815,13 +1076,15 @@ public class TestSwitchCase {
             OFRoleRequest.Builder rrb2 = defaultFactory.buildRoleRequest();
             rrb2.setRole(OFControllerRole.ROLE_SLAVE);
             rrb2.setGenerationId(gen);
-            rrb2.setXid(r_xid);
+            rrb2.setXid(r_xid - 1);
 
-            response = dcontroller.sendOFMessage(rrb2.build());
+            request = rrb2.build();
+            dmcnt.sendMsg(request, -1);
         }
 
         OFPacketOut pktout = defaultFactory.buildPacketOut().setXid(r_xid).setBufferId(OFBufferId.NO_BUFFER).build();
-        response = dcontroller.sendOFMessage(pktout);
+        dmcnt.sendMsg(pktout, -1);
+        response = dmcnt.getResponse();
 
         if (response != null) {
             log.info(response.toString());

@@ -18,13 +18,15 @@ package org.deltaproject.onosagent;
 import com.google.common.collect.Lists;
 import org.apache.felix.scr.annotations.*;
 import org.onlab.metrics.MetricsService;
-import org.onlab.packet.*;
+import org.onlab.packet.Ethernet;
+import org.onlab.packet.Ip4Prefix;
+import org.onlab.packet.IpAddress;
+import org.onlab.packet.MacAddress;
 import org.onosproject.app.ApplicationAdminService;
 import org.onosproject.cfg.ComponentConfigService;
 import org.onosproject.cfg.ConfigProperty;
 import org.onosproject.cluster.ClusterAdminService;
 import org.onosproject.cluster.ClusterService;
-import org.onosproject.core.Application;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.core.CoreService;
 import org.onosproject.mastership.MastershipAdminService;
@@ -36,6 +38,9 @@ import org.onosproject.net.flow.*;
 import org.onosproject.net.flow.criteria.Criterion;
 import org.onosproject.net.flow.criteria.EthCriterion;
 import org.onosproject.net.flow.criteria.PortCriterion;
+import org.onosproject.net.flowobjective.DefaultForwardingObjective;
+import org.onosproject.net.flowobjective.FlowObjectiveService;
+import org.onosproject.net.flowobjective.ForwardingObjective;
 import org.onosproject.net.host.HostAdminService;
 import org.onosproject.net.host.HostService;
 import org.onosproject.net.link.LinkAdminService;
@@ -68,6 +73,9 @@ public class AppAgent {
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected TopologyService topologyService;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    protected FlowObjectiveService flowObjectiveService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected PacketService packetService;
@@ -165,7 +173,7 @@ public class AppAgent {
             + "default is false")
     private boolean matchIcmpFields = false;
 
-    private Communication cm;
+    private AMInterface cm;
     private ComponentContext contextbk;
     private SystemTimeSet systime;
     private boolean isDrop = false;
@@ -198,9 +206,9 @@ public class AppAgent {
         }
 
         log.info("Started with Application ID {}", appId.id());
-        
-        cm = new Communication(this);
-        cm.setServerAddr("192.168.4.1", 3366);
+
+        cm = new AMInterface(this);
+        cm.setServerAddr();
         cm.connectServer("AppAgent");
         cm.start();
     }
@@ -386,6 +394,7 @@ public class AppAgent {
             }
 
         }
+
         this.cfgService.setProperty(
                 "org.onosproject.provider.host.impl.HostLocationProvider",
                 "hostRemovalEnabled", "false");
@@ -393,6 +402,39 @@ public class AppAgent {
         // this.cfgService.setProperty(
         // "org.onosproject.fwd.ReactiveForwarding",
         // "packetOutOnly", "false");
+    }
+
+
+    public String sendUnFlaggedFlowRemoveMsg() {
+        TrafficTreatment.Builder treat = DefaultTrafficTreatment.builder();
+        treat.drop();
+
+        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
+        selector.matchInPort(PortNumber.portNumber(1));
+        selector.matchEthType((short) 0x0800);
+
+        Iterable<Device> dv = deviceService.getDevices();
+        Iterator it = dv.iterator();
+
+        while (it.hasNext()) {
+            Device piece = (Device) it.next();
+//            FlowRule newf = new DefaultFlowRule(piece.id(),
+//                    selector.build(), treat.build(), 555,       // priority: 555
+//                    appId, flowTimeout, false, null);
+//
+//            flowRuleService.applyFlowRules(newf);
+
+            ForwardingObjective fwd = DefaultForwardingObjective.builder()
+                    .withFlag(ForwardingObjective.Flag.SPECIFIC)
+                    .withPriority(555).makePermanent()
+                    .withSelector(selector.build()).fromApp(appId)
+                    .withTreatment(treat.build()).add();
+
+            flowObjectiveService.forward(piece.id(), fwd);
+
+            return fwd.toString();
+        }
+        return "fail";
     }
 
 
@@ -725,7 +767,7 @@ public class AppAgent {
                                             Ip4Prefix.MAX_MASK_LENGTH);
 
                             PortCriterion port = (PortCriterion) old.selector().getCriterion(
-                                            Criterion.Type.IN_PORT);
+                                    Criterion.Type.IN_PORT);
 
                             selector.matchInPort(port.port())
                                     .matchIPSrc(matchIp4SrcPrefix)

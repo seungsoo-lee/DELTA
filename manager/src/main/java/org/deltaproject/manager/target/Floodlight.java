@@ -32,10 +32,10 @@ public class Floodlight implements TargetController {
 
         try {
             if (version.equals("1.2")) {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " java -jar floodlight-1.2.jar -cf ./floodlightdefault.properties");
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo java -jar floodlight-1.2.jar -cf ./floodlightdefault.properties");
                 name = "floodlight-1.2.jar";
             } else {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " java -jar floodlight-0.91.jar");
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo java -jar floodlight-0.91.jar");
                 name = "floodlight-0.91.jar";
             }
 

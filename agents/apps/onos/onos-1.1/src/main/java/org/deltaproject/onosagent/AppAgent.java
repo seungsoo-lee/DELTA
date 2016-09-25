@@ -163,7 +163,7 @@ public class AppAgent {
             + "default is false")
     private boolean matchIcmpFields = false;
 
-    private Communication cm;
+    private AMInterface cm;
     private ComponentContext contextbk;
     private SystemTimeSet systime;
     private boolean isDrop = false;
@@ -197,8 +197,8 @@ public class AppAgent {
 
         log.info("Started with Application ID {}", appId.id());
 
-        cm = new Communication(this);
-        cm.setServerAddr("10.0.2.2", 3366);
+        cm = new AMInterface(this);
+        cm.setServerAddr();
         cm.connectServer("AppAgent");
         cm.start();
     }
@@ -391,6 +391,29 @@ public class AppAgent {
         // this.cfgService.setProperty(
         // "org.onosproject.fwd.ReactiveForwarding",
         // "packetOutOnly", "false");
+    }
+
+    public String sendUnFlaggedFlowRemoveMsg() {
+        TrafficTreatment.Builder treat = DefaultTrafficTreatment.builder();
+        treat.drop();
+
+        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
+        selector.matchInPort(PortNumber.portNumber(1));
+        selector.matchEthType((short) 0x0800);
+
+        Iterable<Device> dv = deviceService.getDevices();
+        Iterator it = dv.iterator();
+
+        while (it.hasNext()) {
+            Device piece = (Device) it.next();
+            FlowRule newf = new DefaultFlowRule(piece.id(),
+                    selector.build(), treat.build(), 555,       // priority: 555
+                    appId, flowTimeout, false, null);
+
+            flowRuleService.applyFlowRules(newf);
+            return newf.toString();
+        }
+        return "fail";
     }
 
 

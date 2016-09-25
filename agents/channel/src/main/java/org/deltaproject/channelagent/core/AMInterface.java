@@ -14,7 +14,7 @@ import java.lang.reflect.Field;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import org.deltaproject.channelagent.dummy.DummyOFSwitch;
+import org.deltaproject.channelagent.dummy.DMOFSwitch;
 import org.deltaproject.channelagent.pkthandle.NIC;
 import org.deltaproject.channelagent.pkthandle.PktListener;
 import org.deltaproject.channelagent.testcase.*;
@@ -40,10 +40,6 @@ public class AMInterface extends Thread {
     private String amIP;
     private int amPort;
 
-    private SwitchTableFlooder tableFlooding;
-    private SwitchIdentificationSpoofer idSpoofing;
-    private LinkFabricator linkDeception;
-
     private PktListener pktListener;
 
     private NetworkInterface device;
@@ -54,7 +50,7 @@ public class AMInterface extends Thread {
     private String controllerIP;
     private String switchIP;
 
-    private DummyOFSwitch dummysw;
+    private DMOFSwitch dummysw;
 
     private TestControllerCase testController;
 
@@ -62,7 +58,7 @@ public class AMInterface extends Thread {
         amIP = ip;
         amPort = Integer.parseInt(port);
 
-        dummysw = new DummyOFSwitch();
+        dummysw = new DMOFSwitch();
     }
 
     public AMInterface(String config) {
@@ -189,7 +185,7 @@ public class AMInterface extends Thread {
     public void connectAgentManager() {
         try {
             socket = new Socket(amIP, amPort);
-            socket.setReuseAddress(true);
+            // socket.setReuseAddress(true);
 
             in = socket.getInputStream();
             dis = new DataInputStream(in);
@@ -200,9 +196,7 @@ public class AMInterface extends Thread {
             dos.writeUTF("ChannelAgent");
             dos.flush();
 
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.info("connection completed");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -228,7 +222,7 @@ public class AMInterface extends Thread {
                     dos.writeUTF("success");
                 } else if (recv.equalsIgnoreCase("3.1.160")) {
                     System.out.println("\n[Channel-Agent] LinkFabrication test starts");
-                    pktListener.setTypeOfAttacks(TestAdvancedSet.LINKFABRICATION);
+                    pktListener.setTypeOfAttacks(TestAdvancedCase.LINKFABRICATION);
                     pktListener.startListening();
                     pktListener.startARPSpoofing();
 
@@ -237,7 +231,7 @@ public class AMInterface extends Thread {
                     dos.writeUTF("success");
                 } else if (recv.equalsIgnoreCase("3.1.170")) {
                     System.out.println("\n[Channel-Agent] Evaesdrop test starts");
-                    pktListener.setTypeOfAttacks(TestAdvancedSet.EVAESDROP);
+                    pktListener.setTypeOfAttacks(TestAdvancedCase.EVAESDROP);
                     pktListener.startListening();
                     pktListener.startARPSpoofing();
                 } else if (recv.equalsIgnoreCase("3.1.170-2")) {
@@ -252,14 +246,12 @@ public class AMInterface extends Thread {
                     dos.writeUTF(result);
                 } else if (recv.equalsIgnoreCase("3.1.180")) {
                     System.out.println("\n[Channel-Agent] MITM test start");
-                    pktListener.setTypeOfAttacks(TestAdvancedSet.MITM);
+                    pktListener.setTypeOfAttacks(TestAdvancedCase.MITM);
                     pktListener.startListening();
                     pktListener.startARPSpoofing();
                     dos.writeUTF("success");
                 } else if (recv.equalsIgnoreCase("3.1.050")) { // Switch Table
                     // Flooding
-                    tableFlooding = new SwitchTableFlooder();
-                    tableFlooding.startSwitchTableFlooding();
 
                     Thread.sleep(15000);
 
@@ -275,17 +267,17 @@ public class AMInterface extends Thread {
                     // dummysw.setSeed(pktListener.getSeedPackets());
                     dummysw.start();
                 } else if (recv.equalsIgnoreCase("exit")) {
-                    pktListener.setTypeOfAttacks(TestAdvancedSet.EMPTY);
+                    pktListener.setTypeOfAttacks(TestAdvancedCase.EMPTY);
                     pktListener.stopARPSpoofing();
                 } else if (recv.contains("startsw")) {
-                    if(recv.contains("nohello")) {
-                        testController.startSW(DummyOFSwitch.HANDSHAKE_NO_HELLO);
+                    if (recv.contains("nohello")) {
+                        testController.startSW(DMOFSwitch.HANDSHAKE_NO_HELLO);
+                    } else {
+                        testController.startSW(DMOFSwitch.HANDSHAKE_DEFAULT);
                     }
-                    else {
-                        testController.startSW(DummyOFSwitch.HANDSHAKE_DEFAULT);
-                    }
-                } else if (recv.equalsIgnoreCase("stopsw")) {
-
+                    dos.writeUTF("switchok");
+                } else if (recv.equalsIgnoreCase("stoptemp")) {
+                    testController.stopTempSW();
                 } else if (recv.equalsIgnoreCase("2.1.010")) {
                     String res = testController.testMalformedVersionNumber(recv);
                     dos.writeUTF(res);
@@ -299,12 +291,12 @@ public class AMInterface extends Thread {
                     String res = testController.testMultipleMainConnectionReq(recv);
                     dos.writeUTF(res);
                 } else if (recv.equalsIgnoreCase("2.1.060")) {
-                    String res = testController.testMultipleMainConnectionReq(recv);
+                    String res = testController.testUnFlaggedFlowRemoveMsgNotification(recv);
                     dos.writeUTF(res);
                 } else if (recv.contains("2.1.070")) {
-                    if(recv.contains("exit")) {
+                    if (recv.contains("exit")) {
                         testController.exitTopo();
-                        return;
+                        continue;
                     } else {
                         String res = testController.testTLSSupport(recv);
                         dos.writeUTF(res);
@@ -315,8 +307,7 @@ public class AMInterface extends Thread {
             }
         } catch (Exception e) {
             // if any error occurs
-            log.info("exit");
-            // e.printStackTrace();
+            e.printStackTrace();
 
             if (dis != null)
                 try {
@@ -326,7 +317,23 @@ public class AMInterface extends Thread {
                     // e.printStackTrace();
                 }
 
-            System.exit(0);
+            if (dos != null)
+                try {
+                    dos.close();
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    // e.printStackTrace();
+                }
+
+            if (socket != null)
+                try {
+                    socket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            // System.exit(0);
         }
+
+        log.info("Thread exit");
     }
 }

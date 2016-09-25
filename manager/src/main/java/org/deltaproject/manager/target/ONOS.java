@@ -20,7 +20,7 @@ public class ONOS implements TargetController {
     private BufferedReader stdOut;
 
     public ONOS(String path, String v, String ssh) {
-        this.karafPath = path +"/apache-karaf-3.0.5/bin/karaf";
+        this.karafPath = path + "/apache-karaf-3.0.5/bin/karaf";
         onosPath = path + "/bin/onos-service";
         this.version = v;
         this.sshAddr = ssh;
@@ -32,7 +32,7 @@ public class ONOS implements TargetController {
         String str;
 
         try {
-            if(this.version.contains("1.1")) {
+            if (this.version.contains("1.1")) {
                 process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + karafPath + " clean");
             } else {
                 process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + onosPath + " start");
@@ -41,7 +41,6 @@ public class ONOS implements TargetController {
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
             Object value = pidField.get(process);
-
             this.currentPID = (Integer) value;
 
             stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));

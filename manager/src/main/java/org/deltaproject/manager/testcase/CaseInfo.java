@@ -2,7 +2,7 @@ package org.deltaproject.manager.testcase;
 
 import java.util.HashMap;
 
-public class TestInfo {
+public class CaseInfo {
     public static void updateSwitchCase(HashMap<String, String> map) {
         map.put("1.1.010", "Port Range Violation");
         map.put("1.1.011", "TTP Port Range Violation");

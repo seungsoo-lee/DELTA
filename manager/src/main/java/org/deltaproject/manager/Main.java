@@ -11,20 +11,25 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String args[]) throws IOException {
-        if (args.length == 0) {
-            System.err.println("Enter the Config File");
+        if (args.length < 1) {
+            System.err.println("Usage: java -jar target/delta-manager-1.0-SNAPSHOT-jar-with-dependencies.jar ../tools/config/manager.cfg");
             System.exit(1);
         }
 
         System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "TRUE");
-
+        System.setProperty(SimpleLogger.LOG_FILE_KEY, "delta.log");
+        System.setProperty(SimpleLogger.SHOW_DATE_TIME_KEY, "TRUE");
+        System.setProperty(SimpleLogger.DATE_TIME_FORMAT_KEY, "[yyyy.MM.dd HH:mm:ss z]");
 
         AgentManager am = new AgentManager(args[0]);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         am.start();
         am.showMenu();
-        am.closeServerSocket();
-
-//		TestSwitchCase ts = new TestSwitchCase();
-//		ts.testSlaveControllerViolation();
     }
 }

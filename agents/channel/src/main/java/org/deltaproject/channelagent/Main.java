@@ -14,14 +14,13 @@ public class Main {
 		System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "TRUE");
 		AMInterface am_if = new AMInterface(args[0], args[1]);
 		am_if.connectAgentManager();
-		
+
 		try {
-			Thread.sleep(500);
-			am_if.start();
-			am_if.join();
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		am_if.start();
 	}
 }

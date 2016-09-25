@@ -1,7 +1,6 @@
 package org.deltaproject.manager.target;
 
 import org.apache.commons.lang3.StringUtils;
-import org.deltaproject.manager.testcase.TestAdvancedCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

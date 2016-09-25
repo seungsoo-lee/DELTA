@@ -9,12 +9,6 @@ public class Main {
 		
 		AMInterface am_if = new AMInterface(args[0], args[1]);
 		am_if.connectAgentManager();
-		try {
-			Thread.sleep(500);
-			am_if.start();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		am_if.start();
 	}
 }

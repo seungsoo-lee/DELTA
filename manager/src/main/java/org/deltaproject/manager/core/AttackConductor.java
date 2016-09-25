@@ -2,14 +2,15 @@ package org.deltaproject.manager.core;
 
 import org.deltaproject.manager.testcase.TestAdvancedCase;
 import org.deltaproject.manager.testcase.TestControllerCase;
-import org.deltaproject.manager.testcase.TestInfo;
+import org.deltaproject.manager.testcase.CaseInfo;
 import org.deltaproject.manager.testcase.TestSwitchCase;
-import org.deltaproject.manager.utils.J2sshCient;
+import org.deltaproject.webui.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.lang.reflect.Field;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,7 +28,7 @@ public class AttackConductor {
     private ChannelAgentManager channelm;
     private ControllerManager controllerm;
 
-    private Configuration cfg;
+    private Configuration cfg = Configuration.getInstance();
 
     private DataOutputStream dos;
     private DataInputStream dis;
@@ -36,40 +37,44 @@ public class AttackConductor {
     private TestSwitchCase testSwitchCase;
     private TestControllerCase testControllerCase;
 
+    private String agentType;
+
     public AttackConductor(String config) {
+        cfg.initialize(config);
+
         infoControllerCase = new HashMap<String, String>();
         infoSwitchCase = new HashMap<String, String>();
         infoAdvancedCase = new HashMap<String, String>();
 
-        cfg = new Configuration(config);
-
-        this.controllerm = new ControllerManager(cfg);
-
+        this.controllerm = new ControllerManager();
         this.appm = new AppAgentManager();
-        this.appm.setControllerType(cfg.getTargetController());
-
         this.hostm = new HostAgentManager();
         this.channelm = new ChannelAgentManager();
 
 		/* Update Test Cases */
-        TestInfo.updateAdvancedCase(infoAdvancedCase);
-        TestInfo.updateControllerCase(infoControllerCase);
-        TestInfo.updateSwitchCase(infoSwitchCase);
+        CaseInfo.updateAdvancedCase(infoAdvancedCase);
+        CaseInfo.updateControllerCase(infoControllerCase);
+        CaseInfo.updateSwitchCase(infoSwitchCase);
 
+        testSwitchCase = new TestSwitchCase();
+        testControllerCase = new TestControllerCase(appm, hostm, channelm, controllerm);
         testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
-        testSwitchCase = new TestSwitchCase(cfg);
-        testControllerCase = new TestControllerCase(cfg, channelm, controllerm, hostm);
     }
 
     public String showConfig() {
         return cfg.show();
     }
 
+    public void stopAgents() {
+        hostm.stopAgent();
+        channelm.stopAgent();
+    }
+
     public void setSocket(Socket socket) throws IOException {
         dos = new DataOutputStream(socket.getOutputStream());
         dis = new DataInputStream(socket.getInputStream());
 
-        String agentType = dis.readUTF();
+        agentType = dis.readUTF();
 
         if (agentType.contains("AppAgent")) {
             appm.setAppSocket(socket, dos, dis);
@@ -85,35 +90,33 @@ public class AttackConductor {
                     + ",handler:dummy" + ",cbench:" + cfg.getCbenchRoot();
 
             channelm.write(config);
+            log.info("Channel agent is connected");
         } else if (agentType.contains("HostAgent")) {
             hostm.setSocket(socket, dos, dis);
             hostm.write("target:" + cfg.getTargetHost());
+            log.info("Host agent is connected");
         }
     }
 
-    public void replayKnownAttack(String code) {
-        if (code.charAt(0) == '1')
-            testSwitchCase.replayKnownAttack(code);
-        if (code.charAt(0) == '2')
-            testControllerCase.replayKnownAttack(code);
-        if (code.charAt(0) == '3')
-            testAdvancedCase.replayKnownAttack(code);
+    public void executeTestCase(TestCase test) throws InterruptedException {
+        if (test.getcasenum().charAt(0) == '1') {
+            testSwitchCase.replayKnownAttack(test);
+        } else if (test.getcasenum().charAt(0) == '2') {
+            testControllerCase.replayKnownAttack(test);
+        } else if (test.getcasenum().charAt(0) == '3') {
+            testAdvancedCase.replayKnownAttack(test);
+        }
+        log.info("\n");
+    }
+
+    public void replayKnownAttack() {
+
     }
 
     public void printAttackList() {
-        System.out.println("\nControl Plane Test Set (under developping)");
-
-        Iterator<String> treeMapIter = infoControllerCase.keySet().iterator();
-
-        while (treeMapIter.hasNext()) {
-            String key = treeMapIter.next();
-            String value = infoControllerCase.get(key);
-            System.out.println(String.format("%s\t: %s", key, value));
-        }
-
         System.out.println("\nData Plane Test Set");
         TreeMap<String, String> treeMap = new TreeMap<String, String>(infoSwitchCase);
-        treeMapIter = treeMap.keySet().iterator();
+        Iterator<String> treeMapIter = treeMap.keySet().iterator();
         while (treeMapIter.hasNext()) {
 
             String key = (String) treeMapIter.next();
@@ -121,8 +124,16 @@ public class AttackConductor {
             System.out.println(String.format("%s\t: %s", key, value));
         }
 
-        System.out.println("\nAdvanced Test Set");
+        System.out.println("\nControl Plane Test Set (under developping)");
+        treeMap = new TreeMap<String, String>(infoControllerCase);
+        treeMapIter = treeMap.keySet().iterator();
+        while (treeMapIter.hasNext()) {
+            String key = (String) treeMapIter.next();
+            String value = (String) treeMap.get(key);
+            System.out.println(String.format("%s\t: %s", key, value));
+        }
 
+        System.out.println("\nAdvanced Test Set");
         treeMap = new TreeMap<String, String>(infoAdvancedCase);
         treeMapIter = treeMap.keySet().iterator();
         while (treeMapIter.hasNext()) {
@@ -144,11 +155,19 @@ public class AttackConductor {
             return false;
     }
 
-    public void test(String code) {
-
+    public AppAgentManager getAppAgentManager() {
+        return this.appm;
     }
 
-    public void replayAllKnownAttacks() {
+    public ChannelAgentManager getChannelManager() {
+        return channelm;
+    }
 
+    public HostAgentManager getHostManager() {
+        return hostm;
+    }
+
+    public ControllerManager getControllerManager() {
+        return controllerm;
     }
 }

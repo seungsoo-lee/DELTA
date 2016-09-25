@@ -36,13 +36,73 @@
     <div class="row">
         <div class="chart-wrapper">
             <div class="chart-title">
-                DELTA log
+                Live Test Queue
             </div>
             <div class="chart-stage">
-
+                <div id="test-queue">
+                    <table id="queue-table" class="display select" cellspacing="0" width="100%">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Timestamp</th>
+                            <th>Category</th>
+                            <th>Testcase #</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Result</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div class="chart-notes">
             </div>
         </div>
     </div>
+
+    <div class="row">
+        <div style="width: 100%; display: table; margin-left: auto; margin-right:0;">
+
+            <div style="width:30%; display: table-cell;">
+                <div class="chart-wrapper">
+                    <div class="chart-title">
+                        DELTA configuration
+                    </div>
+                    <div class="chart-stage">
+                        <textarea readonly id="configpane" class="fill"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: table-cell;">
+                <div class="chart-wrapper">
+                    <div class="chart-title">
+                        DELTA log
+                    </div>
+                    <div class="chart-stage">
+                        <textarea readonly id="deltalog" class="fill"></textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="chart-notes">
+        </div>
+
+    </div>
+
+
+    <!--<div class="row">-->
+        <!--<div class="chart-wrapper">-->
+            <!--<div class="chart-title">-->
+                <!--DELTA configuration-->
+            <!--</div>-->
+            <!--<div class="chart-stage">-->
+                <!--<textarea readonly id="configpane" class="fill"></textarea>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+
 
     <!--<div class="row">-->
     <!--<div class="chart-wrapper">-->
@@ -93,7 +153,7 @@
                         <thead>
                         <tr>
                             <th>Category</th>
-                            <th>Test Index</th>
+                            <th>Testcase #</th>
                             <th>Name</th>
                         </tr>
                         </thead>
@@ -103,30 +163,6 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="chart-wrapper">
-            <div class="chart-title">
-                Live Test Queue
-            </div>
-            <div class="chart-stage">
-                <div id="test-queue">
-                    <table id="queue-table" class="display select" cellspacing="0" width="100%">
-                        <thead>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>Category</th>
-                            <th>Test Index</th>
-                            <th>Name</th>
-                            <th>Status</th>
-                        </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-            <div class="chart-notes">
-            </div>
-        </div>
-    </div>
 </div>
 
 
@@ -152,7 +188,7 @@
 
                         var queueArray = new Array();
                         dt.rows({selected: true}).every(function (rowIdx, tableLoop, rowLoop) {
-                            queueArray.push(this.data().caseIndex);
+                            queueArray.push(this.data().casenum);
                         });
 
                         $.ajax({
@@ -181,13 +217,21 @@
             searching: true,
             'columns': [
                 {'data': 'category'},
-                {'data': 'caseIndex'},
-                {'data': 'name'}
+                {'data': 'casenum'},
+                {'data': 'name'},
             ],
             'ajax': {
                 'url': '/json/testcases',
                 'dataSrc': ""
-            }
+            },
+            "createdRow": function( row, data) {
+                $(row).attr('title',data['desc']);
+                $(row).tooltip({
+                    "delay": 0,
+                    "track": true,
+                    "fade": 250
+                });
+            },
         });
 
         var queue_table = $('#queue-table').DataTable({
@@ -198,24 +242,78 @@
             lengthMenu: [10, 20, 50, 100],
             searching: true,
             'columns': [
+                {'data': 'index'},
                 {'data': 'time'},
                 {'data': 'category'},
-                {'data': 'caseIndex'},
+                {'data': 'casenum'},
                 {'data': 'name'},
-                {'data': 'status'}
+                {'data': 'status'},
+                {'data': 'result'}
             ],
             'ajax': {
                 'url': '/json/testqueue/get',
                 'dataSrc': ""
-            }
+            },
+            "fnRowCallback": function(nRow, aData) {
+                if ( aData['status'] == "RUNNING" ) {
+                    $('td', nRow).css('background-color', '#ffff99');
+                }
+                else if ( aData['status'] == "COMPLETE" ) {
+                    if ( aData['result'] == "FAIL" ) {
+                        $('td', nRow).css('background-color', '#ff9999');
+                    }
+                    else if ( aData['result'] == "PASS" ) {
+                        $('td', nRow).css('background-color', '#ccff99');
+                    }
+                    else {
+                        $('td', nRow).css('background-color', '#ffffff');
+                    }
+                }
+            },
+            "createdRow": function( row, data ) {
+                $(row).attr('title',data['desc']);
+                $(row).tooltip({
+                    "delay": 0,
+                    "track": true,
+                    "fade": 250
+                });
+            },
         });
 
-        var intervalID = setInterval(function () {
+        setInterval(function () {
             queue_table.ajax.reload();
         }, 3000);
 
+        setInterval(function () {
+
+            $.ajax({
+                url: '/text/getlog',
+                dataType: 'text',
+                contentType: "text/plain",
+                async: false,
+                success: function (data) {
+                    var old = $('#deltalog').val();
+                    if (old.length != data.length) {
+                        $('#deltalog').val(data);
+                        $('#deltalog').scrollTop($('#deltalog')[0].scrollHeight);
+                    }
+                }
+            });
+        }, 1000);
 
     });
+
+    $.ajax({
+        url: '/text/getconfig',
+        dataType: 'text',
+        contentType: "text/plain",
+        async: false,
+        success: function (data) {
+            $('#configpane').val(data);
+            $('#configpane').scrollTop($('#configpane')[0].scrollHeight);
+        }
+    });
+
 </script>
 
 </body>

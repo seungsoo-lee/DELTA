@@ -1,66 +1,112 @@
 package org.deltaproject.manager.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.Socket;
 
 public class ChannelAgentManager extends Thread {
-	private Socket socket;
+    private static final Logger log = LoggerFactory.getLogger(ChannelAgentManager.class);
 
-	private DataInputStream dis;
-	private DataOutputStream dos;
+    private Socket socket;
 
-	private int targetType;
+    private DataInputStream dis;
+    private DataOutputStream dos;
 
-	public ChannelAgentManager() {
+    private Process proc;
+    private int procPID;
 
-	}
+    private Configuration cfg = Configuration.getInstance();
 
-	void setSocket(Socket in, DataOutputStream w, DataInputStream r) {
-		this.socket = in;
-		this.dos = w;
-		this.dis = r;
-	}
+    public ChannelAgentManager() {
+        procPID = -1;
+    }
 
-	public Socket getAppSocket() {
-		if (socket != null) {
-			return this.socket;
-		} else
-			return null;
-	}
+    void setSocket(Socket in, DataOutputStream w, DataInputStream r) {
+        this.socket = in;
+        this.dos = w;
+        this.dis = r;
+    }
 
-	public String read() {
-		try {
-			return dis.readUTF();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("FASLE");
-		}
-		return "false";
-	}
+    public Socket getAppSocket() {
+        if (socket != null) {
+            return this.socket;
+        } else
+            return null;
+    }
 
-	public void write(String input) {
-		try {
-			dos.writeUTF(input);
-			dos.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+    public String read() {
+        try {
+            return dis.readUTF();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            System.out.println("read false in channelagent");
+        }
+        return "false";
+    }
 
-	public void setTargetType(int in) {
-		write(Integer.toString(in));
-	}
+    public void write(String input) {
+        try {
+            dos.writeUTF(input);
+            dos.flush();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
-	public void startFuzzing() {
-		write("fuzzing|" + Integer.toString(this.targetType));
-	}
+    public boolean runAgent() {
+        String amAddr = cfg.getAMIP() + " " + cfg.getAMPort();
+        String command = "ssh " + cfg.getChannelSSH() + " sudo java -jar delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar " + amAddr;
 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-	}
+        try {
+            proc = Runtime.getRuntime().exec(command);
+            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
+            pidField.setAccessible(true);
+            Object value = pidField.get(proc);
+            this.procPID = (Integer) value;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return true;
+    }
+
+    public void stopAgent() {
+        try {
+            if (dos != null)
+                dos.close();
+
+            if (dis != null)
+                dis.close();
+
+            if (socket != null) {
+                socket.close();
+                socket = null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (procPID != -1)
+            try {
+                proc = Runtime.getRuntime().exec("sudo kill -9 " + this.procPID);
+                proc.waitFor();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        else
+            procPID = -1;
+    }
+
+    @Override
+    public void run() {
+
+        // TODO Auto-generated method stub
+    }
 }
