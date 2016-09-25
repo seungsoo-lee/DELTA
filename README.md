@@ -144,7 +144,7 @@ AM_PORT=3366
 ```
 
 ## Running DELTA
-+ STEP 0. Distribute the executable files to VMs
++ STEP 1. Distribute the executable files to VMs
 
 ```
 $ cd <DELTA>
@@ -153,7 +153,7 @@ $ scp ./tools/dev/delta-setup/delta-agents-scp
 ```
 
 
-+ STEP 1. Execute Agent-Manager first
++ STEP 2. Execute Agent-Manager first
 ```
 $ cd <DELTA>/manager
 $ java -jar target/delta-manager-1.0-SNAPSHOT-jar-with-dependencies.jar ../tools/config/manager.cfg
@@ -169,44 +169,8 @@ $ java -jar target/delta-manager-1.0-SNAPSHOT-jar-with-dependencies.jar ../tools
 Command>_
 ```
 
-+ STEP 2. Execute Channel-Agent (VM-2)
-```
-$ sudo java -jar delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar 10.0.2.2 3366
-[Thread-0] INFO AMInterface - [CA] Configuration setup
-[Thread-0] INFO AMInterface - [CA] OF version/port: 1/6633
-[Thread-0] INFO AMInterface - [CA] MITM NIC   : eth1
-[Thread-0] INFO AMInterface - [CA] Target Controller IP: 10.100.100.11
-[Thread-0] INFO AMInterface - [CA] Target Switch IP : 10.100.100.13
-[Thread-0] INFO AMInterface - [CA] Cbench Root Path :/home/vagrant/oflops/cbench/
-```
-
-+ STEP 3. Execute Host-Agent (VM-3)
-```
-$ sudo python test-advanced-topo.py 10.100.100.11 6633
-$ (the other console) ./ovs-static-rules
-
-mininet> h1 java -jar delta-agent-host-1.0-SNAPSHOT.jar 10.0.2.2 3366
-[Host-Agent] Connected with Agent-Manager_
-```
-
-+ STEP 4. Reproducing known attacks
-```
- DELTA: A Penetration Testing Framework for Software-Defined Networks
-
- [pP]	- Show all known attacks
- [cC]	- Show configuration info
- [kK]	- Replaying known attack(s)
- [uU]	- Finding an unknown attack
- [qQ]	- Quit Scanner
-
-
-Command> k
-Select the attack code (replay all, enter the 'A')> 3.1.010
-[main] INFO TestAdvancedCase - 3.1.010 - Packet-In Flooding
-[main] INFO TestAdvancedCase - Target controller: ONOS v1.1
-[main] INFO TestAdvancedCase - Target controller is starting..
-[Thread-0] INFO AttackConductor - AppAgent is connected_
-```
++ STEP 3. Connect Web-based UI with port number 7070
+![WEB](http://143.248.53.145/research/webui2.png)
 
 
 ## Questions?
