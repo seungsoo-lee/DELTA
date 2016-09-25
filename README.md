@@ -59,7 +59,7 @@ $ mvn clean install
 ```
 
 + STEP 4. Add NAT to VM3 (mininet)
-![NAT](http://143.248.53.145/research/nat.png)
+![NAT](http://143.248.53.145/research/nat1.png)
 
 + After installing DELTA, the test environment is automatically setup as below,
 ![Env](http://143.248.53.145/research/env.png)
