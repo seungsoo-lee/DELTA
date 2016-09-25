@@ -169,8 +169,8 @@ $ java -jar target/delta-manager-1.0-SNAPSHOT-jar-with-dependencies.jar ../tools
 Command>_
 ```
 
-+ STEP 3. Connect Web-based UI with port number 7070
-![WEB](http://143.248.53.145/research/webui2.png)
++ STEP 3. Connect Web-based UI (port number is 7070)
+![WEB2](http://143.248.53.145/research/webui2.png)
 
 
 ## Questions?
