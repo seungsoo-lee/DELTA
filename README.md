@@ -3,7 +3,7 @@
 ## What is DELTA?
 DELTA is a penetration testing framework that regenerates known attack scenarios for diverse test cases. This framework also provides the capability of discovering unknown security problems in SDN by employing a fuzzing technique.
 
-+ Agent-Manger is the control tower. It takes full control over all the agents deployed to the target SDN network.
++ Agent-Manager is the control tower. It takes full control over all the agents deployed to the target SDN network.
 + Application-Agent is a legitimate SDN application that conducts attack procedures and is controller-dependent. The known malicious functions are implemented as application-agent functions.
 + Channel-Agent is deployed between the controller and the OpenFlow-enabled switch. The agent sniffs and modifies the unencrypted control messages. It is controller-independent.
 + Host-Agent behaves as if it was a legitimate host participating in the target SDN network. The agent demonstrates an attack in which a host attempts to compromise the control plane.
@@ -11,7 +11,7 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 ![Delta architecture](http://143.248.53.145/research/arch.png)
 
 ## Prerequisites
-In order to build and run DELTA the following are required:
+In order to build and run DELTA, the following are required:
 + A host machine based on Ubuntu 14.04 LTS 64 bit (agent manager)
 + Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
  + VM-1: Target controller + Application agent
@@ -29,7 +29,7 @@ In order to build and run DELTA the following are required:
 + JDK 1.7+
 
 ## Installing DELTA
-DELTA installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the sub-agents.
+DELTA installation depends on maven and ant build systems. The mvn command is used to install the agent-manager and the sub-agents.
 
 + STEP 0. Get the source
 ```
@@ -43,10 +43,10 @@ $ cd <DELTA>/tools/dev/delta-setup/
 $ ./delta-setup-devenv-ubuntu
 ```
 
-+ STEP 2. Install 3 virtual machines using vagrant system.
++ STEP 2. Install 3 virtual machines using the vagrant system.
 
 ```
-$ cd <DELTA>/tools/dev/delta-setup/vagrant/
+$ cd <DELTA>/tools/dev/vagrant/
 $ vagrant up
 ```
 
@@ -61,8 +61,13 @@ $ mvn clean install
 + STEP 4. Add NAT to VM3 (mininet)
 ![NAT](http://143.248.53.145/research/nat1.png)
 
+<<<<<<< HEAD
 + After installing DELTA, the test environment is automatically setup as below,
 ![Env](http://143.248.53.145/research/env.png)
+=======
++ After installing DELTA, the test environment is automatically setup as below.
+![Env](http://143.248.53.145/research/delta/env.png)
+>>>>>>> b61840a1953c871cb14b8b6cd5b99c0ac737dd7d
 
 ## Configuring your own experiments
 + Configure passwd-less ssh login for the VMs.
@@ -119,8 +124,13 @@ DUMMY_CONT_PORT=6633
 AM_IP=10.0.2.2
 AM_PORT=3366
 ```
+<<<<<<< HEAD
 + Configuring Tagret Controllers to VM-1
 + 1) Floodlight
+=======
++ Configuring Target Controllers for VM-1
+ + Floodlight
+>>>>>>> b61840a1953c871cb14b8b6cd5b99c0ac737dd7d
 ```
 $ cd <DELTA>/tools/dev/floodlight-setup
 $ ./floodlight-<version>-scp
