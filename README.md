@@ -62,7 +62,7 @@ $ mvn clean install
 ![NAT](http://143.248.53.145/research/nat.png)
 
 + After installing DELTA, the test environment is automatically setup as below,
-![Env](http://143.248.53.145/research/delta/env.png)
+![Env](http://143.248.53.145/research/env.png)
 
 ## Configuring your own experiments
 + Configure passwd-less ssh login for the VMs.
