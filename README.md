@@ -8,7 +8,7 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 + Channel-Agent is deployed between the controller and the OpenFlow-enabled switch. The agent sniffs and modifies the unencrypted control messages. It is controller-independent.
 + Host-Agent behaves as if it was a legitimate host participating in the target SDN network. The agent demonstrates an attack in which a host attempts to compromise the control plane.
 
-![Delta architecture](http://143.248.53.145/research/delta/arch.png)
+![Delta architecture](http://143.248.53.145/research/arch.png)
 
 ## Prerequisites
 In order to build and run DELTA the following are required:
@@ -59,9 +59,9 @@ $ mvn clean install
 ```
 
 + STEP 4. Add NAT to VM3 (mininet)
-Create NAT in Virtualbox as follows;
+- Create NAT in Virtualbox as follows;
 ![NAT](http://143.248.53.145/research/NAT1.png)
-Modify network configuration of VM3 like this;
+- Modify network configuration of VM3 like this;
 ![NAT2](http://143.248.53.145/research/NAT2.png)
 
 + After installing DELTA, the test environment is automatically setup as below,
