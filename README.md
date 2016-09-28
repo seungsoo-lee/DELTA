@@ -61,7 +61,7 @@ $ mvn clean install
 + STEP 4. Add NAT to VM3 (mininet)
 ![NAT](http://143.248.53.145/research/nat1.png)
 
-+ After installing DELTA, the test environment is automatically setup as below,
++ After installing DELTA, the test environment is automatically setup as below:
 ![Env](http://143.248.53.145/research/env.png)
 
 ## Configuring your own experiments
@@ -101,7 +101,7 @@ Check if you will be able to access the VMs without having to enter the password
 
 + The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. [DELTA_ROOT]/tools/config/manager.cfg contains sample configurations. You can specify your own config file by passing its path:
 ```
-ONTROLLER_SSH=vagrant@10.100.100.11
+CONTROLLER_SSH=vagrant@10.100.100.11
 CHANNEL_SSH=vagrant@10.100.100.12
 HOST_SSH=vagrant@10.100.100.13
 TARGET_HOST=10.0.0.2
@@ -120,7 +120,7 @@ AM_IP=10.0.2.2
 AM_PORT=3366
 ```
 
-+ Configuring Tagret Controllers to VM-1
++ Configuring Target Controllers to VM-1
 + 1) Floodlight
 ```
 $ cd <DELTA>/tools/dev/floodlight-setup
@@ -150,7 +150,7 @@ AM_PORT=3366
 ```
 $ cd <DELTA>
 $ source ./tools/dev/delta-setup/bash_profile
-$ scp ./tools/dev/delta-setup/delta-agents-scp
+$ ./tools/dev/delta-setup/delta-agents-scp
 ```
 
 
