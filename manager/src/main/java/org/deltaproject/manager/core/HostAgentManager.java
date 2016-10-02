@@ -61,8 +61,16 @@ public class HostAgentManager extends Thread {
     public boolean runAgent() {
         String amAddr = cfg.getAMIP() + " " + cfg.getAMPort();
         String controllerAddr = cfg.getControllerIP() + " " + cfg.getOFPort();
+        String version;
+
+        if (cfg.getOFVer().equals("1.0")) {
+            version = "OpenFlow10";
+        } else {
+            version = "OpenFlow13";
+        }
+
         try {
-            proc = Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + " sudo python test-advanced-topo.py " + controllerAddr + " " + amAddr);
+            proc = Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + " sudo python test-advanced-topo.py " + controllerAddr + " " + amAddr + " " + version);
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
             Object value = pidField.get(proc);
@@ -92,6 +100,7 @@ public class HostAgentManager extends Thread {
 
         if (procPID != -1)
             try {
+                Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + " sudo arp -d " + cfg.getControllerIP());
                 proc = Runtime.getRuntime().exec("sudo kill -9 " + this.procPID);
                 proc.waitFor();
             } catch (Exception e) {

@@ -15,7 +15,7 @@ public class TopoInfo {
 		switchList = new ArrayList<NetworkNode>();
 	}
 
-	public NetworkNode findParent(String parentIP, int parentPort) {
+	public NetworkNode findSW(String parentIP, int parentPort) {
 		for (NetworkNode n : switchList) {
 			if (n.getIpAddr().equals(parentIP) && n.getPort() == parentPort) {
 				return n;
@@ -26,13 +26,13 @@ public class TopoInfo {
 	}
 
 	public boolean insertSwitch(NetworkNode node) {
-		NetworkNode n = findParent(node.getIpAddr(), node.getPort());
+		NetworkNode n = findSW(node.getIpAddr(), node.getPort());
 
 		if (n == null) {
 			switchList.add(node);
 		}
 
-		if (n.getDPID() == null) {
+		if (n != null && n.getDPID() == null) {
 			n.setDPID(node.getDPID());
 		}
 
@@ -40,7 +40,7 @@ public class TopoInfo {
 	}
 
 	public boolean insertNode(NetworkNode node, int inPort, String parentIP, int parentPort) {
-		NetworkNode p = findParent(parentIP, parentPort);
+		NetworkNode p = findSW(parentIP, parentPort);
 
 		if (p == null) {
 			p = new NetworkNode();

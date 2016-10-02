@@ -10,8 +10,8 @@ from mininet.log import setLogLevel, info
 def DeltaNetwork():
     net = Mininet(controller=None)
     net.addController( 'c0', controller=RemoteController, ip=sys.argv[1], port=sys.argv[2])
-    h1 = net.addHost( 'h1' )
-    h2 = net.addHost( 'h2' )
+    h1 = net.addHost('h1', ip='10.0.0.1/24', mac='00:00:00:00:00:11')
+    h2 = net.addHost('h2', ip='10.0.0.2/24', mac='00:00:00:00:00:22')
     s1 = net.addSwitch( 's1' )
     net.addLink( h1, s1 )
     net.addLink( h2, s1 )

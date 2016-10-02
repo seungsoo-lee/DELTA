@@ -11,9 +11,10 @@ def DeltaNetwork():
         net = Mininet(topo=None, controller=None, build=False)
 
 #Add switch
-        s0 = net.addSwitch('s0', dpid='00:00:00:00:00:01')
-        s1 = net.addSwitch('s1', dpid='00:00:00:00:00:02')
-        s2 = net.addSwitch('s2', dpid='00:00:00:00:00:03')
+        proto = sys.argv[5]
+        s0 = net.addSwitch('s0', dpid='00:00:00:00:00:01', protocols=proto)
+        s1 = net.addSwitch('s1', dpid='00:00:00:00:00:02', protocols=proto)
+        s2 = net.addSwitch('s2', dpid='00:00:00:00:00:03', protocols=proto)
         s3 = net.addSwitch('s3') # for connection with DELTA
 
 #Add hosts
@@ -51,8 +52,8 @@ def DeltaNetwork():
         net.stop()
 
 if __name__=='__main__':
-        if len(sys.argv) != 5:
-                print ("Usage: sudo python topo-setup.py <Controller IP> <Controller Port> <AM_IP> <AM_PORT>")
+        if len(sys.argv) != 6:
+                print ("Usage: sudo python topo-setup.py <Controller IP> <Controller Port> <AM_IP> <AM_PORT> <OF_VER>")
                 sys.exit(0)
 
         DeltaNetwork()

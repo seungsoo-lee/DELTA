@@ -106,7 +106,8 @@ public class AttackConductor {
         } else if (test.getcasenum().charAt(0) == '3') {
             testAdvancedCase.replayKnownAttack(test);
         }
-        log.info("\n");
+
+        log.info(test.getName()+" is done\n");
     }
 
     public void replayKnownAttack() {

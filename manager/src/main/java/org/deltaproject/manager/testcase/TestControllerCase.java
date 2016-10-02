@@ -303,12 +303,21 @@ public class TestControllerCase {
         if (!chm.read().contains("switchok"))
             return;
 
+        Thread.sleep(5000);
         am.write(test.getcasenum());
-        log.info("App-agent sends FLOW_ADD with un-flagged removed");
-        log.info(am.read());
+        log.info("App-agent sends " + am.read() + " with un-flagged removed");
 
         Thread.sleep(2000);
+        chm.write(test.getcasenum());
+
         String response = chm.read();
+
+        if (response.equals("nothing")) {
+            test.setResult(FAIL);
+            cm.killController();
+
+            return;
+        }
 
         String[] split = StringUtils.split(response, "\n");
         log.info(split[0]);

