@@ -148,7 +148,7 @@ public class TestControllerCase {
             msg = Utils.hexStringToByteArray(DMDataOF10.PACKET_IN);
         }
 
-        msg[1] = (byte) 0xff;   // port status
+        msg[1] = (byte) 0xcc;   // malformed msg type
         byte[] xidbytes = Longs.toByteArray(requestXid);
         System.arraycopy(xidbytes, 4, msg, 4, 4);
 
@@ -197,7 +197,7 @@ public class TestControllerCase {
         if (response != null) {
             result += "Response msg : " + response.toString() + ", FAIL";
         } else
-            result += "Response is null, PASS";
+            result += "Response is ignored, PASS";
 
         stopSW();
         return result;
@@ -248,7 +248,6 @@ public class TestControllerCase {
         fm.setReason((short) 1);
 
         OFFlowRemoved msg = fm.build();
-
         ofSwitch.sendMsg(msg, -1);
 
         // switch disconnection

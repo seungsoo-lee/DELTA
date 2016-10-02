@@ -458,7 +458,7 @@ public class TestSwitchCase {
 
         List<OFInstruction> inst = new ArrayList<OFInstruction>();
         inst.add(apa);
-        inst.add(gotoinst);
+        inst.add(gotoinst);                     // go to table id 1
 
         Set<OFFlowModFlags> set = new HashSet<OFFlowModFlags>();
         set.add(OFFlowModFlags.SEND_FLOW_REM);
@@ -466,7 +466,7 @@ public class TestSwitchCase {
         OFFlowAdd.Builder fab = defaultFactory.buildFlowAdd();
         fab.setPriority(1000);
         fab.setXid(r_xid);
-        fab.setTableId(TableId.of(10));
+        fab.setTableId(TableId.of(10));         // table id 10
         fab.setMatch(mb.build());
         fab.setInstructions(inst);
         fab.setBufferId(OFBufferId.NO_BUFFER);
@@ -649,7 +649,7 @@ public class TestSwitchCase {
         else if (this.ofversion.equals("1.0"))
             buf.setByte(57, 0x5);
 
-        log.info("Send msg :" + request.toString() + "with unknown command (0x05) FlowMod");
+        log.info("Send msg :" + request.toString() + " with unknown command (0x05) FlowMod");
         dmcnt.sendRawMsg(buf);
 
         Thread.sleep(2000);
@@ -709,7 +709,7 @@ public class TestSwitchCase {
         if (this.ofversion.equals("1.3"))
             buf.setByte(55, 0x5);                   // before length 4 -> after 5
 
-        log.info("Send msg :" + request.toString() + "with invalid OXM length");
+        log.info("Send msg :" + request.toString() + " with invalid OXM length");
         dmcnt.sendRawMsg(buf);
 
         Thread.sleep(2000);
@@ -875,11 +875,11 @@ public class TestSwitchCase {
         OFMessage response = dmcnt.getResponse();
         log.info("Send msg :" + request.toString());
         if (response != null) {
-            test.setResult(PASS);
-            log.info("Response err msg: " + response.toString() + ", PASS");
-        } else {
             test.setResult(FAIL);
-            log.info("Response is null, FAIL");
+            log.info("Response msg: " + response.toString() + ", FAIL");
+        } else {
+            test.setResult(PASS);
+            log.info("Response is ignored, PASS");
         }
 
         stopDummyController();

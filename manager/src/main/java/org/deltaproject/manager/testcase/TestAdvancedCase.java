@@ -31,8 +31,10 @@ public class TestAdvancedCase {
     }
 
     public void runRemoteAgents(boolean channel, boolean host) {
-        channelm.runAgent();
-        hostm.runAgent();
+        if (channel)
+            channelm.runAgent();
+        if (host)
+            hostm.runAgent();
 
         try {
             Thread.sleep(3000);
@@ -700,6 +702,7 @@ public class TestAdvancedCase {
 
 		/* step 2: conduct the attack */
         log.info("Host-Agent sends packets to others (before)");
+
         /* step 2 : generate before flow (ping) */
         String before = generateFlow("compare");
 
@@ -749,18 +752,12 @@ public class TestAdvancedCase {
 
 		/* step 2: conduct the attack */
         log.info("App-Agent starts");
-        appm.write(test.getcasenum());
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
 
 		/* step 3: try communication */
         log.info("Host-Agent sends packets to others");
         this.generateFlow("ping");
+
+        appm.write(test.getcasenum());
 
 		/* step 4: decide if the attack is feasible */
         log.info("Agent-Manager checks the status of switches");
@@ -814,6 +811,7 @@ public class TestAdvancedCase {
 	/*
      * 3.1.150 - Host Location Hijacking : Not implemented yet
 	 */
+
 
     /*
      * 3.1.160 - Link Fabrication ; incomplete
@@ -878,16 +876,24 @@ public class TestAdvancedCase {
         log.info("Channel-Agent starts");
         channelm.write(test.getcasenum());
 
-		/* step 3: try communication */
-        log.info("Host-Agent sends packets to others");
-
         try {
             Thread.sleep(30000);    // 30 seconds
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
+		/* step 3: try communication */
+        log.info("Host-Agent sends packets to others");
+
         generateFlow("ping");
+
+        try {
+            Thread.sleep(10000);    // 30 seconds
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         log.info("Agent-Manager retrieves the result from Channel-Agent");
         channelm.write(test.getcasenum() + "-2");
@@ -923,6 +929,13 @@ public class TestAdvancedCase {
         log.info("Channel-Agent starts");
         channelm.write(test.getcasenum());
         String resultChannel = channelm.read();
+
+        try {
+            Thread.sleep(10000);    // 30 seconds
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
 		/* step 3: try communication */
         log.info("Host-Agent sends packets to others");
@@ -1010,6 +1023,13 @@ public class TestAdvancedCase {
 		/* step 2: conduct the attack */
         log.info("App-Agent starts");
         appm.write(test.getcasenum());
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         log.info("Agent-Manager retrieves the result from App-Agent");
         String modified = appm.read();

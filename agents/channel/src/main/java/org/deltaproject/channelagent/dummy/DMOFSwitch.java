@@ -329,6 +329,7 @@ public class DMOFSwitch extends Thread {
                 case METER_FEATURES:
                     break;
                 case TABLE_FEATURES:
+                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_FLOW);
                     break;
                 case TABLE_DESC:
                     break;

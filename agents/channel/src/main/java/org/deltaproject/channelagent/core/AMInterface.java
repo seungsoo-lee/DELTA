@@ -107,7 +107,7 @@ public class AMInterface extends Thread {
     public boolean executeCbench() {
         try {
             processCbench = Runtime.getRuntime().exec(
-                    cbench + "cbench -c " + this.controllerIP + "  -p " + ofPort + " -m 10000 -l 10 -s 16 -M 1000 -t");
+                    cbench + "cbench -c " + this.controllerIP + "  -p " + ofPort + " -m 10000 -l 20 -s 32 -M 2000 -t");
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
@@ -238,7 +238,7 @@ public class AMInterface extends Thread {
                     String result = pktListener.getTopoInfo();
 
                     if (result != null && !result.isEmpty() && result.length() > 0)
-                        result = "success|\n:: Result of Topology Building! ::\n" + result;
+                        result = "success|\n:: Result for Building Topology ::\n" + result;
                     else
                         result = "fail";
 

@@ -64,7 +64,7 @@ public class TestCaseDirectory {
         directory.put("1.1.170",
                 new TestCase(DATA_PLANE_OF, "1.1.170", "Malformed Buffer ID Values", "Test for switch protection against disallowed buffer ID values"));
 
-        /* directory.put("1.2.010",
+        /*directory.put("1.2.010",
                 new TestCase(DATA_PLANE_OF, "1.2.010", "Slave Controller Violation"));
         directory.put("1.2.020",
                 new TestCase(DATA_PLANE_OF, "1.2.020", "Corrupted Generation ID"));
@@ -83,14 +83,14 @@ public class TestCaseDirectory {
                 new TestCase(CONTROL_PLANE_OF, "2.1.030", "Handshake without Hello Message", "Test for controller protection against incomplete control connection left open"));
         directory.put("2.1.040",
                 new TestCase(CONTROL_PLANE_OF, "2.1.040", "Control Message before Hello Message (Main Connection)", "Test for controller protection against control communication prior to completed connection establishment"));
-        directory.put("2.1.050",
-                new TestCase(CONTROL_PLANE_OF, "2.1.050", "Multiple main connection request from same switch", "Test for controller protection against multiple control requests"));
+        /*directory.put("2.1.050",
+                new TestCase(CONTROL_PLANE_OF, "2.1.050", "Multiple main connection request from same switch", "Test for controller protection against multiple control requests"));*/
         directory.put("2.1.060",
                 new TestCase(CONTROL_PLANE_OF, "2.1.060", "no-flagged Flow Remove Message notification", "Test for controller protection against unacknowledged manipulation of the network"));
-        directory.put("2.1.070",
-                new TestCase(CONTROL_PLANE_OF, "2.1.070", "TLS Support", "Test for controller support for Transport Layer Security"));
 
-        /* directory.put("2.1.071",
+        /*directory.put("2.1.070",
+                new TestCase(CONTROL_PLANE_OF, "2.1.070", "TLS Support", "Test for controller support for Transport Layer Security"));
+        directory.put("2.1.071",
                 new TestCase(CONTROL_PLANE_OF, "2.1.071", "Startup Behaviour with Failed TLS Connection"));
         directory.put("2.1.072",
                 new TestCase(CONTROL_PLANE_OF, "2.1.072", "Handling Invalid Authentication Credentials"));
@@ -139,8 +139,6 @@ public class TestCaseDirectory {
                 new TestCase(ADVANCED, "3.1.190", "Flow Rule Flooding", "Test for switch protection against flow rule flooding"));
         directory.put("3.1.200",
                 new TestCase(ADVANCED, "3.1.200", "Switch Firmware Abuse", "Test for switch protection against application installing unsupported flow rules"));
-
-
 
         return directory;
     }

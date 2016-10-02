@@ -107,7 +107,7 @@ public class AgentManager extends Thread {
             listenAgent.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 
@@ -123,8 +123,8 @@ public class AgentManager extends Thread {
                 conductor.setSocket(temp);
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            //closeServerSocket();
+            //e.printStackTrace();
+            closeServerSocket();
         }
     }
 }
