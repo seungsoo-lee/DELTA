@@ -33,6 +33,7 @@ public class TestAdvancedCase {
     public void runRemoteAgents(boolean channel, boolean host) {
         if (channel)
             channelm.runAgent();
+
         if (host)
             hostm.runAgent();
 
@@ -58,7 +59,7 @@ public class TestAdvancedCase {
     public void replayKnownAttack(TestCase test) {
         switch (test.getcasenum()) {
             case "3.1.010":
-                runRemoteAgents(false, true);
+                runRemoteAgents(true, true);
                 testPacketInFlooding(test);
                 break;
             case "3.1.020":
@@ -156,11 +157,20 @@ public class TestAdvancedCase {
             controllerm.isConnectedSwitch(true);
             log.info("All switches are connected");
 
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            if (controllerm.getType().contains("ONOS")) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -507,8 +517,8 @@ public class TestAdvancedCase {
         long start = System.currentTimeMillis();
 
         log.info("Host-Agent sends packets to others (before)");
-        /* step 2 : generate before flow (ping) */
 
+        /* step 2 : generate before flow (ping) */
         String before = generateFlow("compare");
 
 		/* step 3 : replay attack */
@@ -872,12 +882,19 @@ public class TestAdvancedCase {
         initController();
         long start = System.currentTimeMillis();
 
-		/* step 2: conduct the attack */
+        try {
+            Thread.sleep(10000);    // 30 seconds
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        /* step 2: conduct the attack */
         log.info("Channel-Agent starts");
         channelm.write(test.getcasenum());
 
         try {
-            Thread.sleep(30000);    // 30 seconds
+            Thread.sleep(10000);    // 30 seconds
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

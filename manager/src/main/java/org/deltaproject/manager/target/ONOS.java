@@ -35,7 +35,7 @@ public class ONOS implements TargetController {
             if (this.version.contains("1.1")) {
                 process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + karafPath + " clean");
             } else {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + onosPath + " start");
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + onosPath + " clean");
             }
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");

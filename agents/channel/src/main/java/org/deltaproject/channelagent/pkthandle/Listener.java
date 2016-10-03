@@ -19,7 +19,7 @@ public class Listener extends Thread {
 	private PacketReceiver handler;
 
 	private void __build_captor(NetworkInterface phys_device) throws IOException {
-		this.captor = JpcapCaptor.openDevice(phys_device, 65535, false, 20);
+		this.captor = JpcapCaptor.openDevice(phys_device, 65535, false, 1000);
 	}
 
 	public Listener(NetworkInterface device, PacketReceiver pr) throws IOException {

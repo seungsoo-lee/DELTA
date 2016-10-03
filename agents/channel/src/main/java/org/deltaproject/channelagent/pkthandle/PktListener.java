@@ -199,6 +199,7 @@ public class PktListener {
         private byte[] addBodyData(TCPPacket packet) {
             TCPBodyData tcpBodyData;
             Long ack = new Long(packet.ack_num);
+
             if (tcpBodys.containsKey(ack)) {
                 tcpBodyData = tcpBodys.get(ack);
                 tcpBodyData.addBytes(packet.data);
@@ -242,6 +243,21 @@ public class PktListener {
                 } else if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
                     traffic_sender.send(spoofPacket(p_temp, controllerIP));
                 }
+                return;
+            }
+
+            TCPPacket tcppacl = (TCPPacket) p_temp;
+            byte[] body = addBodyData(tcppacl);
+
+//            if (tcppacl.psh) {
+//                //body is complete
+//                //do something else...
+//                p_temp.data = body;
+//
+//                System.out.println("psh set "+body.length);
+//
+            if(p_temp.data.length > 1500){
+                // this.sendPkt(p_temp);
                 return;
             }
 
@@ -294,7 +310,7 @@ public class PktListener {
                     // }
                 }
             } else if (typeOfAttacks == TestAdvancedCase.SEED) {
-				/* Modify a Packet Here */
+                /* Modify a Packet Here */
                 if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
                     // System.out.print(switchIP + " -> " + controllerIP + " ");
                     try {
@@ -325,7 +341,8 @@ public class PktListener {
                 }
                 this.sendPkt(p_temp);
             }
-            return;
+//            } else
+//                System.out.println("psh not "+body.length);
         }
 
         private Packet spoofPacket(Packet p, String victim) {
