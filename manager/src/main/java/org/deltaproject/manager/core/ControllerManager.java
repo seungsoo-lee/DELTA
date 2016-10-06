@@ -77,11 +77,11 @@ public class ControllerManager {
     public boolean killController() {
         String switchIP = cfg.getHostSSH().substring(cfg.getHostSSH().indexOf('@') + 1);
 
-//        try {
-//            Runtime.getRuntime().exec("ssh " + cfg.getAppSSH() + " sudo arp -d " + switchIP);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            Runtime.getRuntime().exec("ssh " + cfg.getAppSSH() + " sudo arp -d " + switchIP);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         for (TargetController tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
