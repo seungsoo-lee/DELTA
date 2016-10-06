@@ -102,7 +102,7 @@ public class HostAgentManager extends Thread {
 
         if (procPID != -1)
             try {
-                //Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + " sudo arp -d " + cfg.getControllerIP());
+//                Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + " sudo arp -d " + cfg.getControllerIP());
                 proc = Runtime.getRuntime().exec("sudo kill -9 " + this.procPID);
                 proc.waitFor();
                 procPID = -1;
