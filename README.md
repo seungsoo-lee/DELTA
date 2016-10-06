@@ -65,6 +65,12 @@ $ mvn clean install
 ![Env](http://143.248.53.145/research/env.png)
 
 ## Configuring your own experiments
++ Execute sudo without Password
+```
+$ sudo visudo
+In the bottom of the file, type the follow:
+username ALL=(ALL) NOPASSWD: ALL
+```
 + Configure passwd-less ssh login for the VMs.
 
 ```
