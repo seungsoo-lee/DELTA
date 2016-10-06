@@ -31,11 +31,8 @@ public class TestAdvancedCase {
     }
 
     public void runRemoteAgents(boolean channel, boolean host) {
-        if (channel)
-            channelm.runAgent();
-
-        if (host)
-            hostm.runAgent();
+        channelm.runAgent();
+        hostm.runAgent();
 
         try {
             Thread.sleep(3000);
