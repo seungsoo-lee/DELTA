@@ -24,7 +24,7 @@ public class ONOS implements TargetController {
         this.sshAddr = ssh;
 
         String user = ssh.substring(0, ssh.indexOf('@'));
-        onos1_1 = "/home/"+user+"/onos-1.1.0/apache-karaf-3.0.5/bin/karaf";
+        onos1_1 = "/home/"+user+"/Applicatioins/apache-karaf-3.0.5/bin/karaf";
         onos1_6 = "/home/"+user+"/onos-1.6.0/bin/onos-service";
     }
 
