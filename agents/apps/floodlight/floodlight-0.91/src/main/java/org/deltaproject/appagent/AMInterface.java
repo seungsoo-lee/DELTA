@@ -40,50 +40,50 @@ public class AMInterface extends Thread {
         this.serverIP = "10.0.2.2";
         this.serverPort = 3366;
 
-//        String path = ".";
-//
-//        Properties props = System.getProperties();
-//        Enumeration en = props.keys();
-//        while (en.hasMoreElements()) {
-//            String key = (String) en.nextElement();
-//
-//            if (key.equals("HOME"))
-//                path = (String) props.get(key);
-//
-//        }
-//
-//        BufferedReader br = null;
-//        InputStreamReader isr = null;
-//        FileInputStream fis = null;
-//        File file = new File(path + "/connection.cfg");
-//        String temp;
-//
-//        try {
-//            fis = new FileInputStream(file);
-//            isr = new InputStreamReader(fis, "UTF-8");
-//            br = new BufferedReader(isr);
-//
-//            while ((temp = br.readLine()) != null) {
-//                if (temp.contains("AM_IP"))
-//                    this.serverIP = temp.substring(temp.indexOf("=") + 1);
-//
-//                if (temp.contains("AM_PORT"))
-//                    this.serverPort = Integer.parseInt(temp.substring(temp.indexOf("=") + 1));
-//            }
-//
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                fis.close();
-//                isr.close();
-//                br.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
+        String path = ".";
+
+        Properties props = System.getProperties();
+        Enumeration en = props.keys();
+        while (en.hasMoreElements()) {
+            String key = (String) en.nextElement();
+
+            if (key.equals("HOME"))
+                path = (String) props.get(key);
+
+        }
+
+        BufferedReader br = null;
+        InputStreamReader isr = null;
+        FileInputStream fis = null;
+        File file = new File(path + "/agent.cfg");
+        String temp;
+
+        try {
+            fis = new FileInputStream(file);
+            isr = new InputStreamReader(fis, "UTF-8");
+            br = new BufferedReader(isr);
+
+            while ((temp = br.readLine()) != null) {
+                if (temp.contains("MANAGER_IP"))
+                    this.serverIP = temp.substring(temp.indexOf("=") + 1);
+
+                if (temp.contains("MANAGER_PORT"))
+                    this.serverPort = Integer.parseInt(temp.substring(temp.indexOf("=") + 1));
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fis.close();
+                isr.close();
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void connectServer(String agent) {
