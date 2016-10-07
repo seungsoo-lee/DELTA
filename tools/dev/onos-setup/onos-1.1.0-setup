@@ -27,4 +27,5 @@ cd $ONOS_ROOT
 mvn clean install
 
 cp ~/org.apache.karaf.features.cfg-1.1 $KARAF_ROOT/etc/org.apache.karaf.features.cfg
+cp ~/delta-agent-app-onos-1.1-1.0-SNAPSHOT.jar $KARAF_ROOT/deploy
 cp ${ONOS_ROOT}/tools/package/branding/target/onos-branding-1.1.0.jar ${KARAF_ROOT}/lib/
