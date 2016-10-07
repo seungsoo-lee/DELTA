@@ -32,7 +32,7 @@ public class ControllerManager {
         targetList = new ArrayList<TargetController>();
         switchList = new ArrayList<String>();
 
-        this.setConfig();
+        setConfig();
         connectedSwitches = new ArrayList<String>();
         sshAddr = cfg.getAppSSH();
     }

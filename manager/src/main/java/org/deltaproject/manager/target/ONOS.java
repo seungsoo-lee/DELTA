@@ -10,8 +10,8 @@ public class ONOS implements TargetController {
     private boolean isRunning = false;
 
     public String version = "";
-    public String karafPath = "";
-    public String onosPath = "";
+    public String onos1_6 = "";
+    public String onos1_1 = "";
     public String sshAddr = "";
 
     private int currentPID = -1;
@@ -20,10 +20,12 @@ public class ONOS implements TargetController {
     private BufferedReader stdOut;
 
     public ONOS(String path, String v, String ssh) {
-        this.karafPath = path + "/apache-karaf-3.0.5/bin/karaf";
-        onosPath = path + "/bin/onos-service";
         this.version = v;
         this.sshAddr = ssh;
+
+        String user = ssh.substring(0, ssh.indexOf('@'));
+        onos1_1 = "/home/"+user+"/onos-1.1.0/apache-karaf-3.0.5/bin/karaf";
+        onos1_6 = "/home/"+user+"/onos-1.6.0/bin/onos-service";
     }
 
     public int createController() {
@@ -33,9 +35,9 @@ public class ONOS implements TargetController {
 
         try {
             if (this.version.contains("1.1")) {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + karafPath + " clean");
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + onos1_1 + " clean");
             } else {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + onosPath + " clean");
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + onos1_6 + " clean");
             }
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
@@ -140,7 +142,7 @@ public class ONOS implements TargetController {
     @Override
     public String getPath() {
         // TODO Auto-generated method stub
-        return this.karafPath;
+        return this.onos1_1;
     }
 
     @Override
