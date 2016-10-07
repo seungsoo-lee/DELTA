@@ -11,4 +11,4 @@ export KARAF_LOG=$KARAF_ROOT/data/log/karaf.log
 export PATH="$PATH:$DELTA_ROOT/tools/bin"
 export PATH="$PATH:$MAVEN/bin:$KARAF_ROOT/bin"
 
-export ONOS_ROOT=~/onos
+export ONOS_ROOT=~/onos-1.1.0
