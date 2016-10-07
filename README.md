@@ -65,6 +65,12 @@ $ mvn clean install
 ![Env](http://143.248.53.145/research/env.png)
 
 ## Configuring your own experiments
++ Execute sudo without Password
+```
+$ sudo visudo
+In the bottom of the file, type the follow:
+username ALL=(ALL) NOPASSWD: ALL
+```
 + Configure passwd-less ssh login for the VMs.
 
 ```
@@ -124,7 +130,7 @@ AM_PORT=3366
 + 1) Floodlight
 ```
 $ cd <DELTA>/tools/dev/floodlight-setup
-$ ./floodlight-<version>-scp
+$ ./floodlight-scp
 ```
  + 2) ONOS
 ```
@@ -132,16 +138,16 @@ $ cd <DELTA>/tools/dev/onos-setup
 $ ./onos-<version>-scp
 (in VM-1) $ ./onos-<version>-setup
 ```
-+ 3) OpenDaylight: (only JDK 1.7)
++ 3) OpenDaylight: (only JDK 1.7-supported)
 ```
 $ cd <DELTA>/tools/dev/odl-setup
-$ ./odl-<version>-scp
-(in VM-1) $ ./odl-<version>-setup
+$ ./odl-helium-sr3-scp
+(in VM-1) $ ./odl-helium-sr3-scp
 ```
-+ The AppAgent (in VM-1) needs connection.cfg file in order to connect to agent-manager.
++ The AppAgent (in VM-1) needs agent.cfg file in order to connect to agent-manager.
 ```
-AM_IP=10.0.2.2
-AM_PORT=3366
+MANAGER_IP=10.0.2.2
+MANAGER_PORT=3366
 ```
 
 ## Running DELTA

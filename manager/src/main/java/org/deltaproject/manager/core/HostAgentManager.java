@@ -84,12 +84,14 @@ public class HostAgentManager extends Thread {
 
     public void stopAgent() {
         try {
-            if (dos != null)
+            if (dos != null) {
                 dos.close();
-
-            if (dis != null)
+                dos = null;
+            }
+            if (dis != null) {
                 dis.close();
-
+                dis = null;
+            }
             if (socket != null) {
                 socket.close();
                 socket = null;
@@ -103,11 +105,10 @@ public class HostAgentManager extends Thread {
                 Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + " sudo arp -d " + cfg.getControllerIP());
                 proc = Runtime.getRuntime().exec("sudo kill -9 " + this.procPID);
                 proc.waitFor();
+                procPID = -1;
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        else
-            procPID = -1;
     }
 
     @Override

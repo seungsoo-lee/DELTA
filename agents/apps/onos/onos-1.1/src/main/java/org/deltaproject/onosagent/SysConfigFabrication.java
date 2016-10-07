@@ -6,13 +6,18 @@ import java.io.InputStreamReader;
 import java.util.Random;
 
 class CPU extends Thread {
-	int result = 1;
+	int result = 2;
+	int cnt = 0;
 
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 		while (true) {
 			result = result ^ 2;
+			cnt ++;
+
+			if(cnt==1000)
+				cnt = -1;
 		}
 	}
 }

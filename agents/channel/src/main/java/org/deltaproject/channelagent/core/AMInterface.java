@@ -301,6 +301,11 @@ public class AMInterface extends Thread {
                         String res = testController.testTLSSupport(recv);
                         dos.writeUTF(res);
                     }
+                } else if (recv.contains("close")) {
+                    dis.close();
+                    dos.close();
+
+                    System.exit(0);
                 }
 
                 dos.flush();

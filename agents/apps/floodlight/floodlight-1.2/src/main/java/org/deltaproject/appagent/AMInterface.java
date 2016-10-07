@@ -45,7 +45,7 @@ public class AMInterface extends Thread {
         BufferedReader br = null;
         InputStreamReader isr = null;
         FileInputStream fis = null;
-        File file = new File(path + "/connection.cfg");
+        File file = new File(path + "/agent.cfg");
         String temp;
 
         try {
@@ -54,10 +54,10 @@ public class AMInterface extends Thread {
             br = new BufferedReader(isr);
 
             while ((temp = br.readLine()) != null) {
-                if (temp.contains("AM_IP"))
+                if (temp.contains("MANAGER_IP"))
                     this.serverIP = temp.substring(temp.indexOf("=") + 1);
 
-                if (temp.contains("AM_PORT"))
+                if (temp.contains("MANAGER_PORT"))
                     this.serverPort = Integer.parseInt(temp.substring(temp.indexOf("=") + 1));
             }
 

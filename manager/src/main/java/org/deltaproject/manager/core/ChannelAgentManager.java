@@ -79,11 +79,18 @@ public class ChannelAgentManager extends Thread {
 
     public void stopAgent() {
         try {
-            if (dos != null)
-                dos.close();
+            if (dos != null) {
+                dos.writeUTF("close");
+                dos.flush();
 
-            if (dis != null)
+                dos.close();
+                dos = null;
+            }
+
+            if (dis != null) {
                 dis.close();
+                dis = null;
+            }
 
             if (socket != null) {
                 socket.close();
@@ -97,11 +104,10 @@ public class ChannelAgentManager extends Thread {
             try {
                 proc = Runtime.getRuntime().exec("sudo kill -9 " + this.procPID);
                 proc.waitFor();
+                procPID = -1;
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        else
-            procPID = -1;
     }
 
     @Override

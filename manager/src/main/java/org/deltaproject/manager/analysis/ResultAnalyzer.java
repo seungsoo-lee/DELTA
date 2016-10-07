@@ -120,7 +120,9 @@ public class ResultAnalyzer {
     }
 
     public boolean checkLatency(String before, String after) {
-        // System.out.println(before+"\n"+after);
+        if(!(before.contains("0% packet loss") && after.contains("0% packet loss"))) {
+            return false;
+        }
 
         int idx = before.indexOf("min");
         before = before.substring(idx);
