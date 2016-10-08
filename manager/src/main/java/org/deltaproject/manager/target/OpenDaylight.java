@@ -32,7 +32,7 @@ public class OpenDaylight implements TargetController {
         this.sshAddr = ssh;
 
         String user = sshAddr.substring(0, sshAddr.indexOf('@'));
-        controllerPath = "/home/" + user + "/odl-helium-sr3/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh";
+        controllerPath = "/home/" + user + "/odl-helium-sr3/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh -Xmx4g";
     }
 
     public OpenDaylight setAppAgentPath(String path) {
@@ -63,7 +63,7 @@ public class OpenDaylight implements TargetController {
             stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
             while ((str = stdOut.readLine()) != null) {
-                log.info(str);
+                //log.info(str);
                 if (str.contains("initialized successfully")) {
                     isRunning = true;
                     break;
@@ -127,7 +127,7 @@ public class OpenDaylight implements TargetController {
                     stdIn.write("start " + bundleID + "\n");
                     stdIn.flush();
 
-                    log.info("AppAgent bundle ID [" + bundleID + "] Installed");
+                    //log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                 }
             }
 
@@ -155,7 +155,7 @@ public class OpenDaylight implements TargetController {
                     stdIn.write("start " + bundleID + "\n");
                     stdIn.flush();
 
-                    log.info("AppAgent bundle ID [" + bundleID + "] Installed");
+                    //log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                 }
             }
 
