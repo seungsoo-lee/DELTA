@@ -120,7 +120,7 @@ public class OpenDaylight implements TargetController {
                     stdIn.write("start " + bundleID + "\n");
                     stdIn.flush();
 
-                    log.info("AppAgent bundle ID [" + bundleID + "] Installed");
+                    //log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                 }
             }
 
@@ -148,7 +148,7 @@ public class OpenDaylight implements TargetController {
                     stdIn.write("start " + bundleID + "\n");
                     stdIn.flush();
 
-                    log.info("AppAgent bundle ID [" + bundleID + "] Installed");
+                    //log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                 }
             }
 
