@@ -63,7 +63,7 @@ public class OpenDaylight implements TargetController {
             stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
             while ((str = stdOut.readLine()) != null) {
-                //System.out.println(str);
+                log.info(str);
                 if (str.contains("initialized successfully")) {
                     isRunning = true;
                     break;
@@ -127,7 +127,7 @@ public class OpenDaylight implements TargetController {
                     stdIn.write("start " + bundleID + "\n");
                     stdIn.flush();
 
-                    //log.info("AppAgent bundle ID [" + bundleID + "] Installed");
+                    log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                 }
             }
 
@@ -155,7 +155,7 @@ public class OpenDaylight implements TargetController {
                     stdIn.write("start " + bundleID + "\n");
                     stdIn.flush();
 
-                    //log.info("AppAgent bundle ID [" + bundleID + "] Installed");
+                    log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                 }
             }
 
