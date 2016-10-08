@@ -63,10 +63,17 @@ public class OpenDaylight implements TargetController {
             stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
             while ((str = stdOut.readLine()) != null) {
-                // System.out.println(str);
+                //System.out.println(str);
                 if (str.contains("initialized successfully")) {
                     isRunning = true;
                     break;
+                }
+
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
             }
 
