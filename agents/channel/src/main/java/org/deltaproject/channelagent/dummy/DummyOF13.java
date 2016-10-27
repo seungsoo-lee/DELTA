@@ -3,7 +3,7 @@ package org.deltaproject.channelagent.dummy;
 /**
  * Created by seungsoo on 9/8/16.
  */
-public class DMDataOF13 {
+public class DummyOF13 {
     public static final String HELLO = "04000010000000b10001000800000010";
     public static final String FEATURE_REPLY = "04060020fffffffe000000000000000100000100fe0000000000004700000000";
     public static final String GET_CONFIG_REPLY = "0408000cfffffffa0000ffff";

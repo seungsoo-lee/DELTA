@@ -5,11 +5,8 @@ import com.google.common.primitives.Longs;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
-import io.netty.util.HashedWheelTimer;
-import org.deltaproject.manager.utils.OFUtil;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.*;
-import org.projectfloodlight.openflow.protocol.errormsg.OFErrorMsgs;
 import org.projectfloodlight.openflow.types.U16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,14 +14,13 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Set;
 
 /**
  * Created by seungsoo on 9/7/16.
  */
-public class DMController extends Thread {
-    private static final Logger log = LoggerFactory.getLogger(DMController.class);
+public class DummyController extends Thread {
+    private static final Logger log = LoggerFactory.getLogger(DummyController.class);
 
     public static final int HANDSHAKE_DEFAULT = 0;
     public static final int HANDSHAKE_NO_HELLO = 1;
@@ -57,7 +53,7 @@ public class DMController extends Thread {
     private OFFlowAdd backupFlowAdd;
     private ServerSocket serverSock;
 
-    public DMController(String ver, int port) {
+    public DummyController(String ver, int port) {
         res = null;
 
         if (ver.equals("1.0")) {
@@ -245,7 +241,7 @@ public class DMController extends Thread {
     }
 
     public void sendExperimenter(long xid) {
-        byte[] msg = DMData.hexStringToByteArray(DMData.VENDOR);
+        byte[] msg = DummyData.hexStringToByteArray(DummyData.VENDOR);
         byte[] xidbytes = Longs.toByteArray(xid);
         System.arraycopy(xidbytes, 4, msg, 4, 4);
 
@@ -258,7 +254,7 @@ public class DMController extends Thread {
 
     public void sendStatReq(long xid) throws OFParseError {
         if (this.version == OFVersion.OF_10) {
-            byte[] msg = DMData.hexStringToByteArray(DMData.STATS_REQ);
+            byte[] msg = DummyData.hexStringToByteArray(DummyData.STATS_REQ);
             byte[] xidbytes = Longs.toByteArray(xid);
             System.arraycopy(xidbytes, 4, msg, 4, 4);
 

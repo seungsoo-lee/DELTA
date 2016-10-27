@@ -1,7 +1,7 @@
-package org.deltaproject.channelagent.pkthandle;
+package org.deltaproject.channelagent.pkthandler;
 
 import jpcap.NetworkInterface;
-import org.deltaproject.channelagent.core.Utils;
+import org.deltaproject.channelagent.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

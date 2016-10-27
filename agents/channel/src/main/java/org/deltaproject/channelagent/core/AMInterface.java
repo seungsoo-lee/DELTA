@@ -12,11 +12,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
-import org.deltaproject.channelagent.dummy.DMOFSwitch;
-import org.deltaproject.channelagent.pkthandle.NIC;
-import org.deltaproject.channelagent.pkthandle.PktListener;
+import org.deltaproject.channelagent.dummy.DummySwitch;
+import org.deltaproject.channelagent.pkthandler.NIC;
+import org.deltaproject.channelagent.pkthandler.PktListener;
 import org.deltaproject.channelagent.testcase.*;
 
 import jpcap.NetworkInterface;
@@ -50,7 +49,7 @@ public class AMInterface extends Thread {
     private String controllerIP;
     private String switchIP;
 
-    private DMOFSwitch dummysw;
+    private DummySwitch dummysw;
 
     private TestControllerCase testController;
 
@@ -58,7 +57,7 @@ public class AMInterface extends Thread {
         amIP = ip;
         amPort = Integer.parseInt(port);
 
-        dummysw = new DMOFSwitch();
+        dummysw = new DummySwitch();
     }
 
     public AMInterface(String config) {
@@ -115,22 +114,7 @@ public class AMInterface extends Thread {
 
             int cbenchPID = (Integer) value;
 
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (NoSuchFieldException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -222,7 +206,7 @@ public class AMInterface extends Thread {
                     dos.writeUTF("success");
                 } else if (recv.equalsIgnoreCase("3.1.160")) {
                     System.out.println("\n[Channel-Agent] LinkFabrication test starts");
-                    pktListener.setTypeOfAttacks(TestAdvancedCase.LINKFABRICATION);
+                    pktListener.setTypeOfAttacks(TestCase.LINKFABRICATION);
                     pktListener.startListening();
                     pktListener.startARPSpoofing();
 
@@ -231,7 +215,7 @@ public class AMInterface extends Thread {
                     dos.writeUTF("success");
                 } else if (recv.equalsIgnoreCase("3.1.170")) {
                     System.out.println("\n[Channel-Agent] Evaesdrop test starts");
-                    pktListener.setTypeOfAttacks(TestAdvancedCase.EVAESDROP);
+                    pktListener.setTypeOfAttacks(TestCase.EVAESDROP);
                     pktListener.startListening();
                     pktListener.startARPSpoofing();
                 } else if (recv.equalsIgnoreCase("3.1.170-2")) {
@@ -246,7 +230,7 @@ public class AMInterface extends Thread {
                     dos.writeUTF(result);
                 } else if (recv.equalsIgnoreCase("3.1.180")) {
                     System.out.println("\n[Channel-Agent] MITM test start");
-                    pktListener.setTypeOfAttacks(TestAdvancedCase.MITM);
+                    pktListener.setTypeOfAttacks(TestCase.MITM);
                     pktListener.startListening();
                     pktListener.startARPSpoofing();
                     dos.writeUTF("success");
@@ -267,13 +251,13 @@ public class AMInterface extends Thread {
                     // dummysw.setSeed(pktListener.getSeedPackets());
                     dummysw.start();
                 } else if (recv.equalsIgnoreCase("exit")) {
-                    pktListener.setTypeOfAttacks(TestAdvancedCase.EMPTY);
+                    pktListener.setTypeOfAttacks(TestCase.EMPTY);
                     pktListener.stopARPSpoofing();
                 } else if (recv.contains("startsw")) {
                     if (recv.contains("nohello")) {
-                        testController.startSW(DMOFSwitch.HANDSHAKE_NO_HELLO);
+                        testController.startSW(DummySwitch.HANDSHAKE_NO_HELLO);
                     } else {
-                        testController.startSW(DMOFSwitch.HANDSHAKE_DEFAULT);
+                        testController.startSW(DummySwitch.HANDSHAKE_DEFAULT);
                     }
                     dos.writeUTF("switchok");
                 } else if (recv.equalsIgnoreCase("stoptemp")) {
@@ -301,6 +285,21 @@ public class AMInterface extends Thread {
                         String res = testController.testTLSSupport(recv);
                         dos.writeUTF(res);
                     }
+                } else if (recv.contains("0.0.010") || recv.contains("0.0.020")) {
+                    if (recv.contains("0.0.010")) {
+                        System.out.println("\n[Channel-Agent] Control plane fuzzing test start");
+                        pktListener.setTypeOfAttacks(TestCase.CONTROLPLANE_FUZZING);
+                    } else {
+                        System.out.println("\n[Channel-Agent] Data plane fuzzing test start");
+                        pktListener.setTypeOfAttacks(TestCase.DATAPLANE_FUZZING);
+                    }
+
+                    pktListener.startListening();
+                    pktListener.startARPSpoofing();
+
+                    continue;
+                } else if (recv.contains("FuzzingMsg")) {
+                    dos.writeUTF(pktListener.getFuzzingMsg());
                 } else if (recv.contains("close")) {
                     dis.close();
                     dos.close();

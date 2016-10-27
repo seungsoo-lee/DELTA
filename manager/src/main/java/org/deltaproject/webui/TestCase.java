@@ -24,6 +24,7 @@ public class TestCase {
         CONTROL_PLANE_OF,
         DATA_PLANE_OF,
         ADVANCED,
+        FUZZING,
         UNSPECIFIED,
     }
 

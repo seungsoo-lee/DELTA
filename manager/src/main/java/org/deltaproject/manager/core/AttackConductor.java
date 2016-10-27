@@ -1,5 +1,6 @@
 package org.deltaproject.manager.core;
 
+import org.deltaproject.manager.fuzzing.TestFuzzing;
 import org.deltaproject.manager.testcase.TestAdvancedCase;
 import org.deltaproject.manager.testcase.TestControllerCase;
 import org.deltaproject.manager.testcase.CaseInfo;
@@ -37,6 +38,8 @@ public class AttackConductor {
     private TestSwitchCase testSwitchCase;
     private TestControllerCase testControllerCase;
 
+    private TestFuzzing testFuzzing;
+
     private String agentType;
 
     public AttackConductor(String config) {
@@ -59,15 +62,12 @@ public class AttackConductor {
         testSwitchCase = new TestSwitchCase();
         testControllerCase = new TestControllerCase(appm, hostm, channelm, controllerm);
         testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
+
+        testFuzzing = new TestFuzzing(appm, hostm, channelm, controllerm);
     }
 
     public String showConfig() {
         return cfg.show();
-    }
-
-    public void stopAgents() {
-        hostm.stopAgent();
-        channelm.stopAgent();
     }
 
     public void setSocket(Socket socket) throws IOException {
@@ -105,13 +105,11 @@ public class AttackConductor {
             testControllerCase.replayKnownAttack(test);
         } else if (test.getcasenum().charAt(0) == '3') {
             testAdvancedCase.replayKnownAttack(test);
+        } else if (test.getcasenum().charAt(0) == '0') {
+            testFuzzing.testFuzzing(test);
         }
 
         log.info(test.getName()+" is done\n");
-    }
-
-    public void replayKnownAttack() {
-
     }
 
     public void printAttackList() {
@@ -152,23 +150,9 @@ public class AttackConductor {
             return true;
         else if (infoAdvancedCase.containsKey(code))
             return true;
+        else if (code.charAt(0) == '0')
+            return true;
         else
             return false;
-    }
-
-    public AppAgentManager getAppAgentManager() {
-        return this.appm;
-    }
-
-    public ChannelAgentManager getChannelManager() {
-        return channelm;
-    }
-
-    public HostAgentManager getHostManager() {
-        return hostm;
-    }
-
-    public ControllerManager getControllerManager() {
-        return controllerm;
     }
 }

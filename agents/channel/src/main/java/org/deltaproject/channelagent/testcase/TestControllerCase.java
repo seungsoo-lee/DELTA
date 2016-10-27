@@ -1,13 +1,12 @@
 package org.deltaproject.channelagent.testcase;
 
 import com.google.common.primitives.Longs;
-import org.deltaproject.channelagent.core.Utils;
-import org.deltaproject.channelagent.dummy.DMDataOF10;
-import org.deltaproject.channelagent.dummy.DMDataOF13;
-import org.deltaproject.channelagent.dummy.DMOFSwitch;
+import org.deltaproject.channelagent.utils.Utils;
+import org.deltaproject.channelagent.dummy.DummyOF10;
+import org.deltaproject.channelagent.dummy.DummyOF13;
+import org.deltaproject.channelagent.dummy.DummySwitch;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.*;
-import org.projectfloodlight.openflow.types.OFPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +19,8 @@ import java.lang.reflect.Field;
 public class TestControllerCase {
     private static final Logger log = LoggerFactory.getLogger(TestControllerCase.class);
 
-    private DMOFSwitch ofSwitch;
-    private DMOFSwitch temp;
+    private DummySwitch ofSwitch;
+    private DummySwitch temp;
     private String targetIP;
     private String targetPORT;
 
@@ -44,7 +43,7 @@ public class TestControllerCase {
 
     public boolean startSW(int type) {
         log.info("Start Dummy Switch");
-        ofSwitch = new DMOFSwitch();
+        ofSwitch = new DummySwitch();
         ofSwitch.setTestHandShakeType(type);
         ofSwitch.setOFFactory(targetOFVersion);
         ofSwitch.connectTargetController(targetIP, targetPORT);
@@ -56,7 +55,7 @@ public class TestControllerCase {
         }
         ofSwitch.start();
 
-        if (type == DMOFSwitch.HANDSHAKE_DEFAULT) {
+        if (type == DummySwitch.HANDSHAKE_DEFAULT) {
             while (!isHandshaked()) {
                 try {
                     Thread.sleep(500);
@@ -96,11 +95,11 @@ public class TestControllerCase {
 
         byte[] msg;
         if (targetOFVersion == 4) {
-            msg = Utils.hexStringToByteArray(DMDataOF13.PACKET_IN);
+            msg = Utils.hexStringToByteArray(DummyOF13.PACKET_IN);
             msg[0] = (byte) 0x01;
             result = "Send Packet-In msg with OF version 1.0\n";
         } else {
-            msg = Utils.hexStringToByteArray(DMDataOF10.PACKET_IN);
+            msg = Utils.hexStringToByteArray(DummyOF10.PACKET_IN);
             msg[0] = (byte) 0x04;
             result = "Send Packet-In msg with OF version 1.3\n";
         }
@@ -143,9 +142,9 @@ public class TestControllerCase {
 
         byte[] msg;
         if (targetOFVersion == 4) {
-            msg = Utils.hexStringToByteArray(DMDataOF13.PACKET_IN);
+            msg = Utils.hexStringToByteArray(DummyOF13.PACKET_IN);
         } else {
-            msg = Utils.hexStringToByteArray(DMDataOF10.PACKET_IN);
+            msg = Utils.hexStringToByteArray(DummyOF10.PACKET_IN);
         }
 
         msg[1] = (byte) 0xcc;   // malformed msg type
@@ -176,9 +175,9 @@ public class TestControllerCase {
 
         byte[] msg;
         if (targetOFVersion == 4) {
-            msg = Utils.hexStringToByteArray(DMDataOF13.PACKET_IN);
+            msg = Utils.hexStringToByteArray(DummyOF13.PACKET_IN);
         } else {
-            msg = Utils.hexStringToByteArray(DMDataOF10.PACKET_IN);
+            msg = Utils.hexStringToByteArray(DummyOF10.PACKET_IN);
         }
 
         byte[] xidbytes = Longs.toByteArray(requestXid);
@@ -213,8 +212,8 @@ public class TestControllerCase {
         }
 
         log.info("Start another dummy switch");
-        temp = new DMOFSwitch();
-        temp.setTestHandShakeType(DMOFSwitch.HANDSHAKE_DEFAULT);
+        temp = new DummySwitch();
+        temp.setTestHandShakeType(DummySwitch.HANDSHAKE_DEFAULT);
         temp.setOFFactory(targetOFVersion);
         temp.connectTargetController(targetIP, targetPORT);
         try {

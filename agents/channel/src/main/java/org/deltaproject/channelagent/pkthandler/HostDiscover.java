@@ -1,4 +1,4 @@
-package org.deltaproject.channelagent.pkthandle;
+package org.deltaproject.channelagent.pkthandler;
 
 import jpcap.NetworkInterface;
 import jpcap.NetworkInterfaceAddress;
@@ -11,7 +11,6 @@ import jpcap.packet.TCPPacket;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

@@ -1,9 +1,7 @@
-package org.deltaproject.channelagent.fuzz;
+package org.deltaproject.channelagent.fuzzing;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFType;

@@ -31,11 +31,12 @@ public class TestAdvancedCase {
     }
 
     public void runRemoteAgents(boolean channel, boolean host) {
+        log.info("Run channel/host agent..");
         channelm.runAgent();
         hostm.runAgent();
 
         try {
-            Thread.sleep(3000);
+            Thread.sleep(1500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -1,4 +1,4 @@
-package org.deltaproject.channelagent.pkthandle;
+package org.deltaproject.channelagent.pkthandler;
 
 import jpcap.NetworkInterface;
 import jpcap.NetworkInterfaceAddress;

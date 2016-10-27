@@ -1,4 +1,4 @@
-package org.deltaproject.channelagent.pkthandle;
+package org.deltaproject.channelagent.pkthandler;
 
 import io.netty.buffer.ByteBuf;
 import jpcap.NetworkInterface;
@@ -7,8 +7,10 @@ import jpcap.packet.EthernetPacket;
 import jpcap.packet.IPPacket;
 import jpcap.packet.Packet;
 import jpcap.packet.TCPPacket;
-import org.deltaproject.channelagent.core.Utils;
-import org.deltaproject.channelagent.fuzz.SeedPackets;
+import org.deltaproject.channelagent.fuzzing.TestFuzzing;
+import org.deltaproject.channelagent.testcase.TestCase;
+import org.deltaproject.channelagent.utils.Utils;
+import org.deltaproject.channelagent.fuzzing.SeedPackets;
 import org.deltaproject.channelagent.networknode.TopoInfo;
 import org.deltaproject.channelagent.testcase.TestAdvancedCase;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
@@ -22,13 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-//import java.lang.UnsupportedOperationException;
-//import jpcap.packet.TCPPacket;
-//import jpcap.packet.UDPPacket;
-
 public class PktListener {
     public static final int MINIMUM_LENGTH = 8;
-
 
     private static HashMap<String, String> ip_mac_list;
     private static NetworkInterface device;
@@ -47,7 +44,7 @@ public class PktListener {
     private PacketReceiver handler;
 
     private String output;
-    protected TopoInfo topo;
+    private TopoInfo topo;
     private ARPSpoof spoof;
 
     // flags for distinguish the kind of attacks
@@ -55,7 +52,9 @@ public class PktListener {
     private String ofPort;
     private byte ofversion;
 
-    protected TestAdvancedCase testAdvanced;
+    private TestAdvancedCase testAdvanced;
+    private TestFuzzing testFuzzing;
+
     private SeedPackets seedPkts;
 
     public PktListener(NetworkInterface mydevice, String controllerip, String switchip, byte OFversion, String port,
@@ -80,18 +79,36 @@ public class PktListener {
             factory = OFFactories.getFactory(OFVersion.OF_10);
         else if (OFversion == 0x04)
             factory = OFFactories.getFactory(OFVersion.OF_13);
-        if (factory != null)
+        if (factory != null) {
             testAdvanced = new TestAdvancedCase(factory, this.ofversion);
+            testFuzzing = new TestFuzzing(factory, this.ofversion);
+        }
 
         // set Handler
         this.handler = new middle_handler();
 
-        typeOfAttacks = TestAdvancedCase.EMPTY;
+        typeOfAttacks = TestCase.EMPTY;
         seedPkts = new SeedPackets(factory);
     }
 
     public void testfunc() {
 
+    }
+
+    public String getFuzzingMsg() {
+        String result = testFuzzing.getFuzzingMsg();
+
+        while(result.contains("nothing")) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            result = testFuzzing.getFuzzingMsg();
+        }
+
+        return result;
     }
 
     public void startListening() {
@@ -223,6 +240,36 @@ public class PktListener {
             }
         }
 
+        public byte[] byteBufToArray(ByteBuf newBuf) {
+            byte[] bytes;
+            int length = newBuf.readableBytes();
+
+            if (newBuf.hasArray()) {
+                bytes = newBuf.array();
+            } else {
+                bytes = new byte[length];
+                newBuf.getBytes(newBuf.readerIndex(), bytes);
+            }
+
+            // replace packet data
+            newBuf.clear();
+            return bytes;
+        }
+
+        private Packet spoofPacket(Packet p, String victim) {
+            EthernetPacket p_eth = (EthernetPacket) p.datalink;
+            EthernetPacket ether = new EthernetPacket();
+            ether.frametype = p_eth.frametype;
+
+            ether.src_mac = device.mac_address;// p_eth.src_mac;
+            // only difference now is that for dst mac now is the official
+            ether.dst_mac = Utils.calculate_mac(ip_mac_list.get(victim));
+
+            p.datalink = ether;
+
+            return p;
+        }
+
         public void receivePacket(Packet p_temp) {
             EthernetPacket p_eth = (EthernetPacket) p_temp.datalink;
 
@@ -246,9 +293,9 @@ public class PktListener {
                 return;
             }
 
-            TCPPacket tcppacl = (TCPPacket) p_temp;
-            byte[] body = addBodyData(tcppacl);
-
+//            TCPPacket tcppacl = (TCPPacket) p_temp;
+//            byte[] body = addBodyData(tcppacl);
+//
 //            if (tcppacl.psh) {
 //                //body is complete
 //                //do something else...
@@ -256,14 +303,14 @@ public class PktListener {
 //
 //                System.out.println("psh set "+body.length);
 //
-            if(p_temp.data.length > 1500){
+            if (p_temp.data.length > 1500) {
                 // this.sendPkt(p_temp);
                 return;
             }
 
             ByteBuf newBuf = null;
 
-            if (typeOfAttacks == TestAdvancedCase.EVAESDROP) {
+            if (typeOfAttacks == TestCase.EVAESDROP) {
                 this.sendPkt(p_temp);
 
                 if (p_temp.data.length > 8) {
@@ -274,33 +321,44 @@ public class PktListener {
                         e.printStackTrace();
                     }
                 }
-            } else if (typeOfAttacks == TestAdvancedCase.LINKFABRICATION) {
+            } else if (typeOfAttacks == TestCase.LINKFABRICATION) {
                 if (p_temp.data.length > 8) {
                     try {
                         newBuf = testAdvanced.testLinkFabrication(p_temp);
+
+                        if (newBuf != null) {
+                            p_temp.data = byteBufToArray(newBuf);
+                            sendPkt(p_temp);
+                        }
                     } catch (OFParseError e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
-            } else if (typeOfAttacks == TestAdvancedCase.MITM) {
+            } else if (typeOfAttacks == TestCase.MITM) {
                 if (p_temp.data.length > 8) {
                     try {
-                        if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP))
+                        if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
                             newBuf = testAdvanced.testMITM(p_temp);
+
+                            if (newBuf != null) {
+                                p_temp.data = byteBufToArray(newBuf);
+                                sendPkt(p_temp);
+                            }
+                        }
                     } catch (OFParseError e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
-            } else if (typeOfAttacks == TestAdvancedCase.CONTROLMESSAGEMANIPULATION) {
+            } else if (typeOfAttacks == TestCase.CONTROLMESSAGEMANIPULATION) {
                 System.out.println("\n[ATTACK] Control Message Manipulation");
                 /* Modify a Packet Here */
                 if (this.dst_ip.equals(controllerIP)) {
                     (p.data)[2] = 0x77;
                     (p.data)[3] = 0x77;
                 }
-            } else if (typeOfAttacks == TestAdvancedCase.MALFORMEDCONTROLMESSAGE) {
+            } else if (typeOfAttacks == TestCase.MALFORMEDCONTROLMESSAGE) {
                 System.out.println("\n[ATTACK] Malformed Control Message");
                 /* Modify a Packet Here */
                 if (this.dst_ip.equals(switchIP)) {
@@ -309,54 +367,41 @@ public class PktListener {
                     (p.data)[3] = 0x01;
                     // }
                 }
-            } else if (typeOfAttacks == TestAdvancedCase.SEED) {
-                /* Modify a Packet Here */
-                if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
-                    // System.out.print(switchIP + " -> " + controllerIP + " ");
+            } else if (typeOfAttacks == TestCase.CONTROLPLANE_FUZZING) {
+                /* Switch -> Controller */
+                if (p_temp.data.length > 8) {
                     try {
-                        seedPkts.getSeedPkts(p.data, p.data.length);
+                        if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
+                            byte[] msg = testFuzzing.testControlPlane(p_temp);
+
+                            if (msg != null) {
+                                p_temp.data = msg;
+                                sendPkt(p_temp);
+                            }
+                        }
                     } catch (OFParseError e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
-                return;
-            }
+            } else if (typeOfAttacks == TestCase.DATAPLANE_FUZZING) {
+                /* Controller -> Switch */
+                if (p_temp.data.length > 8) {
+                    try {
+                        if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
+                            byte[] msg = testFuzzing.testDataPlane(p_temp);
 
-            if (typeOfAttacks == TestAdvancedCase.MITM || typeOfAttacks == TestAdvancedCase.LINKFABRICATION) {
-                if (newBuf != null) {
-                    byte[] bytes;
-                    int length = newBuf.readableBytes();
-
-                    if (newBuf.hasArray()) {
-                        bytes = newBuf.array();
-                    } else {
-                        bytes = new byte[length];
-                        newBuf.getBytes(newBuf.readerIndex(), bytes);
+                            if (msg != null) {
+                                p_temp.data = msg;
+                                sendPkt(p_temp);
+                            }
+                        }
+                    } catch (OFParseError e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
                     }
-
-                    // replace packet data
-                    newBuf.clear();
-                    p_temp.data = bytes;
                 }
-                this.sendPkt(p_temp);
             }
-//            } else
-//                System.out.println("psh not "+body.length);
-        }
-
-        private Packet spoofPacket(Packet p, String victim) {
-            EthernetPacket p_eth = (EthernetPacket) p.datalink;
-            EthernetPacket ether = new EthernetPacket();
-            ether.frametype = p_eth.frametype;
-
-            ether.src_mac = device.mac_address;// p_eth.src_mac;
-            // only difference now is that for dst mac now is the official
-            ether.dst_mac = Utils.calculate_mac(ip_mac_list.get(victim));
-
-            p.datalink = ether;
-
-            return p;
         }
     }
 }
