@@ -177,6 +177,11 @@ Command>_
 
 + STEP 3. Connect Web-based UI (port number is 7070)
 
+## Main Contributors
++ Seungsoo Lee (KAIST)
++ Changhoon Yoon (KAIST)
++ Sandra Scott-Hayward (Queen's University Belfast)
++ Seungwon Shin (KAIST)
 
 ## Collaborators
 + [Atto Research](http://www.atto-research.com/index.php/en/home/) ![atto](http://143.248.53.145/research/atto-logo2.png)
