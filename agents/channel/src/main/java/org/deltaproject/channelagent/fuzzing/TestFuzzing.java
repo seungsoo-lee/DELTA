@@ -61,13 +61,21 @@ public class TestFuzzing {
     }
 
     public byte[] testControlPlane(Packet p_temp) throws OFParseError {
+        if (!modifiedMsg.equals("nothing"))
+            return null;
+
         ByteBuf bb = getByteBuf(p_temp);
+
         int totalLen = bb.readableBytes();
         int offset = bb.readerIndex();
 
-        byte[] newbytes = null;
+        byte[] newbytes = new byte[totalLen];
+        byte[] origin = bb.array();
+
+        boolean isFuzzed = false;
 
         targetType = OFFuzzer.toControlMsg[random.nextInt(toControlMsgLen)];
+        targetType = OFType.PACKET_IN;
 
         while (offset < totalLen) {
             bb.readerIndex(offset);
@@ -88,23 +96,22 @@ public class TestFuzzing {
 
             try {
                 OFMessage message = reader.readFrom(bb);
-                System.out.println("OFMsg " + message.toString());
+
+                byte[] msg = new byte[length];
+                System.arraycopy(origin, offset, msg, 0, length);
 
                 if (message.getType() == targetType) {
-                    modifiedMsg = message.toString() + " -> ";
+                    isFuzzed = true;
 
-                    byte[] origin = bb.array();
-                    byte[] cratedbytes = new byte[totalLen - HEADER_LEN];
-                    newbytes = new byte[totalLen];
+                    byte[] msgBody = new byte[length - HEADER_LEN];
+                    System.arraycopy(msg, HEADER_LEN, msgBody, 0, length - HEADER_LEN);
+                    random.nextBytes(msgBody);
+                    System.arraycopy(msgBody, 0, msg, HEADER_LEN, length - HEADER_LEN);
 
-                    System.arraycopy(origin, 8, cratedbytes, 0, totalLen - HEADER_LEN);
-                    random.nextBytes(cratedbytes);
-
-                    System.arraycopy(origin, 0, newbytes, 0, HEADER_LEN);
-                    System.arraycopy(cratedbytes, 0, newbytes, 8, totalLen - HEADER_LEN);
-
-                    modifiedMsg += Utils.bytesToHex(cratedbytes);
+                    modifiedMsg = message.toString() + " -> " + Utils.bytesToHex(msgBody);
                 }
+
+                System.arraycopy(msg, 0, newbytes, offset, length);
             } catch (OFParseError e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -114,7 +121,11 @@ public class TestFuzzing {
         }
 
         bb.clear();
-        return newbytes;
+
+        if (isFuzzed)
+            return newbytes;
+        else
+            return null;
     }
 
     public byte[] testDataPlane(Packet p_temp) throws OFParseError {

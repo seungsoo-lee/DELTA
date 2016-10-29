@@ -289,28 +289,4 @@ public class ControllerManager {
     public int getSwitchCounter() {
         return this.switchList.size();
     }
-
-    public void killCbench() {
-        Process pc = null;
-        try {
-            if (processCbench != null) {
-                processCbench.getErrorStream().close();
-                processCbench.getInputStream().close();
-                processCbench.getOutputStream().close();
-                processCbench.destroy();
-            }
-
-            pc = Runtime.getRuntime().exec("kill -9 " + this.cbenchPID);
-            pc.getErrorStream().close();
-            pc.getInputStream().close();
-            pc.getOutputStream().close();
-            pc.waitFor();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
 }

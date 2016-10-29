@@ -9,15 +9,10 @@ import java.io.IOException;
 
 public class Sender {
 	private NetworkInterface device = null;
-
 	private JpcapSender sender;
 
 	private void __build_sender(NetworkInterface phys_device) throws IOException {
-		JpcapCaptor captor = JpcapCaptor.openDevice(phys_device, 2000, false, 3000); // TODO:
-																						// check
-																						// the
-																						// params
-
+		JpcapCaptor captor = JpcapCaptor.openDevice(phys_device, 2000, false, 3000);
 		this.sender = captor.getJpcapSenderInstance();
 	}
 

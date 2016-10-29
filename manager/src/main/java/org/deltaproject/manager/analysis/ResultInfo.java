@@ -15,6 +15,7 @@ public class ResultInfo {
 
     private String before;
     private String after;
+
     private String result;
 
     public ResultInfo() {

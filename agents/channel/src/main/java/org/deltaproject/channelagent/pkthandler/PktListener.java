@@ -6,6 +6,7 @@ import jpcap.PacketReceiver;
 import jpcap.packet.EthernetPacket;
 import jpcap.packet.IPPacket;
 import jpcap.packet.Packet;
+import jpcap.packet.ARPPacket;
 import jpcap.packet.TCPPacket;
 import org.deltaproject.channelagent.fuzzing.TestFuzzing;
 import org.deltaproject.channelagent.testcase.TestCase;
@@ -96,19 +97,7 @@ public class PktListener {
     }
 
     public String getFuzzingMsg() {
-        String result = testFuzzing.getFuzzingMsg();
-
-        while(result.contains("nothing")) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            result = testFuzzing.getFuzzingMsg();
-        }
-
-        return result;
+        return testFuzzing.getFuzzingMsg();
     }
 
     public void startListening() {
@@ -233,9 +222,9 @@ public class PktListener {
         }
 
         public void sendPkt(Packet p_temp) {
-            if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
+            if (this.dst_ip.equals(controllerIP)) {
                 traffic_sender.send(spoofPacket(p_temp, controllerIP));
-            } else if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
+            } else if (this.dst_ip.equals(switchIP)) {
                 traffic_sender.send(spoofPacket(p_temp, switchIP));
             }
         }
@@ -270,136 +259,145 @@ public class PktListener {
             return p;
         }
 
-        public void receivePacket(Packet p_temp) {
+        @Override
+        public synchronized void receivePacket(Packet p_temp) {
+            if (p_temp instanceof ARPPacket) return;
+
             EthernetPacket p_eth = (EthernetPacket) p_temp.datalink;
 
             // check if the packet is mine just return do not send it again
             String mine_mac = Utils.decalculate_mac(device.mac_address);
             String incoming_src_mac = Utils.decalculate_mac(p_eth.src_mac);
 
-            IPPacket p = ((IPPacket) p_temp);
-            this.dst_ip = p.dst_ip.toString().split("/")[1];
-            this.src_ip = p.src_ip.toString().split("/")[1];
-
-            // ignore channel-agent packets
-            if (this.dst_ip.equals(localIp) || this.src_ip.equals(localIp) || mine_mac.equals(incoming_src_mac)) {
-                return;
-            } else if (p_temp.data.length < 8) {
-                if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
-                    traffic_sender.send(spoofPacket(p_temp, switchIP));
-                } else if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
-                    traffic_sender.send(spoofPacket(p_temp, controllerIP));
-                }
+            if (mine_mac.equals(incoming_src_mac)) {
                 return;
             }
 
-//            TCPPacket tcppacl = (TCPPacket) p_temp;
-//            byte[] body = addBodyData(tcppacl);
-//
-//            if (tcppacl.psh) {
-//                //body is complete
-//                //do something else...
-//                p_temp.data = body;
-//
-//                System.out.println("psh set "+body.length);
-//
-            if (p_temp.data.length > 1500) {
-                // this.sendPkt(p_temp);
-                return;
-            }
+            if (p_temp instanceof IPPacket) {
+                IPPacket p = ((IPPacket) p_temp);
+                this.dst_ip = p.dst_ip.toString().split("/")[1];
+                this.src_ip = p.src_ip.toString().split("/")[1];
 
-            ByteBuf newBuf = null;
-
-            if (typeOfAttacks == TestCase.EVAESDROP) {
-                this.sendPkt(p_temp);
-
-                if (p_temp.data.length > 8) {
-                    try {
-                        testAdvanced.testEvaseDrop(topo, p_temp);
-                    } catch (OFParseError e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
+                // ignore channel-agent's packets
+                if (this.dst_ip.equals(localIp) || this.src_ip.equals(localIp)) {
+                    return;
                 }
-            } else if (typeOfAttacks == TestCase.LINKFABRICATION) {
-                if (p_temp.data.length > 8) {
-                    try {
-                        newBuf = testAdvanced.testLinkFabrication(p_temp);
 
-                        if (newBuf != null) {
-                            p_temp.data = byteBufToArray(newBuf);
-                            sendPkt(p_temp);
-                        }
-                    } catch (OFParseError e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
+                if (p_temp.data.length < 8 || p_temp.data.length > 1500) {
+                    sendPkt(p_temp);
+                    return;
                 }
-            } else if (typeOfAttacks == TestCase.MITM) {
-                if (p_temp.data.length > 8) {
-                    try {
-                        if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
-                            newBuf = testAdvanced.testMITM(p_temp);
 
-                            if (newBuf != null) {
-                                p_temp.data = byteBufToArray(newBuf);
-                                sendPkt(p_temp);
+
+                TCPPacket tcppacl = (TCPPacket) p_temp;
+                byte[] body = addBodyData(tcppacl);
+
+                if (tcppacl.psh) {
+                    //body is complete
+                    //do something else...
+                    p_temp.data = body;
+
+                    ByteBuf newBuf = null;
+
+                    if (typeOfAttacks == TestCase.EVAESDROP) {
+                        this.sendPkt(p_temp);
+
+                        if (p_temp.data.length > 8) {
+                            try {
+                                testAdvanced.testEvaseDrop(topo, p_temp);
+                                return;
+                            } catch (OFParseError e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
                             }
                         }
-                    } catch (OFParseError e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            } else if (typeOfAttacks == TestCase.CONTROLMESSAGEMANIPULATION) {
-                System.out.println("\n[ATTACK] Control Message Manipulation");
+                    } else if (typeOfAttacks == TestCase.LINKFABRICATION) {
+                        if (p_temp.data.length > 8) {
+                            try {
+                                newBuf = testAdvanced.testLinkFabrication(p_temp);
+
+                                if (newBuf != null) {
+                                    p_temp.data = byteBufToArray(newBuf);
+                                    sendPkt(p_temp);
+                                    return;
+                                }
+                            } catch (OFParseError e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        }
+                    } else if (typeOfAttacks == TestCase.MITM) {
+                        if (p_temp.data.length > 8) {
+                            try {
+                                if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
+                                    newBuf = testAdvanced.testMITM(p_temp);
+
+                                    if (newBuf != null) {
+                                        p_temp.data = byteBufToArray(newBuf);
+                                        sendPkt(p_temp);
+                                        return;
+                                    }
+                                }
+                            } catch (OFParseError e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        }
+                    } else if (typeOfAttacks == TestCase.CONTROLMESSAGEMANIPULATION) {
+                        System.out.println("\n[ATTACK] Control Message Manipulation");
                 /* Modify a Packet Here */
-                if (this.dst_ip.equals(controllerIP)) {
-                    (p.data)[2] = 0x77;
-                    (p.data)[3] = 0x77;
-                }
-            } else if (typeOfAttacks == TestCase.MALFORMEDCONTROLMESSAGE) {
-                System.out.println("\n[ATTACK] Malformed Control Message");
+                        if (this.dst_ip.equals(controllerIP)) {
+                            (p.data)[2] = 0x77;
+                            (p.data)[3] = 0x77;
+                        }
+                    } else if (typeOfAttacks == TestCase.MALFORMEDCONTROLMESSAGE) {
+                        System.out.println("\n[ATTACK] Malformed Control Message");
                 /* Modify a Packet Here */
-                if (this.dst_ip.equals(switchIP)) {
-                    // if ( (p.data)[1] != 0x0a ) {
-                    (p.data)[2] = 0x00;
-                    (p.data)[3] = 0x01;
-                    // }
-                }
-            } else if (typeOfAttacks == TestCase.CONTROLPLANE_FUZZING) {
+                        if (this.dst_ip.equals(switchIP)) {
+                            // if ( (p.data)[1] != 0x0a ) {
+                            (p.data)[2] = 0x00;
+                            (p.data)[3] = 0x01;
+                            // }
+                        }
+                    } else if (typeOfAttacks == TestCase.CONTROLPLANE_FUZZING) {
                 /* Switch -> Controller */
-                if (p_temp.data.length > 8) {
-                    try {
-                        if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
-                            byte[] msg = testFuzzing.testControlPlane(p_temp);
+                        if (p_temp.data.length > 8) {
+                            try {
+                                if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
+                                    byte[] msg = testFuzzing.testControlPlane(p_temp);
 
-                            if (msg != null) {
-                                p_temp.data = msg;
-                                sendPkt(p_temp);
+                                    if (msg != null) {
+                                        p_temp.data = msg;
+                                        sendPkt(p_temp);
+                                        return;
+                                    }
+                                }
+                            } catch (OFParseError e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
                             }
                         }
-                    } catch (OFParseError e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            } else if (typeOfAttacks == TestCase.DATAPLANE_FUZZING) {
+                    } else if (typeOfAttacks == TestCase.DATAPLANE_FUZZING) {
                 /* Controller -> Switch */
-                if (p_temp.data.length > 8) {
-                    try {
-                        if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
-                            byte[] msg = testFuzzing.testDataPlane(p_temp);
+                        if (p_temp.data.length > 8) {
+                            try {
+                                if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
+                                    byte[] msg = testFuzzing.testDataPlane(p_temp);
 
-                            if (msg != null) {
-                                p_temp.data = msg;
-                                sendPkt(p_temp);
+                                    if (msg != null) {
+                                        p_temp.data = msg;
+                                        sendPkt(p_temp);
+                                        return;
+                                    }
+                                }
+                            } catch (OFParseError e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
                             }
                         }
-                    } catch (OFParseError e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
                     }
+
+                    sendPkt(p_temp);
                 }
             }
         }

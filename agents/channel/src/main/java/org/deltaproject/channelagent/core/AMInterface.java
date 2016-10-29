@@ -155,12 +155,12 @@ public class AMInterface extends Thread {
             }
         }
 
-        log.info("[CA] Configuration setup");
-        log.info("[CA] OF version/port: " + OFVersion + "/" + ofPort);
-        log.info("[CA] MITM NIC   : " + nic);
-        log.info("[CA] Target Controller IP: " + controllerIP);
-        log.info("[CA] Target Switch IP : " + switchIP);
-        log.info("[CA] Cbench Root Path :" + cbench);
+        log.info("Configuration setup");
+        log.info("OpenFlow version/port\t: " + OFVersion + "/" + ofPort);
+        log.info("MITM Network Interface\t: " + nic);
+        log.info("Target Controller IP\t: " + controllerIP);
+        log.info("Target Switch IP\t\t: " + switchIP);
+        log.info("Cbench Root Path\t\t: " + cbench);
 
         pktListener = new PktListener(device, controllerIP, switchIP, OFVersion, this.ofPort, this.handler);
         testController = new TestControllerCase(controllerIP, OFVersion, ofPort);
@@ -185,6 +185,10 @@ public class AMInterface extends Thread {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    public void testFunc() {
+
     }
 
     @Override
@@ -287,18 +291,18 @@ public class AMInterface extends Thread {
                     }
                 } else if (recv.contains("0.0.010") || recv.contains("0.0.020")) {
                     if (recv.contains("0.0.010")) {
-                        System.out.println("\n[Channel-Agent] Control plane fuzzing test start");
+                        log.info("Control plane fuzzing test start");
                         pktListener.setTypeOfAttacks(TestCase.CONTROLPLANE_FUZZING);
                     } else {
-                        System.out.println("\n[Channel-Agent] Data plane fuzzing test start");
+                        log.info("Data plane fuzzing test start");
                         pktListener.setTypeOfAttacks(TestCase.DATAPLANE_FUZZING);
                     }
 
                     pktListener.startListening();
                     pktListener.startARPSpoofing();
 
-                    continue;
-                } else if (recv.contains("FuzzingMsg")) {
+                    dos.writeUTF("success");
+                } else if (recv.contains("getFuzzing")) {
                     dos.writeUTF(pktListener.getFuzzingMsg());
                 } else if (recv.contains("close")) {
                     dis.close();

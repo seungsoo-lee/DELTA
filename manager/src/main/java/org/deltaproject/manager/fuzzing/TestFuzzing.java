@@ -3,7 +3,6 @@ package org.deltaproject.manager.fuzzing;
 import org.deltaproject.manager.analysis.ResultAnalyzer;
 import org.deltaproject.manager.analysis.ResultInfo;
 import org.deltaproject.manager.core.*;
-import org.deltaproject.manager.testcase.TestAdvancedCase;
 import org.deltaproject.webui.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +27,12 @@ public class TestFuzzing {
         this.channelm = cm;
         this.controllerm = ctm;
 
-        this.analyzer = new ResultAnalyzer(controllerm);
+        this.analyzer = new ResultAnalyzer(controllerm, appm);
     }
 
     public void runRemoteAgents(boolean channel, boolean host) {
         log.info("Run channel/host agent..");
-        channelm.runAgent();
+        //channelm.runAgent();
         hostm.runFuzzingTopo();
 
         try {
@@ -46,7 +45,7 @@ public class TestFuzzing {
     public void stopRemoteAgents() {
         log.info("Stop channel/host agent..");
         hostm.stopAgent();
-        channelm.stopAgent();
+        //channelm.stopAgent();
 
         try {
             Thread.sleep(1500);
@@ -57,9 +56,8 @@ public class TestFuzzing {
 
     public void initController() {
         if (!controllerm.isRunning()) {
-            log.info("Target controller: " + controllerm.getType() + " " + controllerm.getVersion());
+            log.info("Target controller [ " + controllerm.getType() + " " + controllerm.getVersion() + " ] is starting..");
 
-            log.info("Target controller is starting..");
             controllerm.createController();
             log.info("Target controller setup is completed");
 
@@ -96,10 +94,12 @@ public class TestFuzzing {
     public void testFuzzing(TestCase test) {
         long start = System.currentTimeMillis();
 
-        channelm.write(test.getcasenum());
-
         for (int i = 0; i < DEFAULT_COUNT; i++) {
             runRemoteAgents(true, true);
+
+            channelm.write(test.getcasenum());
+            channelm.read();
+
             controllerm.flushARPcache();
 
             switch (test.getcasenum()) {
@@ -113,14 +113,13 @@ public class TestFuzzing {
 
             initController();
 
-            log.info("Channel-Agent starts");
+            channelm.write("getFuzzing");
+            String resultChannel = channelm.read();
 
             String before = generateFlow("compare");
 
-            String resultChannel = channelm.read();
-
             try {
-                Thread.sleep(5000);    // 30 seconds
+                Thread.sleep(5000);    // 5 seconds
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -128,7 +127,13 @@ public class TestFuzzing {
 
             log.info("Host-Agent sends packets to others");
             String after = generateFlow("compare");
-            log.info("Agent-Manager retrieves the result from Host-Agent");
+
+            log.info("Agent-Manager retrieves the result from Channel-Agent");
+
+            channelm.write("getFuzzing");
+
+            if (resultChannel.equals("nothing"))
+                resultChannel = channelm.read();
 
             ResultInfo result = new ResultInfo();
 
@@ -141,8 +146,7 @@ public class TestFuzzing {
             result.addType(ResultInfo.CONTROLLER_STATE);
             result.addType(ResultInfo.SWITCH_STATE);
 
-            if(!analyzer.checkResult(test, result)) {
-                log.info("Fuzzing success");
+            if (!analyzer.checkResult(test, result)) {
                 log.error(resultChannel);
             }
 
@@ -152,7 +156,6 @@ public class TestFuzzing {
 
             channelm.write("exit");
             controllerm.flushARPcache();
-            // appm.closeSocket();
             controllerm.killController();
 
             stopRemoteAgents();

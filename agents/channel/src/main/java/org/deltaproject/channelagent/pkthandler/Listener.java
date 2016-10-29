@@ -8,62 +8,63 @@ import jpcap.packet.Packet;
 import java.io.IOException;
 
 public class Listener extends Thread {
-	class default_handler implements PacketReceiver {
-		public void receivePacket(Packet p) {
-			System.out.println("I'm Default Listener PACKET\t-\t" + p.toString());
-		}
-	}
+    class default_handler implements PacketReceiver {
+        public void receivePacket(Packet p) {
+            System.out.println("I'm Default Listener PACKET\t-\t" + p.toString());
+        }
+    }
 
-	private JpcapCaptor captor;
-	private NetworkInterface device;
-	private PacketReceiver handler;
+    private JpcapCaptor captor;
+    private NetworkInterface device;
+    private PacketReceiver handler;
 
-	private void __build_captor(NetworkInterface phys_device) throws IOException {
-		this.captor = JpcapCaptor.openDevice(phys_device, 65535, false, 1000);
-	}
+    private void __build_captor(NetworkInterface phys_device) throws IOException {
+        this.captor = JpcapCaptor.openDevice(phys_device, 65535, false, 20);
+//		this.captor = JpcapCaptor.openDevice(phys_device, 2048, false, 500);
 
-	public Listener(NetworkInterface device, PacketReceiver pr) throws IOException {
-		this.device = device;
-		if (this.device == null)
-			throw new NullPointerException("No device has been given! sender");
+    }
 
-		this.__build_captor(this.device);
+    public Listener(NetworkInterface device, PacketReceiver pr) throws IOException {
+        this.device = device;
+        if (this.device == null)
+            throw new NullPointerException("No device has been given! sender");
 
-		this.handler = pr;
-	}
+        this.__build_captor(this.device);
 
-	public void listen() {
-		if (this.handler == null) {
-			this.handler = new default_handler();
-		}
+        this.handler = pr;
+    }
 
-		this.captor.loopPacket(-1, this.handler);
-	}
+    public void listen() {
+        if (this.handler == null) {
+            this.handler = new default_handler();
+        }
 
-	public void setFilter(String filter_name, boolean optimize) {
-		try {
-			this.captor.setFilter(filter_name, optimize);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+        this.captor.loopPacket(-1, this.handler);
+    }
 
-	@Override
-	public void run() {
-		this.listen();
-	}
+    public void setFilter(String filter_name, boolean optimize) {
+        try {
+            this.captor.setFilter(filter_name, optimize);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
-	public JpcapCaptor getListener() {
-		return this.captor;
-	}
+    @Override
+    public void run() {
+        this.listen();
+    }
 
-	public void setPacketReadTimeout(int timeout) {
-		this.captor.setPacketReadTimeout(timeout);
-	}
+    public JpcapCaptor getListener() {
+        return this.captor;
+    }
 
-	public void finish() {
-		this.captor.breakLoop();
-	}
+    public void setPacketReadTimeout(int timeout) {
+        this.captor.setPacketReadTimeout(timeout);
+    }
 
+    public void finish() {
+        this.captor.breakLoop();
+    }
 }

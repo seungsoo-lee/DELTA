@@ -1,5 +1,6 @@
 package org.deltaproject.manager.analysis;
 
+import org.deltaproject.manager.core.AppAgentManager;
 import org.deltaproject.manager.core.ControllerManager;
 import org.deltaproject.manager.testcase.TestAdvancedCase;
 import org.deltaproject.webui.TestCase;
@@ -12,7 +13,7 @@ import java.util.StringTokenizer;
 import static org.deltaproject.webui.TestCase.TestResult.*;
 
 public class ResultAnalyzer {
-    private static final Logger log = LoggerFactory.getLogger(TestAdvancedCase.class);
+    private static final Logger log = LoggerFactory.getLogger(ResultAnalyzer.class);
     public static final int LATENCY_TIME = 0;
     public static final int COMMUNICATON = 1;
     public static final int CONTROLLER_STATE = 2;
@@ -20,10 +21,13 @@ public class ResultAnalyzer {
     public static final int APPAGENT_REPLY = 4;
 
     private ControllerManager controllerm;
+    private AppAgentManager appm;
+
     private String fuzzingResult = "";
 
-    public ResultAnalyzer(ControllerManager in) {
+    public ResultAnalyzer(ControllerManager in, AppAgentManager in2) {
         controllerm = in;
+        appm = in2;
     }
 
     public boolean checkAll(String code, String in) {
@@ -78,7 +82,13 @@ public class ResultAnalyzer {
                     break;
 
                 case ResultInfo.COMMUNICATON:
-                    isSuccess = checkCommunication(result.getResult());
+                    if(result.getBeforeL() != null)
+                        isSuccess = checkCommunication(result.getBeforeL());
+
+                    if (isSuccess)
+                        break;
+
+                    isSuccess = checkCommunication(result.getAfterL());
                     break;
 
                 case ResultInfo.APPAGENT_REPLY:
@@ -110,7 +120,7 @@ public class ResultAnalyzer {
     public boolean checkCommunication(String in) {
         if (in.contains("Unreachable")) {
             log.info("Ping response host unreachable");
-        } else if (in.contains("100% packet loss")) {
+        } else if (in.contains("100%")) {
             log.info("100% Packet loss");
         } else {
             return false;
@@ -120,7 +130,7 @@ public class ResultAnalyzer {
     }
 
     public boolean checkLatency(String before, String after) {
-        if(!(before.contains("0% packet loss") && after.contains("0% packet loss"))) {
+        if (before.contains("100%") || after.contains("100%")) {
             return false;
         }
 
@@ -146,7 +156,6 @@ public class ResultAnalyzer {
         if ((beforeInt * 2) < afterInt) {
             log.info("Latency (us) before :" + beforeInt + " < After :" + afterInt);
         } else {
-            log.info("Latency (us) before :" + beforeInt + " < After :" + afterInt);
             return false;
         }
 
@@ -166,12 +175,23 @@ public class ResultAnalyzer {
     }
 
     public boolean checkControllerState() {
+        if (appm.write("echo")) {
+            String res = appm.read();
+            if (res.equals("echo")) {
+                log.info("Controller NOT shutdown, recv echo");
+                return false;
+            }
+        }
+
+        log.info("Controller shutdown, no recv echo");
+        /*
         if (!controllerm.isRunning()) {
             log.info("Controller shutdown");
         } else {
             log.info("Controller NOT shutdown");
             return false;
         }
+        */
 
         return true;
     }

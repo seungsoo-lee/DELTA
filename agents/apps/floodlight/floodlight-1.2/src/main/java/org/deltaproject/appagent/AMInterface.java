@@ -148,6 +148,8 @@ public class AMInterface extends Thread {
         } else if (recv.contains("2.1.060")) {
             result = app.sendUnFlaggedFlowRemoveMsg();
             dos.writeUTF(result);
+        } else if (recv.contains("echo")) {
+            dos.writeUTF("echo");
         }
 
         dos.flush();
