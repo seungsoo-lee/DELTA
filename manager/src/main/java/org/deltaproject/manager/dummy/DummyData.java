@@ -3,7 +3,7 @@ package org.deltaproject.manager.dummy;
 /**
  * Created by seungsoo on 9/7/16.
  */
-public class DMData {
+public class DummyData {
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     public static String bytesToHex(byte[] bytes) {

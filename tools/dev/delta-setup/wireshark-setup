@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# Script to install DELTA dependencies on Ubuntu 14.04
+#
+
+cd ;
+sudo apt-get build-dep wireshark qt5-default -y
+wget https://www.wireshark.org/download/src/all-versions/wireshark-1.12.13.tar.bz2
+tar -xjvf wireshark-1.12.13.tar.bz2
+cd wireshark-1.12.13/
+./configure
+make
+sudo make install
+sudo ldconfig

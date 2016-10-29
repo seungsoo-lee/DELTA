@@ -3,18 +3,19 @@ package org.deltaproject.manager.analysis;
 import java.util.ArrayList;
 
 public class ResultInfo {
-    public static final int LATENCY_TIME = 0;
-    public static final int COMMUNICATON = 1;
-    public static final int CONTROLLER_STATE = 2;
-    public static final int SWITCH_STATE = 3;
-    public static final int APPAGENT_REPLY = 4;
-    public static final int CHANNELAGENT_REPLY = 5;
-    public static final int HOSTAGENT_REPLY = 6;
+    public static final int LATENCY_TIME        = 0;
+    public static final int COMMUNICATON        = 1;
+    public static final int CONTROLLER_STATE    = 2;
+    public static final int SWITCH_STATE        = 3;
+    public static final int APPAGENT_REPLY      = 4;
+    public static final int CHANNELAGENT_REPLY  = 5;
+    public static final int HOSTAGENT_REPLY     = 6;
 
     private ArrayList<Integer> checkType;
 
     private String before;
     private String after;
+
     private String result;
 
     public ResultInfo() {
@@ -29,14 +30,6 @@ public class ResultInfo {
 
     public void setLatency(String beforeIn, String afterIn) {
         this.before = beforeIn;
-        this.after = afterIn;
-    }
-
-    public void setLatencyB(String beforeIn) {
-        this.before = beforeIn;
-    }
-
-    public void setLatencyA(String afterIn) {
         this.after = afterIn;
     }
 

@@ -7,8 +7,8 @@ import jpcap.packet.EthernetPacket;
 import jpcap.packet.IPPacket;
 import jpcap.packet.Packet;
 import jpcap.packet.TCPPacket;
-import org.deltaproject.channelagent.core.Utils;
-import org.deltaproject.channelagent.dummy.DMOFSwitch;
+import org.deltaproject.channelagent.utils.Utils;
+import org.deltaproject.channelagent.dummy.DummySwitch;
 import org.deltaproject.channelagent.networknode.NetworkNode;
 import org.deltaproject.channelagent.networknode.TopoInfo;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
@@ -17,7 +17,6 @@ import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
 import org.projectfloodlight.openflow.protocol.match.Match;
 import org.projectfloodlight.openflow.protocol.match.MatchField;
-import org.projectfloodlight.openflow.protocol.ver13.OFMatchTypeSerializerVer13;
 import org.projectfloodlight.openflow.types.OFPort;
 import org.projectfloodlight.openflow.types.U16;
 
@@ -28,21 +27,11 @@ import java.util.List;
 public class TestAdvancedCase {
     static final int MINIMUM_LENGTH = 8;
 
-    public static final int TEST = -1;
-
-    public static final int EMPTY = 0;
-    public static final int MITM = 1;
-    public static final int EVAESDROP = 2;
-    public static final int LINKFABRICATION = 3;
-    public static final int CONTROLMESSAGEMANIPULATION = 4;
-    public static final int MALFORMEDCONTROLMESSAGE = 5;
-    public static final int SEED = 6;
-
     private OFFactory factory;
     private OFMessageReader<OFMessage> reader;
     private byte ofversion;
 
-    private ArrayList<DMOFSwitch> switches;
+    private ArrayList<DummySwitch> switches;
 
     public TestAdvancedCase(OFFactory f, byte of) {
         this.factory = f;
@@ -60,7 +49,7 @@ public class TestAdvancedCase {
     }
 
     public boolean testSwitchIdentificationSpoofing(String controllerIP, String ofPort, byte OFVersion) {
-        switches = new ArrayList<DMOFSwitch>();
+        switches = new ArrayList<DummySwitch>();
 
         for (int i = 0; i < 50; i++) {
 
@@ -71,7 +60,7 @@ public class TestAdvancedCase {
             }
 
             System.out.println("[Channel-Agent] Switch Spoofing " + i);
-            DMOFSwitch dummysw = new DMOFSwitch();
+            DummySwitch dummysw = new DummySwitch();
             dummysw.connectTargetController(controllerIP, ofPort);
             dummysw.setOFFactory(OFVersion);
             dummysw.start();

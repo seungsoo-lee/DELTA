@@ -12,8 +12,8 @@ public class Main {
 		}
 
 		System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "TRUE");
-		AMInterface am_if = new AMInterface(args[0], args[1]);
-		am_if.connectAgentManager();
+		AMInterface amInterface = new AMInterface(args[0], args[1]);
+		amInterface.connectAgentManager();
 
 		try {
 			Thread.sleep(1000);
@@ -21,6 +21,6 @@ public class Main {
 			e.printStackTrace();
 		}
 
-		am_if.start();
+		amInterface.start();
 	}
 }

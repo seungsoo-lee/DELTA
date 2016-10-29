@@ -27,15 +27,16 @@ public class TestAdvancedCase {
         this.channelm = cm;
         this.controllerm = ctm;
 
-        this.analyzer = new ResultAnalyzer(controllerm);
+        this.analyzer = new ResultAnalyzer(controllerm, appm);
     }
 
     public void runRemoteAgents(boolean channel, boolean host) {
+        log.info("Run channel/host agent..");
         channelm.runAgent();
         hostm.runAgent();
 
         try {
-            Thread.sleep(3000);
+            Thread.sleep(1500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -225,7 +226,6 @@ public class TestAdvancedCase {
 
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON).addType(ResultInfo.LATENCY_TIME);
-        result.setResult(after);
         result.setLatency(before, after);
 
 		/* step 4: decide if the attack is feasible */
@@ -265,7 +265,7 @@ public class TestAdvancedCase {
         String appresult = appm.read();
         log.info("Dropped packet: " + appresult);
 
-        result.setResult(flowResult);
+        result.setLatency(null, flowResult);
 
         analyzer.checkResult(test, result);
 
@@ -300,7 +300,7 @@ public class TestAdvancedCase {
 		/* step 4: decide if the attack is feasible */
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
-        result.setResult(flowResult);
+        result.setLatency(null, flowResult);
 
         analyzer.checkResult(test, result);
 
@@ -408,7 +408,7 @@ public class TestAdvancedCase {
 		/* step 4: decide if the attack is feasible */
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
-        result.setResult(flowResult);
+        result.setLatency(null, flowResult);
 
         analyzer.checkResult(test, result);
 
@@ -583,7 +583,7 @@ public class TestAdvancedCase {
 		/* step 4: decide if the attack is feasible */
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
-        result.setResult(resultFlow);
+        result.setLatency(null, resultFlow);
         analyzer.checkResult(test, result);
 
         long end = System.currentTimeMillis();
@@ -637,7 +637,8 @@ public class TestAdvancedCase {
 		/* step 4: decide if the attack is feasible */
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
-        result.setResult(resultFlow);
+        result.setLatency(null, resultFlow);
+
         analyzer.checkResult(test, result);
 
         long end = System.currentTimeMillis();
@@ -684,7 +685,6 @@ public class TestAdvancedCase {
 
 		/* step 4: decide if the attack is feasible */
         result.addType(ResultInfo.COMMUNICATON);
-        result.setResult(after);
         result.addType(ResultInfo.LATENCY_TIME);
         result.setLatency(before, after);
 
@@ -734,7 +734,6 @@ public class TestAdvancedCase {
 
 		/* step 4: decide if the attack is feasible */
         result.addType(ResultInfo.COMMUNICATON);
-        result.setResult(after);
         result.addType(ResultInfo.LATENCY_TIME);
         result.setLatency(before, after);
 
@@ -850,7 +849,7 @@ public class TestAdvancedCase {
 		/* step 4: decide if the attack is feasible */
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
-        result.setResult(resultFlow);
+        result.setLatency(null, resultFlow);
         analyzer.checkResult(test, result);
 
 		/* step 4: decide if the attack is feasible */
@@ -959,7 +958,7 @@ public class TestAdvancedCase {
 		/* step 4: decide if the attack is feasible */
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
-        result.setResult(resultFlow);
+        result.setLatency(null, resultFlow);
         analyzer.checkResult(test, result);
         long end = System.currentTimeMillis();
         log.info("Running Time: " + (end - start));
@@ -1007,8 +1006,6 @@ public class TestAdvancedCase {
 
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON).addType(ResultInfo.LATENCY_TIME);
-
-        result.setResult(after);
         result.setLatency(before, after);
 
         analyzer.checkResult(test, result);

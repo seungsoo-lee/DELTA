@@ -6,17 +6,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
-import org.deltaproject.channelagent.core.Utils;
-import org.deltaproject.channelagent.fuzz.SeedPackets;
+import org.deltaproject.channelagent.utils.Utils;
+import org.deltaproject.channelagent.fuzzing.SeedPackets;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.errormsg.OFErrorMsgs;
-import org.projectfloodlight.openflow.protocol.ver13.OFStatsRequestFlagsSerializerVer13;
-import org.projectfloodlight.openflow.types.OFHelloElement;
 import org.projectfloodlight.openflow.types.U16;
 
 import com.google.common.primitives.Longs;
@@ -28,8 +23,8 @@ import org.projectfloodlight.openflow.types.U64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DMOFSwitch extends Thread {
-    private static final Logger log = LoggerFactory.getLogger(DMOFSwitch.class);
+public class DummySwitch extends Thread {
+    private static final Logger log = LoggerFactory.getLogger(DummySwitch.class);
 
     public static final int HANDSHAKE_DEFAULT = 0;
     public static final int HANDSHAKE_NO_HELLO = 1;
@@ -61,7 +56,7 @@ public class DMOFSwitch extends Thread {
 
     private OFFlowAdd backupFlowAdd;
 
-    public DMOFSwitch() {
+    public DummySwitch() {
         res = null;
     }
 
@@ -242,13 +237,13 @@ public class DMOFSwitch extends Thread {
 
     /* OF HandShake */
     public void sendHello(long xid) throws OFParseError {
-        if (testHandShakeType == DMOFSwitch.HANDSHAKE_NO_HELLO) {
+        if (testHandShakeType == DummySwitch.HANDSHAKE_NO_HELLO) {
             // this.sendFeatureReply(requestXid);
             return;
         }
 
         if (factory.getVersion() == OFVersion.OF_13) {
-            byte[] msg = Utils.hexStringToByteArray(DMDataOF13.HELLO);
+            byte[] msg = Utils.hexStringToByteArray(DummyOF13.HELLO);
             sendRawMsg(msg);
             return;
         }
@@ -263,9 +258,9 @@ public class DMOFSwitch extends Thread {
         byte[] msg;
 
         if (factory.getVersion() == OFVersion.OF_13) {
-            msg = Utils.hexStringToByteArray(DMDataOF13.FEATURE_REPLY);
+            msg = Utils.hexStringToByteArray(DummyOF13.FEATURE_REPLY);
         } else {
-            msg = Utils.hexStringToByteArray(DMDataOF10.FEATURE_REPLY);
+            msg = Utils.hexStringToByteArray(DummyOF10.FEATURE_REPLY);
         }
 
         byte[] xidbytes = Longs.toByteArray(xid);
@@ -278,9 +273,9 @@ public class DMOFSwitch extends Thread {
         byte[] msg;
 
         if (factory.getVersion() == OFVersion.OF_13) {
-            msg = Utils.hexStringToByteArray(DMDataOF13.GET_CONFIG_REPLY);
+            msg = Utils.hexStringToByteArray(DummyOF13.GET_CONFIG_REPLY);
         } else {
-            msg = Utils.hexStringToByteArray(DMDataOF10.GET_CONFIG_REPLY);
+            msg = Utils.hexStringToByteArray(DummyOF10.GET_CONFIG_REPLY);
         }
 
         byte[] xidbytes = Longs.toByteArray(xid);
@@ -296,19 +291,19 @@ public class DMOFSwitch extends Thread {
             OFStatsRequest req = (OFStatsRequest) input;
             switch (req.getStatsType()) {
                 case PORT_DESC:
-                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_PORT_DESC);
+                    msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_PORT_DESC);
                     break;
                 case DESC:
-                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_DESC);
+                    msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_DESC);
                     break;
                 case METER:
-                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_METER);
+                    msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_METER);
                     break;
                 case PORT:
-                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_PORT_STATS);
+                    msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_PORT_STATS);
                     break;
                 case FLOW:
-                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_FLOW);
+                    msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_FLOW);
                     break;
                 /* case AGGREGATE:
                     break;
@@ -341,7 +336,7 @@ public class DMOFSwitch extends Thread {
                     return;
             }
         } else {
-            msg = Utils.hexStringToByteArray(DMDataOF10.STATS_REPLY);
+            msg = Utils.hexStringToByteArray(DummyOF10.STATS_REPLY);
         }
 
         byte[] xidbytes = Longs.toByteArray(xid);
@@ -375,7 +370,7 @@ public class DMOFSwitch extends Thread {
     }
 
     public void sendExperimenter(long xid) {
-        byte[] msg = DMDataOF10.hexStringToByteArray(DMDataOF10.experimenter);
+        byte[] msg = DummyOF10.hexStringToByteArray(DummyOF10.experimenter);
         byte[] xidbytes = Longs.toByteArray(xid);
         System.arraycopy(xidbytes, 4, msg, 4, 4);
 

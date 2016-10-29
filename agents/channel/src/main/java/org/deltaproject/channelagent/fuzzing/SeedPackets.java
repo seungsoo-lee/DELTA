@@ -1,20 +1,17 @@
-package org.deltaproject.channelagent.fuzz;
+package org.deltaproject.channelagent.fuzzing;
 
-import org.deltaproject.channelagent.pkthandle.PktListener;
+import org.deltaproject.channelagent.pkthandler.PktListener;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
-import org.projectfloodlight.openflow.protocol.OFFactories;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFMessageReader;
 import org.projectfloodlight.openflow.protocol.OFType;
-import org.projectfloodlight.openflow.protocol.OFVersion;
 import org.projectfloodlight.openflow.types.U16;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class SeedPackets {
 	private ArrayList<SeedPacket> seedList;

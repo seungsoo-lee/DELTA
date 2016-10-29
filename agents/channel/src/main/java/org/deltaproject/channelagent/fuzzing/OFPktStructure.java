@@ -1,4 +1,4 @@
-package org.deltaproject.channelagent.fuzz;
+package org.deltaproject.channelagent.fuzzing;
 
 public class OFPktStructure {	
 	public enum PACKET_IN {

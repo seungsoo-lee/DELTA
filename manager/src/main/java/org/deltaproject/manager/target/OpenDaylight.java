@@ -28,9 +28,11 @@ public class OpenDaylight implements TargetController {
 
 
     public OpenDaylight(String path, String v, String ssh) {
-        this.controllerPath = path + "/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh";
         this.version = v;
         this.sshAddr = ssh;
+
+        String user = sshAddr.substring(0, sshAddr.indexOf('@'));
+        controllerPath = "/home/" + user + "/odl-helium-sr3/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh -Xmx4g";
     }
 
     public OpenDaylight setAppAgentPath(String path) {
@@ -61,10 +63,17 @@ public class OpenDaylight implements TargetController {
             stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
             while ((str = stdOut.readLine()) != null) {
-                // System.out.println(str);
+                //log.info(str);
                 if (str.contains("initialized successfully")) {
                     isRunning = true;
                     break;
+                }
+
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
             }
 
@@ -100,9 +109,10 @@ public class OpenDaylight implements TargetController {
         boolean isInstalled = false;
 
         String str = "";
+        String user = sshAddr.substring(0, sshAddr.indexOf('@'));
 
         try {
-            stdIn.write("install file:" + "/home/vagrant/appagent.jar" + "\n");
+            stdIn.write("install file:" + "/home/" + user + "/delta-agent-app-odl-helium-sr3-1.0-SNAPSHOT.jar" + "\n");
             stdIn.flush();
 
             while (!isInstalled) {
@@ -117,7 +127,7 @@ public class OpenDaylight implements TargetController {
                     stdIn.write("start " + bundleID + "\n");
                     stdIn.flush();
 
-                    log.info("AppAgent bundle ID [" + bundleID + "] Installed");
+                    //log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                 }
             }
 
@@ -129,7 +139,7 @@ public class OpenDaylight implements TargetController {
             }
 
             // for Service chain interference
-            stdIn.write("install file:" + "/home/vagrant/appagent2.jar" + "\n");
+            stdIn.write("install file:" + "/home/" + user + "/delta-agent-app-odl-helium-sr3-sub-1.0-SNAPSHOT.jar" + "\n");
             stdIn.flush();
 
             isInstalled = false;
@@ -145,7 +155,7 @@ public class OpenDaylight implements TargetController {
                     stdIn.write("start " + bundleID + "\n");
                     stdIn.flush();
 
-                    log.info("AppAgent bundle ID [" + bundleID + "] Installed");
+                    //log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                 }
             }
 

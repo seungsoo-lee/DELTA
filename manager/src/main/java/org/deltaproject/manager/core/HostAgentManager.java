@@ -82,6 +82,30 @@ public class HostAgentManager extends Thread {
         return true;
     }
 
+    public boolean runFuzzingTopo() {
+        String amAddr = cfg.getAMIP() + " " + cfg.getAMPort();
+        String controllerAddr = cfg.getControllerIP() + " " + cfg.getOFPort();
+        String version;
+
+        if (cfg.getOFVer().equals("1.0")) {
+            version = "OpenFlow10";
+        } else {
+            version = "OpenFlow13";
+        }
+
+        try {
+            proc = Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + " sudo python test-fuzzing-topo.py " + controllerAddr + " " + amAddr + " " + version);
+            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
+            pidField.setAccessible(true);
+            Object value = pidField.get(proc);
+            this.procPID = (Integer) value;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return true;
+    }
+
     public void stopAgent() {
         try {
             if (dos != null) {

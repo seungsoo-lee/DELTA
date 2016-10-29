@@ -29,16 +29,11 @@ public class AMInterface extends Thread {
         this.serverIP = "10.0.2.2";
         this.serverPort = 3366;
 
-        String path = ".";
+        String path = "~";
 
-        Properties props = System.getProperties();
-        Enumeration en = props.keys();
-        while (en.hasMoreElements()) {
-            String key = (String) en.nextElement();
-
-            if (key.equals("HOME"))
-                path = (String) props.get(key);
-
+        String home = System.getenv("HOME");
+        if (home != null) {
+            path = home;
         }
 
         BufferedReader br = null;

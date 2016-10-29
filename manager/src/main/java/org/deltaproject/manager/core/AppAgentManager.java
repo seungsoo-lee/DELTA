@@ -84,11 +84,9 @@ public class AppAgentManager {
             return true;
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
-
+            // e.printStackTrace();
             return false;
         }
-
     }
 
 
@@ -102,8 +100,10 @@ public class AppAgentManager {
 
     public String read() {
         String result = "";
+
         try {
-            result = dis.readUTF();
+            if (dis.available() > 0)
+                result = dis.readUTF();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

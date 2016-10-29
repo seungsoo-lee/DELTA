@@ -2,9 +2,8 @@ package org.deltaproject.manager.testcase;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
-import org.deltaproject.manager.core.AttackConductor;
 import org.deltaproject.manager.core.Configuration;
-import org.deltaproject.manager.dummy.DMController;
+import org.deltaproject.manager.dummy.DummyController;
 import org.deltaproject.webui.TestCase;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
@@ -23,7 +22,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
-import java.net.ServerSocket;
 import java.util.*;
 
 import static org.deltaproject.webui.TestCase.TestResult.*;
@@ -40,7 +38,7 @@ public class TestSwitchCase {
 
     private Configuration cfg = Configuration.getInstance();
 
-    private DMController dmcnt;
+    private DummyController dmcnt;
     private OFFactory defaultFactory;
     private Random random;
 
@@ -179,7 +177,7 @@ public class TestSwitchCase {
     }
 
     public void setUpDummyController(int type) {
-        dmcnt = new DMController(ofversion, ofport);
+        dmcnt = new DummyController(ofversion, ofport);
         dmcnt.listeningSwitch();
         dmcnt.setHandShakeType(type);
         dmcnt.start();

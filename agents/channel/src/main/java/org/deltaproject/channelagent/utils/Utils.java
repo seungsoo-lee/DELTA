@@ -1,4 +1,4 @@
-package org.deltaproject.channelagent.core;
+package org.deltaproject.channelagent.utils;
 
 import jpcap.NetworkInterface;
 import jpcap.NetworkInterfaceAddress;

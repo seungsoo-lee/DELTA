@@ -18,28 +18,19 @@ public class AMInterface extends Thread {
     private OutputStream out;
     private DataOutputStream dos;
 
-    private String serverIP;
-    private int serverPort;
+    private String serverIP = "10.0.2.2";
+    private int serverPort = 3366;
 
     public AMInterface(AppAgent in) {
         this.app = in;
     }
 
     public void setServerAddr() {
-        // default
-        this.serverIP = "10.0.2.2";
-        this.serverPort = 3366;
+        String path = "~";
 
-        String path = ".";
-
-        Properties props = System.getProperties();
-        Enumeration en = props.keys();
-        while (en.hasMoreElements()) {
-            String key = (String) en.nextElement();
-
-            if (key.equals("HOME"))
-                path = (String) props.get(key);
-
+        String home = System.getenv("HOME");
+        if (home != null) {
+            path = home;
         }
 
         BufferedReader br = null;
@@ -63,7 +54,9 @@ public class AMInterface extends Thread {
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (Exception e) {
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
@@ -107,7 +100,7 @@ public class AMInterface extends Thread {
     }
 
     public void replayingKnownAttack(String recv) throws IOException {
-        String result = "";
+        String result;
 
         if (recv.equals("3.1.020")) {
             app.setControlMessageDrop();
@@ -155,6 +148,8 @@ public class AMInterface extends Thread {
         } else if (recv.contains("2.1.060")) {
             result = app.sendUnFlaggedFlowRemoveMsg();
             dos.writeUTF(result);
+        } else if (recv.contains("echo")) {
+            dos.writeUTF("echo");
         }
 
         dos.flush();
@@ -163,11 +158,10 @@ public class AMInterface extends Thread {
     @Override
     public void run() {
         // TODO Auto-generated method stub
-        String recv = "";
+        String recv;
         try {
             while ((recv = dis.readUTF()) != null) {
                 // reads characters encoded with modified UTF-8
-                System.out.print(recv);
                 replayingKnownAttack(recv);
             }
         } catch (Exception e) {

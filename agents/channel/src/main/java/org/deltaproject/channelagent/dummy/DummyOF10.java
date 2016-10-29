@@ -1,6 +1,6 @@
 package org.deltaproject.channelagent.dummy;
 
-public class DMDataOF10 {
+public class DummyOF10 {
 	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
 	public static String bytesToHex(byte[] bytes) {

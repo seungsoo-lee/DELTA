@@ -98,6 +98,7 @@ public class AgentManager extends Thread {
             System.out.println(" [iI]\t- Intra-controller control message");
 
             System.out.print("\nSelect target control message> ");
+            input = sc.readLine();
         }
         return true;
     }

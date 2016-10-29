@@ -23,12 +23,6 @@ public class Main {
 
         AgentManager am = new AgentManager(args[0]);
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         am.start();
         am.showMenu();
     }
