@@ -185,7 +185,7 @@ Command>_
 
 ## Collaborators
 + [Atto Research](http://www.atto-research.com/index.php/en/home/) ![atto](http://143.248.53.145/research/atto-logo2.png)
-+ National Security Research Institute (Kyuho Hwang, Daewon Jang) ![nsr](http://143.248.53.145/research/nsr.jpg)
++ National Security Research Institute (Kyuho Hwang, Daewon Jung) ![nsr](http://143.248.53.145/research/nsr.jpg)
 
 ## Questions?
 Send questions or feedback to: lss365@kaist.ac.kr or chyoon87@kaist.ac.kr
