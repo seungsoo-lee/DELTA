@@ -29,8 +29,7 @@ Vagrant.configure(2) do |config|
     d.vm.hostname = "controller-vm"
     d.vm.network "private_network", ip: "10.100.100.11"
     d.vm.network "private_network", ip: "10.100.200.11"
-    d.vm.provision :shell, path: "scripts/bootstrap_ansible.sh"
-    d.vm.provision :shell, inline: "PYTHONUNBUFFERED=1 ansible-playbook /vagrant/ansible/onosdev.yml -c local"
+    d.vm.provision :shell, path: "scripts/java8-oracle.sh"
     d.vm.provider "virtualbox" do |v|
       v.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
       v.memory = 8192
@@ -43,8 +42,8 @@ Vagrant.configure(2) do |config|
     d.vm.hostname = "channel-vm"
     d.vm.network "private_network", ip: "10.100.100.12"
     d.vm.network "private_network", ip: "10.100.200.12"
-    d.vm.provision :shell, path: "scripts/bootstrap_ansible.sh"
-    d.vm.provision :shell, inline: "PYTHONUNBUFFERED=1 ansible-playbook /vagrant/ansible/mn.yml -c local"
+    d.vm.provision :shell, path: "scripts/java8-oracle.sh"
+    d.vm.provision :shell, path: "scripts/mininet.sh"
     d.vm.provider "virtualbox" do |v|
       v.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
       v.memory = 2048
@@ -56,8 +55,8 @@ Vagrant.configure(2) do |config|
     d.vm.hostname = "mininet-vm"
     d.vm.network "private_network", ip: "10.100.100.13"
     d.vm.network "private_network", ip: "10.100.200.13"
-    d.vm.provision :shell, path: "scripts/bootstrap_ansible.sh"
-    d.vm.provision :shell, inline: "PYTHONUNBUFFERED=1 ansible-playbook /vagrant/ansible/mn.yml -c local"
+    d.vm.provision :shell, path: "scripts/java8-oracle.sh"
+    d.vm.provision :shell, path: "scripts/mininet.sh"
     d.vm.provider "virtualbox" do |v|
       v.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
       v.memory = 2048
