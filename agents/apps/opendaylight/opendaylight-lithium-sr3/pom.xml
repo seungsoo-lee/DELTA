@@ -62,6 +62,7 @@
             </snapshots>
         </repository>
     </repositories>
+
     <pluginRepositories>
         <pluginRepository>
             <id>opendaylight-snapshot</id>

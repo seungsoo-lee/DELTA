@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>delta-agent-apps-opendaylight</artifactId>
         <groupId>org.deltaproject</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+    
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>delta-agent-app-odl-beryllium-sr2</artifactId>
+    <artifactId>delta-agent-app-odl-boron</artifactId>
     <packaging>bundle</packaging>
 
     <build>
@@ -20,17 +21,9 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Import-Package>
-                            org.apache.felix.dm,
-                            org.osgi.framework,
-                            org.slf4j
-                        </Import-Package>
                         <Bundle-Activator>
-                            org.deltaproject.odlagent.Activator
+                            org.opendaylight.openflowplugin.learningswitch.Activator
                         </Bundle-Activator>
-                        <Export-Package>
-                            org.deltaproject.odlagent
-                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -62,6 +55,7 @@
             </snapshots>
         </repository>
     </repositories>
+
     <pluginRepositories>
         <pluginRepository>
             <id>opendaylight-snapshot</id>
@@ -85,7 +79,42 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.2</version>
+            <version>1.7.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin.model</groupId>
+            <artifactId>model-flow-base</artifactId>
+            <version>0.3.0-Boron</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin.model</groupId>
+            <artifactId>model-flow-service</artifactId>
+            <version>0.3.0-Boron</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller.model</groupId>
+            <artifactId>model-inventory</artifactId>
+            <version>1.4.0-Boron</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-api</artifactId>
+            <version>1.4.0-Boron</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>yang-binding</artifactId>
+            <version>0.9.0-Boron</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin</groupId>
+            <artifactId>openflowplugin-api</artifactId>
+            <version>0.3.0-Boron</version>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>5.0.0</version>
         </dependency>
     </dependencies>
 
