@@ -6,13 +6,8 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.openflowplugin.learningswitch.multi;
+package org.deltaproject.odlagent.core;
 
-import org.opendaylight.openflowplugin.learningswitch.DataChangeListenerRegistrationHolder;
-import org.opendaylight.openflowplugin.learningswitch.InstanceIdentifierUtils;
-import org.opendaylight.openflowplugin.learningswitch.FlowCommitWrapper;
-import org.opendaylight.openflowplugin.learningswitch.LearningSwitchHandler;
-import org.opendaylight.openflowplugin.learningswitch.LearningSwitchHandlerSimpleImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
@@ -23,10 +18,10 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  */
-public class MultipleLearningSwitchHandlerFacadeImpl implements LearningSwitchHandler {
+public class AppAgentFacadeImpl implements AppAgentHandler {
     
     private static final Logger LOG = LoggerFactory
-            .getLogger(MultipleLearningSwitchHandlerFacadeImpl.class);
+            .getLogger(AppAgentFacadeImpl.class);
     
     private FlowCommitWrapper dataStoreAccessor;
     private PacketProcessingService packetProcessingService;
@@ -50,7 +45,7 @@ public class MultipleLearningSwitchHandlerFacadeImpl implements LearningSwitchHa
          */
         if (!packetInDispatcher.getHandlerMapping().containsKey(nodePath)) {
             // delegate this node (owning appearedTable) to SimpleLearningSwitchHandler  
-            LearningSwitchHandlerSimpleImpl simpleLearningSwitch = new LearningSwitchHandlerSimpleImpl();
+            AppAgentHandlerSimpleImpl simpleLearningSwitch = new AppAgentHandlerSimpleImpl();
             /**
              * We set runtime dependencies
              */

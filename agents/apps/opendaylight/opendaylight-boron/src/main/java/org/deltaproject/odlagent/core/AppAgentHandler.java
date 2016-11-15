@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.openflowplugin.learningswitch;
+package org.deltaproject.odlagent.core;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
@@ -14,7 +14,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  * 
  */
-public interface LearningSwitchHandler {
+public interface AppAgentHandler {
 
     /**
      * @param tablePath 

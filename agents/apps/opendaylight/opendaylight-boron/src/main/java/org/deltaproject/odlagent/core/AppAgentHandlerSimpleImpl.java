@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.openflowplugin.learningswitch;
+package org.deltaproject.odlagent.core;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -45,9 +45,9 @@ import org.slf4j.LoggerFactory;
  *
  *
  */
-public class LearningSwitchHandlerSimpleImpl implements LearningSwitchHandler, PacketProcessingListener {
+public class AppAgentHandlerSimpleImpl implements AppAgentHandler, PacketProcessingListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LearningSwitchHandlerSimpleImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AppAgentHandlerSimpleImpl.class);
 
     private static final byte[] ETH_TYPE_IPV4 = new byte[] { 0x08, 0x00 };
 

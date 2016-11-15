@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.openflowplugin.learningswitch;
+package org.deltaproject.odlagent.core;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationService;
@@ -15,7 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 /**
  *
  */
-public interface LearningSwitchManager {
+public interface AppAgent {
 
     /**
      * stop manager

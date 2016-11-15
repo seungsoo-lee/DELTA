@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.openflowplugin.learningswitch;
+package org.deltaproject.odlagent.core;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,7 +26,7 @@ public class WakeupOnNode implements DataChangeListener {
     private static final Logger LOG = LoggerFactory
             .getLogger(WakeupOnNode.class);
 
-    private LearningSwitchHandler learningSwitchHandler;
+    private AppAgentHandler learningSwitchHandler;
 
     @Override
     public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
@@ -54,7 +54,7 @@ public class WakeupOnNode implements DataChangeListener {
      * @param learningSwitchHandler the learningSwitchHandler to set
      */
     public void setLearningSwitchHandler(
-            LearningSwitchHandler learningSwitchHandler) {
+            AppAgentHandler learningSwitchHandler) {
         this.learningSwitchHandler = learningSwitchHandler;
     }
 

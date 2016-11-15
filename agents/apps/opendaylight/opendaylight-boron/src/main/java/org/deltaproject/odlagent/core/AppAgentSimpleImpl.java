@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.openflowplugin.learningswitch;
+package org.deltaproject.odlagent.core;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -31,11 +31,11 @@ import org.slf4j.LoggerFactory;
  * corresponding MACs)</li>
  * </ul>
  */
-public class LearningSwitchManagerSimpleImpl implements DataChangeListenerRegistrationHolder,
-        LearningSwitchManager {
+public class AppAgentSimpleImpl implements DataChangeListenerRegistrationHolder,
+        AppAgent {
 
     private static final Logger LOG = LoggerFactory
-            .getLogger(LearningSwitchManagerSimpleImpl.class);
+            .getLogger(AppAgentSimpleImpl.class);
 
     private NotificationService notificationService;
     private PacketProcessingService packetProcessingService;
@@ -78,7 +78,7 @@ public class LearningSwitchManagerSimpleImpl implements DataChangeListenerRegist
         LOG.debug("start() -->");
         FlowCommitWrapper dataStoreAccessor = new FlowCommitWrapperImpl(data);
 
-        LearningSwitchHandlerSimpleImpl learningSwitchHandler = new LearningSwitchHandlerSimpleImpl();
+        AppAgentHandlerSimpleImpl learningSwitchHandler = new AppAgentHandlerSimpleImpl();
         learningSwitchHandler.setRegistrationPublisher(this);
         learningSwitchHandler.setDataStoreAccessor(dataStoreAccessor);
         learningSwitchHandler.setPacketProcessingService(packetProcessingService);
