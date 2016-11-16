@@ -80,10 +80,12 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
     protected OFFlowMod benign_flow;
     protected short benign_inport;
 
-    // for S3
     private boolean isDrop;
-    private OFPacketIn droppedPacket;
     private boolean isLoop;
+    private boolean isRemovedPayload;
+
+    private OFPacketIn droppedPacket;
+
     private SystemTime sys;
     private HashMap<String, Integer> map = new HashMap<>();
 
@@ -190,7 +192,8 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         floodlightProvider.addOFMessageListener(OFType.SET_CONFIG, this);
         floodlightProvider.addOFMessageListener(OFType.STATS_REPLY, this);
         floodlightProvider.addOFMessageListener(OFType.STATS_REQUEST, this);
-        // sniffingListener();
+
+        // testSwappingList();
     }
 
     @Override
@@ -212,6 +215,8 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
                     return Command.STOP;
                 } else if (isLoop) {
                     this.testInfiniteLoop();
+                } else if (isRemovedPayload) {
+                    IFloodlightProviderService.bcStore.remove(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
                 }
 
                 return Command.CONTINUE;
@@ -705,18 +710,31 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         return values;
     }
 
-    public void sniffingListener() {
+    public void testSwappingList() {
         List<IOFMessageListener> packetin_listeners = floodlightProvider
                 .getListeners().get(OFType.PACKET_IN);
 
-        logger.info("[ATTACK] Packet-In Listener : " + packetin_listeners.size());
-        // IOFMessageListener temp = packetin_listeners.get(0);
-        // packetin_listeners.set(packetin_listeners.size() - 1, temp);
-        // packetin_listeners.set(0, this);
+        System.out.println("[ATTACK] List of Packet-In Listener: " + packetin_listeners.size());
+
+        int cnt = 1;
 
         for (IOFMessageListener listen : packetin_listeners) {
-            logger.info("[ATTACK] [" + listen.getName() + "] APPLICATION");
+            System.out.println("[ATTACK] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
         }
+
+        IOFMessageListener temp = packetin_listeners.get(0);
+        packetin_listeners.set(packetin_listeners.size() - 1, temp);
+        packetin_listeners.set(0, this);
+
+        cnt = 1;
+
+        System.out.println("[ATTACK] List of Packet-In Listener: " + packetin_listeners.size());
+
+        for (IOFMessageListener listen : packetin_listeners) {
+            System.out.println("[ATTACK] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
+        }
+
+        isRemovedPayload = true;
     }
 
     @Override

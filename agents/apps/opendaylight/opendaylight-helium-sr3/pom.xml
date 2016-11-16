@@ -11,6 +11,12 @@
     <artifactId>delta-agent-app-odl-helium-sr3</artifactId>
     <packaging>bundle</packaging>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -98,11 +104,6 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.dependencymanager</artifactId>
             <version>3.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.2</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>

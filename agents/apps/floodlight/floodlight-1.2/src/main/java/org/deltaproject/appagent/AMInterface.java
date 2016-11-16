@@ -18,7 +18,7 @@ public class AMInterface extends Thread {
     private OutputStream out;
     private DataOutputStream dos;
 
-    private String serverIP = "10.0.2.2";
+    private String serverIP = "10.0.2.2";   // by default
     private int serverPort = 3366;
 
     public AMInterface(AppAgent in) {

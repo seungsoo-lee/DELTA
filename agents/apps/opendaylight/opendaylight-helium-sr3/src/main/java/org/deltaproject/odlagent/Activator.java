@@ -18,9 +18,8 @@ import org.opendaylight.controller.switchmanager.IInventoryListener;
 import org.opendaylight.controller.switchmanager.ISwitchManager;
 import org.opendaylight.controller.topologymanager.ITopologyManager;
 import org.osgi.framework.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.ElementType;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -31,9 +30,6 @@ public class Activator extends ComponentActivatorAbstractBase {
     private Object imp;
     private String containerName;
     private AMInterface cm;
-
-    protected static final Logger logger = LoggerFactory
-            .getLogger(Activator.class);
 
     public void init() {
         connectManager();
@@ -56,8 +52,8 @@ public class Activator extends ComponentActivatorAbstractBase {
         return res;
     }
 
-    public boolean Service_Unregstration_Attack(String input) {
-        System.out.println("[Activator] Event Listner Unsubscription");
+    public boolean testServiceUnregAttack(String input) {
+        System.out.println("[ATTACK] Service Unregistration Attack");
         List<ContainerServiceDependency> list = this.c.getDependencies();
 
         DependencyManager manager = this.c.getDependencyManager();
@@ -82,20 +78,25 @@ public class Activator extends ComponentActivatorAbstractBase {
 
                         // ct.setServiceProperties(props_new);
                         ServiceRegistration sr = ct.getServiceRegistration();
-                        ServiceReference sr2 = sr.getReference();
+                        Bundle bd = sr.getReference().getBundle();
+                        System.out.println("Target: " + bd.getSymbolicName());
+                        System.out.println(sr.toString());
 
-                        Bundle bd = sr2.getBundle();
-                        System.out.println("unregister service: "
-                                + bd.getSymbolicName());
-
-						/* service unregister */
+                        /* service unregister */
                         sr.unregister();
 
-                        List<Dependency> dpl = ct.getDependencies();
-                        for (int k = 0; k < dpl.size(); k++) {
-                            Dependency dp = dpl.get(k);
-                            ct.remove(dp);
+
+                        /*
+                        String[] lists = sr.getReference().getPropertyKeys();
+                        for (String s : lists) {
+                            System.out.println(s + ":" + sr.getReference().getProperty(s));
+
                         }
+
+                        List<Dependency> dpl = ct.getDependencies();
+                        for (Dependency d : dpl) {
+                            ct.remove(dp);
+                        }*/
 
                         return true;
                     }
@@ -107,7 +108,7 @@ public class Activator extends ComponentActivatorAbstractBase {
 
     /* A-6-M */
     public String testEventListenerUnsubscription(String input) {
-        System.out.println("[Activator] Event Listner Unsubscription");
+        System.out.println("[ATTACK] Event Listner Unsubscription");
         List<ContainerServiceDependency> list = this.c.getDependencies();
 
         String removed = "";
@@ -134,16 +135,20 @@ public class Activator extends ComponentActivatorAbstractBase {
 
                         // ct.setServiceProperties(props_new);
                         ServiceRegistration sr = ct.getServiceRegistration();
-                        ServiceReference sr2 = sr.getReference();
-
-                        Bundle bd = sr2.getBundle();
-                        System.out.println("unregister service: "
-                                + bd.getSymbolicName());
+                        Bundle bd = sr.getReference().getBundle();
+                        System.out.println(bd.getSymbolicName());
 
 						/* service unregister */
                         sr.unregister();
                         removed = sr.toString();
 
+                        System.out.println("p");
+                        String[] lists = sr.getReference().getPropertyKeys();
+                        for (String s : lists) {
+                            System.out.println(s + " ");
+                        }
+
+                        System.out.println("d");
                         List<Dependency> dpl = ct.getDependencies();
                         for (int k = 0; k < dpl.size(); k++) {
                             Dependency dp = dpl.get(k);

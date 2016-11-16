@@ -156,7 +156,7 @@ public class AMInterface extends Thread {
             result = app.sendUnFlaggedFlowRemoveMsg();
             dos.writeUTF(result);
         } else if (recv.contains("test")) {
-            app.test();
+
             return;
         }
 

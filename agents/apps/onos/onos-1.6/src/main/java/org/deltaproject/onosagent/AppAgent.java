@@ -378,8 +378,8 @@ public class AppAgent {
     }
 
     // Attack/Misuses
-    public void test() {
-        System.out.println("Test Start");
+    public void testFlowRuleBlocking() {
+        System.out.println("[ATTACK] Flow Rule Blocking");
 
         ArrayList<String> cpName = Lists.newArrayList(cfgService
                 .getComponentNames());
@@ -395,13 +395,13 @@ public class AppAgent {
 
         }
 
-        this.cfgService.setProperty(
-                "org.onosproject.provider.host.impl.HostLocationProvider",
-                "hostRemovalEnabled", "false");
+//        this.cfgService.setProperty(
+//                "org.onosproject.provider.host.impl.HostLocationProvider",
+//                "hostRemovalEnabled", "false");
 
-        // this.cfgService.setProperty(
-        // "org.onosproject.fwd.ReactiveForwarding",
-        // "packetOutOnly", "false");
+        this.cfgService.setProperty(
+                "org.onosproject.fwd.ReactiveForwarding",
+                "packetOutOnly", "true");
     }
 
 
