@@ -82,21 +82,17 @@ public class Activator extends ComponentActivatorAbstractBase {
                         System.out.println("Target: " + bd.getSymbolicName());
                         System.out.println(sr.toString());
 
-                        /* service unregister */
-                        sr.unregister();
-
-
-                        /*
-                        String[] lists = sr.getReference().getPropertyKeys();
-                        for (String s : lists) {
-                            System.out.println(s + ":" + sr.getReference().getProperty(s));
-
-                        }
-
                         List<Dependency> dpl = ct.getDependencies();
                         for (Dependency d : dpl) {
-                            ct.remove(dp);
-                        }*/
+                            ct.remove(d);
+                        }
+
+                        /* service unregister */
+                        sr.unregister();
+                        sr = ct.getServiceRegistration();
+
+                        System.out.println("\nTarget: " + bd.getSymbolicName());
+                        System.out.println(sr.toString());
 
                         return true;
                     }
@@ -142,7 +138,6 @@ public class Activator extends ComponentActivatorAbstractBase {
                         sr.unregister();
                         removed = sr.toString();
 
-                        System.out.println("p");
                         String[] lists = sr.getReference().getPropertyKeys();
                         for (String s : lists) {
                             System.out.println(s + " ");
@@ -281,6 +276,8 @@ public class Activator extends ComponentActivatorAbstractBase {
             this.c = c;
             this.imp = imp;
             this.containerName = containerName;
+
+            testServiceUnregAttack("arp");
         }
     }
 }

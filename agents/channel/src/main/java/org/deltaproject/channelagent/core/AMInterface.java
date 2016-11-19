@@ -302,6 +302,20 @@ public class AMInterface extends Thread {
                     pktListener.startARPSpoofing();
 
                     dos.writeUTF("success");
+                } else if (recv.contains("0.0.011") || recv.contains("0.0.021")) {
+                    log.info("Seed-based fuzzing test start");
+                    pktListener.setTypeOfAttacks(TestCase.SEED_BASED_FUZZING);
+                    pktListener.setFuzzingMode(1);
+
+                    dos.writeUTF("success");
+                } else if (recv.contains("seedstop")) {
+                    pktListener.setFuzzingMode(0);
+
+                    dummysw.connectTargetController(controllerIP, ofPort);
+                    dummysw.setOFFactory(this.OFVersion);
+                    dummysw.setSeed(pktListener.getSeedPackets());
+                    dummysw.start();
+
                 } else if (recv.contains("getFuzzing")) {
                     dos.writeUTF(pktListener.getFuzzingMsg());
                 } else if (recv.contains("close")) {

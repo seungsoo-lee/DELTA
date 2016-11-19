@@ -11,7 +11,10 @@ import org.projectfloodlight.openflow.types.U16;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
+import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 public class SeedPackets {
 	private ArrayList<SeedPacket> seedList;
@@ -22,6 +25,9 @@ public class SeedPackets {
 
 	private boolean sendHello;
 
+    private HashMap<String, ArrayList<byte[]>> seedInputs;
+    private HashMap<String, Integer> seedIters;
+
 	public SeedPackets(OFFactory f) {
 		factory = f;
 		reader = factory.getReader();
@@ -30,6 +36,9 @@ public class SeedPackets {
 
 		seedList = new ArrayList<SeedPacket>();
 		setSeedList();
+
+        seedInputs = new HashMap<String, ArrayList<byte[]>>();
+        seedIters = new HashMap<String, Integer>();
 	}
 
 	public void setSeedList() {
@@ -58,6 +67,24 @@ public class SeedPackets {
 	// seedList.get(type).add(payload);
 	// }
 	// }
+    public void saveSeedPacket(String switchMac, byte[] msg) {
+        if (!seedInputs.containsKey(switchMac)) {
+            seedInputs.put(switchMac, new ArrayList<byte[]>());
+            seedIters.put(switchMac, 0);
+        }
+        seedInputs.get(switchMac).add(msg);
+    }
+
+    public byte[] getNextSeedPacket(String switchMac) {
+        if (seedInputs.containsKey(switchMac)) {
+            int iter = seedIters.get(switchMac);
+            if (iter < seedInputs.get(switchMac).size()) {
+                seedIters.put(switchMac, iter + 1);
+                return seedInputs.get(switchMac).get(iter);
+            }
+        }
+        return null;
+    }
 
 	public boolean getSeedPkts(byte[] recv, int len) throws OFParseError {
 		// for OpenFlow Message

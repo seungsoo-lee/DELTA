@@ -58,6 +58,9 @@ public class PktListener {
 
     private SeedPackets seedPkts;
 
+    //private enum FuzzingMode { FUZZ_STOP, FUZZ_SEED, FUZZ_LIVE };
+    private int fuzzingMode = 0;
+
     public PktListener(NetworkInterface mydevice, String controllerip, String switchip, byte OFversion, String port,
                        String handler) {
         // set variable
@@ -165,12 +168,18 @@ public class PktListener {
         this.typeOfAttacks = typeOfAttacks;
     }
 
+    public void setFuzzingMode(int mode) {
+        this.fuzzingMode = mode;
+    }
+
     public boolean testSwitchIdentification() {
         testAdvanced.testSwitchIdentificationSpoofing(this.controllerIP, this.ofPort, this.ofversion);
         return true;
     }
 
     class middle_handler implements PacketReceiver {
+        private String dl_src;
+        private String dl_dst;
         private String dst_ip;
         private String src_ip;
 
@@ -272,6 +281,9 @@ public class PktListener {
             if (mine_mac.equals(incoming_src_mac)) {
                 return;
             }
+
+            this.dl_src = Utils.decalculate_mac(p_eth.src_mac);
+            this.dl_dst = Utils.decalculate_mac(p_eth.dst_mac);
 
             if (p_temp instanceof IPPacket) {
                 IPPacket p = ((IPPacket) p_temp);
@@ -393,6 +405,14 @@ public class PktListener {
                             } catch (OFParseError e) {
                                 // TODO Auto-generated catch block
                                 e.printStackTrace();
+                            }
+                        }
+                    } else if (typeOfAttacks == TestCase.SEED_BASED_FUZZING) {
+                        if (fuzzingMode == 1 && p_temp.data.length >= 8) {
+                            if (this.dst_ip.equals(switchIP)) {
+                                seedPkts.saveSeedPacket(this.dl_dst, p_temp.data);
+                            }else {
+                                seedPkts.saveSeedPacket(this.dl_src, p_temp.data);
                             }
                         }
                     }

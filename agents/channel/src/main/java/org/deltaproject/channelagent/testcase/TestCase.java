@@ -15,4 +15,6 @@ public class TestCase {
 
     public static final int CONTROLPLANE_FUZZING = 6;
     public static final int DATAPLANE_FUZZING = 7;
+
+    public static final int SEED_BASED_FUZZING = 8;
 }
