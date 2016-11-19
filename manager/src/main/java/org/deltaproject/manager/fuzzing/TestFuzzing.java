@@ -32,7 +32,8 @@ public class TestFuzzing {
 
     public void runRemoteAgents(boolean channel, boolean host) {
         log.info("Run channel/host agent..");
-        //channelm.runAgent();
+        channelm.runAgent();
+        hostm.runAgent();
         hostm.runFuzzingTopo();
 
         try {
@@ -103,23 +104,28 @@ public class TestFuzzing {
             controllerm.flushARPcache();
 
             switch (test.getcasenum()) {
-                case "0.0.010":
+                //case "0.0.010":
+                case "0.0.011":
                     log.info(test.getcasenum() + " - Control Plane Live Fuzzing Test - Finding unknown attack case for control plane");
                     break;
-                case "0.0.011":
+                //case "0.0.011":
+                case "0.0.010":
                     log.info(test.getcasenum() + " - Control Plane Seed-based Fuzzing Test - Finding unknown attack case for control plane");
                     break;
-                case "0.0.020":
+                //case "0.0.020":
+                case "0.0.021":
                     log.info(test.getcasenum() + " - Data Plane Live Fuzzing Test - Finding unknown attack case for data plane");
                     break;
-                case "0.0.021":
+                //case "0.0.021":
+                case "0.0.020":
                     log.info(test.getcasenum() + " - Data Plane Seed-based Fuzzing Test - Finding unknown attack case for data plane");
                     break;
             }
 
             initController();
 
-            if (test.getcasenum() == "0.0.010" || test.getcasenum() == "0.0.020") {
+            //if (test.getcasenum() == "0.0.010" || test.getcasenum() == "0.0.020") {
+            if (test.getcasenum() == "0.0.011" || test.getcasenum() == "0.0.021") {
 
                 channelm.write("getFuzzing");
                 String resultChannel = channelm.read();

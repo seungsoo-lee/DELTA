@@ -66,6 +66,7 @@ public class DummySwitch extends Thread {
 
     public void setSeed(SeedPackets seed) {
         seedpkts = seed;
+        System.out.println(" * * * PROGRAM REACHES TO THE END OF THE CURRENT IMPLEMENTATION  * * *");
     }
 
     public OFFactory getFactory() {
