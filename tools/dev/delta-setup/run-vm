@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+
+vboxmanage startvm vagrant_controller_1472547855253_370 --type headless
+vboxmanage startvm vagrant_channel_1472548027160_88516 --type headless
+vboxmanage startvm vagrant_mininet_1472548420313_30445 --type headless
+

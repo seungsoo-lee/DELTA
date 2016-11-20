@@ -32,7 +32,7 @@ public class TestFuzzing {
 
     public void runRemoteAgents(boolean channel, boolean host) {
         log.info("Run channel/host agent..");
-        //channelm.runAgent();
+        channelm.runAgent();
         hostm.runFuzzingTopo();
 
         try {
@@ -96,7 +96,9 @@ public class TestFuzzing {
 
         for (int i = 0; i < DEFAULT_COUNT; i++) {
             runRemoteAgents(true, true);
-
+            if(channelm == null) {
+                log.info("ca null");
+            }
             channelm.write(test.getcasenum());
             channelm.read();
 
