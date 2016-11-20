@@ -121,31 +121,33 @@ public class TestFuzzing {
             runRemoteAgents(true, true);
 
             /* STEP 1: get seed packets */
+            log.info("Channel-Agent starts to get seed packets");
             channelm.write(test.getcasenum());
             channelm.read();
 
-            controllerm.flushARPcache();
             initController();
 
             log.info("Host-Agent sends packets to others");
             String before = generateFlow("ping");
 
             try {
-                Thread.sleep(5000);    // 5 seconds
+                Thread.sleep(5000);                 // 5 seconds
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
             /* STEP 2: stop getting seed packets, replay seed packets */
+            log.info("Channel-Agent starts to replay seed packets with fuzzing");
             channelm.write("seedstop");
+
+            /* STEP 3: pick target OF msg */
             stopRemoteAgents(false, true);
 
             log.info("Host-Agent sends packets to others");
             String after = generateFlow("compare");
 
-            log.info("Agent-Manager retrieves the result from Channel-Agent");
-
+            log.info("Agent-Manager retrieves the msg from Channel-Agent");
             channelm.write("getFuzzing");
             String resultChannel = channelm.read();
 

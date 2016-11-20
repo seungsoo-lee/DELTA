@@ -307,6 +307,9 @@ public class AMInterface extends Thread {
                     pktListener.setTypeOfAttacks(TestCase.SEED_BASED_FUZZING);
                     pktListener.setFuzzingMode(1);
 
+                    pktListener.startListening();
+                    pktListener.startARPSpoofing();
+
                     dos.writeUTF("success");
                 } else if (recv.contains("seedstop")) {
                     pktListener.setFuzzingMode(0);

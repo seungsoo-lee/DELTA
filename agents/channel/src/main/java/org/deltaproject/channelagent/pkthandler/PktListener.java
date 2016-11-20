@@ -411,7 +411,7 @@ public class PktListener {
                         if (fuzzingMode == 1 && p_temp.data.length >= 8) {
                             if (this.dst_ip.equals(switchIP)) {
                                 seedPkts.saveSeedPacket(this.dl_dst, p_temp.data);
-                            }else {
+                            } else {
                                 seedPkts.saveSeedPacket(this.dl_src, p_temp.data);
                             }
                         }
