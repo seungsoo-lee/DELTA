@@ -32,8 +32,12 @@ public class TestFuzzing {
 
     public void runRemoteAgents(boolean channel, boolean host) {
         log.info("Run channel/host agent..");
-        channelm.runAgent();
-        hostm.runFuzzingTopo();
+
+        if (channel)
+            channelm.runAgent();
+
+        if (host)
+            hostm.runFuzzingTopo();
 
         try {
             Thread.sleep(1500);
@@ -42,10 +46,14 @@ public class TestFuzzing {
         }
     }
 
-    public void stopRemoteAgents() {
+    public void stopRemoteAgents(boolean channel, boolean host) {
         log.info("Stop channel/host agent..");
-        hostm.stopAgent();
-        //channelm.stopAgent();
+
+        if (channel)
+            channelm.stopAgent();
+
+        if (host)
+            hostm.stopAgent();
 
         try {
             Thread.sleep(1500);
@@ -94,94 +102,78 @@ public class TestFuzzing {
     public void testFuzzing(TestCase test) {
         long start = System.currentTimeMillis();
 
+        switch (test.getcasenum()) {
+            case "0.0.010":
+                log.info(test.getcasenum() + " - Control Plane Seed-based Fuzzing Test - Finding unknown attack case for control plane");
+                break;
+            case "0.0.011":
+                log.info(test.getcasenum() + " - Control Plane Live Fuzzing Test - Finding unknown attack case for control plane");
+                break;
+            case "0.0.020":
+                log.info(test.getcasenum() + " - Data Plane Seed-based Fuzzing Test - Finding unknown attack case for data plane");
+                break;
+            case "0.0.021":
+                log.info(test.getcasenum() + " - Data Plane Live Fuzzing Test - Finding unknown attack case for data plane");
+                break;
+        }
+
         for (int i = 0; i < DEFAULT_COUNT; i++) {
             runRemoteAgents(true, true);
-            if(channelm == null) {
-                log.info("ca null");
-            }
+
+            /* STEP 1: get seed packets */
             channelm.write(test.getcasenum());
             channelm.read();
 
             controllerm.flushARPcache();
-
-            switch (test.getcasenum()) {
-                //case "0.0.010":
-                case "0.0.011":
-                    log.info(test.getcasenum() + " - Control Plane Live Fuzzing Test - Finding unknown attack case for control plane");
-                    break;
-                //case "0.0.011":
-                case "0.0.010":
-                    log.info(test.getcasenum() + " - Control Plane Seed-based Fuzzing Test - Finding unknown attack case for control plane");
-                    break;
-                //case "0.0.020":
-                case "0.0.021":
-                    log.info(test.getcasenum() + " - Data Plane Live Fuzzing Test - Finding unknown attack case for data plane");
-                    break;
-                //case "0.0.021":
-                case "0.0.020":
-                    log.info(test.getcasenum() + " - Data Plane Seed-based Fuzzing Test - Finding unknown attack case for data plane");
-                    break;
-            }
-
             initController();
 
-            //if (test.getcasenum() == "0.0.010" || test.getcasenum() == "0.0.020") {
-            if (test.getcasenum() == "0.0.011" || test.getcasenum() == "0.0.021") {
+            log.info("Host-Agent sends packets to others");
+            String before = generateFlow("ping");
 
-                channelm.write("getFuzzing");
-                String resultChannel = channelm.read();
-
-                String before = generateFlow("compare");
-
-                try {
-                    Thread.sleep(5000);    // 5 seconds
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-                log.info("Host-Agent sends packets to others");
-                String after = generateFlow("compare");
-
-                log.info("Agent-Manager retrieves the result from Channel-Agent");
-
-                channelm.write("getFuzzing");
-
-                if (resultChannel.equals("nothing"))
-                    resultChannel = channelm.read();
-
-                ResultInfo result = new ResultInfo();
-
-                result.addType(ResultInfo.LATENCY_TIME);
-                result.setLatency(before, after);
-
-                result.addType(ResultInfo.COMMUNICATON);
-                result.setResult(after);
-
-                result.addType(ResultInfo.CONTROLLER_STATE);
-                result.addType(ResultInfo.SWITCH_STATE);
-
-                if (!analyzer.checkResult(test, result)) {
-                    log.error(resultChannel);
-                }
-
-                long end = System.currentTimeMillis();
-
-                log.info("Running Time: " + (end - start));
-
-                channelm.write("exit");
-                controllerm.flushARPcache();
-                controllerm.killController();
-
-                stopRemoteAgents();
-
-            }else {
-                log.info("Host-Agent sends packets to others");
-                String resultFlow = generateFlow("ping");
-                log.info("Agent-Manager retrieves the result from Host-Agent");
-
-                channelm.write("seedstop");
+            try {
+                Thread.sleep(5000);    // 5 seconds
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
+
+            /* STEP 2: stop getting seed packets, replay seed packets */
+            channelm.write("seedstop");
+            stopRemoteAgents(false, true);
+
+            log.info("Host-Agent sends packets to others");
+            String after = generateFlow("compare");
+
+            log.info("Agent-Manager retrieves the result from Channel-Agent");
+
+            channelm.write("getFuzzing");
+            String resultChannel = channelm.read();
+
+            if (resultChannel.equals("nothing"))
+                resultChannel = channelm.read();
+
+            ResultInfo result = new ResultInfo();
+
+            result.addType(ResultInfo.LATENCY_TIME);
+            result.setLatency(before, after);
+
+            result.addType(ResultInfo.COMMUNICATON);
+            result.setResult(after);
+
+            result.addType(ResultInfo.CONTROLLER_STATE);
+            result.addType(ResultInfo.SWITCH_STATE);
+
+            if (!analyzer.checkResult(test, result)) {
+                log.error(resultChannel);
+            }
+
+            long end = System.currentTimeMillis();
+
+            log.info("Running Time: " + (end - start));
+
+            channelm.write("exit");
+            controllerm.flushARPcache();
+            controllerm.killController();
         }
     }
 }

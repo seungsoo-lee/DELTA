@@ -372,7 +372,7 @@ public class PktListener {
                             // }
                         }
                     } else if (typeOfAttacks == TestCase.CONTROLPLANE_FUZZING) {
-                /* Switch -> Controller */
+                        /* Switch -> Controller */
                         if (p_temp.data.length > 8) {
                             try {
                                 if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
@@ -390,7 +390,7 @@ public class PktListener {
                             }
                         }
                     } else if (typeOfAttacks == TestCase.DATAPLANE_FUZZING) {
-                /* Controller -> Switch */
+                        /* Controller -> Switch */
                         if (p_temp.data.length > 8) {
                             try {
                                 if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {

@@ -289,9 +289,7 @@ public class AMInterface extends Thread {
                         String res = testController.testTLSSupport(recv);
                         dos.writeUTF(res);
                     }
-                //} else if (recv.contains("0.0.010") || recv.contains("0.0.020")) {
                 } else if (recv.contains("0.0.011") || recv.contains("0.0.021")) {
-                    //if (recv.contains("0.0.010")) {
                     if (recv.contains("0.0.011")) {
                         log.info("Control plane fuzzing test start");
                         pktListener.setTypeOfAttacks(TestCase.CONTROLPLANE_FUZZING);
@@ -304,7 +302,6 @@ public class AMInterface extends Thread {
                     pktListener.startARPSpoofing();
 
                     dos.writeUTF("success");
-                //} else if (recv.contains("0.0.011") || recv.contains("0.0.021")) {
                 } else if (recv.contains("0.0.010") || recv.contains("0.0.020")) {
                     log.info("Seed-based fuzzing test start");
                     pktListener.setTypeOfAttacks(TestCase.SEED_BASED_FUZZING);
