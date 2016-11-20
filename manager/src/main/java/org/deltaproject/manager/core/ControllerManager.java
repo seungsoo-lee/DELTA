@@ -268,7 +268,7 @@ public class ControllerManager {
 
                 stdOut.close();
 
-                if (switchCnt == cnt) {
+                if (switchCnt <= cnt) {
                     break;
                 }
 

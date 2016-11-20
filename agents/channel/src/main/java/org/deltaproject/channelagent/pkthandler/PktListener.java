@@ -357,14 +357,14 @@ public class PktListener {
                         }
                     } else if (typeOfAttacks == TestCase.CONTROLMESSAGEMANIPULATION) {
                         System.out.println("\n[ATTACK] Control Message Manipulation");
-                /* Modify a Packet Here */
+                    /* Modify a Packet Here */
                         if (this.dst_ip.equals(controllerIP)) {
                             (p.data)[2] = 0x77;
                             (p.data)[3] = 0x77;
                         }
                     } else if (typeOfAttacks == TestCase.MALFORMEDCONTROLMESSAGE) {
                         System.out.println("\n[ATTACK] Malformed Control Message");
-                /* Modify a Packet Here */
+                    /* Modify a Packet Here */
                         if (this.dst_ip.equals(switchIP)) {
                             // if ( (p.data)[1] != 0x0a ) {
                             (p.data)[2] = 0x00;

@@ -1,20 +1,16 @@
 package org.deltaproject.channelagent.fuzzing;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import jpcap.packet.Packet;
 import org.deltaproject.channelagent.dummy.DummySwitch;
 import org.deltaproject.channelagent.utils.Utils;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.*;
-import org.projectfloodlight.openflow.protocol.action.OFAction;
-import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
-import org.projectfloodlight.openflow.types.OFPort;
 import org.projectfloodlight.openflow.types.U16;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -75,7 +71,7 @@ public class TestFuzzing {
         boolean isFuzzed = false;
 
         targetType = OFFuzzer.toControlMsg[random.nextInt(toControlMsgLen)];
-        targetType = OFType.PACKET_IN;
+        targetType = OFType.PORT_STATUS;
 
         while (offset < totalLen) {
             bb.readerIndex(offset);
@@ -105,10 +101,17 @@ public class TestFuzzing {
 
                     byte[] msgBody = new byte[length - HEADER_LEN];
                     System.arraycopy(msg, HEADER_LEN, msgBody, 0, length - HEADER_LEN);
-                    random.nextBytes(msgBody);
+
+                    msgBody[0] = (byte) 0x03;
+                    //random.nextBytes(msgBody);
                     System.arraycopy(msgBody, 0, msg, HEADER_LEN, length - HEADER_LEN);
 
-                    modifiedMsg = message.toString() + " -> " + Utils.bytesToHex(msgBody);
+                    ByteBuf newbb = Unpooled.copiedBuffer(bb);
+                    newbb.readerIndex(0);
+                    OFMessage newmsg = reader.readFrom(newbb);
+
+//                    modifiedMsg = message.toString() + " -> " + Utils.bytesToHex(msgBody);
+                    modifiedMsg = message.toString() + " -> " + "reason=0x03 (Unknown)";
                 }
 
                 System.arraycopy(msg, 0, newbytes, offset, length);

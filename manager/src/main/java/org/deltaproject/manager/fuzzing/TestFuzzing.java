@@ -143,17 +143,23 @@ public class TestFuzzing {
 
             /* STEP 3: pick target OF msg */
             stopRemoteAgents(false, true);
+            runRemoteAgents(false, true);
 
-            log.info("Host-Agent sends packets to others");
+            try {
+                Thread.sleep(5000);                 // 5 seconds
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            //log.info("Host-Agent sends packets to others again");
             String after = generateFlow("compare");
 
             log.info("Agent-Manager retrieves the msg from Channel-Agent");
-            channelm.write("getFuzzing");
+            channelm.write("getmsg");
             String resultChannel = channelm.read();
 
-            if (resultChannel.equals("nothing"))
-                resultChannel = channelm.read();
-
+            log.info("Agent-Manager checks the result of the tese case");
             ResultInfo result = new ResultInfo();
 
             result.addType(ResultInfo.LATENCY_TIME);
@@ -173,7 +179,7 @@ public class TestFuzzing {
 
             log.info("Running Time: " + (end - start));
 
-            channelm.write("exit");
+            stopRemoteAgents(true, true);
             controllerm.flushARPcache();
             controllerm.killController();
         }
