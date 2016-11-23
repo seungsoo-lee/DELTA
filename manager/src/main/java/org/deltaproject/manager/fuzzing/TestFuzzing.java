@@ -146,7 +146,7 @@ public class TestFuzzing {
             runRemoteAgents(false, true);
 
             try {
-                Thread.sleep(5000);                 // 5 seconds
+                Thread.sleep(2000);                 // 5 seconds
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -158,6 +158,7 @@ public class TestFuzzing {
             log.info("Agent-Manager retrieves the msg from Channel-Agent");
             channelm.write("getmsg");
             String resultChannel = channelm.read();
+            log.info(resultChannel);
 
             log.info("Agent-Manager checks the result of the tese case");
             ResultInfo result = new ResultInfo();
@@ -172,7 +173,7 @@ public class TestFuzzing {
             result.addType(ResultInfo.SWITCH_STATE);
 
             if (!analyzer.checkResult(test, result)) {
-                log.error(resultChannel);
+                //log.error(resultChannel);
             }
 
             long end = System.currentTimeMillis();

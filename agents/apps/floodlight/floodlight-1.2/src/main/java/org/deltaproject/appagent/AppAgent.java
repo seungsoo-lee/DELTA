@@ -192,8 +192,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         floodlightProvider.addOFMessageListener(OFType.SET_CONFIG, this);
         floodlightProvider.addOFMessageListener(OFType.STATS_REPLY, this);
         floodlightProvider.addOFMessageListener(OFType.STATS_REQUEST, this);
-
-        // testSwappingList();
     }
 
     @Override

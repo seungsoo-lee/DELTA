@@ -111,7 +111,7 @@ public class TestFuzzing {
                     OFMessage newmsg = reader.readFrom(newbb);
 
 //                    modifiedMsg = message.toString() + " -> " + Utils.bytesToHex(msgBody);
-                    modifiedMsg = message.toString() + " -> " + "reason=0x03 (Unknown)";
+                    modifiedMsg = message.toString() + " -> " + " reason=0x03 (unknown)";
                 }
 
                 System.arraycopy(msg, 0, newbytes, offset, length);
