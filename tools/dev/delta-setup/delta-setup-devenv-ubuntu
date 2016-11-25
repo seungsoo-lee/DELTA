@@ -11,7 +11,7 @@ sudo apt-get install software-properties-common -y
 sudo add-apt-repository ppa:webupd8team/java -y
 sudo apt-get update && sudo apt-get install oracle-java7-installer oracle-java7-set-default -y
 sudo apt-get install oracle-java8-installer oracle-java8-set-default -y
-sudo apt-get install ant git wget -y
+sudo apt-get install unzip ant git wget -y
 
 
 # install maven

@@ -6,4 +6,3 @@
 scp $DELTA_ROOT/agents/apps/onos/onos-1.6/target/delta-agent-app-onos-1.6-1.0-SNAPSHOT.jar vagrant@10.100.100.11:/home/vagrant
 scp $DELTA_ROOT/tools/dev/onos-setup/onos-1.6.0-setup vagrant@10.100.100.11:/home/vagrant
 scp $DELTA_ROOT/tools/dev/onos-setup/onos-1.6.0-bash-profile vagrant@10.100.100.11:/home/vagrant
-scp $DELTA_ROOT/tools/dev/onos-setup/onos-1.6.0-service vagrant@10.100.100.11:/home/vagrant

@@ -3,7 +3,7 @@
 # Script to onos-1.1.0 dependencies on Ubuntu 14.04
 #
 
-# set the source code
+# get ONOS 
 sudo apt-get install unzip -y
 cd ;
 wget http://downloads.onosproject.org/release/onos-1.6.0.zip
@@ -12,4 +12,3 @@ rm onos-1.6.0.zip
 
 # copy delta app agent
 cp ~/delta-agent-app-onos-1.6-1.0-SNAPSHOT.jar ~/onos-1.6.0/apache-karaf-3.0.5/deploy/
-cp ~/onos-1.6.0-service ~/onos-1.6.0/bin/onos-service
