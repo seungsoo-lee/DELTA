@@ -66,7 +66,7 @@ $ vagrant up
 
 
 + In the case of all-in-one single machine, the test environment is automatically setup as below:
-![Env1](http://143.248.53.145/research/env.png)
+![Env1](http://143.248.53.145/research/env_v1.png)
 
 
 ## Configuring your own experiments
