@@ -867,7 +867,7 @@ public class TestAdvancedCase {
     }
 
     /*
-     * 3.1.170 - Evaesdrop
+     * 3.1.170 - Eavesdrop
      */
     public boolean testEvaseDrop(TestCase test) {
         controllerm.flushARPcache();

@@ -836,7 +836,6 @@ public class TestSwitchCase {
      */
     public void testHandshakeWithoutHello(TestCase test) throws InterruptedException {
         log.info(test.getcasenum() + " - Handshake without Hello Message - Test for switch protection against incomplete control connection left open");
-
         setUpDummyController(TestSwitchCase.NO_HANDSHAKE);
         log.info("The hello message is not exchanged within the specified default timeout");
 

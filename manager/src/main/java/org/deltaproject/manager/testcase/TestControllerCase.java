@@ -185,7 +185,8 @@ public class TestControllerCase {
      */
     public void testHandShakeWithoutHello(TestCase test) {
         String info = test.getcasenum() + " - Handshake without Hello Message - Test for controller protection against incomplete control connection left open";
-        log.info(info);
+        
+	log.info(info);
 
         initController();
         chm.write("startsw|nohello");
@@ -289,7 +290,7 @@ public class TestControllerCase {
 
     /*
      * 2.1.060 - Un-flagged Flow Remove Message Notification
-     * Check if the controller accepts multiple main connections from the same switch.
+     * Check if the controller accepts a flow remove message notification without requesting the delete event.
      */
     public void testUnFlaggedFlowRemoveMsgNotification(TestCase test) throws InterruptedException {
         String info = test.getcasenum() + " - Un-flagged Flow Remove Message Notification - Test for controller protection against unacknowledged manipulation of the network";
