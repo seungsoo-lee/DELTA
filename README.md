@@ -17,12 +17,12 @@ In order to build and run DELTA the following are required:
  + VM-1: Target controller + Application agent
  + VM-2: Channel agent
  + VM-3: Host agent
-+ Target Controller (in VM-1)
++ Target Controller
  + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
  + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6
  + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
-+ [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (in VM-2)
-+ [Mininet 2.1+](http://mininet.org/download/) (in VM-3)
++ [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (for channel agent)
++ [Mininet 2.1+](http://mininet.org/download/) (for host agent)
 + Ant build system
 + Maven build system
 + Vagrant system
@@ -70,13 +70,13 @@ $ vagrant up
 
 
 ## Configuring your own experiments
-+ Execute sudo without Password
++ Execute sudo without the password
 ```
 $ sudo visudo
 In the bottom of the file, type the follow:
 username ALL=(ALL) NOPASSWD: ALL
 ```
-+ Configure passwd-less ssh login for the VMs.
++ Configure passwd-less ssh login for the agents
 
 ```
 $ cd ~
