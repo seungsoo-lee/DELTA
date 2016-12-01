@@ -116,7 +116,7 @@ DUMMY_CONT_PORT=6633
 AM_IP=10.0.2.2
 AM_PORT=3366
 ```
-+ Configuring Tagret Controllers to VM-1
++ Configuring each tagret controller on the controller machine (if All-In-One Single Machine, VM-1)
 + 1) Floodlight
 ```
 $ cd <DELTA>/tools/dev/floodlight-setup
@@ -126,15 +126,15 @@ $ ./floodlight-scp
 ```
 $ cd <DELTA>/tools/dev/onos-setup
 $ ./onos-<version>-scp
-(in VM-1) $ ./onos-<version>-setup
+(on the controller machine) $ ./onos-<version>-setup
 ```
 + 3) OpenDaylight: (only JDK 1.7-supported)
 ```
 $ cd <DELTA>/tools/dev/odl-setup
 $ ./odl-helium-sr3-scp
-(in VM-1) $ ./odl-helium-sr3-scp
+(on the controller machine) $ ./odl-helium-sr3-scp
 ```
-+ The AppAgent (in VM-1) needs agent.cfg file in order to connect to agent-manager.
++ The app-agent (on the controller machine) needs 'agent.cfg' file to connect to the agent-manager.
 ```
 MANAGER_IP=10.0.2.2
 MANAGER_PORT=3366
