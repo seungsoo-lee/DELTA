@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Script to onos-1.1.0 dependencies on Ubuntu 14.04
+# Script to odl-helium dependencies on Ubuntu 14.04
 #
 
 export MAVEN=${MAVEN:-~/Applications/apache-maven-3.3.9}
