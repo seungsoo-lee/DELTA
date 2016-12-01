@@ -81,6 +81,7 @@ username ALL=(ALL) NOPASSWD: ALL
 ```
 $ cd ~
 $ ssh-keygen -t rsa
+$ 
 
 Generating public/private rsa key pair.
 Enter file in which to save the key (/home/sk/.ssh/id_rsa): ## Press Enter
@@ -103,9 +104,9 @@ The key's randomart image is:
 |            .o.. |
 +-----------------+
 
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.11
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.12
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.13
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_APP
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CHANNEL
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_HOST
 
 Check if you will be able to access the VMs without having to enter the password.
 ```
