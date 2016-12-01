@@ -64,15 +64,9 @@ $ vagrant up
 + STEP 4-b. (All-In-One Single Machine) Add NAT to VM3 (mininet)
 ![NAT](http://143.248.53.145/research/nat1.png)
 
-<<<<<<< HEAD
-
 + In the case of all-in-one single machine, the test environment is automatically setup as below:
 ![Env1](http://143.248.53.145/research/env_v1.png)
 
-=======
-+ After installing DELTA, the test environment is automatically setup as below:
-![Env](http://143.248.53.145/research/env.png)
->>>>>>> master
 
 ## Configuring your own experiments
 + Execute sudo without the password
@@ -121,12 +115,7 @@ DUMMY_CONT_PORT=6633
 AM_IP=10.0.2.2
 AM_PORT=3366
 ```
-<<<<<<< HEAD
 + Configuring each tagret controller on the controller machine (if All-In-One Single Machine, VM-1)
-=======
-
-+ Configuring Target Controllers to VM-1
->>>>>>> master
 + 1) Floodlight
 ```
 $ cd <DELTA>/tools/dev/floodlight-setup
@@ -191,10 +180,6 @@ Command>_
 + Kyuho Hwang, Daewon Jung (National Security Research Institute)
 + [Atto Research](http://www.atto-research.com/index.php/en/home/)
 + ![collabo](http://143.248.53.145/research/collabo2.png)
-<<<<<<< HEAD
-=======
-
->>>>>>> master
 
 ## Questions?
 Send questions or feedback to: lss365@kaist.ac.kr or chyoon87@kaist.ac.kr
