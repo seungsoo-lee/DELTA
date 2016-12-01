@@ -79,31 +79,16 @@ username ALL=(ALL) NOPASSWD: ALL
 + Configure passwd-less ssh login for the agents
 
 ```
+$ vi <DELTA>/tools/dev/delta-setup/bash_profile
+(by default, the addresses are set as vms)
+export DELTA_APP=vagrant@10.100.100.11
+export DELTA_CHANNEL=vagrant@10.100.100.12
+export DELTA_HOST=vagrant@10.100.100.13
+$ source <DELTA>/tools/dev/delta-setup/bash_profile
+
 $ cd ~
 $ ssh-keygen -t rsa
-$ 
-
-Generating public/private rsa key pair.
-Enter file in which to save the key (/home/sk/.ssh/id_rsa): ## Press Enter
-Enter passphrase (empty for no passphrase): ## Enter Passphrase 
-Enter same passphrase again: ## Re-enter Passphrase
-Your identification has been saved in /home/sk/.ssh/id_rsa.
-Your public key has been saved in /home/sk/.ssh/id_rsa.pub.
-The key fingerprint is:
-e4:6d:fc:7b:6b:d4:0c:04:72:7e:ae:c4:16:f3:13:d1 sk@sk
-The key's randomart image is:
-+--[ RSA 2048]----+
-|          . o... |
-|           +  ..E|
-|        .   +.o  |
-|       o o . *.. |
-|        S + + ++ |
-|         . + ...o|
-|            o.   |
-|             .o  |
-|            .o.. |
-+-----------------+
-
+(Press enter)
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_APP
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CHANNEL
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_HOST
@@ -113,7 +98,7 @@ Check if you will be able to access the VMs without having to enter the password
 
 + The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. [DELTA_ROOT]/tools/config/manager.cfg contains sample configurations. You can specify your own config file by passing its path:
 ```
-ONTROLLER_SSH=vagrant@10.100.100.11
+CONTROLLER_SSH=vagrant@10.100.100.11
 CHANNEL_SSH=vagrant@10.100.100.12
 HOST_SSH=vagrant@10.100.100.13
 TARGET_HOST=10.0.0.2
