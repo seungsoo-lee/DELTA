@@ -11,46 +11,40 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 ![Delta architecture](http://143.248.53.145/research/arch.png)
 
 ## Prerequisites
-In order to build and run DELTA, the following are required:
-+ A host machine based on Ubuntu 14.04 LTS 64 bit (agent manager)
-+ Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
- + VM-1: Target controller + Application agent
- + VM-2: Channel agent
- + VM-3: Host agent
-+ Target Controller (in VM-1)
+In order to build and run DELTA the following are required:
++ An agent manager based on Ubuntu 14.04 LTS 64 bit
+ + Ant build system
+ + Maven build system
+ + Vagrant system
+ + JDK 1.7 and 1.8
++ Target Controller (for application agent)
  + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
  + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6
  + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
-+ [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (in VM-2)
-+ [Mininet 2.1+](http://mininet.org/download/) (in VM-3)
-+ Ant build system
-+ Maven build system
-+ Vagrant system
-+ JDK 1.7+
++ [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (for channel agent)
++ [Mininet 2.1+](http://mininet.org/download/) (for host agent)
++ (in the case of All-In-One Single Machine) Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
+ + VM-1: Target controller + Application agent
+ + VM-2: Channel agent
+ + VM-3: Host agent
 
 ## Installing DELTA
-DELTA installation depends on maven and ant build systems. The mvn command is used to install the agent-manager and the sub-agents.
+DELTA installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the agents. Also, DELTA can support All-In-One Single Machine environment via virtual machines as well as real hardware SDN environment.
 
-+ STEP 0. Get the source
++ STEP 1. Get the source code of DELTA on the agent manager machine
+
 ```
 $ git clone https://github.com/OpenNetworkingFoundation/DELTA.git
 ```
 
-+ STEP 1. Install DELTA dependencies on the host machine.
++ STEP 2. Install DELTA dependencies
 
 ```
 $ cd <DELTA>/tools/dev/delta-setup/
 $ ./delta-setup-devenv-ubuntu
 ```
 
-+ STEP 2. Install 3 virtual machines using the vagrant system.
-
-```
-$ cd <DELTA>/tools/dev/vagrant/
-$ vagrant up
-```
-
-+ STEP 3. Install DELTA using maven build.
++ STEP 3. Install DELTA using maven build
 
 ```
 $ cd <DELTA>
@@ -58,56 +52,53 @@ $ source ./tools/dev/delta-setup/bash_profile
 $ mvn clean install
 ```
 
-+ STEP 4. Add NAT to VM3 (mininet)
++ STEP 4-a. (All-In-One Single Machine) Install three virtual machines using vagrant system
+
+```
+$ cd <DELTA>/tools/dev/delta-setup/
+$ ./delta-setup-vms-ubuntu
+$ cd vagrant/
+$ vagrant up
+```
+
++ STEP 4-b. (All-In-One Single Machine) Add NAT to VM3 (mininet)
 ![NAT](http://143.248.53.145/research/nat1.png)
 
-+ After installing DELTA, the test environment is automatically setup as below,
-![Env](http://143.248.53.145/research/env.png)
+
++ In the case of all-in-one single machine, the test environment is automatically setup as below:
+![Env1](http://143.248.53.145/research/env_v1.png)
+
 
 ## Configuring your own experiments
-+ Execute sudo without Password
++ Execute sudo without the password
 ```
 $ sudo visudo
 In the bottom of the file, type the follow:
 username ALL=(ALL) NOPASSWD: ALL
 ```
-+ Configure passwd-less ssh login for the VMs.
++ Configure passwd-less ssh login for the agents
 
 ```
+$ vi <DELTA>/tools/dev/delta-setup/bash_profile
+(by default, the addresses are set as vms)
+export DELTA_APP=vagrant@10.100.100.11
+export DELTA_CHANNEL=vagrant@10.100.100.12
+export DELTA_HOST=vagrant@10.100.100.13
+$ source <DELTA>/tools/dev/delta-setup/bash_profile
+
 $ cd ~
 $ ssh-keygen -t rsa
-
-Generating public/private rsa key pair.
-Enter file in which to save the key (/home/sk/.ssh/id_rsa): ## Press Enter
-Enter passphrase (empty for no passphrase): ## Enter Passphrase 
-Enter same passphrase again: ## Re-enter Passphrase
-Your identification has been saved in /home/sk/.ssh/id_rsa.
-Your public key has been saved in /home/sk/.ssh/id_rsa.pub.
-The key fingerprint is:
-e4:6d:fc:7b:6b:d4:0c:04:72:7e:ae:c4:16:f3:13:d1 sk@sk
-The key's randomart image is:
-+--[ RSA 2048]----+
-|          . o... |
-|           +  ..E|
-|        .   +.o  |
-|       o o . *.. |
-|        S + + ++ |
-|         . + ...o|
-|            o.   |
-|             .o  |
-|            .o.. |
-+-----------------+
-
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.11
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.12
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub vagrant@10.100.100.13
+(Press enter)
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_APP
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CHANNEL
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_HOST
 
 Check if you will be able to access the VMs without having to enter the password.
 ```
 
-+ The Agent-Manager automatically reads your configuration file and sets up the environment based on the configuration file settings. [DELTA_ROOT]/tools/config/manager.cfg contains sample configurations. You can specify your own config file by passing its path:
++ The agent-manager automatically reads a configuration file and sets up the test environment based on the file. DELTA/tools/config/manager.cfg contains All-In-One Single Machine configurations by default. If you want to test real SDN environment, you should specify your own configiguration file.
 ```
-ONTROLLER_SSH=vagrant@10.100.100.11
+CONTROLLER_SSH=vagrant@10.100.100.11
 CHANNEL_SSH=vagrant@10.100.100.12
 HOST_SSH=vagrant@10.100.100.13
 TARGET_HOST=10.0.0.2
@@ -125,8 +116,7 @@ DUMMY_CONT_PORT=6633
 AM_IP=10.0.2.2
 AM_PORT=3366
 ```
-
-+ Configuring Tagret Controllers to VM-1
++ Configuring each tagret controller on the controller machine (if All-In-One Single Machine, VM-1)
 + 1) Floodlight
 ```
 $ cd <DELTA>/tools/dev/floodlight-setup
@@ -136,15 +126,15 @@ $ ./floodlight-scp
 ```
 $ cd <DELTA>/tools/dev/onos-setup
 $ ./onos-<version>-scp
-(in VM-1) $ ./onos-<version>-setup
+(on the controller machine) $ ./onos-<version>-setup
 ```
 + 3) OpenDaylight: (only JDK 1.7-supported)
 ```
 $ cd <DELTA>/tools/dev/odl-setup
 $ ./odl-helium-sr3-scp
-(in VM-1) $ ./odl-helium-sr3-scp
+(on the controller machine) $ ./odl-helium-sr3-scp
 ```
-+ The AppAgent (in VM-1) needs agent.cfg file in order to connect to agent-manager.
++ The app-agent (on the controller machine) needs 'agent.cfg' file to connect to the agent-manager.
 ```
 MANAGER_IP=10.0.2.2
 MANAGER_PORT=3366
@@ -156,7 +146,7 @@ MANAGER_PORT=3366
 ```
 $ cd <DELTA>
 $ source ./tools/dev/delta-setup/bash_profile
-$ scp ./tools/dev/delta-setup/delta-agents-scp
+$ ./tools/dev/delta-setup/delta-agents-scp
 ```
 
 
@@ -177,8 +167,9 @@ Command>_
 ```
 
 + STEP 3. Connect Web-based UI (port number is 7070)
+![WEB](http://143.248.53.145/research/webui3.png)
 
-<<<<<<< HEAD
+
 ## Main Contributors
 + Seungsoo Lee (KAIST)
 + Changhoon Yoon (KAIST)
@@ -190,10 +181,6 @@ Command>_
 + Kyuho Hwang, Daewon Jung (National Security Research Institute)
 + [Atto Research](http://www.atto-research.com/index.php/en/home/)
 + ![collabo](http://143.248.53.145/research/collabo2.png)
-=======
-![web](http://143.248.53.145/research/webui3.png)
->>>>>>> master
-
 
 ## Questions?
 Send questions or feedback to: lss365@kaist.ac.kr or chyoon87@kaist.ac.kr
