@@ -64,8 +64,10 @@ $ vagrant up
 + STEP 4-b. (All-In-One Single Machine) Add NAT to VM3 (mininet)
 ![NAT](http://143.248.53.145/research/nat1.png)
 
-+ After installing DELTA, the test environment is automatically setup as below,
+
++ In the case of All-In-One Single Machine, the test environment is automatically setup as below:
 ![Env](http://143.248.53.145/research/env.png)
+
 
 ## Configuring your own experiments
 + Execute sudo without Password
