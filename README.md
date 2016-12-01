@@ -65,7 +65,7 @@ $ vagrant up
 ![NAT](http://143.248.53.145/research/nat1.png)
 
 
-+ In the case of All-In-One Single Machine, the test environment is automatically setup as below:
++ In the case of all-in-one single machine, the test environment is automatically setup as below:
 ![Env](http://143.248.53.145/research/env.png)
 
 
