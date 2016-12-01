@@ -13,7 +13,7 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 ## Prerequisites
 In order to build and run DELTA the following are required:
 + A host machine based on Ubuntu 14.04 LTS 64 bit (agent manager)
-+ Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
++ (All-In-One Single Machine) Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
  + VM-1: Target controller + Application agent
  + VM-2: Channel agent
  + VM-3: Host agent
@@ -146,7 +146,7 @@ MANAGER_PORT=3366
 ```
 $ cd <DELTA>
 $ source ./tools/dev/delta-setup/bash_profile
-$ scp ./tools/dev/delta-setup/delta-agents-scp
+$ ./tools/dev/delta-setup/delta-agents-scp
 ```
 
 
