@@ -26,28 +26,22 @@ In order to build and run DELTA the following are required:
 + Ant build system
 + Maven build system
 + Vagrant system
-+ JDK 1.7+
++ JDK 1.7 and 1.8
 
 ## Installing DELTA
 DELTA installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the sub-agents.
 
-+ STEP 0. Get the source
++ STEP 1. Get the source
+
 ```
 $ git clone https://github.com/OpenNetworkingFoundation/DELTA.git
 ```
 
-+ STEP 1. Install DELTA dependencies on the host machine.
++ STEP 2. Install DELTA dependencies on the host machine.
 
 ```
 $ cd <DELTA>/tools/dev/delta-setup/
 $ ./delta-setup-devenv-ubuntu
-```
-
-+ STEP 2. Install 3 virtual machines using vagrant system.
-
-```
-$ cd <DELTA>/tools/dev/delta-setup/vagrant/
-$ vagrant up
 ```
 
 + STEP 3. Install DELTA using maven build.
@@ -58,7 +52,16 @@ $ source ./tools/dev/delta-setup/bash_profile
 $ mvn clean install
 ```
 
-+ STEP 4. Add NAT to VM3 (mininet)
++ STEP 4-a. (All-In-One Single Machine) Install three virtual machines using vagrant system. 
+
+```
+$ cd <DELTA>/tools/dev/delta-setup/
+$ ./delta-setup-vms-ubuntu
+$ cd vagrant/
+$ vagrant up
+```
+
++ STEP 4-b. (All-In-One Single Machine) Add NAT to VM3 (mininet)
 ![NAT](http://143.248.53.145/research/nat1.png)
 
 + After installing DELTA, the test environment is automatically setup as below,
