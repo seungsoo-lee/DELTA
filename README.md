@@ -31,20 +31,20 @@ In order to build and run DELTA the following are required:
 ## Installing DELTA
 DELTA installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the agents. Also, DELTA can support All-In-One Single Machine environment via virtual machines as well as real hardware SDN environment.
 
-+ STEP 1. Get the source
++ STEP 1. Get the source code of DELTA on the agent manager machine
 
 ```
 $ git clone https://github.com/OpenNetworkingFoundation/DELTA.git
 ```
 
-+ STEP 2. Install DELTA dependencies on the host machine.
++ STEP 2. Install DELTA dependencies
 
 ```
 $ cd <DELTA>/tools/dev/delta-setup/
 $ ./delta-setup-devenv-ubuntu
 ```
 
-+ STEP 3. Install DELTA using maven build.
++ STEP 3. Install DELTA using maven build
 
 ```
 $ cd <DELTA>
@@ -52,7 +52,7 @@ $ source ./tools/dev/delta-setup/bash_profile
 $ mvn clean install
 ```
 
-+ STEP 4-a. (All-In-One Single Machine) Install three virtual machines using vagrant system. 
++ STEP 4-a. (All-In-One Single Machine) Install three virtual machines using vagrant system
 
 ```
 $ cd <DELTA>/tools/dev/delta-setup/
