@@ -96,7 +96,7 @@ $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_HOST
 Check if you will be able to access the VMs without having to enter the password.
 ```
 
-+ The agent-manager automatically reads a configuration file and sets up the test environment based on the file. <DELTA>/tools/config/manager.cfg contains All-In-One Single Machine configurations by default. If you want to test real SDN environment, you should specify your own config file by passing its path:
++ The agent-manager automatically reads a configuration file and sets up the test environment based on the file./<DELTA/>/tools/config/manager.cfg contains All-In-One Single Machine configurations by default. If you want to test real SDN environment, you should specify your own configiguration file.
 ```
 CONTROLLER_SSH=vagrant@10.100.100.11
 CHANNEL_SSH=vagrant@10.100.100.12
