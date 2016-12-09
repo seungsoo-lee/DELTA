@@ -26,8 +26,6 @@ import org.openflow.protocol.statistics.OFFlowStatisticsRequest;
 import org.openflow.protocol.statistics.OFStatistics;
 import org.openflow.protocol.statistics.OFStatisticsType;
 import org.openflow.util.HexString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.Future;
@@ -81,8 +79,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         }
     }
 
-    protected static Logger logger;
-
     private short FLOWMOD_DEFAULT_IDLE_TIMEOUT = (short) 0;
     private short FLOWMOD_DEFAULT_HARD_TIMEOUT = (short) 0;
 
@@ -96,7 +92,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
     protected OFFlowMod benign_flow;
     protected short benign_inport;
 
-    // for S3
+    // for DELTA
     private boolean isDrop;
     private OFPacketIn droppedPacket;
     private boolean isLoop;
@@ -106,6 +102,9 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
 
     private IStaticFlowEntryPusherService fservice;
     private AMInterface cm;
+
+    private int cntSwitch;
+    private int cntLink;
 
     public String getName() {
         // TODO Auto-generated method stub
@@ -153,7 +152,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         topoManager = context.getServiceImpl(TopologyManager.class);
         mt = context.getServiceImpl(MemoryStorageSource.class);
         floodlightProvider = context.getServiceImpl(IFloodlightProviderService.class);
-        logger = LoggerFactory.getLogger(AppAgent.class);
         dservice = context.getServiceImpl(IDeviceService.class);
         fservice = context.getServiceImpl(IStaticFlowEntryPusherService.class);
 
@@ -189,7 +187,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         floodlightProvider.addOFMessageListener(OFType.STATS_REPLY, this);
         floodlightProvider.addOFMessageListener(OFType.STATS_REQUEST, this);
 
-//        testSwappingList();
+        getUpdatedState();
     }
 
     public boolean setControlMessageDrop() {
@@ -223,7 +221,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return true;
     }
 
-    public String Control_Message_Drop() {
+    public String testControlMessageDrop() {
         System.out.println("[AppAgent] Control_Message_Drop");
         String drop = "nothing";
 
@@ -245,7 +243,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return drop;
     }
 
-    public boolean Set_Infinite_Loop() {
+    public boolean setInfiniteLoop() {
         System.out.println("[AppAgent] Set_Infinite_Loop");
         this.isLoop = true;
 
@@ -266,8 +264,8 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return true;
     }
 
-    public String Internal_Storage_Abuse() {
-        logger.info("[ATTACK] Internal Storage Manipulation");
+    public String testInternalStorageAbuse() {
+        System.out.println("[ATTACK] Internal Storage Manipulation");
         String deletedInfo = "nothing";
 
         IResultSet link = storageSource.executeQuery(InternalDBShow.LINK_TABLE_NAME, null, null, null);
@@ -285,10 +283,13 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
             }
         }
 
+        if (linkIdList.size() == 0)
+            return deletedInfo;
+
         deletedInfo = "success|";
         for (int i = 0; i < count; i++) {
-            logger.info("[ATTACK] Access InternalDB : delete Link Information");
-            logger.info("[ATTACK] delete Link Info: " + linkIdList.get(i));
+            System.out.println("[ATTACK] Access InternalDB : delete Link Information");
+            System.out.println("[ATTACK] delete Link Info: " + linkIdList.get(i));
             storageSource.deleteRow(InternalDBShow.LINK_TABLE_NAME, linkIdList.get(i));
             deletedInfo += linkIdList.get(i).toString() + "\n";
         }
@@ -297,7 +298,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return deletedInfo;
     }
 
-    public String Flow_Rule_Modification() {
+    public String testFlowRuleModification() {
         System.out.println("[AppAgent] Flow_Rule_Modification");
 
         String result = "";
@@ -338,7 +339,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
 
                     result = "success|" + fm.toString() + "->" + fm2.toString();
                 } catch (Exception e) {
-                    logger.error("Failed to clear flows on switch {} - {}", this, e);
+                    System.out.println("Failed to clear flows on switch {} - {}" + e);
                 }
             }
         }
@@ -346,7 +347,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return result;
     }
 
-    public void Flow_Table_Clearance(boolean isLoop) {
+    public void testFlowTableClearance(boolean isLoop) {
         System.out.println("[AppAgent] Flow_Table_Clearance");
 
         int cnt = 1;
@@ -384,7 +385,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
                         sw.write(msglist, null);
                         sw.flush();
                     } catch (Exception e) {
-                        logger.error("Failed to clear flows on switch {} - {}", this, e);
+                        System.out.println("Failed to clear flows on switch {} - {}" + e);
                     }
                 }
 
@@ -394,18 +395,18 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         }
     }
 
-    public String Event_Listener_Unsubscription() {
+    public String testEventListenerUnsubscription() {
         List<IOFMessageListener> listeners = floodlightProvider.getListeners().get(OFType.PACKET_IN);
 
         String removed = "";
         for (IOFMessageListener listen : listeners) {
-            logger.info("[ATTACK] PACKET_IN LIST");
-            logger.info("[ATTACK] " + listen.getName());
+            System.out.println("[ATTACK] PACKET_IN LIST");
+            System.out.println("[ATTACK] " + listen.getName());
         }
 
         for (IOFMessageListener listen : listeners) {
             if (listen.getName().equals("forwarding")) {
-                logger.info("\n\n[ATTACK] REMOVE: " + listen.getName());
+                System.out.println("\n\n[ATTACK] REMOVE: " + listen.getName());
 
                 removed = "forwarding";
                 floodlightProvider.removeOFMessageListener(OFType.PACKET_IN, listen);
@@ -414,7 +415,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return removed;
     }
 
-    public void Resource_Exhaustion_Mem() {
+    public void testResourceExhaustionMem() {
         System.out.println("[AppAgent] Resource Exhausion : Mem");
         ArrayList<long[][]> arry;
         // ary = new long[Integer.MAX_VALUE][Integer.MAX_VALUE];
@@ -424,7 +425,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         }
     }
 
-    public boolean Resource_Exhaustion_CPU() {
+    public boolean testResourceExhaustionCPU() {
         System.out.println("[AppAgent] Resource Exhausion : CPU");
         int thread_count = 0;
 
@@ -437,22 +438,22 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return true;
     }
 
-    public boolean System_Variable_Manipulation() {
+    public boolean testSystemVariableManipulation() {
         System.out.println("[AppAgent] System_Variable_Manipulation");
         this.sys = new SystemTime();
         sys.start();
         return true;
     }
 
-    public boolean System_Command_Execution() {
+    public boolean testSystemCommandExecution() {
         System.out.println("[AppAgent] System_Command_Execution");
         System.exit(0);
 
         return true;
     }
 
-    public String LinkFabrication() {
-        logger.info("[ATTACK] Link Fabrication");
+    public String testLinkFabrication() {
+        System.out.println("[ATTACK] Link Fabrication");
         String fakeLinks = "";
 
         boolean a = false, b = false;
@@ -472,7 +473,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
 
         if (count != 0) {
             for (int i = 0; i < count; i++) {
-                logger.info("[ATTACK] delete Link Info: " + linkIdList.get(i));
+                System.out.println("[ATTACK] delete Link Info: " + linkIdList.get(i));
 
                 if (linkIdList.get(i).toString().equals("00:00:00:00:00:00:00:01-2-00:00:00:00:00:00:00:03-2")) {
                     fakeLinks += linkIdList.get(i).toString() + "\n";
@@ -494,7 +495,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return fakeLinks;
     }
 
-    public boolean Flow_Rule_Flooding() {
+    public boolean testFlowRuleFlooding() {
         System.out.println("[AppAgent] Flow_Rule_Flooding");
 
         List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
@@ -541,7 +542,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return true;
     }
 
-    public String Switch_Firmware_Misuse() {
+    public String testSwitchFirmwareMisuse() {
         String result = "";
 
         List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
@@ -567,53 +568,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
                 dst = map.get(dstS);
                 src = map.get(srcS);
 
-                // ArrayList<IDevice> list = new ArrayList(
-                // dservice.getAllDevices());
-                //
-                // for (IDevice dc : list) {
-                // String mac = dc.getMACAddressString();
-                //
-                // String srcS = HexString.toHexString(flow.getMatch()
-                // .getDataLayerSource());
-                // String dstS = HexString.toHexString(flow.getMatch()
-                // .getDataLayerDestination());
-                //
-                // if (mac.equals(srcS)) {
-                // System.out.println("L[" + dc.getIPv4Addresses().length
-                // + "]");
-                // int[] temp = new int[dc.getIPv4Addresses().length];
-                // for (int i = 0; i < temp.length; i++) {
-                // temp[i] = (dc.getIPv4Addresses())[i].intValue();
-                // }
-                //
-                // StringBuilder strNum = new StringBuilder();
-                //
-                // for (int num : temp) {
-                // strNum.append(num);
-                // System.out.println(num);
-                // }
-                //
-                // System.out.println("[" + strNum.toString() + "]");
-                // src = Integer.parseInt(strNum.toString());
-                // } else if (mac.equals(dstS)) {
-                // System.out.println("L[" + dc.getIPv4Addresses().length
-                // + "]");
-                // int[] temp = new int[dc.getIPv4Addresses().length];
-                // for (int i = 0; i < temp.length; i++) {
-                // temp[i] = (dc.getIPv4Addresses())[i].intValue();
-                // }
-                //
-                // StringBuilder strNum = new StringBuilder();
-                // for (int num : temp) {
-                // System.out.println(num);
-                // strNum.append(num);
-                // }
-                //
-                // System.out.println("[" + strNum.toString() + "]");
-                // dst = Integer.parseInt(strNum.toString());
-                // }
-                // }
-
                 OFMatch newmatch = flow.getMatch().clone();
                 newmatch.setDataLayerType((short) 0x800);
                 newmatch.setNetworkDestination(dst);
@@ -638,9 +592,9 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
                     sw.flush();
 
                     result = "success|" + fm.toString() + "\n->" + fm2.toString();
-                    logger.info("[ATTACK] " + result);
+                    System.out.println("[ATTACK] " + result);
                 } catch (Exception e) {
-                    logger.error("Failed to clear flows on switch {} - {}", this, e);
+                    System.out.println("Failed to clear flows on switch {} - {}" + e);
                 }
             }
         }
@@ -729,10 +683,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         return statsReply;
     }
 
-    public void testFunc() {
-
-    }
-
     public void testSwappingList() {
         List<IOFMessageListener> packetin_listeners = floodlightProvider
                 .getListeners().get(OFType.PACKET_IN);
@@ -758,6 +708,45 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
         }
 
         isRemovedPayload = true;
+    }
+
+    public String getUpdatedState() {
+        int cntsw = 0;
+        int cntlink = 0;
+
+        String result = "empty";
+
+        // for switch update
+        List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
+        Map<Long, IOFSwitch> switchMap = floodlightProvider.getAllSwitchMap();
+        for (java.util.Map.Entry<Long, IOFSwitch> entry : switchMap.entrySet()) {
+            switches.add(entry.getValue());
+        }
+
+        cntsw = switches.size();
+
+        // for link update
+        IResultSet link = storageSource.executeQuery(InternalDBShow.LINK_TABLE_NAME, null, null, null);
+        List<String> links = new LinkedList<String>();
+        while (link.next()) {
+            try {
+                links.add(link.getString(InternalDBShow.LINK_ID));
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
+
+        cntlink = links.size();
+
+        if(cntsw != cntSwitch) {
+            result = "switch updated";
+        }
+
+        if(cntlink != cntLink) {
+            result += "|link updated";
+        }
+
+        return result;
     }
 
     @Override
@@ -791,11 +780,8 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
                     IFloodlightProviderService.bcStore.remove(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
                 }
 
-                testFunc();
-
                 return Command.CONTINUE;
         }
-
         return Command.CONTINUE;
     }
 }

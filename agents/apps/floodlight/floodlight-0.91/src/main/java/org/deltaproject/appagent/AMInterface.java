@@ -116,49 +116,52 @@ public class AMInterface extends Thread {
 
         if (recv.equals("3.1.020")) {
             app.setControlMessageDrop();
-            result = app.Control_Message_Drop();
+            result = app.testControlMessageDrop();
             dos.writeUTF(result);
         } else if (recv.equals("3.1.030")) {
-            app.Set_Infinite_Loop();
+            app.setInfiniteLoop();
             return;
         } else if (recv.equals("3.1.040")) {
-            result = app.Internal_Storage_Abuse();
+            result = app.testInternalStorageAbuse();
             dos.writeUTF(result);
         } else if (recv.equals("3.1.070")) {
-            result = app.Flow_Rule_Modification();
+            result = app.testFlowRuleModification();
             dos.writeUTF(result);
         } else if (recv.contains("3.1.080")) {
             if (recv.contains("false"))
-                app.Flow_Table_Clearance(false); // only once
+                app.testFlowTableClearance(false); // only once
             else
-                app.Flow_Table_Clearance(true); // infinite
+                app.testFlowTableClearance(true); // infinite
             return;
         } else if (recv.equals("3.1.090")) {
-            result = app.Event_Listener_Unsubscription();
+            result = app.testEventListenerUnsubscription();
             dos.writeUTF(result);
         } else if (recv.equals("3.1.110")) {
-            app.Resource_Exhaustion_Mem();
+            app.testResourceExhaustionMem();
             return;
         } else if (recv.equals("3.1.120")) {
-            app.Resource_Exhaustion_CPU();
+            app.testResourceExhaustionCPU();
             return;
         } else if (recv.equals("3.1.130")) {
-            app.System_Variable_Manipulation();
+            app.testSystemVariableManipulation();
             return;
         } else if (recv.equals("3.1.140")) {
-            app.System_Command_Execution();
+            app.testSystemCommandExecution();
             return;
         } else if (recv.equals("3.1.160")) {
-            result = app.LinkFabrication();
+            result = app.testLinkFabrication();
             dos.writeUTF(result);
         } else if (recv.equals("3.1.190")) {
-            app.Flow_Rule_Flooding();
+            app.testFlowRuleFlooding();
             return;
         } else if (recv.equals("3.1.200")) {
-            result = app.Switch_Firmware_Misuse();
+            result = app.testSwitchFirmwareMisuse();
             dos.writeUTF(result);
         } else if (recv.contains("2.1.060")) {
             result = app.sendUnFlaggedFlowRemoveMsg();
+            dos.writeUTF(result);
+        } else if (recv.contains("getupdated")) {
+            result = app.getUpdatedState();
             dos.writeUTF(result);
         }
 
