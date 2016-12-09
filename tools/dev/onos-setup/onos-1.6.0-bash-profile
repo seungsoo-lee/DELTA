@@ -1,6 +1,0 @@
-#!/bin/bash
-#
-# Script to onos-1.6.0 dependencies on Ubuntu 14.04
-#
-export JAVA_HOME=/usr/lib/jvm/java-8-oracle
-export ONOS_APPS=drivers,openflow,proxyarp,mobility,fwd
