@@ -270,7 +270,7 @@ public class TestSwitchCase {
      */
     public void testTableID(TestCase test) throws InterruptedException {
         if (this.ofversion.equals("1.0")) {
-            log.info("OF 1.0 is not available.");
+            log.info("This test does not apply to OF 1.0 (Table ID not supported).");
             return;
         }
 
@@ -335,7 +335,7 @@ public class TestSwitchCase {
      */
     public void testGroupID(TestCase test) throws InterruptedException {
         if (this.ofversion.equals("1.0")) {
-            log.info("OF 1.0 is not available.");
+            log.info("This test does not apply to OF 1.0 (Group ID not supported).");
             return;
         }
 
@@ -391,7 +391,7 @@ public class TestSwitchCase {
      */
     public void testMeterID(TestCase test) throws InterruptedException {
         if (this.ofversion.equals("1.0")) {
-            log.info("OF 1.0 is not available.");
+            log.info("This test does not apply to OF 1.0 (Meter ID not supportedd).");
             return;
         }
 
@@ -430,7 +430,7 @@ public class TestSwitchCase {
      */
     public void testTableLoop(TestCase test) throws InterruptedException {
         if (this.ofversion.equals("1.0")) {
-            log.info("OF 1.0 is not available.");
+            log.info("This test does not apply to OF 1.0 (Multiple Tables not supportedd).");
             return;
         }
 
@@ -514,7 +514,7 @@ public class TestSwitchCase {
         rawPkt[6] = (byte) 0xee;
         rawPkt[7] = (byte) 0xee;
 
-        log.info("Send msg with unsupported of type (97)");
+        log.info("Send msg with unsupported OF type (97)");
         dmcnt.sendRawMsg(rawPkt);
 
         Thread.sleep(1000);
@@ -672,7 +672,7 @@ public class TestSwitchCase {
      */
     public void testInvalidOXMLength(TestCase test) throws InterruptedException {
         if (this.ofversion.equals("1.0")) {
-            log.info("OF 1.0 is not available.");
+            log.info("This test does not apply to OF 1.0 (not supported).");
             return;
         }
 
@@ -732,7 +732,7 @@ public class TestSwitchCase {
      */
     public void testInvalidOXMValue(TestCase test) throws InterruptedException {
         if (this.ofversion.equals("1.0")) {
-            log.info("OF 1.0 is not available.");
+            log.info("This test does not apply to OF 1.0 (not supported).");
             return;
         }
 
@@ -800,7 +800,7 @@ public class TestSwitchCase {
      */
     public void testDisabledTableFeatureRequest(TestCase test) throws InterruptedException {
         if (this.ofversion.equals("1.0")) {
-            log.info("OF 1.0 is not available.");
+            log.info("This test does not apply to OF 1.0 (Table Features not supported).");
             return;
         }
 
@@ -1041,7 +1041,7 @@ public class TestSwitchCase {
      */
     public void testSlaveControllerViolation(TestCase test) {
         if (this.ofversion.equals("1.0")) {
-            log.info("OF 1.0 is not available.");
+            log.info("This test does not apply to OF 1.0 (Multiple Controllers not supported).");
             return;
         }
         log.info(test.getcasenum() + " - Slave Controller Violation - Test for switch protection against manipulation of the network by the slave controller");
