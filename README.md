@@ -11,12 +11,12 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 ![Delta architecture](http://143.248.53.145/research/arch.png)
 
 ## Prerequisites
-In order to build and run DELTA the following are required:
+In order to build and run DELTA, the following are required:
 + An agent manager based on Ubuntu 14.04 LTS 64 bit
  + Ant build system
  + Maven build system
  + Vagrant system
- + JDK 1.7 and 1.8
+ + JDK 1.7 (required only for ODL) and 1.8
 + Target Controller (for application agent)
  + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
  + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6
@@ -29,7 +29,7 @@ In order to build and run DELTA the following are required:
  + VM-3: Host agent
 
 ## Installing DELTA
-DELTA installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the agents. Also, DELTA can support All-In-One Single Machine environment via virtual machines as well as real hardware SDN environment.
+DELTA installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the agents. DELTA can support an All-In-One Single Machine environment via virtual machines as well as a real hardware SDN environment.
 
 + STEP 1. Get the source code of DELTA on the agent manager machine
 
@@ -64,7 +64,7 @@ $ vagrant up
 + STEP 4-b. (All-In-One Single Machine) Add NAT to VM3 (mininet)
 ![NAT](http://143.248.53.145/research/nat1.png)
 
-+ In the case of all-in-one single machine, the test environment is automatically setup as below:
++ In the case of the all-in-one single machine, the test environment is automatically setup as below:
 ![Env1](http://143.248.53.145/research/env_v1.png)
 
 
@@ -92,10 +92,10 @@ $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_APP
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CHANNEL
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_HOST
 
-Check if you will be able to access the VMs without having to enter the password.
+Check if you can access the VMs without having to enter the password.
 ```
 
-+ The agent-manager automatically reads a configuration file and sets up the test environment based on the file. DELTA/tools/config/manager.cfg contains All-In-One Single Machine configurations by default. If you want to test real SDN environment, you should specify your own configiguration file.
++ The agent-manager automatically reads a configuration file and sets up the test environment based on the file. DELTA/tools/config/manager.cfg contains the All-In-One Single Machine configuration by default. If you want to test a real SDN environment, you should specify your own configuration file.
 ```
 CONTROLLER_SSH=vagrant@10.100.100.11
 CHANNEL_SSH=vagrant@10.100.100.12
@@ -115,7 +115,7 @@ DUMMY_CONT_PORT=6633
 AM_IP=10.0.2.2
 AM_PORT=3366
 ```
-+ Configuring each tagret controller on the controller machine (if All-In-One Single Machine, VM-1)
++ Configuring each target controller on the controller machine (if All-In-One Single Machine, VM-1)
 + 1) Floodlight
 ```
 $ cd <DELTA>/tools/dev/floodlight-setup
@@ -127,7 +127,7 @@ $ cd <DELTA>/tools/dev/onos-setup
 $ ./onos-<version>-scp
 (on the controller machine) $ ./onos-<version>-setup
 ```
-+ 3) OpenDaylight: (only JDK 1.7-supported)
++ 3) OpenDaylight: (only JDK 1.7 is supported)
 ```
 $ cd <DELTA>/tools/dev/odl-setup
 $ ./odl-helium-sr3-scp
