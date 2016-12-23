@@ -185,8 +185,8 @@ public class TestControllerCase {
      */
     public void testHandShakeWithoutHello(TestCase test) {
         String info = test.getcasenum() + " - Handshake without Hello Message - Test for controller protection against incomplete control connection left open";
-        
-	log.info(info);
+
+        log.info(info);
 
         initController();
         chm.write("startsw|nohello");

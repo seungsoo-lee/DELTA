@@ -740,10 +740,12 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener, ILinkDis
 
         if(cntsw != cntSwitch) {
             result = "switch updated";
+            cntSwitch = cntsw;
         }
 
         if(cntlink != cntLink) {
-            result += "|link updated";
+            result += "link updated";
+            cntLink = cntlink;
         }
 
         return result;
