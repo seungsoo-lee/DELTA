@@ -27,5 +27,5 @@ if __name__ == '__main__':
     setLogLevel( 'info' )
     if len(sys.argv) != 3:
         print ("Usage: sudo python test-controller-topo.py <Controller IP> <Controller Port>")
-            sys.exit(0)
+        sys.exit(0)
     DeltaNetwork()

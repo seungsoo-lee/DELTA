@@ -126,6 +126,11 @@ $ ./floodlight-scp
 $ cd <DELTA>/tools/dev/onos-setup
 $ ./onos-<version>-scp
 (on the controller machine) $ ./onos-<version>-setup
+(on the controller machine) $ sudo vi /etc/environment
+...
+export JAVA_HOME=/usr/lib/jvm/java-8-oracle 
+export ONOS_APPS=drivers,openflow,proxyarp,mobility,fwd
+...
 ```
 + 3) OpenDaylight: (only JDK 1.7 is supported)
 ```
