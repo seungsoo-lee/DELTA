@@ -176,6 +176,7 @@ Command>_
 
 ## Main Contributors
 + Seungsoo Lee (KAIST)
++ Jinwoo Kim (KAIST)
 + Changhoon Yoon (KAIST)
 + Sandra Scott-Hayward (Queen's University Belfast)
 + Seungwon Shin (KAIST)
