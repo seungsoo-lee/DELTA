@@ -114,6 +114,7 @@ public class TestFuzzing {
                 break;
             case "0.0.021":
                 log.info(test.getcasenum() + " - Data Plane Live Fuzzing Test - Finding unknown attack case for data plane");
+
                 break;
         }
 
