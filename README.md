@@ -62,7 +62,7 @@ $ vagrant up
 ```
 
 + STEP 4-b. (All-In-One Single Machine) Add NAT to VM3 (mininet)
-![NAT](http://143.248.53.145/research/nat1.png)
+![NAT](http://143.248.53.145/research/natenv.png)
 
 + In the case of all-in-one single machine, the test environment is automatically setup as below:
 ![Env1](http://143.248.53.145/research/env_v1.png)
@@ -187,4 +187,4 @@ Command>_
 + ![collabo](http://143.248.53.145/research/collabo2.png)
 
 ## Questions?
-Send questions or feedback to: lss365@kaist.ac.kr or chyoon87@kaist.ac.kr
+Send questions or feedback to: lss365@kaist.ac.kr or jinwoookim@kaist.ac.kr
