@@ -1,4 +1,4 @@
-# DELTA: A Penetration Testing Framework for Software-Defined Networks
+# DELTA: SDN SECURITY EVALUATION FRAMEWORK
 
 ## What is DELTA?
 DELTA is a penetration testing framework that regenerates known attack scenarios for diverse test cases. This framework also provides the capability of discovering unknown security problems in SDN by employing a fuzzing technique.
