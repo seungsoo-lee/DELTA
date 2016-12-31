@@ -171,7 +171,7 @@ Command>_
 ```
 
 + STEP 3. Connect Web-based UI (port number is 7070)
-![WEB](http://143.248.53.145/research/webui3.png)
+![WEB](http://143.248.53.145/research/webui4.png)
 
 
 ## Main Contributors
