@@ -57,7 +57,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
 
     @Override
     public void close() {
-        LOG.info("close() passing");
+        LOG.info("close() pass ing");
         if (appAgent != null) {
             appAgent.stop();
         }
