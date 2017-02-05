@@ -78,23 +78,23 @@ public class AppAgentImpl implements DataChangeListenerRegistrationHolder,
         LOG.info("start() -->");
         FlowCommitWrapper dataStoreAccessor = new FlowCommitWrapperImpl(data);
 
-        PacketInDispatcherImpl packetInDispatcher = new PacketInDispatcherImpl();
-        AppAgentFacadeImpl learningSwitchHandler = new AppAgentFacadeImpl();
-        learningSwitchHandler.setRegistrationPublisher(this);
-        learningSwitchHandler.setDataStoreAccessor(dataStoreAccessor);
-        learningSwitchHandler.setPacketProcessingService(packetProcessingService);
-        learningSwitchHandler.setPacketInDispatcher(packetInDispatcher);
-        packetInRegistration = notificationService.registerNotificationListener(packetInDispatcher);
-
-        WakeupOnNode wakeupListener = new WakeupOnNode();
-        wakeupListener.setLearningSwitchHandler(learningSwitchHandler);
-        dataChangeListenerRegistration = data.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                InstanceIdentifier.builder(Nodes.class)
-                        .child(Node.class)
-                        .augmentation(FlowCapableNode.class)
-                        .child(Table.class).build(),
-                wakeupListener,
-                DataBroker.DataChangeScope.SUBTREE);
+//        PacketInDispatcherImpl packetInDispatcher = new PacketInDispatcherImpl();
+//        AppAgentFacadeImpl learningSwitchHandler = new AppAgentFacadeImpl();
+//        learningSwitchHandler.setRegistrationPublisher(this);
+//        learningSwitchHandler.setDataStoreAccessor(dataStoreAccessor);
+//        learningSwitchHandler.setPacketProcessingService(packetProcessingService);
+//        learningSwitchHandler.setPacketInDispatcher(packetInDispatcher);
+//        packetInRegistration = notificationService.registerNotificationListener(packetInDispatcher);
+//
+//        WakeupOnNode wakeupListener = new WakeupOnNode();
+//        wakeupListener.setLearningSwitchHandler(learningSwitchHandler);
+//        dataChangeListenerRegistration = data.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+//                InstanceIdentifier.builder(Nodes.class)
+//                        .child(Node.class)
+//                        .augmentation(FlowCapableNode.class)
+//                        .child(Table.class).build(),
+//                wakeupListener,
+//                DataBroker.DataChangeScope.SUBTREE);
 
         LOG.info("start() <--");
     }
