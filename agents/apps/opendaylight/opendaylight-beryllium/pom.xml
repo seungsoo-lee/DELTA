@@ -9,7 +9,7 @@
     </parent>
     
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>delta-agent-app-odl-boron</artifactId>
+    <artifactId>delta-agent-app-odl-beryllium-sr4</artifactId>
     <packaging>bundle</packaging>
 
     <build>
