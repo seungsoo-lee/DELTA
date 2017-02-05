@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
- *
+ * <p>
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -31,8 +31,7 @@ import org.slf4j.LoggerFactory;
  * corresponding MACs)</li>
  * </ul>
  */
-public class AppAgentImpl implements DataChangeListenerRegistrationHolder,
-        AppAgent {
+public class AppAgentImpl implements AppAgent {
 
     private static final Logger LOG = LoggerFactory
             .getLogger(AppAgentImpl.class);
@@ -76,25 +75,6 @@ public class AppAgentImpl implements DataChangeListenerRegistrationHolder,
     @Override
     public void start() {
         LOG.info("start() -->");
-        FlowCommitWrapper dataStoreAccessor = new FlowCommitWrapperImpl(data);
-
-//        PacketInDispatcherImpl packetInDispatcher = new PacketInDispatcherImpl();
-//        AppAgentFacadeImpl learningSwitchHandler = new AppAgentFacadeImpl();
-//        learningSwitchHandler.setRegistrationPublisher(this);
-//        learningSwitchHandler.setDataStoreAccessor(dataStoreAccessor);
-//        learningSwitchHandler.setPacketProcessingService(packetProcessingService);
-//        learningSwitchHandler.setPacketInDispatcher(packetInDispatcher);
-//        packetInRegistration = notificationService.registerNotificationListener(packetInDispatcher);
-//
-//        WakeupOnNode wakeupListener = new WakeupOnNode();
-//        wakeupListener.setLearningSwitchHandler(learningSwitchHandler);
-//        dataChangeListenerRegistration = data.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-//                InstanceIdentifier.builder(Nodes.class)
-//                        .child(Node.class)
-//                        .augmentation(FlowCapableNode.class)
-//                        .child(Table.class).build(),
-//                wakeupListener,
-//                DataBroker.DataChangeScope.SUBTREE);
 
         LOG.info("start() <--");
     }
@@ -119,11 +99,5 @@ public class AppAgentImpl implements DataChangeListenerRegistrationHolder,
             LOG.debug("Error unregistering data change listener.. ", e);
         }
         LOG.info("stop() <--");
-    }
-
-
-    @Override
-    public ListenerRegistration<DataChangeListener> getDataChangeListenerRegistration() {
-        return dataChangeListenerRegistration;
     }
 }
