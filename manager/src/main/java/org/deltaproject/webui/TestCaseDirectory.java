@@ -142,8 +142,8 @@ public class TestCaseDirectory {
 
         //directory.put("0.0.011",
         //        new TestCase(FUZZING, "0.0.010", "Control Plane Fuzzing Test", "Finding unknown attack case for control plane"));
-        directory.put("0.0.010",
-                new TestCase(FUZZING, "0.0.010", "Control Plane Seed-based Fuzzing Test", "Finding unknown attack case for control plane"));
+        //directory.put("0.0.010",
+                //new TestCase(FUZZING, "0.0.010", "Control Plane Seed-based Fuzzing Test", "Finding unknown attack case for control plane"));
         //directory.put("0.0.020",
         //        new TestCase(FUZZING, "0.0.020", "Data Plane Fuzzing Test", "Finding unknown attack case for data plane"));
         //directory.put("0.0.021",
