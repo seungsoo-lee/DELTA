@@ -545,7 +545,7 @@ public class TestAdvancedCase {
      */
     public boolean testEventUnsubscription(TestCase test) {
         if (controllerm.getType().equals("ONOS")) {
-            System.out.println("\nONOS is impossible to replay [" + test.getcasenum() + "] ");
+            log.info("ONOS is impossible to replay [" + test.getcasenum() + "] ");
             return false;
         }
 
@@ -835,7 +835,7 @@ public class TestAdvancedCase {
         initController();
 
         try {
-            Thread.sleep(30000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

@@ -1,6 +1,7 @@
 package org.deltaproject.webui;
 
 import org.deltaproject.manager.core.AttackConductor;
+import org.deltaproject.manager.utils.AgentLogger;
 
 import static org.deltaproject.webui.TestCase.Status.*;
 
@@ -27,6 +28,7 @@ public class TestCaseExecutor extends Thread {
                     test.setStatus(RUNNING);
                     conductor.executeTestCase(test);
                     test.setStatus(COMPLETE);
+                    AgentLogger.stopAllLogger();
                 } catch (InterruptedException e) {
                     test.setStatus(UNAVAILABLE);
                 }

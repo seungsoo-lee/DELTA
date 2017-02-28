@@ -156,8 +156,7 @@ $ ./tools/dev/delta-setup/delta-agents-scp
 
 + STEP 2. Execute Agent-Manager first
 ```
-$ cd <DELTA>/manager
-$ java -jar target/delta-manager-1.0-SNAPSHOT-jar-with-dependencies.jar ../tools/config/manager.cfg
+$ <DELTA>/run-delta
 
  DELTA: A Penetration Testing Framework for Software-Defined Networks
 
@@ -189,4 +188,3 @@ Command>_
 
 ## Questions?
 Send questions or feedback to: lss365@kaist.ac.kr or jinwoookim@kaist.ac.kr
-.

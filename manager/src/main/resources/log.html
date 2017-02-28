@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>DELTA &raquo; Dashboard</title>
+    <title>DELTA &raquo; Log</title>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'/>
     <!-- {CSS1} -->
 
@@ -33,137 +33,62 @@
 </div>
 
 <div class="container-fluid">
-
-    <div class="row">
-        <div class="chart-wrapper">
-            <div class="chart-title">
-                Live Test Queue
-            </div>
-            <div class="chart-stage">
-                <div id="test-queue">
-                    <table id="queue-table" class="display select" cellspacing="0" width="100%">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Timestamp</th>
-                            <th>Category</th>
-                            <th>Testcase #</th>
-                            <th>Name</th>
-                            <th>Status</th>
-                            <th>Result</th>
-                        </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-            <div class="chart-notes">
-            </div>
-        </div>
-    </div>
-
     <div class="row">
         <div style="width: 100%; display: table; margin-left: auto; margin-right:0;">
-
-            <div style="width:30%; display: table-cell;">
-                <div class="chart-wrapper">
-                    <div class="chart-title">
-                        DELTA configuration
-                    </div>
-                    <div class="chart-stage">
-                        <textarea readonly id="configpane" class="fill"></textarea>
-                    </div>
-                </div>
-            </div>
-
             <div style="display: table-cell;">
                 <div class="chart-wrapper">
                     <div class="chart-title">
-                        DELTA log
+                        Agent Manager log
                     </div>
                     <div class="chart-stage">
                         <textarea readonly id="deltalog" class="fill"></textarea>
                     </div>
                 </div>
             </div>
-
         </div>
-        <div class="chart-notes">
-        </div>
-
     </div>
-
-
-    <!--<div class="row">-->
-        <!--<div class="chart-wrapper">-->
-            <!--<div class="chart-title">-->
-                <!--DELTA configuration-->
-            <!--</div>-->
-            <!--<div class="chart-stage">-->
-                <!--<textarea readonly id="configpane" class="fill"></textarea>-->
-            <!--</div>-->
-        <!--</div>-->
-    <!--</div>-->
-
-
-    <!--<div class="row">-->
-    <!--<div class="chart-wrapper">-->
-    <!--<div class="chart-title">-->
-    <!--DELTA Configuration-->
-    <!--</div>-->
-    <!--<div class="chart-stage">-->
-    <!--<table class="delta-config">-->
-    <!--<tr>Control-plane configuration</tr>-->
-    <!--<tr>-->
-    <!--<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>-->
-    <!--<td>SDN Controller:</td>-->
-    <!--<td>&nbsp;&nbsp;</td>-->
-    <!--<td>-->
-    <!--<select id="controller-type">-->
-    <!--<option values="">&#45;&#45;Select&#45;&#45;</option>-->
-    <!--<option>ONOS</option>-->
-    <!--<option>OpenDaylight</option>-->
-    <!--<option>Floodlight</option>-->
-    <!--</select>-->
-    <!--</td>-->
-    <!--<td>&nbsp;&nbsp;</td>-->
-    <!--<td>Controller Version:</td>-->
-    <!--<td>&nbsp;&nbsp;</td>-->
-    <!--<td>-->
-    <!--<select style="float:left;" id="controller-version">-->
-    <!--</select>-->
-    <!--</td>-->
-    <!--<td>&nbsp;&nbsp;</td>-->
-    <!--<td>Controller IP:</td>-->
-    <!--<td>&nbsp;&nbsp;</td>-->
-    <!--<td><input type="text" name="controller-ip" maxlength="15" size="17" style="height:1em;"></td>-->
-    <!--</tr>-->
-
-    <!--</table>-->
-    <!--</div>-->
-    <!--</div>-->
-    <!--</div>-->
-
     <div class="row">
-        <div class="chart-wrapper">
-            <div class="chart-title">
-                DELTA Test Cases
-            </div>
-            <div class="chart-stage">
-                <div id="test-list">
-                    <table id="testcase-table" class="display select" cellspacing="0" width="100%">
-                        <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th>Testcase #</th>
-                            <th>Name</th>
-                        </tr>
-                        </thead>
-                    </table>
+        <div style="width: 100%; display: table; margin-left: auto; margin-right:0;">
+            <div style="display: table-cell;">
+                <div class="chart-wrapper">
+                    <div class="chart-title">
+                        App Agent log
+                    </div>
+                    <div class="chart-stage">
+                        <textarea readonly id="applog" class="fill"></textarea>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
+    <div class="row">
+        <div style="width: 100%; display: table; margin-left: auto; margin-right:0;">
+            <div style="display: table-cell;">
+                <div class="chart-wrapper">
+                    <div class="chart-title">
+                        Channel Agent log
+                    </div>
+                    <div class="chart-stage">
+                        <textarea readonly id="channellog" class="fill"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div style="width: 100%; display: table; margin-left: auto; margin-right:0;">
+            <div style="display: table-cell;">
+                <div class="chart-wrapper">
+                    <div class="chart-title">
+                        Host Agent log
+                    </div>
+                    <div class="chart-stage">
+                        <textarea readonly id="hostlog" class="fill"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -225,8 +150,8 @@
                 'url': '/json/testcases',
                 'dataSrc': ""
             },
-            "createdRow": function( row, data) {
-                $(row).attr('title',data['desc']);
+            "createdRow": function (row, data) {
+                $(row).attr('title', data['desc']);
                 $(row).tooltip({
                     "delay": 0,
                     "track": true,
@@ -255,15 +180,15 @@
                 'url': '/json/testqueue/get',
                 'dataSrc': ""
             },
-            "fnRowCallback": function(nRow, aData) {
-                if ( aData['status'] == "RUNNING" ) {
+            "fnRowCallback": function (nRow, aData) {
+                if (aData['status'] == "RUNNING") {
                     $('td', nRow).css('background-color', '#ffff99');
                 }
-                else if ( aData['status'] == "COMPLETE" ) {
-                    if ( aData['result'] == "FAIL" ) {
+                else if (aData['status'] == "COMPLETE") {
+                    if (aData['result'] == "FAIL") {
                         $('td', nRow).css('background-color', '#ff9999');
                     }
-                    else if ( aData['result'] == "PASS" ) {
+                    else if (aData['result'] == "PASS") {
                         $('td', nRow).css('background-color', '#ccff99');
                     }
                     else {
@@ -271,8 +196,8 @@
                     }
                 }
             },
-            "createdRow": function( row, data ) {
-                $(row).attr('title',data['desc']);
+            "createdRow": function (row, data) {
+                $(row).attr('title', data['desc']);
                 $(row).tooltip({
                     "delay": 0,
                     "track": true,
@@ -297,6 +222,57 @@
                     if (old.length != data.length) {
                         $('#deltalog').val(data);
                         $('#deltalog').scrollTop($('#deltalog')[0].scrollHeight);
+                    }
+                }
+            });
+        }, 1000);
+
+        setInterval(function () {
+
+            $.ajax({
+                url: '/text/getchannel',
+                dataType: 'text',
+                contentType: "text/plain",
+                async: false,
+                success: function (data) {
+                    var old = $('#channellog').val();
+                    if (old.length != data.length) {
+                        $('#channellog').val(data);
+                        $('#channellog').scrollTop($('#channellog')[0].scrollHeight);
+                    }
+                }
+            });
+        }, 1000);
+
+        setInterval(function () {
+
+            $.ajax({
+                url: '/text/getapp',
+                dataType: 'text',
+                contentType: "text/plain",
+                async: false,
+                success: function (data) {
+                    var old = $('#applog').val();
+                    if (old.length != data.length) {
+                        $('#applog').val(data);
+                        $('#applog').scrollTop($('#applog')[0].scrollHeight);
+                    }
+                }
+            });
+        }, 1000);
+
+        setInterval(function () {
+
+            $.ajax({
+                url: '/text/gethost',
+                dataType: 'text',
+                contentType: "text/plain",
+                async: false,
+                success: function (data) {
+                    var old = $('#hostlog').val();
+                    if (old.length != data.length) {
+                        $('#hostlog').val(data);
+                        $('#hostlog').scrollTop($('#hostlog')[0].scrollHeight);
                     }
                 }
             });

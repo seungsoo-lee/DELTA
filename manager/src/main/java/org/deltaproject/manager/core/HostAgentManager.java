@@ -1,5 +1,6 @@
 package org.deltaproject.manager.core;
 
+import org.deltaproject.manager.utils.AgentLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,8 @@ public class HostAgentManager extends Thread {
     private int procPID;
 
     private Configuration cfg = Configuration.getInstance();
+
+    Thread loggerThd;
 
     public HostAgentManager() {
 
@@ -70,7 +73,15 @@ public class HostAgentManager extends Thread {
         }
 
         try {
-            proc = Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + " sudo python test-advanced-topo.py " + controllerAddr + " " + amAddr + " " + version);
+            String[] cmdArray = {"ssh", cfg.getHostSSH(), "sudo", "python", "test-advanced-topo.py",
+                    cfg.getControllerIP(), cfg.getOFPort(), cfg.getAMIP(), cfg.getAMPort(), version};
+            ProcessBuilder pb = new ProcessBuilder(cmdArray);
+            pb.redirectErrorStream(true);
+            proc = pb.start();
+
+            loggerThd = new Thread(AgentLogger.getLoggerThreadInstance(proc, AgentLogger.HOST_AGENT));
+            loggerThd.start();
+
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
             Object value = pidField.get(proc);

@@ -126,7 +126,7 @@ public class AttackConductor {
             System.out.println(String.format("%s\t: %s", key, value));
         }
 
-        System.out.println("\nControl Plane Test Set (under developping)");
+        System.out.println("\nControl Plane Test Set (under developing)");
         treeMap = new TreeMap<String, String>(infoControllerCase);
         treeMapIter = treeMap.keySet().iterator();
         while (treeMapIter.hasNext()) {
