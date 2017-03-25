@@ -18,9 +18,9 @@ In order to build and run DELTA the following are required:
  + Vagrant system
  + JDK 1.7 and 1.8
 + Target Controller (for application agent)
-> [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
-> [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6
-> [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
+<pre><code> [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2 </code></pre>
++ [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6
++ [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
 + [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (for channel agent)
 + [Mininet 2.1+](http://mininet.org/download/) (for host agent)
 + (in the case of All-In-One Single Machine) Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
