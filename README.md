@@ -8,7 +8,7 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 + Channel-Agent is deployed between the controller and the OpenFlow-enabled switch. The agent sniffs and modifies the unencrypted control messages. It is controller-independent.
 + Host-Agent behaves as if it was a legitimate host participating in the target SDN network. The agent demonstrates an attack in which a host attempts to compromise the control plane.
 
-![Delta architecture](http://143.248.53.145/research/arch.png)
+![Delta architecture](http://nass.kaist.ac.kr/web_images/delta/delta_arch.png | width=150)
 
 ## Prerequisites
 In order to build and run DELTA the following are required:
