@@ -121,6 +121,7 @@ AM_PORT=3366
 $ cd <DELTA>/tools/dev/floodlight-setup
 $ ./floodlight-scp
 ```
++ 
   + ONOS
 ```
 $ cd <DELTA>/tools/dev/onos-setup
