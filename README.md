@@ -156,7 +156,7 @@ $ ./tools/dev/delta-setup/delta-agents-scp
 
 + STEP 2. Execute Agent-Manager first
 ```
-$ <DELTA>/run-delta
+$ <DELTA>/bin/run-delta
 
  DELTA: A Penetration Testing Framework for Software-Defined Networks
 
