@@ -18,15 +18,11 @@ fi
 
 export MAVEN=${MAVEN:-~/Applications/apache-maven-3.3.9}
 
-export KARAF_VERSION=${KARAF_VERSION:-3.0.5}
-export KARAF_ROOT=${KARAF_ROOT:-~/Applications/apache-karaf-$KARAF_VERSION}
-export KARAF_LOG=$KARAF_ROOT/data/log/karaf.log
-
 # Setup a path
 export DELTA_ROOT=~/DELTA
 
-export PATH="$PATH:$DELTA_ROOT/tools/bin"
-export PATH="$PATH:$MAVEN/bin:$KARAF_ROOT/bin"
+export PATH="$PATH:$DELTA_ROOT/bin"
+export PATH="$PATH:$MAVEN/bin"
 
 # For file transmission, [user id]@[ip address] is used
 export DELTA_APP=vagrant@10.100.100.11
