@@ -14,8 +14,8 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 In order to build and run DELTA the following are required:
 + An agent manager based on Ubuntu 14.04 LTS 64 bit
   + Ant build system
-  + Maven build system
-  + Vagrant system
+  + Maven v3.3.9
+  + Vagrant
   + JDK 1.7 and 1.8
 + Target Controller (for application agent)
   + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
