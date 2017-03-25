@@ -118,14 +118,14 @@ AM_PORT=3366
 + Configuring each tagret controller on the controller machine (if All-In-One Single Machine, VM-1)
 > Floodlight 1.2
 ```
-$ cd <DELTA>/tools/dev/floodlight-setup
-$ ./floodlight-scp
+$ cd <DELTA>/tools/dev/app-agent-setup
+$ ./floodlight-1.2-scp
 ```
 > ONOS 1.6
 ```
-$ cd <DELTA>/tools/dev/onos-setup
-$ ./onos-1.6-scp
-(on the controller machine) $ ./onos-1.6-setup
+$ cd <DELTA>/tools/dev/app-agent-setup
+$ ./onos-1.6.0-scp
+(on the controller machine) $ ./onos-1.6.0-setup
 (on the controller machine) $ sudo vi /etc/environment
 ...
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle 
@@ -134,7 +134,7 @@ export ONOS_APPS=drivers,openflow,proxyarp,mobility,fwd
 ```
 > OpenDaylight helium-sr3 (only JDK 1.7-supported)
 ```
-$ cd <DELTA>/tools/dev/odl-setup
+$ cd <DELTA>/tools/dev/app-agent-setup
 $ ./odl-helium-sr3-scp
 (on the controller machine) $ ./odl-helium-sr3-scp
 ```
