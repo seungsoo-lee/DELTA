@@ -116,13 +116,12 @@ AM_IP=10.0.2.2
 AM_PORT=3366
 ```
 + Configuring each tagret controller on the controller machine (if All-In-One Single Machine, VM-1)
-  + Floodlight
+> Floodlight
 ```
 $ cd <DELTA>/tools/dev/floodlight-setup
 $ ./floodlight-scp
 ```
-+ 
-  + ONOS
+> ONOS
 ```
 $ cd <DELTA>/tools/dev/onos-setup
 $ ./onos-<version>-scp
