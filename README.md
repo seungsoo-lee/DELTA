@@ -124,8 +124,8 @@ $ ./floodlight-scp
 > ONOS 1.6
 ```
 $ cd <DELTA>/tools/dev/onos-setup
-$ ./onos-<version>-scp
-(on the controller machine) $ ./onos-<version>-setup
+$ ./onos-1.6-scp
+(on the controller machine) $ ./onos-1.6-setup
 (on the controller machine) $ sudo vi /etc/environment
 ...
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle 
