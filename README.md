@@ -62,10 +62,10 @@ $ vagrant up
 ```
 
 + STEP 4-b. (All-In-One Single Machine) Add NAT to VM3 (mininet)
-![NAT](http://143.248.53.145/research/natenv2.png)
+![NAT](images/delta_natenv.png)
 
 + In the case of all-in-one single machine, the test environment is automatically setup as below:
-![Env1](http://143.248.53.145/research/env_v1.png)
+![Env1](images/delta_env.png)
 
 
 ## Configuring your own experiments
@@ -170,7 +170,7 @@ Command>_
 ```
 
 + STEP 3. Connect Web-based UI (port number is 7070)
-![WEB](http://143.248.53.145/research/webui4.png)
+![WEB](images/delta_webui.png)
 
 
 ## Main Contributors
@@ -184,7 +184,7 @@ Command>_
 + Phil Porras, Vinod Yegneswaran (SRI International) 
 + Kyuho Hwang, Daewon Jung (National Security Research Institute)
 + [Atto Research](http://www.atto-research.com/index.php/en/home/)
-+ ![collabo](http://143.248.53.145/research/collabo2.png)
++ ![collabo](images/delta_collabo.png)
 
 ## Questions?
 Send questions or feedback to: lss365@kaist.ac.kr or jinwoookim@kaist.ac.kr
