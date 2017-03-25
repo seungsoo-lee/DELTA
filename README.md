@@ -13,10 +13,10 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 ## Prerequisites
 In order to build and run DELTA the following are required:
 + An agent manager based on Ubuntu 14.04 LTS 64 bit
- + Ant build system
- + Maven build system
- + Vagrant system
- + JDK 1.7 and 1.8
+  + Ant build system
+  + Maven build system
+  + Vagrant system
+  + JDK 1.7 and 1.8
 + Target Controller (for application agent)
   + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
   + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6
@@ -24,9 +24,9 @@ In order to build and run DELTA the following are required:
 + [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (for channel agent)
 + [Mininet 2.1+](http://mininet.org/download/) (for host agent)
 + (in the case of All-In-One Single Machine) Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
- + VM-1: Target controller + Application agent
- + VM-2: Channel agent
- + VM-3: Host agent
+  + VM-1: Target controller + Application agent
+  + VM-2: Channel agent
+  + VM-3: Host agent
 
 ## Installing DELTA
 DELTA installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the agents. Also, DELTA can support All-In-One Single Machine environment via virtual machines as well as real hardware SDN environment.
