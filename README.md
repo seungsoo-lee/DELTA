@@ -188,5 +188,5 @@ Command>_
 + ![collabo](http://143.248.53.145/research/collabo2.png)
 
 ## Questions?
-Send questions or feedback to: lss365@kaist.ac.kr or jinwoookim@kaist.ac.kr
+Send questions or feedback to: lss365@kaist.ac.kr or jinwoo.kim@kaist.ac.kr
 .
