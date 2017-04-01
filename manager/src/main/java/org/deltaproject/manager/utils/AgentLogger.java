@@ -51,6 +51,7 @@ public class AgentLogger {
         public void run() {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
+                    checkLogDirectory();
                     FileWriter output = new FileWriter(LOG_PATH + name, true);
                     String line = stderrBr.readLine();
 
@@ -97,5 +98,14 @@ public class AgentLogger {
         }
 
         return line;
+    }
+
+    public static void checkLogDirectory() {
+        File dir = new File(LOG_PATH);
+
+        if (!dir.exists()) {
+            dir.mkdirs();
+            System.out.println("Directory was created!");
+        }
     }
 }

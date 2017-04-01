@@ -1,5 +1,7 @@
 package org.deltaproject.webui.rest;
 
+import org.deltaproject.manager.utils.AgentLogger;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -20,7 +22,7 @@ public class ChannelLogResource {
         String logstr = "";
 
         try {
-            log = new RandomAccessFile("log/channel.log", "r");
+            log = new RandomAccessFile(AgentLogger.LOG_PATH + "channel.log", "r");
 
             String line;
             while ((line = log.readLine()) != null) {
