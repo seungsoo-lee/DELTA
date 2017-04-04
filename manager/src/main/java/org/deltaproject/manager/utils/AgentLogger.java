@@ -1,14 +1,13 @@
 package org.deltaproject.manager.utils;
 
-import org.slf4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 /**
@@ -83,21 +82,25 @@ public class AgentLogger {
     }
 
     public static String readLogFile(String name) {
-        String line = null;
-        try {
-            FileReader input = new FileReader(LOG_PATH + name);
-            BufferedReader br = new BufferedReader(input);
-            while (line == null) {
-                line = br.readLine();
+        String result = "";
+        String path = LOG_PATH + name;
+        // file check
+        File file = new File(path);
+        while (!file.exists()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-
+        }
+        try {
+            result = new String(Files.readAllBytes(Paths.get(path)));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return line;
+        return result;
     }
 
     public static void checkLogDirectory() {
