@@ -147,8 +147,13 @@ public class TestAdvancedCase {
             log.info("Target controller: " + controllerm.getType() + " " + controllerm.getVersion());
 
             log.info("Target controller is starting..");
-            controllerm.createController();
-            log.info("Target controller setup is completed");
+            if (controllerm.createController()) {
+                log.info("Target controller setup is completed");
+            } else {
+                log.info("Target controller setup is failed");
+                log.info("Terminated the requested test case");
+                return;
+            }
 
 			/* waiting for switches */
             log.info("Listening to switches..");

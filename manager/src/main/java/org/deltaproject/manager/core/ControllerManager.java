@@ -64,11 +64,12 @@ public class ControllerManager {
     }
 
     public boolean createController() {
+        boolean result;
         for (TargetController tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
-                tc.createController();
+                result = tc.createController();
 
-                return true;
+                return result;
             }
         }
         return false;

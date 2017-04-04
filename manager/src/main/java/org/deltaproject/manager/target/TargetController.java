@@ -3,21 +3,21 @@ package org.deltaproject.manager.target;
 import java.io.BufferedReader;
 
 public interface TargetController {
-    public int createController();
+    boolean createController();
 
-    public Process getProc();
+    Process getProc();
 
-    public void killController();
+    void killController();
 
-    public boolean installAppAgent();
+    boolean installAppAgent();
 
-    public String getType();
+    String getType();
 
-    public String getVersion();
+    String getVersion();
 
-    public String getPath();
+    String getPath();
 
-    public int getPID();
+    int getPID();
 
-    public BufferedReader getStdOut();
+    BufferedReader getStdOut();
 }

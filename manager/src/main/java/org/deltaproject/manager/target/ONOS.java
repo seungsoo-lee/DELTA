@@ -36,7 +36,7 @@ public class ONOS implements TargetController {
         onos1_6 = "/home/"+user+"/onos-1.6.0/bin/onos-service";
     }
 
-    public int createController() {
+    public boolean createController() {
         isRunning = false;
 
         String str = "";
@@ -66,15 +66,15 @@ public class ONOS implements TargetController {
 
             stdIn = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
 
-            Thread.sleep(3000);
+            Thread.sleep(7000);
 
             str = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
             if (str.contains("Welcome")) {
                 isRunning = true;
-                log.info("controller is activated");
+                log.info("ONOS is activated");
             } else {
-                log.info("Failed to start ONOS - " + str);
-                return -1;
+                log.info("Failed to start ONOS");
+                return false;
             }
 
             try {
@@ -102,7 +102,7 @@ public class ONOS implements TargetController {
             e.printStackTrace();
         }
 
-        return currentPID;
+        return true;
     }
 
     public void killController() {

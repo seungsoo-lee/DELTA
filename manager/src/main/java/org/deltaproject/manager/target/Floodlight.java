@@ -25,7 +25,7 @@ public class Floodlight implements TargetController {
         this.sshAddr = ssh;
     }
 
-    public int createController() {
+    public boolean createController() {
         isRunning = false;
 
         String str;
@@ -82,7 +82,7 @@ public class Floodlight implements TargetController {
             e.printStackTrace();
         }
 
-        return currentPID;
+        return true;
     }
 
     public void killController() {
