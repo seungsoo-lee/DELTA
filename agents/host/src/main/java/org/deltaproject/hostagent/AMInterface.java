@@ -129,6 +129,9 @@ public class AMInterface extends Thread {
 					dos.flush();
 				}
 			}
+		}
+		 catch (EOFException e) {
+			System.out.println("Close...");
 		} catch (Exception e) {
 			// if any error occurs
 			e.printStackTrace();

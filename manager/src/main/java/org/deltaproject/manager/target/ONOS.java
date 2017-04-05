@@ -66,7 +66,7 @@ public class ONOS implements TargetController {
 
             stdIn = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
 
-            Thread.sleep(7000);
+            Thread.sleep(10000);
 
             str = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
             if (str.contains("Welcome")) {

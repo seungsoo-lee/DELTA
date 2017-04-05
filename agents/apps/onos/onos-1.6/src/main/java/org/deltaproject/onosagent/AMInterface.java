@@ -177,10 +177,15 @@ public class AMInterface extends Thread {
                 // reads characters encoded with modified UTF-8
                 if (recv.contains("umode")) {
                     findingUnkwonAttack(recv);
+                } else if (recv.contains("echo")) {
+                    System.out.println("Received " + recv);
+                    write("echo");
                 } else {
                     replayingKnownAttack(recv);
                 }
             }
+        } catch (EOFException e) {
+            System.out.println("Close...");
         } catch (Exception e) {
             // if any error occurs
             e.printStackTrace();

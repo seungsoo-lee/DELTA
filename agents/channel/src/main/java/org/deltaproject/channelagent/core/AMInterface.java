@@ -3,6 +3,7 @@ package org.deltaproject.channelagent.core;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -180,7 +181,13 @@ public class AMInterface extends Thread {
             dos.writeUTF("ChannelAgent");
             dos.flush();
 
-            log.info("connection completed");
+            String ack = dis.readUTF();
+            if (ack.contains("OK")) {
+                log.info("Connected with Agent-Manager");
+            } else {
+                log.info("Connection failed");
+                System.exit(1);
+            }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -326,9 +333,9 @@ public class AMInterface extends Thread {
                     dos.writeUTF(pktListener.getFuzzingMsg());
                     //dos.writeUTF("MSG");
                 } else if (recv.contains("close")) {
+                    System.out.println("Close..");
                     dis.close();
                     dos.close();
-
                     System.exit(0);
                 }
 

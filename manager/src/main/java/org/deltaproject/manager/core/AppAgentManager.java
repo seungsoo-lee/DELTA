@@ -1,7 +1,11 @@
 package org.deltaproject.manager.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -20,6 +24,8 @@ public class AppAgentManager {
     private String targetController;
 
     private Configuration cfg = Configuration.getInstance();
+
+    private static final Logger log = LoggerFactory.getLogger(AgentManager.class);
 
     public AppAgentManager() {
         this.targetController = cfg.getTargetController();
@@ -102,8 +108,9 @@ public class AppAgentManager {
         String result = "";
 
         try {
-            if (dis.available() > 0)
-                result = dis.readUTF();
+            result = dis.readUTF();
+        } catch (EOFException e) {
+            log.info("Connection for AppAgent is terminated");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
