@@ -187,4 +187,4 @@ Command>_
 + ![collabo](images/delta_collabo.png)
 
 ## Questions?
-Send questions or feedback to: lss365@kaist.ac.kr or jinwoo.kim@kaist.ac.kr
+Send questions or feedback to: lss365@kaist.ac.kr or jinwoo.kim@kaist.ac.kr 
