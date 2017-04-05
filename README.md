@@ -8,25 +8,25 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 + Channel-Agent is deployed between the controller and the OpenFlow-enabled switch. The agent sniffs and modifies the unencrypted control messages. It is controller-independent.
 + Host-Agent behaves as if it was a legitimate host participating in the target SDN network. The agent demonstrates an attack in which a host attempts to compromise the control plane.
 
-![Delta architecture](http://143.248.53.145/research/arch.png)
+![Delta architecture](/images/delta_arch.png)
 
 ## Prerequisites
 In order to build and run DELTA, the following are required:
 + An agent manager based on Ubuntu 14.04 LTS 64 bit
- + Ant build system
- + Maven build system
- + Vagrant system
- + JDK 1.7 (required only for ODL) and 1.8
+  + Ant build system
+  + Maven v3.3.9
+  + Vagrant
+  + JDK 1.7 and 1.8
 + Target Controller (for application agent)
- + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
- + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6
- + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
+  + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
+  + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6
+  + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
 + [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (for channel agent)
 + [Mininet 2.1+](http://mininet.org/download/) (for host agent)
 + (in the case of All-In-One Single Machine) Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
- + VM-1: Target controller + Application agent
- + VM-2: Channel agent
- + VM-3: Host agent
+  + VM-1: Target controller + Application agent
+  + VM-2: Channel agent
+  + VM-3: Host agent
 
 ## Installing DELTA
 DELTA installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the agents. DELTA can support an All-In-One Single Machine environment via virtual machines as well as a real hardware SDN environment.
@@ -62,10 +62,10 @@ $ vagrant up
 ```
 
 + STEP 4-b. (All-In-One Single Machine) Add NAT to VM3 (mininet)
-![NAT](http://143.248.53.145/research/natenv2.png)
+![NAT](images/delta_natenv.png)
 
-+ In the case of the all-in-one single machine, the test environment is automatically setup as below:
-![Env1](http://143.248.53.145/research/env_v1.png)
++ In the case of all-in-one single machine, the test environment is automatically setup as below:
+![Env1](images/delta_env.png)
 
 
 ## Configuring your own experiments
@@ -115,26 +115,25 @@ DUMMY_CONT_PORT=6633
 AM_IP=10.0.2.2
 AM_PORT=3366
 ```
-+ Configuring each target controller on the controller machine (if All-In-One Single Machine, VM-1)
-+ 1) Floodlight
+> Floodlight 1.2
 ```
-$ cd <DELTA>/tools/dev/floodlight-setup
-$ ./floodlight-scp
+$ cd <DELTA>/tools/dev/app-agent-setup
+$ ./floodlight-1.2-scp
 ```
- + 2) ONOS
+> ONOS 1.6
 ```
-$ cd <DELTA>/tools/dev/onos-setup
-$ ./onos-<version>-scp
-(on the controller machine) $ ./onos-<version>-setup
+$ cd <DELTA>/tools/dev/app-agent-setup
+$ ./onos-1.6.0-scp
+(on the controller machine) $ ./onos-1.6.0-setup
 (on the controller machine) $ sudo vi /etc/environment
 ...
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle 
 export ONOS_APPS=drivers,openflow,proxyarp,mobility,fwd
 ...
 ```
-+ 3) OpenDaylight: (only JDK 1.7 is supported)
+> OpenDaylight helium-sr3 (only JDK 1.7-supported)
 ```
-$ cd <DELTA>/tools/dev/odl-setup
+$ cd <DELTA>/tools/dev/app-agent-setup
 $ ./odl-helium-sr3-scp
 (on the controller machine) $ ./odl-helium-sr3-scp
 ```
@@ -156,8 +155,7 @@ $ ./tools/dev/delta-setup/delta-agents-scp
 
 + STEP 2. Execute Agent-Manager first
 ```
-$ cd <DELTA>/manager
-$ java -jar target/delta-manager-1.0-SNAPSHOT-jar-with-dependencies.jar ../tools/config/manager.cfg
+$ <DELTA>/bin/run-delta
 
  DELTA: A Penetration Testing Framework for Software-Defined Networks
 
@@ -171,7 +169,7 @@ Command>_
 ```
 
 + STEP 3. Connect Web-based UI (port number is 7070)
-![WEB](http://143.248.53.145/research/webui4.png)
+![WEB](images/delta_webui.png)
 
 
 ## Main Contributors
@@ -185,8 +183,7 @@ Command>_
 + Phil Porras, Vinod Yegneswaran (SRI International) 
 + Kyuho Hwang, Daewon Jung (National Security Research Institute)
 + [Atto Research](http://www.atto-research.com/index.php/en/home/)
-+ ![collabo](http://143.248.53.145/research/collabo2.png)
++ ![collabo](images/delta_collabo.png)
 
 ## Questions?
-Send questions or feedback to: lss365@kaist.ac.kr or jinwoo.kim@kaist.ac.kr
-.
+Send questions or feedback to: lss365@kaist.ac.kr or jinwoo.kim@kaist.ac.kr 

@@ -1,12 +1,18 @@
 package org.deltaproject.manager.target;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionContext;
+import org.deltaproject.manager.utils.AgentLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sun.management.Agent;
 
 import java.io.*;
 import java.lang.reflect.Field;
 
 public class ONOS implements TargetController {
-    private Process process = null;
+    private Process proc = null;
+    private static final Logger log = LoggerFactory.getLogger(ONOS.class.getName());
     private boolean isRunning = false;
 
     public String version = "";
@@ -19,45 +25,60 @@ public class ONOS implements TargetController {
     private BufferedWriter stdIn;
     private BufferedReader stdOut;
 
+    private Thread loggerThd;
+
     public ONOS(String path, String v, String ssh) {
         this.version = v;
         this.sshAddr = ssh;
 
         String user = ssh.substring(0, ssh.indexOf('@'));
-        onos1_1 = "/home/"+user+"/Applicatioins/apache-karaf-3.0.5/bin/karaf";
+        onos1_1 = "/home/"+user+"/Applications/apache-karaf-3.0.5/bin/karaf";
         onos1_6 = "/home/"+user+"/onos-1.6.0/bin/onos-service";
     }
 
-    public int createController() {
+    public boolean createController() {
         isRunning = false;
 
-        String str;
+        String str = "";
+
+        String[] cmdArray = null;
+
 
         try {
             if (this.version.contains("1.1")) {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + onos1_1 + " clean");
+//                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + onos1_1 + " clean");
+                cmdArray = new String[] {"ssh", sshAddr, onos1_1, "clean"};
             } else {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + onos1_6 + " clean");
+//                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + onos1_6 + " clean");
+                cmdArray = new String[] {"ssh", sshAddr, onos1_6, "clean"};
             }
+
+            ProcessBuilder pb = new ProcessBuilder(cmdArray);
+            pb.redirectErrorStream(true);
+            proc = pb.start();
+            loggerThd = new Thread(AgentLogger.getLoggerThreadInstance(proc, AgentLogger.APP_AGENT));
+            loggerThd.start();
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
-            Object value = pidField.get(process);
+            Object value = pidField.get(proc);
             this.currentPID = (Integer) value;
 
-            stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            stdIn = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
 
-            while ((str = stdOut.readLine()) != null) {
-                // System.out.println(str);
-                if (str.contains("ONOS.")) {
-                    isRunning = true;
-                    break;
-                }
+            Thread.sleep(7000);
+
+            str = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
+            if (str.contains("Welcome")) {
+                isRunning = true;
+                log.info("ONOS is activated");
+            } else {
+                log.info("Failed to start ONOS");
+                return false;
             }
 
             try {
-                Thread.sleep(10000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -75,11 +96,13 @@ public class ONOS implements TargetController {
                     currentPID = Integer.parseInt(list[1]);
                 }
             }
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return currentPID;
+        return true;
     }
 
     public void killController() {
@@ -118,7 +141,7 @@ public class ONOS implements TargetController {
 
 
     public Process getProc() {
-        return this.process;
+        return this.proc;
     }
 
     /* ONOS, AppAgent is automatically installed when the controller starts */

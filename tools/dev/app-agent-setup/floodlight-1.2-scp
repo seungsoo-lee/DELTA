@@ -4,6 +4,5 @@
 #
 
 # for Floodlight
-scp $DELTA_ROOT/agents/apps/floodlight/floodlight-0.91/target/floodlight.jar $DELTA_APP:~/floodlight-0.91.jar
 scp $DELTA_ROOT/agents/apps/floodlight/floodlight-1.2/target/floodlight.jar $DELTA_APP:~/floodlight-1.2.jar
 scp $DELTA_ROOT/agents/apps/floodlight/floodlight-1.2/src/main/resources/floodlightdefault.properties $DELTA_APP:~/

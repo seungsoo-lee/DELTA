@@ -1,6 +1,7 @@
 package org.deltaproject.manager;
 
 import org.deltaproject.manager.core.AgentManager;
+import org.deltaproject.manager.utils.AgentLogger;
 import org.slf4j.impl.SimpleLogger;
 
 import java.io.IOException;
@@ -16,8 +17,9 @@ public class Main {
             System.exit(1);
         }
 
+        AgentLogger.checkLogDirectory();
         System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "TRUE");
-        System.setProperty(SimpleLogger.LOG_FILE_KEY, "delta.log");
+        System.setProperty(SimpleLogger.LOG_FILE_KEY, "log/manager.log");
         System.setProperty(SimpleLogger.SHOW_DATE_TIME_KEY, "TRUE");
         System.setProperty(SimpleLogger.DATE_TIME_FORMAT_KEY, "[yyyy.MM.dd HH:mm:ss z]");
 

@@ -1,11 +1,14 @@
 package org.deltaproject.manager.core;
 
+import org.deltaproject.manager.utils.AgentLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.Socket;
 
@@ -21,6 +24,8 @@ public class ChannelAgentManager extends Thread {
     private int procPID;
 
     private Configuration cfg = Configuration.getInstance();
+
+    private Thread loggerThd;
 
     public ChannelAgentManager() {
         procPID = -1;
@@ -62,10 +67,15 @@ public class ChannelAgentManager extends Thread {
 
     public boolean runAgent() {
         String amAddr = cfg.getAMIP() + " " + cfg.getAMPort();
-        String command = "ssh " + cfg.getChannelSSH() + " sudo java -jar delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar " + amAddr;
+        String cmdArray[] = {"ssh", cfg.getChannelSSH(), "sudo", "java", "-jar", "delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar", amAddr};
 
         try {
-            proc = Runtime.getRuntime().exec(command);
+            ProcessBuilder pb = new ProcessBuilder(cmdArray);
+            pb.redirectErrorStream(true);
+            proc = pb.start();
+            loggerThd = new Thread(AgentLogger.getLoggerThreadInstance(proc, AgentLogger.CHANNEL_AGENT));
+            loggerThd.start();
+
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
             Object value = pidField.get(proc);
@@ -100,7 +110,7 @@ public class ChannelAgentManager extends Thread {
             e.printStackTrace();
         }
 
-        if (procPID != -1)
+        if (procPID != -1) {
             try {
                 proc = Runtime.getRuntime().exec("sudo kill -9 " + this.procPID);
                 proc.waitFor();
@@ -108,6 +118,7 @@ public class ChannelAgentManager extends Thread {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
     }
 
     @Override

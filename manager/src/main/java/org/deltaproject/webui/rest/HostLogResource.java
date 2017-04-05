@@ -7,22 +7,22 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-@Path("/text/getlog")
-public class LogResource {
+
+@Path("/text/gethost")
+public class HostLogResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public Response getLog() {
+    public Response getChannelLog() {
 
         RandomAccessFile log = null;
         String logstr = "";
 
         try {
-            log = new RandomAccessFile(AgentLogger.LOG_PATH + "manager.log", "r");
+            log = new RandomAccessFile(AgentLogger.LOG_PATH + "host.log", "r");
 
             String line;
             while ((line = log.readLine()) != null) {

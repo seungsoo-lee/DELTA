@@ -1,6 +1,7 @@
 package org.deltaproject.manager.target;
 
 import org.apache.commons.lang3.StringUtils;
+import org.deltaproject.manager.utils.AgentLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,7 @@ public class OpenDaylight implements TargetController {
         return this;
     }
 
-    public int createController() {
+    public boolean createController() {
         isRunning = false;
 
         String str;
@@ -59,29 +60,18 @@ public class OpenDaylight implements TargetController {
 
             this.currentPID = (Integer) value;
 
-            stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
+//            stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
             stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
-            while ((str = stdOut.readLine()) != null) {
-                //log.info(str);
-                if (str.contains("initialized successfully")) {
-                    isRunning = true;
-                    break;
-                }
+            Thread.sleep(10000);
 
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            str = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
+            if (str.contains("initialized successfully")) {
+                log.info("OpenDaylight is activated");
+                isRunning = true;
+            } else {
+                log.info("Failed to start OpenDaylight");
+                return false;
             }
 
             Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep java");
@@ -102,7 +92,7 @@ public class OpenDaylight implements TargetController {
             e.printStackTrace();
         }
 
-        return currentPID;
+        return true;
     }
 
     public boolean installAppAgent() {
@@ -177,9 +167,9 @@ public class OpenDaylight implements TargetController {
                 stdIn.close();
             }
 
-            if (stdOut != null) {
-                stdOut.close();
-            }
+//            if (stdOut != null) {
+//                stdOut.close();
+//            }
 
             if (this.currentPID != -1) {
                 Process pc = null;
