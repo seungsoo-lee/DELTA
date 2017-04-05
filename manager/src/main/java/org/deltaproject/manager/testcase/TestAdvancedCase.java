@@ -330,7 +330,7 @@ public class TestAdvancedCase {
 		/* step 2: try communication */
         log.info("HostAgent starts communication");
         String flowResult = generateFlow("ping");
-        log.info("Gethering result from HostAgent");
+        log.info("Gathering result from HostAgent");
 
 		/* step 3: conduct the attack */
         log.info("App-Agent starts");
@@ -450,7 +450,7 @@ public class TestAdvancedCase {
         String resultFlow = generateFlow("ping");
 
 		/* step 4: decide if the attack is feasible */
-        log.info("Check switch's state");
+        log.info("Check switch state");
 
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.SWITCH_STATE);
@@ -604,7 +604,7 @@ public class TestAdvancedCase {
      */
     public boolean testApplicationEviction(TestCase test) {
         if (controllerm.getType().equals("Floodlight")) {
-            System.out.println("\nFloodlight is impossible to replay [" + test.getcasenum() + "] ");
+            System.out.println("\nIt is not possible to replay this attack in Floodlight [" + test.getcasenum() + "] ");
             return false;
         }
 
@@ -876,7 +876,7 @@ public class TestAdvancedCase {
      */
     public boolean testEvaseDrop(TestCase test) {
         controllerm.flushARPcache();
-        log.info(test.getcasenum() + " - Evaesdrop - Test for control channel protection against malicious host sniffing the control channel");
+        log.info(test.getcasenum() + " - Eavesdrop - Test for control channel protection against malicious host sniffing the control channel");
         String resultChannel;
 
 		/* step 1: create controller */
