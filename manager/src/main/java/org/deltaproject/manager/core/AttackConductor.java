@@ -81,11 +81,15 @@ public class AttackConductor {
 
         if (agentType.contains("AppAgent")) {
             appm.setAppSocket(socket, dos, dis);
+            dos.writeUTF("OK");
+            dos.flush();
             log.info("AppAgent is connected");
         } else if (agentType.contains("ActAgent")) {        /* for OpenDaylight */
             appm.setActSocket(socket, dos, dis);
         } else if (agentType.contains("ChannelAgent")) {
             channelm.setSocket(socket, dos, dis);
+            dos.writeUTF("OK");
+            dos.flush();
 
 			/* send configuration to channel agent */
             String config = "config," + "version:" + cfg.getOFVer() + ",nic:" + cfg.getMitmNIC() + ",port:"

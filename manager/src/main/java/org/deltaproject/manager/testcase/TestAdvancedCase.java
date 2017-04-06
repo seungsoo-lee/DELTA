@@ -400,10 +400,6 @@ public class TestAdvancedCase {
         log.info("Channel-Agent starts");
         channelm.write(test.getcasenum());
 
-        log.info("Agent-Manager retrieves result from Channel-Agent");
-        String resultChannel = channelm.read();
-
-
 		/* step 3: try communication */
         log.info("Host-Agent sends packets to others");
         String flowResult = generateFlow("ping");
@@ -949,7 +945,7 @@ public class TestAdvancedCase {
         String resultChannel = channelm.read();
 
         try {
-            Thread.sleep(10000);    // 30 seconds
+            Thread.sleep(30000);    // 30 seconds
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

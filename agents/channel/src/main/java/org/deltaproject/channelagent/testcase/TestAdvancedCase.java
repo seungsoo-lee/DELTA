@@ -355,7 +355,7 @@ public class TestAdvancedCase {
 
             try {
                 OFMessage message = reader.readFrom(bb);
-                System.out.println("OFMsg "+message.toString());
+                System.out.println("OFMsg " + message.toString());
 
                 if (message == null)
                     return null;
@@ -422,7 +422,7 @@ public class TestAdvancedCase {
                     newoutput.writeTo(buf);
                     // System.out.println("after " + newoutput.toString());
                 }
-            } catch (OFParseError e) {
+            } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
