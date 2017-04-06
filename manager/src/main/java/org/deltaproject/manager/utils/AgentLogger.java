@@ -41,6 +41,7 @@ public class AgentLogger {
     public static class LoggerThread implements Runnable {
         private String name;
         private BufferedReader stderrBr;
+        private FileWriter output;
 
         LoggerThread(Process proc, String name) {
             this.stderrBr = new BufferedReader(new InputStreamReader(proc.getInputStream()));
@@ -49,22 +50,23 @@ public class AgentLogger {
 
         public void run() {
             try {
-                while (!Thread.currentThread().isInterrupted()) {
-                    checkLogDirectory();
-                    FileWriter output = new FileWriter(LOG_PATH + name, true);
-                    String line = stderrBr.readLine();
-
-                    if (line != null) {
-                        output.write(line + "\n");
-                    }
+                output = new FileWriter(LOG_PATH + name, true);
+                checkLogDirectory();
+                String line;
+                while ((line = stderrBr.readLine()) != null) {
+                    output.write(line + "\n");
                     output.flush();
-                    output.close();
                 }
-
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                try {
+                    output.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

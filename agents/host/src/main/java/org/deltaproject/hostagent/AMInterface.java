@@ -131,7 +131,7 @@ public class AMInterface extends Thread {
 			}
 		}
 		 catch (EOFException e) {
-			System.out.println("Close...");
+			System.out.println("[Host-Agent] Closing...");
 		} catch (Exception e) {
 			// if any error occurs
 			e.printStackTrace();

@@ -240,7 +240,7 @@ public class AMInterface extends Thread {
                     System.out.println("\n[Channel-Agent] Topology Information " + result);
                     dos.writeUTF(result);
                 } else if (recv.equalsIgnoreCase("3.1.180")) {
-                    System.out.println("\n[Channel-Agent] MITM test start");
+                    System.out.println("\n[Channel-Agent] MITM test starts");
                     pktListener.setTypeOfAttacks(TestCase.MITM);
                     pktListener.startListening();
                     pktListener.startARPSpoofing();
@@ -298,10 +298,10 @@ public class AMInterface extends Thread {
                     }
                 } else if (recv.contains("0.0.011")) {
                     if (recv.contains("0.0.011")) {
-                        log.info("Control plane fuzzing test start");
+                        log.info("Control plane fuzzing test starts");
                         pktListener.setTypeOfAttacks(TestCase.CONTROLPLANE_FUZZING);
                     } else {
-                        log.info("Data plane fuzzing test start");
+                        log.info("Data plane fuzzing test starts");
                         pktListener.setTypeOfAttacks(TestCase.DATAPLANE_FUZZING);
                     }
 
@@ -310,7 +310,7 @@ public class AMInterface extends Thread {
 
                     dos.writeUTF("success");
                 } else if (recv.contains("0.0.010")) {
-                    log.info("Seed-based fuzzing test start");
+                    log.info("Seed-based fuzzing test starts");
                     pktListener.setTypeOfAttacks(TestCase.SEED_BASED_FUZZING);
                     pktListener.setFuzzingMode(1);
 
@@ -333,7 +333,7 @@ public class AMInterface extends Thread {
                     dos.writeUTF(pktListener.getFuzzingMsg());
                     //dos.writeUTF("MSG");
                 } else if (recv.contains("close")) {
-                    System.out.println("Close..");
+                    System.out.println("[Channel-Agent] Closing...");
                     dis.close();
                     dos.close();
                     System.exit(0);
