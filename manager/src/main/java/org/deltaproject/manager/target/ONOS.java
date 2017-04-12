@@ -16,6 +16,7 @@ public class ONOS implements TargetController {
     private boolean isRunning = false;
 
     public String version = "";
+    public String onos1_9 = "";
     public String onos1_6 = "";
     public String onos1_1 = "";
     public String sshAddr = "";
@@ -32,8 +33,9 @@ public class ONOS implements TargetController {
         this.sshAddr = ssh;
 
         String user = ssh.substring(0, ssh.indexOf('@'));
-        onos1_1 = "/home/"+user+"/Applications/apache-karaf-3.0.5/bin/karaf";
-        onos1_6 = "/home/"+user+"/onos-1.6.0/bin/onos-service";
+        onos1_1 = "/home/" + user + "/Applications/apache-karaf-3.0.5/bin/karaf";
+        onos1_6 = "/home/" + user + "/onos-1.6.0/bin/onos-service";
+        onos1_9 = "/home/" + user + "/run-onos-delta";
     }
 
     public boolean createController() {
@@ -46,11 +48,11 @@ public class ONOS implements TargetController {
 
         try {
             if (this.version.contains("1.1")) {
-//                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + onos1_1 + " clean");
                 cmdArray = new String[] {"ssh", sshAddr, onos1_1, "clean"};
-            } else {
-//                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + onos1_6 + " clean");
+            } else if (this.version.contains("1.6")) {
                 cmdArray = new String[] {"ssh", sshAddr, onos1_6, "clean"};
+            } else if (this.version.contains("1.9")) {
+                cmdArray = new String[] {"ssh", sshAddr, onos1_9};
             }
 
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
