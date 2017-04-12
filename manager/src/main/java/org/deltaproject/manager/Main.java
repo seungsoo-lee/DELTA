@@ -19,7 +19,7 @@ public class Main {
 
         AgentLogger.checkLogDirectory();
         System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "TRUE");
-        System.setProperty(SimpleLogger.LOG_FILE_KEY, "log/manager.log");
+        System.setProperty(SimpleLogger.LOG_FILE_KEY, System.getenv("DELTA_ROOT") + "/log/manager.log");
         System.setProperty(SimpleLogger.SHOW_DATE_TIME_KEY, "TRUE");
         System.setProperty(SimpleLogger.DATE_TIME_FORMAT_KEY, "[yyyy.MM.dd HH:mm:ss z]");
 
