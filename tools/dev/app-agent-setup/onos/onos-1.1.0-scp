@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# Script to distribute the compiled files to VMs
+#
+
+scp $DELTA_ROOT/agents/apps/onos/onos-1.1/target/delta-agent-app-onos-1.1-1.0-SNAPSHOT.jar $DELTA_APP:~/
+
+scp $DELTA_ROOT/tools/dev/onos-setup/onos-1.1.0-setup $DELTA_APP:~/
+scp $DELTA_ROOT/tools/dev/onos-setup/onos-1.1.0-bash-profile $DELTA_APP:~/
+scp $DELTA_ROOT/tools/dev/onos-setup/org.apache.karaf.features.cfg-1.1 $DELTA_APP:~/
