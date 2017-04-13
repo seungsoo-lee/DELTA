@@ -142,7 +142,7 @@ public class TestAdvancedCase {
         stopRemoteAgents();
     }
 
-    public void initController() {
+    public void initController(boolean switchWait) {
         if (!controllerm.isRunning()) {
             log.info("Target controller: " + controllerm.getType() + " " + controllerm.getVersion());
 
@@ -157,7 +157,7 @@ public class TestAdvancedCase {
 
 			/* waiting for switches */
             log.info("Listening to switches..");
-            controllerm.isConnectedSwitch(true);
+            controllerm.isConnectedSwitch(switchWait);
             log.info("All switches are connected");
 
             if (controllerm.getType().contains("ONOS")) {
@@ -192,7 +192,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Packet-In Flooding - Test for controller protection against Packet-In Flooding");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
         String before = generateFlow("ping");
 
@@ -250,7 +250,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Control Message Drop - Test for controller protection against application dropping control messages");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
@@ -289,7 +289,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Infinite Loop - Test for controller protection against application creating infinite loop");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
@@ -324,7 +324,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Internal Storage Abuse - Test for controller protection against application manipulating network information base");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
 		/* step 2: try communication */
@@ -363,7 +363,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Device Inventory Table Flooding - Test for controller protection against device inventory table flooding");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
@@ -393,7 +393,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Switch Identification Spoofing - Test for switch protection against ID spoofing");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
@@ -428,7 +428,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Malformed Control Message");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
@@ -469,7 +469,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Flow Rule Modification - Test for switch protection against application modifying flow rule");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
         log.info("Host-Agent sends packets to others (before)");
@@ -511,7 +511,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Flow Table Clearance - Test for controller protection against flow table flushing");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
         log.info("Host-Agent sends packets to others (before)");
@@ -553,7 +553,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Event Unsubscription - Test for controller protection against application unsubscribing neighbour application from events");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
@@ -607,7 +607,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Application Eviction - Test for controller protection against one application uninstalling another application");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
@@ -657,7 +657,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Memory Exhaustion - Test for controller protection against an application exhausting controller memory");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
@@ -705,7 +705,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - CPU Exhaustion - Test for controller protection against an application exhausting controller CPU");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
@@ -754,7 +754,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - System Variable Manipulation - Test for controller protection against an application manipulating a system variable");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
@@ -788,7 +788,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - System Command Execution - Test for controller protection against an application accessing a system command");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
@@ -833,7 +833,7 @@ public class TestAdvancedCase {
         channelm.read();
 
 		/* step 2: create controller */
-        initController();
+        initController(true);
 
         try {
             Thread.sleep(5000);
@@ -876,7 +876,7 @@ public class TestAdvancedCase {
         String resultChannel;
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
         try {
@@ -936,7 +936,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Man-In-The-Middle attack - Test for control channel protection against MITM attack");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
@@ -978,7 +978,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Flow Rule Flooding - Test for switch protection against flow rule flooding");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
         log.info("Host-Agent sends packets to others (before)");
@@ -1026,7 +1026,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Switch Firmware Misuse - Test for switch protection against application installing degraded flow rules");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
         log.info("Host-Agent sends packets to others (before)");
@@ -1074,7 +1074,7 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Control Message Manipulation");
 
 		/* step 1: create controller */
-        initController();
+        initController(true);
         long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
