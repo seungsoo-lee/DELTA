@@ -122,14 +122,9 @@ $ ./floodlight-1.2-scp
 ```
 > ONOS 1.6
 ```
-$ cd <DELTA>/tools/dev/app-agent-setup
-$ ./onos-1.6.0-scp
-(on the controller machine) $ ./onos-1.6.0-setup
-(on the controller machine) $ sudo vi /etc/environment
-...
-export JAVA_HOME=/usr/lib/jvm/java-8-oracle 
-export ONOS_APPS=drivers,openflow,proxyarp,mobility,fwd
-...
+$ cd <DELTA>/tools/dev/app-agent-setup/onos
+$ ./delta-setup-onos <onos-version>
+* Supported ONOS version: 1.6, 1.9
 ```
 > OpenDaylight helium-sr3 (only JDK 1.7-supported)
 ```
