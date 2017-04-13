@@ -34,8 +34,8 @@ public class ONOS implements TargetController {
 
         String user = ssh.substring(0, ssh.indexOf('@'));
         onos1_1 = "/home/" + user + "/Applications/apache-karaf-3.0.5/bin/karaf";
-        onos1_6 = "/home/" + user + "/onos-1.6.0/bin/onos-service";
-        onos1_9 = "/home/" + user + "/run-onos-delta";
+//        onos1_6 = "/home/" + user + "/onos-1.6.0/bin/onos-service";
+//        onos1_9 = "/home/" + user + "/run-onos-delta";
     }
 
     public boolean createController() {
@@ -50,9 +50,9 @@ public class ONOS implements TargetController {
             if (this.version.contains("1.1")) {
                 cmdArray = new String[] {"ssh", sshAddr, onos1_1, "clean"};
             } else if (this.version.contains("1.6")) {
-                cmdArray = new String[] {"ssh", sshAddr, onos1_6, "clean"};
+                cmdArray = new String[] {System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.6"};
             } else if (this.version.contains("1.9")) {
-                cmdArray = new String[] {"ssh", sshAddr, onos1_9};
+                cmdArray = new String[] {System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.9"};
             }
 
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
