@@ -19,7 +19,7 @@ In order to build and run DELTA, the following are required:
   + JDK 1.7 and 1.8
 + Target Controller (for application agent)
   + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
-  + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6
+  + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6, 1.9
   + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
 + [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (for channel agent)
 + [Mininet 2.1+](http://mininet.org/download/) (for host agent)
@@ -124,7 +124,7 @@ $ ./floodlight-1.2-scp
 ```
 $ cd <DELTA>/tools/dev/app-agent-setup/onos
 $ ./delta-setup-onos <onos-version>
-* Supported ONOS version: 1.6, 1.9
+* Supported ONOS version in the script: 1.6, 1.9 
 ```
 > OpenDaylight helium-sr3 (only JDK 1.7-supported)
 ```
