@@ -193,7 +193,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
         String before = generateFlow("ping");
 
         try {
@@ -236,9 +235,6 @@ public class TestAdvancedCase {
 		/* step 4: decide if the attack is feasible */
         analyzer.checkResult(test, result);
 
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start) + "ms");
-
         controllerm.killController();
         return true;
     }
@@ -251,7 +247,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
         log.info("App-Agent starts");
@@ -274,9 +269,6 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
-
         appm.closeSocket();
         controllerm.killController();
         return true;
@@ -290,7 +282,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
         log.info("App-Agent starts");
@@ -309,9 +300,6 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
-
         appm.closeSocket();
         controllerm.killController();
         return true;
@@ -325,7 +313,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
 		/* step 2: try communication */
         log.info("HostAgent starts communication");
@@ -347,9 +334,6 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
-
         appm.closeSocket();
         controllerm.killController();
 
@@ -364,7 +348,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
         log.info("Channel-Agent starts");
@@ -380,9 +363,6 @@ public class TestAdvancedCase {
         appm.closeSocket();
         controllerm.killController();
 
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
-
         return true;
     }
 
@@ -394,7 +374,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
         log.info("Channel-Agent starts");
@@ -413,9 +392,6 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
-
         appm.closeSocket();
         controllerm.killController();
         return true;
@@ -429,7 +405,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
         log.info("ChannelAgent starts");
@@ -452,8 +427,6 @@ public class TestAdvancedCase {
         result.addType(ResultInfo.SWITCH_STATE);
 
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         channelm.write("exit");
         controllerm.flushARPcache();
@@ -496,8 +469,6 @@ public class TestAdvancedCase {
         result.setResult(modified);
 
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         appm.closeSocket();
         controllerm.killController();
@@ -512,7 +483,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
         log.info("Host-Agent sends packets to others (before)");
 
@@ -533,8 +503,6 @@ public class TestAdvancedCase {
         result.setLatency(before, after);
 
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         appm.closeSocket();
         controllerm.killController();
@@ -554,7 +522,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
         log.info("App-Agent starts");
@@ -586,9 +553,6 @@ public class TestAdvancedCase {
         result.addType(ResultInfo.COMMUNICATON);
         result.setLatency(null, resultFlow);
         analyzer.checkResult(test, result);
-
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         appm.closeSocket();
         controllerm.killController();
@@ -608,7 +572,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
         log.info("App-Agent starts");
@@ -641,9 +604,6 @@ public class TestAdvancedCase {
         result.setLatency(null, resultFlow);
 
         analyzer.checkResult(test, result);
-
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         appm.closeSocket();
         controllerm.killController();
@@ -691,7 +651,7 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
         long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
+        log.info("Running Time(s) : " + (end - start) / 1000.0);
 
         appm.closeSocket();
         controllerm.killController();
@@ -706,7 +666,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
         log.info("Host-Agent sends packets to others (before)");
@@ -739,8 +698,6 @@ public class TestAdvancedCase {
         result.setLatency(before, after);
 
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         appm.closeSocket();
         controllerm.killController();
@@ -789,7 +746,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
         log.info("App-Agent starts");
@@ -810,8 +766,6 @@ public class TestAdvancedCase {
             appm.closeSocket();
             controllerm.killController();
         }
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
         return true;
     }
 
@@ -825,7 +779,6 @@ public class TestAdvancedCase {
      */
     public boolean testLinkFabrication(TestCase test) {
         log.info(test.getcasenum() + " - Link Fabrication - Test for controller protection against application creating fictitious link");
-        long start = System.currentTimeMillis();
 
 		/* step 1: conduct the attack */
         log.info("Channel-Agent starts");
@@ -861,9 +814,6 @@ public class TestAdvancedCase {
         appm.closeSocket();
         controllerm.killController();
 
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
-
         return true;
     }
 
@@ -877,7 +827,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
         try {
             Thread.sleep(10000);    // 30 seconds
@@ -918,8 +867,6 @@ public class TestAdvancedCase {
         result.addType(ResultInfo.CHANNELAGENT_REPLY);
         result.setResult(resultChannel);
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         channelm.write("exit");
         controllerm.flushARPcache();
@@ -937,7 +884,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
         log.info("Channel-Agent starts");
@@ -961,8 +907,6 @@ public class TestAdvancedCase {
         result.addType(ResultInfo.COMMUNICATON);
         result.setLatency(null, resultFlow);
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         channelm.write("exit");
         controllerm.flushARPcache();
@@ -979,7 +923,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
         log.info("Host-Agent sends packets to others (before)");
         String before = generateFlow("compare");
@@ -1010,8 +953,6 @@ public class TestAdvancedCase {
         result.setLatency(before, after);
 
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         appm.closeSocket();
         controllerm.killController();
@@ -1027,7 +968,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
         log.info("Host-Agent sends packets to others (before)");
         String before = generateFlow("compare");
@@ -1058,8 +998,6 @@ public class TestAdvancedCase {
         result.addType(ResultInfo.LATENCY_TIME);
         result.setLatency(before, after);
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         appm.closeSocket();
         controllerm.killController();
@@ -1075,7 +1013,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
         log.info("ChannelAgent starts");
@@ -1092,8 +1029,6 @@ public class TestAdvancedCase {
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.SWITCH_STATE);
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         channelm.write("exit");
         controllerm.flushARPcache();

@@ -154,6 +154,7 @@ public class ResultAnalyzer {
         int afterInt = (int) (Double.parseDouble(after) * 1000);
 
         log.info("Latency (us) before: " + beforeInt + " < After: " + afterInt);
+        log.info("Threshold (us) : " + beforeInt * 2 );
 
         if ((beforeInt * 2) < afterInt) {
             return true;

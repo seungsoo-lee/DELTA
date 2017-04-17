@@ -105,7 +105,6 @@ public class TestFuzzing {
     }
 
     public void testFuzzing(TestCase test) {
-        long start = System.currentTimeMillis();
 
         switch (test.getcasenum()) {
             case "0.0.010":
@@ -119,7 +118,6 @@ public class TestFuzzing {
                 break;
             case "0.0.021":
                 log.info(test.getcasenum() + " - Data Plane Live Fuzzing Test - Finding unknown attack case for data plane");
-
                 break;
         }
 
@@ -181,10 +179,6 @@ public class TestFuzzing {
             if (!analyzer.checkResult(test, result)) {
                 //log.error(resultChannel);
             }
-
-            long end = System.currentTimeMillis();
-
-            log.info("Running Time: " + (end - start));
 
             stopRemoteAgents(true, true);
             controllerm.flushARPcache();

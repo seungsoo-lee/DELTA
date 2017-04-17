@@ -106,6 +106,7 @@ public class AttackConductor {
     }
 
     public void executeTestCase(TestCase test) throws InterruptedException {
+        long start = System.currentTimeMillis();
         if (test.getcasenum().charAt(0) == '1') {
             testSwitchCase.replayKnownAttack(test);
         } else if (test.getcasenum().charAt(0) == '2') {
@@ -115,7 +116,8 @@ public class AttackConductor {
         } else if (test.getcasenum().charAt(0) == '0') {
             testFuzzing.testFuzzing(test);
         }
-
+        long end = System.currentTimeMillis();
+        log.info("Running Time(s) : " + (end - start) / 1000.0);
         log.info(test.getName()+" is done\n");
     }
 
