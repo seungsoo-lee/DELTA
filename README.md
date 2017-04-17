@@ -120,7 +120,13 @@ AM_PORT=3366
 $ cd <DELTA>/tools/dev/app-agent-setup
 $ ./floodlight-1.2-scp
 ```
-> ONOS 1.6
+> ONOS 1.1
+```
+$ cd <DELTA>/tools/dev/app-agent-setup/onos
+$ ./onos-1.1.0-scp
+(on the controller machine) $ ./onos-1.1.0-setup
+```
+> ONOS 1.6 or 1.9
 ```
 $ cd <DELTA>/tools/dev/app-agent-setup/onos
 $ ./delta-setup-onos <onos-version>
