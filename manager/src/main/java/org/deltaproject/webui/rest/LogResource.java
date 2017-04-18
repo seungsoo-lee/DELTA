@@ -8,21 +8,24 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 
 @Path("/text/getlog")
 public class LogResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public Response getLog() {
+    public Response getManagerLog() {
 
-        RandomAccessFile log = null;
+        BufferedReader log = null;
         String logstr = "";
 
         try {
-            log = new RandomAccessFile(AgentLogger.LOG_PATH + "manager.log", "r");
+            log = new BufferedReader(new InputStreamReader(new FileInputStream(AgentLogger.LOG_PATH + "manager.log")));
 
             String line;
             while ((line = log.readLine()) != null) {
