@@ -472,24 +472,22 @@ public class AppAgent {
     }
 
     public boolean setInfiniteLoop() {
-        System.out.println("[ATTACK] Set_Infinite_Loop");
+        System.out.println("[ATTACK] Set Infinite Loop");
         this.isLoop = true;
 
         return true;
     }
 
     public static boolean testInfiniteLoop() {
-        System.out.println("[ATTACK] Infinite_Loop");
+        System.out.println("[ATTACK] Start Infinite Loop");
         int i = 0;
 
         while (i < 32767) {
-            System.out.println("[ATTACK] Loop Count: " + i);
             i++;
 
             if (i == 32766)
                 i = 0;
         }
-
         return true;
     }
 
@@ -815,8 +813,9 @@ public class AppAgent {
                 System.out.println(eth.toString() + "\n");
 
                 context.block();
-            } else if (isLoop)
+            } else if (isLoop) {
                 AppAgent.testInfiniteLoop();
+            }
 
             // Set<Application> appset = appadmin.getApplications();
             // Infinite_Loop();

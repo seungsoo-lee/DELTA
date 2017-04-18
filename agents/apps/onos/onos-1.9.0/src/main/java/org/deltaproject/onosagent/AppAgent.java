@@ -479,17 +479,15 @@ public class AppAgent {
     }
 
     public static boolean testInfiniteLoop() {
-        System.out.println("[ATTACK] Infinite_Loop");
+        System.out.println("[ATTACK] Start Infinite Loop");
         int i = 0;
 
         while (i < 32767) {
-            System.out.println("[ATTACK] Loop Count: " + i);
             i++;
 
             if (i == 32766)
                 i = 0;
         }
-
         return true;
     }
 
