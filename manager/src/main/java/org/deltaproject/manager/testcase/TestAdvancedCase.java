@@ -32,8 +32,12 @@ public class TestAdvancedCase {
 
     public void runRemoteAgents(boolean channel, boolean host) {
         log.info("Run channel/host agent..");
-        channelm.runAgent();
-        hostm.runAgent();
+        if (channel) {
+            channelm.runAgent();
+        }
+        if (host) {
+            hostm.runAgent();
+        }
 
         try {
             Thread.sleep(1500);
@@ -162,7 +166,7 @@ public class TestAdvancedCase {
 
             if (controllerm.getType().contains("ONOS")) {
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(7000);
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -286,6 +290,12 @@ public class TestAdvancedCase {
 		/* step 2: conduct the attack */
         log.info("App-Agent starts");
         appm.write(test.getcasenum());
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
 		/* step 3: try communication */
         log.info("Host-Agent sends packets to others");
