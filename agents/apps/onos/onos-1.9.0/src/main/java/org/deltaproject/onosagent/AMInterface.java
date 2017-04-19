@@ -1,22 +1,30 @@
 package org.deltaproject.onosagent;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Enumeration;
-import java.util.Properties;
 
+/**
+ * An Agent Manager Interface of ONOS AppAgent.
+ */
 public class AMInterface extends Thread {
-    int result = 1;
 
     private AppAgent app;
-
     private Socket socket;
     private InputStream in;
     private DataInputStream dis;
     private OutputStream out;
     private DataOutputStream dos;
-
     private String serverIP;
     private int serverPort;
 
@@ -48,11 +56,12 @@ public class AMInterface extends Thread {
             br = new BufferedReader(isr);
 
             while ((temp = br.readLine()) != null) {
-                if (temp.contains("MANAGER_IP"))
+                if (temp.contains("MANAGER_IP")) {
                     this.serverIP = temp.substring(temp.indexOf("=") + 1);
-
-                if (temp.contains("MANAGER_PORT"))
+                }
+                if (temp.contains("MANAGER_PORT")) {
                     this.serverPort = Integer.parseInt(temp.substring(temp.indexOf("=") + 1));
+                }
             }
 
         } catch (FileNotFoundException e) {
@@ -90,9 +99,9 @@ public class AMInterface extends Thread {
         }
     }
 
-    public void write(String in) {
+    public void write(String input) {
         try {
-            dos.writeUTF(in);
+            dos.writeUTF(input);
             dos.flush();
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -117,20 +126,14 @@ public class AMInterface extends Thread {
             result = app.testFlowRuleModification();
             dos.writeUTF(result);
         } else if (recv.contains("3.1.080")) {
-
-			/* loop? */
-            if (recv.contains("false")) {
-                app.testFlowTableClearance(false);
-                return;
-            } else {
-                app.testFlowTableClearance(true);
-            }
-
+            app.testFlowTableClearance();
+            dos.writeUTF(result);
         } else if (recv.contains("3.1.090")) {
-            if (app.testEventListenerUnsubscription())
+            if (app.testEventListenerUnsubscription()) {
                 dos.writeUTF("success");
-            else
+            } else {
                 dos.writeUTF("fail");
+            }
         } else if (recv.contains("3.1.100")) {
             result = app.testApplicationEviction("fwd");
             dos.writeUTF(result);
@@ -138,7 +141,7 @@ public class AMInterface extends Thread {
             app.testResourceExhaustionMem();
             return;
         } else if (recv.contains("3.1.120")) {
-            app.testResourceExhaustionCPU();
+            app.testResourceExhaustionCpu();
             return;
         } else if (recv.contains("3.1.130")) {
             app.testSystemVariableManipulation();
