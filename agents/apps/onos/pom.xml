@@ -15,8 +15,8 @@
 
     <modules>
         <!-- <module>onos-1.1</module> -->
-        <!--<module>onos-1.6</module>-->
-        <module>onos-1.9</module>
+        <module>onos-1.6.0</module>
+        <module>onos-1.9.0</module>
     </modules>
 
 
