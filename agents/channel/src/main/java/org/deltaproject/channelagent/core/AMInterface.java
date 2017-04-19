@@ -1,9 +1,17 @@
 package org.deltaproject.channelagent.core;
 
+import jpcap.NetworkInterface;
+import org.deltaproject.channelagent.dummy.DummySwitch;
+import org.deltaproject.channelagent.pkthandler.NIC;
+import org.deltaproject.channelagent.pkthandler.PktListener;
+import org.deltaproject.channelagent.testcase.TestCase;
+import org.deltaproject.channelagent.testcase.TestControllerCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,17 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
 import java.net.Socket;
-
-import org.deltaproject.channelagent.dummy.DummySwitch;
-import org.deltaproject.channelagent.pkthandler.NIC;
-import org.deltaproject.channelagent.pkthandler.PktListener;
-import org.deltaproject.channelagent.testcase.*;
-
-import jpcap.NetworkInterface;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AMInterface extends Thread {
     private static final Logger log = LoggerFactory.getLogger(AMInterface.class);
@@ -106,15 +104,19 @@ public class AMInterface extends Thread {
 
     public boolean executeCbench() {
         try {
-            processCbench = Runtime.getRuntime().exec(
-                    cbench + "cbench -c " + this.controllerIP + "  -p " + ofPort + " -m 10000 -l 20 -s 32 -M 2000 -t");
+            cbench += "cbench";
+            String[] cmdCbench = {cbench, "-c", this.controllerIP, "-p", ofPort, "-m", "1000", "-l", "20",
+                    "-s", "32", "-M", "2000", "-t", "-o", "1000"};
+            ProcessBuilder pb = new ProcessBuilder(cmdCbench);
+            pb.redirectErrorStream(true);
+            processCbench = pb.start();
 
-            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
-            pidField.setAccessible(true);
-            Object value = pidField.get(processCbench);
+            BufferedReader stderr = new BufferedReader(new InputStreamReader(processCbench.getInputStream()));
 
-            int cbenchPID = (Integer) value;
-
+            String line;
+            while ((line = stderr.readLine()) != null) {
+                System.out.println(line);
+            }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
