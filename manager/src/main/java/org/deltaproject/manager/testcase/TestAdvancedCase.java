@@ -221,7 +221,7 @@ public class TestAdvancedCase {
         channelm.write(test.getcasenum());
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(15000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -389,6 +389,12 @@ public class TestAdvancedCase {
         log.info("Channel-Agent starts");
         channelm.write(test.getcasenum());
 
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
 		/* step 3: try communication */
         log.info("Host-Agent sends packets to others");
         String flowResult = generateFlow("ping");
@@ -453,14 +459,9 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
-
         log.info("Host-Agent sends packets to others (before)");
-        /* step 2 : generate before flow (ping) */
 
-        String before = generateFlow("ping");
-
-		/* step 3 : replay attack */
+		/* step 2 : replay attack */
         log.info("App-Agent starts");
         appm.write(test.getcasenum());
 
@@ -469,13 +470,15 @@ public class TestAdvancedCase {
         log.info("Agent-Manager retrieves result from App-Agent");
         modified = appm.read();
 
-        log.info("Host-Agent sends packets to others (after)");
-        String after = generateFlow("ping");
+        /* step 3: try communication */
+        log.info("Host-Agent sends packets to others");
+        String resultFlow = generateFlow("ping");
 
         ResultInfo result = new ResultInfo();
 
 		/* step 4: decide if the attack is feasible */
-        result.addType(ResultInfo.APPAGENT_REPLY);
+        result.addType(ResultInfo.COMMUNICATON);
+        result.setLatency(null, resultFlow);
         result.setResult(modified);
 
         analyzer.checkResult(test, result);
@@ -628,7 +631,6 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
-        long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
         log.info("Host-Agent sends packets to others (before)");
@@ -660,8 +662,6 @@ public class TestAdvancedCase {
         result.setLatency(before, after);
 
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time(s) : " + (end - start) / 1000.0);
 
         appm.closeSocket();
         controllerm.killController();
