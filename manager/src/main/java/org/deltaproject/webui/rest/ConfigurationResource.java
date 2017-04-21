@@ -8,6 +8,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+/**
+ * Get configuration resources for DELTA GUI.
+ */
 @Path("/text/getconfig")
 public class ConfigurationResource {
 

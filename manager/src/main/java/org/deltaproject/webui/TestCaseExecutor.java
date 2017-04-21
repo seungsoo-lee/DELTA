@@ -6,7 +6,8 @@ import org.deltaproject.manager.utils.AgentLogger;
 import static org.deltaproject.webui.TestCase.Status.*;
 
 /**
- * Created by changhoon on 9/8/16.
+ * A executor for queued test case.
+ * Created by Changhoon on 9/8/16.
  */
 public class TestCaseExecutor extends Thread {
 

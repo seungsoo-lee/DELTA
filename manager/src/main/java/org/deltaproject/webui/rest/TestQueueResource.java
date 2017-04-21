@@ -17,7 +17,8 @@ import javax.ws.rs.core.Response;
 import java.util.Collection;
 
 /**
- * Created by changhoon on 7/7/16.
+ * Get queued test cases add test cases.
+ * Created by Changhoon on 7/7/16.
  */
 @Path("/json/testqueue")
 public class TestQueueResource {
@@ -30,7 +31,9 @@ public class TestQueueResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getTestQueue() {
         GenericEntity<Collection<TestCase>> queuelist =
-                new GenericEntity<Collection<TestCase>>(TestQueue.getInstance().getTestcases()){};
+                new GenericEntity<Collection<TestCase>>(TestQueue.getInstance().getTestcases()) {
+
+                };
 
         return Response.ok(queuelist).build();
     }
@@ -43,7 +46,7 @@ public class TestQueueResource {
 
         int count = 0;
         String[] indexList = indexes.split(",");
-        for (int i = 0; i < indexList.length; i ++) {
+        for (int i = 0; i < indexList.length; i++) {
             if (TestCaseDirectory.getDirectory().containsKey(indexList[i].trim())) {
                 TestCase testCase = new TestCase(indexList[i].trim());
                 testCase.setStatus(TestCase.Status.QUEUED);

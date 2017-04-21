@@ -12,9 +12,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
 
-
+/**
+ * Get AppAgent log from app.log.
+ */
 @Path("/text/getapp")
 public class AppLogResource {
     @GET

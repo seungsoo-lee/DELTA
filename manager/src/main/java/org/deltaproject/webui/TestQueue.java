@@ -6,7 +6,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Created by changhoon on 7/8/16.
+ * A test queue of DELTA GUI.
+ * Created by Changhoon on 7/8/16.
  */
 public class TestQueue {
 
@@ -16,15 +17,15 @@ public class TestQueue {
     private static final ConcurrentLinkedQueue<Integer> INDEX_QUEUE
             = new ConcurrentLinkedQueue<>();
 
-    private static AtomicInteger q_index = new AtomicInteger(0);
+    private static final TestQueue INSTANCE = new TestQueue();
 
-    private static final TestQueue instance = new TestQueue();
+    private static AtomicInteger qIndex = new AtomicInteger(0);
 
     protected TestQueue() {
     }
 
     public static TestQueue getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     public static Collection<TestCase> getTestcases() {
@@ -32,7 +33,7 @@ public class TestQueue {
     }
 
     public static Integer push(TestCase testcase) {
-        int index = q_index.incrementAndGet();
+        int index = qIndex.incrementAndGet();
         testcase.setIndex(index);
         TEST_CASE_QUEUE.put(index, testcase);
         INDEX_QUEUE.add(index);

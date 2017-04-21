@@ -12,9 +12,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
 
-
+/**
+ * Get ChannelAgent log from channel.log.
+ */
 @Path("/text/getchannel")
 public class ChannelLogResource {
     @GET

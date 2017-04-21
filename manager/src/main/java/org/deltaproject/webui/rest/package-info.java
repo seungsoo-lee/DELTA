@@ -1,4 +1,4 @@
 /**
- * Created by jinwookim on 2017. 4. 19..
+ * Set of resources for DELTA GUI.
  */
 package org.deltaproject.webui.rest;

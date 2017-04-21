@@ -12,9 +12,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
 
-
+/**
+ * Get HostAgent log from host.log.
+ */
 @Path("/text/gethost")
 public class HostLogResource {
     @GET

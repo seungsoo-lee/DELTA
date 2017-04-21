@@ -1,4 +1,4 @@
 /**
- * Created by jinwookim on 2017. 4. 19..
+ * Set of implementations for DELTA GUI.
  */
 package org.deltaproject.webui;
