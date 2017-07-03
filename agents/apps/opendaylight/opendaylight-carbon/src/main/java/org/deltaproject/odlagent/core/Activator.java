@@ -34,8 +34,8 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
     private static final Logger LOG = LoggerFactory.getLogger(Activator.class);
     private AppAgent appAgent;
     private AMinterface cm;
-    private BundleContext bundleContext;
-    private DependencyManager dependencyManager;
+    private List<DependencyManager> dlist;
+    private Bundle[] blist;
 
     /**
      * Invoked first
@@ -48,8 +48,9 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
         BindingAwareBroker broker = bundleContext.getService(brokerRef);
         broker.registerConsumer(this);
 
-        this.bundleContext = bundleContext;
-        this.dependencyManager = dependencyManager;
+        dlist = dependencyManager.getDependencyManagers();
+        blist = bundleContext.getBundles();
+
 
 //        cm = new AMinterface();
 //        cm.setActivator(this);
@@ -80,6 +81,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
         appAgent.setNotificationService(session.getSALService(NotificationService.class));
         appAgent.start();
 
+
         testEventListenerUnsubscription("l2switch");
     }
 
@@ -100,9 +102,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
     public String testApplicationEviction(String target) {
         boolean removed = false;
 
-        Bundle[] list = bundleContext.getBundles();
-
-        for (Bundle b : list) {
+        for (Bundle b : blist) {
             if (b.getSymbolicName().contains("l2switch")) {
                 LOG.info("[DELTA] uninstall! - " + b.getSymbolicName());
                 try {
@@ -123,12 +123,6 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
     /* 3.1.090: Event Listener Unsubscription */
     public String testEventListenerUnsubscription(String input) {
         String removed = "";
-
-        DependencyManager manager = this.dependencyManager;
-        List<DependencyManager> dlist = manager.getDependencyManagers();
-
-        BundleContext ctx = this.bundleContext;
-        Bundle[] blist = ctx.getBundles();
 
         for (int i = 0; i < dlist.size(); i++) {
             DependencyManager dm = dlist.get(i);
