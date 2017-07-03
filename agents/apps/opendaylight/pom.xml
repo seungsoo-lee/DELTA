@@ -19,6 +19,7 @@
         <module>opendaylight-helium-sr3-sub</module>
         -->
         <module>opendaylight-boron</module>
+        <module>opendaylight-carbon</module>
     </modules>
 
 </project>
