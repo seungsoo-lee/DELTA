@@ -22,7 +22,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-Activator>
-                            org.deltaproject.odlagent.Activator
+                            org.deltaproject.odlagent.core.Activator
                         </Bundle-Activator>
                     </instructions>
                 </configuration>
