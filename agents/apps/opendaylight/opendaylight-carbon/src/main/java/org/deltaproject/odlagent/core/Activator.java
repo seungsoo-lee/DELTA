@@ -51,6 +51,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
         dlist = dependencyManager.getDependencyManagers();
         blist = bundleContext.getBundles();
 
+        LOG.info(dlist.size() + ":" + blist.length);
 
 //        cm = new AMinterface();
 //        cm.setActivator(this);
@@ -80,7 +81,6 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
         appAgent.setPacketProcessingService(session.getRpcService(PacketProcessingService.class));
         appAgent.setNotificationService(session.getSALService(NotificationService.class));
         appAgent.start();
-
 
         testEventListenerUnsubscription("l2switch");
     }
