@@ -82,7 +82,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
         appAgent.setNotificationService(session.getSALService(NotificationService.class));
         appAgent.start();
 
-        testEventListenerUnsubscription("l2switch");
+//        testEventListenerUnsubscription("l2switch");
     }
 
     @Override
