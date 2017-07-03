@@ -44,12 +44,12 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
 
         Bundle[] list = bundleContext.getBundles();
 
-        for (Bundle b : list) {
-            if (b.getSymbolicName().contains("l2switch")) {
-                // LOG.info("[DELTA] uninstall! - " + b.getSymbolicName());
-                // b.uninstall();
-            }
-        }
+//        for (Bundle b : list) {
+//            if (b.getSymbolicName().contains("l2switch")) {
+//                // LOG.info("[DELTA] uninstall! - " + b.getSymbolicName());
+//                // b.uninstall();
+//            }
+//        }
     }
 
     /**
