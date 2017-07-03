@@ -29,17 +29,37 @@ import org.slf4j.LoggerFactory;
 public class Activator extends DependencyActivatorBase implements AutoCloseable, BindingAwareConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(Activator.class);
-
     private AppAgent appAgent;
+
+    /**
+     * Invoked first
+     */
+    @Override
+    public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
+        LOG.info("[DELTA] init() passing");
+
+        ServiceReference<BindingAwareBroker> brokerRef = bundleContext.getServiceReference(BindingAwareBroker.class);
+        BindingAwareBroker broker = bundleContext.getService(brokerRef);
+        broker.registerConsumer(this);
+
+        Bundle[] list = bundleContext.getBundles();
+
+        for (Bundle b : list) {
+            if (b.getSymbolicName().contains("l2switch")) {
+                // LOG.info("[DELTA] uninstall! - " + b.getSymbolicName());
+                // b.uninstall();
+            }
+        }
+    }
 
     /**
      * Invoked when consumer is registered to the MD-SAL.
      */
     @Override
     public void onSessionInitialized(ConsumerContext session) {
-        LOG.info("inSessionInitialized() passing");
+        LOG.info("[DELTA] inSessionInitialized() passing");
         /**
-         * We create instance of our LearningSwitchManager
+         * We create instance of our AppAgent
          * and set all required dependencies,
          *
          * which are
@@ -57,32 +77,14 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
 
     @Override
     public void close() {
-        LOG.info("close() passing");
+        LOG.info("[DELTA] close() passing");
         if (appAgent != null) {
             appAgent.stop();
         }
     }
 
     @Override
-    public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
-        LOG.info("init() passing");
-
-        ServiceReference<BindingAwareBroker> brokerRef = bundleContext.getServiceReference(BindingAwareBroker.class);
-        BindingAwareBroker broker = bundleContext.getService(brokerRef);
-        broker.registerConsumer(this);
-
-        Bundle[] list = bundleContext.getBundles();
-
-        for (Bundle b : list) {
-            if (b.getSymbolicName().contains("l2switch")) {
-                LOG.info("[DELTA] uninstall! - " + b.getSymbolicName());
-                // b.uninstall();
-            }
-        }
-    }
-
-    @Override
     public void destroy(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
-        LOG.info("destroy() passing");
+        LOG.info("[DELTA] destroy() passing");
     }
 }
