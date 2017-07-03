@@ -34,8 +34,7 @@ import org.slf4j.LoggerFactory;
 public class AppAgentImpl implements DataChangeListenerRegistrationHolder,
         AppAgent {
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(AppAgentImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AppAgentImpl.class);
 
     private NotificationService notificationService;
     private PacketProcessingService packetProcessingService;
@@ -71,23 +70,25 @@ public class AppAgentImpl implements DataChangeListenerRegistrationHolder,
     }
 
     /**
-     * starting learning switch
+     * start
      */
     @Override
     public void start() {
-        LOG.info("start() -->");
+        LOG.info("[DELTA] start() passing");
         FlowCommitWrapper dataStoreAccessor = new FlowCommitWrapperImpl(data);
 
         PacketInDispatcherImpl packetInDispatcher = new PacketInDispatcherImpl();
-        AppAgentFacadeImpl learningSwitchHandler = new AppAgentFacadeImpl();
-        learningSwitchHandler.setRegistrationPublisher(this);
-        learningSwitchHandler.setDataStoreAccessor(dataStoreAccessor);
-        learningSwitchHandler.setPacketProcessingService(packetProcessingService);
-        learningSwitchHandler.setPacketInDispatcher(packetInDispatcher);
+
+        AppAgentFacadeImpl appAgentHandler = new AppAgentFacadeImpl();
+        appAgentHandler.setRegistrationPublisher(this);
+        appAgentHandler.setDataStoreAccessor(dataStoreAccessor);
+        appAgentHandler.setPacketProcessingService(packetProcessingService);
+        appAgentHandler.setPacketInDispatcher(packetInDispatcher);
+
         packetInRegistration = notificationService.registerNotificationListener(packetInDispatcher);
 
         WakeupOnNode wakeupListener = new WakeupOnNode();
-        wakeupListener.setLearningSwitchHandler(learningSwitchHandler);
+        wakeupListener.setLearningSwitchHandler(appAgentHandler);
         dataChangeListenerRegistration = data.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
                 InstanceIdentifier.builder(Nodes.class)
                         .child(Node.class)
@@ -95,12 +96,10 @@ public class AppAgentImpl implements DataChangeListenerRegistrationHolder,
                         .child(Table.class).build(),
                 wakeupListener,
                 DataBroker.DataChangeScope.SUBTREE);
-
-        LOG.info("start() <--");
     }
 
     /**
-     * stopping learning switch
+     * stop
      */
     @Override
     public void stop() {

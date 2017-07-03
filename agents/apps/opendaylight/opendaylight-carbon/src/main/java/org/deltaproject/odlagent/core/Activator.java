@@ -20,8 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * learning switch activator
- * <p>
  * Activator is derived from AbstractBindingAwareConsumer, which takes care
  * of looking up MD-SAL in Service Registry and registering consumer
  * when MD-SAL is present.

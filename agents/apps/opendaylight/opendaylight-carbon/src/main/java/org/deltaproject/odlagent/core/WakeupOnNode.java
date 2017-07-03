@@ -26,7 +26,7 @@ public class WakeupOnNode implements DataChangeListener {
     private static final Logger LOG = LoggerFactory
             .getLogger(WakeupOnNode.class);
 
-    private AppAgentHandler learningSwitchHandler;
+    private AppAgentHandler appAgentHandler;
 
     @Override
     public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
@@ -44,7 +44,7 @@ public class WakeupOnNode implements DataChangeListener {
                 if (requiredTableId.equals(tableSure.getId())) {
                     @SuppressWarnings("unchecked")
                     InstanceIdentifier<Table> tablePath = (InstanceIdentifier<Table>) updateItem.getKey();
-                    learningSwitchHandler.onSwitchAppeared(tablePath);
+                    appAgentHandler.onSwitchAppeared(tablePath);
                 }
             }
         }
@@ -54,8 +54,7 @@ public class WakeupOnNode implements DataChangeListener {
      * @param learningSwitchHandler the learningSwitchHandler to set
      */
     public void setLearningSwitchHandler(
-            AppAgentHandler learningSwitchHandler) {
-        this.learningSwitchHandler = learningSwitchHandler;
+            AppAgentHandler appAgentHandler) {
+        this.appAgentHandler = appAgentHandler;
     }
-
 }

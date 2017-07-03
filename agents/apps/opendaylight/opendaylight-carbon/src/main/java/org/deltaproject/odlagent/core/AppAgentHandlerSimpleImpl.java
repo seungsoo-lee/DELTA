@@ -134,7 +134,7 @@ public class AppAgentHandlerSimpleImpl implements AppAgentHandler, PacketProcess
             return;
         }
 
-        LOG.debug("Received packet via match: {}", notification.getMatch());
+        LOG.info("Received packet via match: {}", notification.getMatch());
 
         // detect and compare node - we support one switch
         if (!nodePath.contains(notification.getIngress().getValue())) {
@@ -151,9 +151,9 @@ public class AppAgentHandlerSimpleImpl implements AppAgentHandler, PacketProcess
 
         NodeConnectorKey ingressKey = InstanceIdentifierUtils.getNodeConnectorKey(notification.getIngress().getValue());
 
-        LOG.debug("Received packet from MAC match: {}, ingress: {}", srcMac, ingressKey.getId());
-        LOG.debug("Received packet to   MAC match: {}", dstMac);
-        LOG.debug("Ethertype: {}", Integer.toHexString(0x0000ffff & ByteBuffer.wrap(etherType).getShort()));
+        LOG.info("Received packet from MAC match: {}, ingress: {}", srcMac, ingressKey.getId());
+        LOG.info("Received packet to   MAC match: {}", dstMac);
+        LOG.info("Ethertype: {}", Integer.toHexString(0x0000ffff & ByteBuffer.wrap(etherType).getShort()));
 
         // learn by IPv4 traffic only
         if (Arrays.equals(ETH_TYPE_IPV4, etherType)) {
