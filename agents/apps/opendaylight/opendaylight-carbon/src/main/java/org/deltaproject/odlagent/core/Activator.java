@@ -28,6 +28,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
 
     private static final Logger LOG = LoggerFactory.getLogger(Activator.class);
     private AppAgent appAgent;
+    private AMinterface cm;
 
     /**
      * Invoked first
@@ -48,6 +49,12 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
 //                // b.uninstall();
 //            }
 //        }
+
+        cm = new AMinterface();
+        cm.setActivator(this);
+        cm.setServerAddr();
+        cm.connectServer("ActAgent");
+        cm.start();
     }
 
     /**
