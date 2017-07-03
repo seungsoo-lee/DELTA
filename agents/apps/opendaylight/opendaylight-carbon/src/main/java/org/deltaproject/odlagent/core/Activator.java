@@ -127,7 +127,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
         DependencyManager manager = this.dependencyManager;
         List<DependencyManager> dlist = manager.getDependencyManagers();
 
-        BundleContext ctx = manager.getBundleContext();
+        BundleContext ctx = this.bundleContext;
         Bundle[] blist = ctx.getBundles();
 
         for (int i = 0; i < dlist.size(); i++) {
