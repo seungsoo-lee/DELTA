@@ -63,6 +63,8 @@ public class OpenDaylight implements TargetController {
 //            stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
             stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
+            installAppAgent();
+
             Thread.sleep(10000);
 
             str = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
@@ -87,7 +89,6 @@ public class OpenDaylight implements TargetController {
                 }
             }
 
-            installAppAgent();
         } catch (Exception e) {
             e.printStackTrace();
         }
