@@ -60,20 +60,19 @@ public class OpenDaylight implements TargetController {
 
             this.currentPID = (Integer) value;
 
-//            stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
             stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-
-            installAppAgent();
 
             Thread.sleep(10000);
 
-            str = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
-            if (str.contains("initialized successfully")) {
-                log.info("OpenDaylight is activated");
-                isRunning = true;
-            } else {
-                log.info("Failed to start OpenDaylight");
-                return false;
+            while ((str = stdOut.readLine()) != null) {
+                if (str.contains("initialized successfully")) {
+                    log.info("OpenDaylight is activated");
+                    isRunning = true;
+                } else {
+                    log.info("Failed to start OpenDaylight");
+                    return false;
+                }
             }
 
             Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep java");
@@ -88,6 +87,8 @@ public class OpenDaylight implements TargetController {
                     currentPID = Integer.parseInt(list[1]);
                 }
             }
+
+            installAppAgent();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,7 +119,7 @@ public class OpenDaylight implements TargetController {
                     stdIn.write("start " + bundleID + "\n");
                     stdIn.flush();
 
-                    //log.info("AppAgent bundle ID [" + bundleID + "] Installed");
+                    log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                 }
             }
 
