@@ -33,7 +33,7 @@ public class OpenDaylight implements TargetController {
         this.sshAddr = ssh;
 
         String user = sshAddr.substring(0, sshAddr.indexOf('@'));
-        controllerPath = "/home/" + user + "/odl-helium-sr3/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh -Xmx4g";
+        controllerPath = "/home/" + user + "/odl-helium-sr3/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh -Xmx2g";
     }
 
     public OpenDaylight setAppAgentPath(String path) {
@@ -44,49 +44,51 @@ public class OpenDaylight implements TargetController {
 
     public boolean createController() {
         isRunning = false;
-
         String str;
 
         try {
-            if (version.equals("helium-sr3")) {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " " + controllerPath);
-            } else if (version.equals("berylium")) {
+            if (version.equals("helium")) {
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo " + controllerPath);
+            } else if (version.equals("carbon")) {
                 process = Runtime.getRuntime().exec("ssh " + sshAddr + " /home/vagrant/distribution-karaf-0.2.4-Helium-SR4/bin/karaf");
             }
 
+            /*
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
             Object value = pidField.get(process);
-
             this.currentPID = (Integer) value;
+            */
 
             stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
             stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
-            Thread.sleep(10000);
-
             while ((str = stdOut.readLine()) != null) {
+                log.debug(str);
                 if (str.contains("initialized successfully")) {
                     log.info("OpenDaylight is activated");
                     isRunning = true;
-                } else {
-                    log.info("Failed to start OpenDaylight");
-                    return false;
+                    break;
                 }
             }
 
+            if (!isRunning) {
+                log.info("Failed to start OpenDaylight");
+                return false;
+            }
+
+            /*
             Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep java");
             String tempS;
-
             BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
 
             while ((tempS = stdOut2.readLine()) != null && !tempS.isEmpty()) {
                 if (tempS.contains("opendaylight")) {
                     String[] list = StringUtils.split(tempS);
-
                     currentPID = Integer.parseInt(list[1]);
                 }
             }
+            */
 
             installAppAgent();
 
@@ -130,7 +132,7 @@ public class OpenDaylight implements TargetController {
                 e.printStackTrace();
             }
 
-            // for Service chain interference
+            // for service chain interference
             stdIn.write("install file:" + "/home/" + user + "/delta-agent-app-odl-helium-sr3-sub-1.0-SNAPSHOT.jar" + "\n");
             stdIn.flush();
 
@@ -146,8 +148,6 @@ public class OpenDaylight implements TargetController {
 
                     stdIn.write("start " + bundleID + "\n");
                     stdIn.flush();
-
-                    //log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                 }
             }
 
@@ -169,26 +169,22 @@ public class OpenDaylight implements TargetController {
                 stdIn.close();
             }
 
-//            if (stdOut != null) {
-//                stdOut.close();
+//            if (this.currentPID != -1) {
+//                Process pc = null;
+//                try {
+//                    pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo kill -9 " + this.currentPID);
+//                    pc.getErrorStream().close();
+//                    pc.getInputStream().close();
+//                    pc.getOutputStream().close();
+//                    pc.waitFor();
+//                } catch (IOException e) {
+//                    // TODO Auto-generated catch block
+//                    e.printStackTrace();
+//                } catch (InterruptedException e) {
+//                    // TODO Auto-generated catch block
+//                    e.printStackTrace();
+//                }
 //            }
-
-            if (this.currentPID != -1) {
-                Process pc = null;
-                try {
-                    pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo kill -9 " + this.currentPID);
-                    pc.getErrorStream().close();
-                    pc.getInputStream().close();
-                    pc.getOutputStream().close();
-                    pc.waitFor();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

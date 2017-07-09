@@ -9,10 +9,10 @@ import java.util.Properties;
 /**
  * Created by seungsoo on 03/07/2017.
  */
-public class AMinterface extends Thread {
-    int result = 1;
+public class Interface extends Thread {
+    private int result = 1;
 
-    private AppAgentHandlerSimpleImpl app;
+    private AppAgentFacadeImpl app;
     private Activator act;
 
     private Socket socket;
@@ -24,7 +24,7 @@ public class AMinterface extends Thread {
     private String serverIP;
     private int serverPort;
 
-    public AMinterface() {
+    public Interface() {
 
     }
 
@@ -83,14 +83,13 @@ public class AMinterface extends Thread {
 
             dos.writeUTF(agent);
             dos.flush();
-
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
-    public void setAgent(AppAgentHandlerSimpleImpl in) {
+    public void setAgent(AppAgentFacadeImpl in) {
         this.app = in;
     }
 
@@ -145,13 +144,17 @@ public class AMinterface extends Thread {
                 app.testFlowTableClearance(true);
 
             return;
-        } else if (recv.contains("3.1.090")) {
-            result = act.testEventListenerUnsubscription("arp");
+        } else */
+
+        if (recv.contains("3.1.090")) {
+            result = act.testEventListenerUnsubscription("l2switch");
             dos.writeUTF(result);
         } else if (recv.contains("3.1.100")) {
-            result = act.testApplicationEviction("arp");
+            result = act.testApplicationEviction("l2switch");
             dos.writeUTF(result);
-        } else if (recv.contains("3.1.110")) {
+        }
+
+        /* else if (recv.contains("3.1.110")) {
             app.testResourceExhaustionMem();
             return;
         } else if (recv.contains("3.1.120")) {
@@ -180,11 +183,13 @@ public class AMinterface extends Thread {
     @Override
     public void run() {
         // TODO Auto-generated method stub
-        String recv = "";
+        String recv;
 
         try {
-            while ((recv = dis.readUTF()) != null) {
+            while (dis.available() > 0) {
                 // reads characters encoded with modified UTF-8
+
+                recv = dis.readUTF();
                 replayingKnownAttack(recv);
             }
         } catch (Exception e) {

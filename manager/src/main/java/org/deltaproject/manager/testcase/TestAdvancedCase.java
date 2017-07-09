@@ -35,6 +35,7 @@ public class TestAdvancedCase {
         if (channel) {
             channelm.runAgent();
         }
+
         if (host) {
             hostm.runAgent();
         }
@@ -164,20 +165,11 @@ public class TestAdvancedCase {
             controllerm.isConnectedSwitch(switchWait);
             log.info("All switches are connected");
 
-            if (controllerm.getType().contains("ONOS")) {
-                try {
-                    Thread.sleep(7000);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            } else {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
     }

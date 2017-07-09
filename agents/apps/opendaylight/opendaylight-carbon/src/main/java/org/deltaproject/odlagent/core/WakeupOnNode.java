@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -33,13 +34,13 @@ public class WakeupOnNode implements DataChangeListener {
         Short requiredTableId = 0;
 
         // TODO add flow
-
         Map<InstanceIdentifier<?>, DataObject> updated = change.getUpdatedData();
+
         for (Entry<InstanceIdentifier<?>, DataObject> updateItem : updated.entrySet()) {
-            DataObject table = updateItem.getValue();
-            if (table instanceof Table) {
-                Table tableSure = (Table) table;
-                LOG.trace("table: {}", table);
+            DataObject object = updateItem.getValue();
+            if (object instanceof Table) {
+                Table tableSure = (Table) object;
+                LOG.debug("[DELTA] table: {}", object);
 
                 if (requiredTableId.equals(tableSure.getId())) {
                     @SuppressWarnings("unchecked")

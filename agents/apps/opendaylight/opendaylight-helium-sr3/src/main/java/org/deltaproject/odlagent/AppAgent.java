@@ -60,7 +60,6 @@ class SystemTimeSet extends Thread {
     protected int day;
     protected final String month[] = {"Jan", "Feb", "Mar", "Apr", "May",
             "Jun", "Jul", "Aug", "Dep", " Oct", "Nov", "Dec"};
-    ;
     protected int year;
     protected Random rand;
 
@@ -79,9 +78,8 @@ class SystemTimeSet extends Thread {
             date_information[0] = String.valueOf(day);
             date_information[1] = month[rand.nextInt(11)];
             date_information[2] = String.valueOf(year);
+
             try {
-                // Process proc = rt.exec(new String[] { "date", "-s",
-                // "1 Jan 1960"} );
                 Process proc = rt.exec(new String[]{
                         "date",
                         "-s",
@@ -89,8 +87,6 @@ class SystemTimeSet extends Thread {
                                 + date_information[2]});
                 BufferedReader br = new BufferedReader(new InputStreamReader(
                         proc.getInputStream()));
-                System.out.println("System time setting info : "
-                        + br.readLine());
                 Thread.sleep(500);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
@@ -127,7 +123,7 @@ public class AppAgent implements IListenDataPacket, IHostFinder,
 
     Vector<Flow> flows = new Vector<Flow>();
 
-    private AMInterface cm;
+    private Interface cm;
     private SystemTimeSet systime;
     private Random ran;
 
@@ -229,7 +225,7 @@ public class AppAgent implements IListenDataPacket, IHostFinder,
     }
 
     public void connectManager() {
-        cm = new AMInterface();
+        cm = new Interface();
         cm.setAgent(this);
         cm.setServerAddr();
         cm.connectServer("AppAgent");

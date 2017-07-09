@@ -19,7 +19,6 @@ import org.opendaylight.controller.switchmanager.ISwitchManager;
 import org.opendaylight.controller.topologymanager.ITopologyManager;
 import org.osgi.framework.*;
 
-import java.lang.annotation.ElementType;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -29,14 +28,14 @@ public class Activator extends ComponentActivatorAbstractBase {
     private Component c;
     private Object imp;
     private String containerName;
-    private AMInterface cm;
+    private Interface cm;
 
     public void init() {
         connectManager();
     }
 
     public void connectManager() {
-        cm = new AMInterface();
+        cm = new Interface();
         cm.setActivator(this);
         cm.setServerAddr();
         cm.connectServer("ActAgent");

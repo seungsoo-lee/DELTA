@@ -1,14 +1,15 @@
 /**
  * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
- *
+ * <p>
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.deltaproject.odlagent.core;
+package org.deltaproject.odlagent.utils;
 
 import java.util.Arrays;
+
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
@@ -101,6 +102,33 @@ public abstract class PacketUtils {
             mac = new MacAddress(sb.substring(1));
         }
         return mac;
+    }
+
+    public static String rawMacToString(byte[] rawMac) {
+        if (rawMac != null && rawMac.length == 6) {
+            StringBuffer sb = new StringBuffer();
+            for (byte octet : rawMac) {
+                sb.append(String.format(":%02X", octet));
+            }
+            return sb.substring(1);
+        }
+        return null;
+    }
+
+    public static byte[] stringMacToRawMac(String address) {
+        String[] elements = address.split(":");
+        if (elements.length != MAC_ADDRESS_SIZE) {
+            throw new IllegalArgumentException(
+                    "Specified MAC Address must contain 12 hex digits" +
+                            " separated pairwise by :'s.");
+        }
+
+        byte[] addressInBytes = new byte[MAC_ADDRESS_SIZE];
+        for (int i = 0; i < MAC_ADDRESS_SIZE; i++) {
+            String element = elements[i];
+            addressInBytes[i] = (byte) Integer.parseInt(element, 16);
+        }
+        return addressInBytes;
     }
 
     /**

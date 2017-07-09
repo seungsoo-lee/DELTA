@@ -75,6 +75,7 @@ public class HostAgentManager extends Thread {
         try {
             String[] cmdArray = {"ssh", cfg.getHostSSH(), "sudo", "python", "test-advanced-topo.py",
                     cfg.getControllerIP(), cfg.getOFPort(), cfg.getAMIP(), cfg.getAMPort(), version};
+
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
             pb.redirectErrorStream(true);
             proc = pb.start();
@@ -86,6 +87,7 @@ public class HostAgentManager extends Thread {
             pidField.setAccessible(true);
             Object value = pidField.get(proc);
             this.procPID = (Integer) value;
+
         } catch (Exception e) {
             e.printStackTrace();
         }

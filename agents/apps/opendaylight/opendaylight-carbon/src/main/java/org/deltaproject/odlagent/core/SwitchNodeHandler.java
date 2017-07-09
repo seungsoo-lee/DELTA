@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
- *
+ * <p>
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -16,6 +16,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.deltaproject.odlagent.utils.FlowUtils;
+import org.deltaproject.odlagent.utils.PacketUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
@@ -42,14 +45,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Simple Learning Switch implementation which does mac learning for one switch.
- *
- *
  */
-public class AppAgentHandlerSimpleImpl implements AppAgentHandler, PacketProcessingListener {
+public class SwitchNodeHandler implements AppAgentHandler, PacketProcessingListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AppAgentHandlerSimpleImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SwitchNodeHandler.class);
 
-    private static final byte[] ETH_TYPE_IPV4 = new byte[] { 0x08, 0x00 };
+    private static final byte[] ETH_TYPE_IPV4 = new byte[]{0x08, 0x00};
 
     private static final int DIRECT_FLOW_PRIORITY = 512;
 
@@ -103,13 +104,14 @@ public class AppAgentHandlerSimpleImpl implements AppAgentHandler, PacketProcess
         InstanceIdentifier<Flow> flowPath = InstanceIdentifierUtils.createFlowPath(tablePath, flowKey);
 
         int priority = 0;
+
         // create flow in table with id = 0, priority = 4 (other params are
         // defaulted in OFDataStoreUtil)
         FlowBuilder allToCtrlFlow = FlowUtils.createFwdAllToControllerFlow(
                 InstanceIdentifierUtils.getTableId(tablePath), priority, flowId);
 
         LOG.debug("writing packetForwardToController flow");
-        dataStoreAccessor.writeFlowToConfig(flowPath, allToCtrlFlow.build());
+//        dataStoreAccessor.writeFlowToConfig(flowPath, allToCtrlFlow.build());
     }
 
     @Override
@@ -168,23 +170,23 @@ public class AppAgentHandlerSimpleImpl implements AppAgentHandler, PacketProcess
                 synchronized (coveredMacPaths) {
                     if (!destNodeConnector.equals(notification.getIngress())) {
                         // add flow
-                        addBridgeFlow(srcMac, dstMac, destNodeConnector);
-                        addBridgeFlow(dstMac, srcMac, notification.getIngress());
+                        // addBridgeFlow(srcMac, dstMac, destNodeConnector);
+                        // addBridgeFlow(dstMac, srcMac, notification.getIngress());
                     } else {
                         LOG.debug("useless rule ignoring - both MACs are behind the same port");
                     }
                 }
                 LOG.debug("packetIn-directing.. to {}",
                         InstanceIdentifierUtils.getNodeConnectorKey(destNodeConnector.getValue()).getId());
-                sendPacketOut(notification.getPayload(), notification.getIngress(), destNodeConnector);
+                // sendPacketOut(notification.getPayload(), notification.getIngress(), destNodeConnector);
             } else {
                 // flood
                 LOG.debug("packetIn-still flooding.. ");
-                flood(notification.getPayload(), notification.getIngress());
+                // flood(notification.getPayload(), notification.getIngress());
             }
         } else {
             // non IPv4 package
-            flood(notification.getPayload(), notification.getIngress());
+            // flood(notification.getPayload(), notification.getIngress());
         }
 
     }

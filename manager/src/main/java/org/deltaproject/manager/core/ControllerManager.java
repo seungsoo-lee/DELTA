@@ -4,6 +4,8 @@ import org.deltaproject.manager.target.Floodlight;
 import org.deltaproject.manager.target.ONOS;
 import org.deltaproject.manager.target.OpenDaylight;
 import org.deltaproject.manager.target.TargetController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,6 +29,8 @@ public class ControllerManager {
     private Process processCbench;
 
     private Configuration cfg = Configuration.getInstance();
+    private static final Logger log = LoggerFactory.getLogger(ControllerManager.class.getName());
+
 
     public ControllerManager() {
         targetList = new ArrayList<TargetController>();
@@ -255,7 +259,6 @@ public class ControllerManager {
             try {
                 cnt = 0;
                 String cmd = "";
-                // temp = Runtime.getRuntime().exec(new String[] { "bash", "-c", "netstat -ap | grep " + ofPort});
                 temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo netstat -ap | grep " + ofPort);
 
                 BufferedReader stdOut = new BufferedReader(new InputStreamReader(temp.getInputStream()));

@@ -7,7 +7,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 
-public class AMInterface extends Thread {
+public class Interface extends Thread {
     int result = 1;
 
     private AppAgent app;
@@ -22,10 +22,8 @@ public class AMInterface extends Thread {
     private String serverIP;
     private int serverPort;
 
-    // private DataFuzzing fuzzing;
+    public Interface() {
 
-    public AMInterface() {
-        // fuzzing = new DataFuzzing();
     }
 
     public void setServerAddr() {

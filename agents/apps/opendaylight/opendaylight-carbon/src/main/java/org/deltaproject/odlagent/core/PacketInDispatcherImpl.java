@@ -44,6 +44,7 @@ public class PacketInDispatcherImpl implements PacketProcessingListener {
          */
         InstanceIdentifier<?> ingressPort = notification.getIngress().getValue();
         InstanceIdentifier<Node> nodeOfPacket = ingressPort.firstIdentifierOf(Node.class);
+
         /**
          * We lookup up the the packet-in listener for this node.
          * 

