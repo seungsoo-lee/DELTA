@@ -3,11 +3,17 @@
 <head>
     <title>DELTA &raquo; Dashboard</title>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'/>
-    <!-- {CSS1} -->
 
+    <!--css-->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.2.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.2.0/css/select.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.3/css/bootstrap-select.min.css">
+    <link rel="stylesheet" type="text/css" href="./css/keen-dashboards.css">
 </head>
-<body class="application">
 
+<body class="application">
 <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -62,86 +68,85 @@
     </div>
 
     <div class="row">
+        <div class="col-md-4">
+            <div class="chart-wrapper">
+                <div class="chart-title"> DELTA configuration</div>
+                <div class="chart-stage">
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group">
+                            <label for="targetController" class="col-md-5">Target Controller</label>
+                            <div class="col-md-7">
+                                <select class="selectpicker form-control" id="targetController" data-width="100%">
+                                    <option selected>ONOS</option>
+                                    <option>OpenDaylight</option>
+                                    <option>Floodlight</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!--</form>-->
+                        <div class="form-group">
+                            <label for="targetVersion" class="col-md-5">Target Version</label>
+                            <div class="col-md-7">
+                                <select class="selectpicker form-control" id="targetVersion" data-width="100%">
+                                    <option>1.1.0</option>
+                                    <option>1.6.0</option>
+                                    <option selected>1.9.0</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ofPort" class="col-md-5">OF Port</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control" placeholder="OF Port" id="ofPort"
+                                       aria-describedby="basic-addon2" value="6633">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ofVersion" class="col-md-5">OF Version</label>
+                            <div class="col-md-7">
+                                <select class="selectpicker form-control" id="ofVersion" data-width="100%">
+                                    <option selected>1.0</option>
+                                    <option>1.3</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ofPort" class="col-md-5">Controller IP</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control" placeholder="Controller IP" id="controllerIp"
+                                       aria-describedby="basic-addon2" value="10.100.100.11">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ofPort" class="col-md-5">Switch IP</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control" placeholder="Switch IP" id="switchIp"
+                                       aria-describedby="basic-addon2" value="10.100.100.13,10.100.100.13,10.100.100.13">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="chart-wrapper">
+                <div class="chart-title">
+                    DELTA log
+                </div>
+                <div class="chart-stage">
+                    <textarea readonly id="deltalog" class="fill"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!--</div>-->
+    </div>
+    <div class="row">
         <div style="width: 100%; display: table; margin-left: auto; margin-right:0;">
 
-            <div style="width:30%; display: table-cell;">
-                <div class="chart-wrapper">
-                    <div class="chart-title">
-                        DELTA configuration
-                    </div>
-                    <div class="chart-stage">
-                        <textarea readonly id="configpane" class="fill"></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display: table-cell;">
-                <div class="chart-wrapper">
-                    <div class="chart-title">
-                        DELTA log
-                    </div>
-                    <div class="chart-stage">
-                        <textarea readonly id="deltalog" class="fill"></textarea>
-                    </div>
-                </div>
-            </div>
-
         </div>
-        <div class="chart-notes">
-        </div>
-
     </div>
-
-
-    <!--<div class="row">-->
-        <!--<div class="chart-wrapper">-->
-            <!--<div class="chart-title">-->
-                <!--DELTA configuration-->
-            <!--</div>-->
-            <!--<div class="chart-stage">-->
-                <!--<textarea readonly id="configpane" class="fill"></textarea>-->
-            <!--</div>-->
-        <!--</div>-->
-    <!--</div>-->
-
-
-    <!--<div class="row">-->
-    <!--<div class="chart-wrapper">-->
-    <!--<div class="chart-title">-->
-    <!--DELTA Configuration-->
-    <!--</div>-->
-    <!--<div class="chart-stage">-->
-    <!--<table class="delta-config">-->
-    <!--<tr>Control-plane configuration</tr>-->
-    <!--<tr>-->
-    <!--<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>-->
-    <!--<td>SDN Controller:</td>-->
-    <!--<td>&nbsp;&nbsp;</td>-->
-    <!--<td>-->
-    <!--<select id="controller-type">-->
-    <!--<option values="">&#45;&#45;Select&#45;&#45;</option>-->
-    <!--<option>ONOS</option>-->
-    <!--<option>OpenDaylight</option>-->
-    <!--<option>Floodlight</option>-->
-    <!--</select>-->
-    <!--</td>-->
-    <!--<td>&nbsp;&nbsp;</td>-->
-    <!--<td>Controller Version:</td>-->
-    <!--<td>&nbsp;&nbsp;</td>-->
-    <!--<td>-->
-    <!--<select style="float:left;" id="controller-version">-->
-    <!--</select>-->
-    <!--</td>-->
-    <!--<td>&nbsp;&nbsp;</td>-->
-    <!--<td>Controller IP:</td>-->
-    <!--<td>&nbsp;&nbsp;</td>-->
-    <!--<td><input type="text" name="controller-ip" maxlength="15" size="17" style="height:1em;"></td>-->
-    <!--</tr>-->
-
-    <!--</table>-->
-    <!--</div>-->
-    <!--</div>-->
-    <!--</div>-->
 
     <div class="row">
         <div class="chart-wrapper">
@@ -165,157 +170,18 @@
     </div>
 
 </div>
-
-
 <hr>
-
 <p class="small text-muted">Built with &#9829; by <a href="https://keen.io">Keen IO</a></p>
-
 </div>
 
-<!-- {JS1} -->
-
-<script>
-
-    $(document).ready(function () {
-        var testcase_table = $('#testcase-table').DataTable({
-            dom: 'frBtlip',
-            buttons: [
-                'selectAll',
-                'selectNone',
-                {
-                    text: "Queue selected",
-                    action: function (e, dt, node, config) {
-
-                        var queueArray = new Array();
-                        dt.rows({selected: true}).every(function (rowIdx, tableLoop, rowLoop) {
-                            queueArray.push(this.data().casenum);
-                        });
-
-                        $.ajax({
-                            url: "/json/testqueue/post",
-                            type: "POST",
-                            data: queueArray.toString(),
-                            dataType: "text",
-                            contentType: "text/plain",
-                            async: false,
-                            success: function (data) {
-                                alert(data);
-                            },
-                            error: function (xhr, ajaxOptions, thrownError) {
-                                alert(xhr.status);
-                                alert(thrownError);
-                            }
-
-                        });
-                    }
-                }
-            ],
-            select: {
-                style: 'multi'
-            },
-            lengthMenu: [10, 20, 50, 100],
-            searching: true,
-            'columns': [
-                {'data': 'category'},
-                {'data': 'casenum'},
-                {'data': 'name'},
-            ],
-            'ajax': {
-                'url': '/json/testcases',
-                'dataSrc': ""
-            },
-            "createdRow": function( row, data) {
-                $(row).attr('title',data['desc']);
-                $(row).tooltip({
-                    "delay": 0,
-                    "track": true,
-                    "fade": 250
-                });
-            },
-        });
-
-        var queue_table = $('#queue-table').DataTable({
-            dom: 'frtlip',
-            select: {
-                style: 'multi'
-            },
-            lengthMenu: [10, 20, 50, 100],
-            searching: true,
-            'columns': [
-                {'data': 'index'},
-                {'data': 'time'},
-                {'data': 'category'},
-                {'data': 'casenum'},
-                {'data': 'name'},
-                {'data': 'status'},
-                {'data': 'result'}
-            ],
-            'ajax': {
-                'url': '/json/testqueue/get',
-                'dataSrc': ""
-            },
-            "fnRowCallback": function(nRow, aData) {
-                if ( aData['status'] == "RUNNING" ) {
-                    $('td', nRow).css('background-color', '#ffff99');
-                }
-                else if ( aData['status'] == "COMPLETE" ) {
-                    if ( aData['result'] == "FAIL" ) {
-                        $('td', nRow).css('background-color', '#ff9999');
-                    }
-                    else if ( aData['result'] == "PASS" ) {
-                        $('td', nRow).css('background-color', '#ccff99');
-                    }
-                    else {
-                        $('td', nRow).css('background-color', '#ffffff');
-                    }
-                }
-            },
-            "createdRow": function( row, data ) {
-                $(row).attr('title',data['desc']);
-                $(row).tooltip({
-                    "delay": 0,
-                    "track": true,
-                    "fade": 250
-                });
-            },
-        });
-
-        setInterval(function () {
-            queue_table.ajax.reload();
-        }, 3000);
-
-        setInterval(function () {
-
-            $.ajax({
-                url: '/text/getlog',
-                dataType: 'text',
-                contentType: "text/plain",
-                async: false,
-                success: function (data) {
-                    var old = $('#deltalog').val();
-                    if (old.length != data.length) {
-                        $('#deltalog').val(data);
-                        $('#deltalog').scrollTop($('#deltalog')[0].scrollHeight);
-                    }
-                }
-            });
-        }, 1000);
-
-    });
-
-    $.ajax({
-        url: '/text/getconfig',
-        dataType: 'text',
-        contentType: "text/plain",
-        async: false,
-        success: function (data) {
-            $('#configpane').val(data);
-            $('#configpane').scrollTop($('#configpane')[0].scrollHeight);
-        }
-    });
-
-</script>
-
+<!--java script-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://d26b395fwzu5fz.cloudfront.net/3.4.1/keen.min.js" type="text/javascript"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.3/js/bootstrap-select.min.js"></script>
+<script type="text/javascript" src="./js/index.js"></script>
 </body>
 </html>
