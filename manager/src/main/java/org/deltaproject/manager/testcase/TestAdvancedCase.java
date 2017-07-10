@@ -84,7 +84,7 @@ public class TestAdvancedCase {
                 runRemoteAgents(true, true);
                 testSwitchIdentificationSpoofing(test);
                 break;
-            case "------1":         // testSwitchOFCase
+            case "-------":         // testSwitchOFCase
                 testMalformedControlMessage(test);
                 break;
             case "3.1.070":
@@ -139,7 +139,7 @@ public class TestAdvancedCase {
                 runRemoteAgents(false, true);
                 testSwitchFirmwareMisuse(test);
                 break;
-            case "------2":          // testControllerOFCase
+            case "------ ":          // testControllerOFCase
                 testControlMessageManipulation(test);
                 break;
         }
