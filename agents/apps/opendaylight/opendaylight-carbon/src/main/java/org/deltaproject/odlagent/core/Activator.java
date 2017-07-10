@@ -10,6 +10,8 @@ package org.deltaproject.odlagent.core;
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
+import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.osgi.util.tracker.ServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
@@ -64,11 +66,12 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
 
         appAgent = new AppAgentImpl();
         appAgent.setDataBroker(session.getSALService(DataBroker.class));
+        appAgent.setSalFlowService(session.getRpcService(SalFlowService.class));
         appAgent.setPacketProcessingService(session.getRpcService(PacketProcessingService.class));
         appAgent.setNotificationService(session.getSALService(NotificationService.class));
         appAgent.start();
 
-        // connectManager();
+        connectManager();
     }
 
     @Override

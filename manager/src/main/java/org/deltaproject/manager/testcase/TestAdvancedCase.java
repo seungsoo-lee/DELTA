@@ -451,6 +451,8 @@ public class TestAdvancedCase {
 
 		/* step 1: create controller */
         initController(true);
+
+        generateFlow("ping");
         log.info("Host-Agent sends packets to others (before)");
 
 		/* step 2 : replay attack */

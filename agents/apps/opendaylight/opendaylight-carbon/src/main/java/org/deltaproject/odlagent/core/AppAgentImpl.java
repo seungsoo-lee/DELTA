@@ -13,6 +13,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
@@ -42,6 +43,7 @@ public class AppAgentImpl implements DataChangeListenerRegistrationHolder,
     private PacketProcessingService packetProcessingService;
     private DataBroker data;
     private Registration packetInRegistration;
+    private SalFlowService salFlowService;
     private ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
 
     /**
@@ -69,12 +71,16 @@ public class AppAgentImpl implements DataChangeListenerRegistrationHolder,
         this.data = data;
     }
 
+    public void setSalFlowService(SalFlowService sal) {
+        this.salFlowService = sal;
+    }
+
     /**
      * start
      */
     @Override
     public void start() {
-        LOG.info("[DELTA] app-agent start() passing");
+        LOG.info("[DELTA] OpenDaylight app agent start()");
         FlowCommitWrapper dataStoreAccessor = new FlowCommitWrapperImpl(data);
 
         PacketInDispatcherImpl packetInDispatcher = new PacketInDispatcherImpl();
@@ -85,6 +91,7 @@ public class AppAgentImpl implements DataChangeListenerRegistrationHolder,
         appAgentHandler.setPacketProcessingService(packetProcessingService);
         appAgentHandler.setPacketInDispatcher(packetInDispatcher);
         appAgentHandler.setDataBroker(data);
+        appAgentHandler.setSalFlowService(this.salFlowService);
 
         packetInRegistration = notificationService.registerNotificationListener(packetInDispatcher);
 
@@ -98,6 +105,8 @@ public class AppAgentImpl implements DataChangeListenerRegistrationHolder,
                         .child(Table.class).build(),
                 wakeupListener,
                 DataBroker.DataChangeScope.SUBTREE);
+
+        appAgentHandler.connectManager();
     }
 
     /**

@@ -127,7 +127,9 @@ public class Interface extends Thread {
             }
 
             dos.writeUTF(app.getDroppedPkt());
-        } else if (recv.contains("3.1.030")) {
+        } else */
+
+        if (recv.contains("3.1.030")) {
             app.setInfiniteLoop();
             return;
         } else if (recv.contains("3.1.040")) {
@@ -144,17 +146,13 @@ public class Interface extends Thread {
                 app.testFlowTableClearance(true);
 
             return;
-        } else */
-
-        if (recv.contains("3.1.090")) {
+        } else if (recv.contains("3.1.090")) {
             result = act.testEventListenerUnsubscription("l2switch");
             dos.writeUTF(result);
         } else if (recv.contains("3.1.100")) {
             result = act.testApplicationEviction("l2switch");
             dos.writeUTF(result);
-        }
-
-        /* else if (recv.contains("3.1.110")) {
+        } else if (recv.contains("3.1.110")) {
             app.testResourceExhaustionMem();
             return;
         } else if (recv.contains("3.1.120")) {
@@ -166,7 +164,9 @@ public class Interface extends Thread {
         } else if (recv.contains("3.1.140")) {
             app.testSystemCommandExecution();
             return;
-        } else if (recv.contains("3.1.190")) {
+        }
+
+        /* else if (recv.contains("3.1.190")) {
             app.testFlowRuleFlooding();
             return;
         } else if (recv.contains("3.1.200")) {

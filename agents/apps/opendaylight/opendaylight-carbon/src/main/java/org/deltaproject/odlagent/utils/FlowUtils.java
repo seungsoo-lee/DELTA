@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.RemoveFlowInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowModFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.OutputPortValues;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
@@ -69,10 +70,11 @@ public class FlowUtils {
      * @return {@link FlowBuilder} forwarding all packets to controller port
      */
     public static FlowBuilder createDirectMacToMacFlow(final Short tableId, final int priority, final MacAddress srcMac,
-            final MacAddress dstMac, final NodeConnectorRef dstPort) {
+                                                       final MacAddress dstMac, final NodeConnectorRef dstPort) {
         FlowBuilder macToMacFlow = new FlowBuilder()
                 .setTableId(tableId)
                 .setFlowName("mac2mac");
+
         macToMacFlow.setId(new FlowId(Long.toString(macToMacFlow.hashCode())));
 
         EthernetMatch ethernetMatch = new EthernetMatchBuilder()
@@ -130,7 +132,6 @@ public class FlowUtils {
     }
 
 
-
     /**
      * @param tableId
      * @param priority
@@ -174,21 +175,28 @@ public class FlowUtils {
         isb.setInstruction(instructions);
 
         allToCtrlFlow
-            .setMatch(matchBuilder.build())
-            .setInstructions(isb.build())
-            .setPriority(priority)
-            .setBufferId(OFConstants.OFP_NO_BUFFER)
-            .setHardTimeout(0)
-            .setIdleTimeout(0)
-            .setFlags(new FlowModFlags(false, false, false, false, false));
+                .setMatch(matchBuilder.build())
+                .setInstructions(isb.build())
+                .setPriority(priority)
+                .setBufferId(OFConstants.OFP_NO_BUFFER)
+                .setHardTimeout(0)
+                .setIdleTimeout(0)
+                .setFlags(new FlowModFlags(false, false, false, false, false));
 
         return allToCtrlFlow;
+    }
+
+    public static void programRemoveFlow(DataBroker dataBroker, NodeId nodeId, String dstMac, NodeConnectorId ingressNodeConnectorId, NodeConnectorId egressNodeConnectorId) {
+        RemoveFlowInputBuilder flowBuilder = new RemoveFlowInputBuilder()
+                .setBarrier(true)
+                .setNode(InventoryUtils.getNodeRef(nodeId));
+        flowBuilder.build();
     }
 
     public static void programL2Flow(DataBroker dataBroker, NodeId nodeId, String dstMac, NodeConnectorId ingressNodeConnectorId, NodeConnectorId egressNodeConnectorId) {
 
         /* Programming a flow involves:
-    	 * 1. Creating a Flow object that has a match and a list of instructions,
+         * 1. Creating a Flow object that has a match and a list of instructions,
     	 * 2. Adding Flow object as an augmentation to the Node object in the inventory.
     	 * 3. FlowProgrammer module of OpenFlowPlugin will pick up this data change and eventually program the switch.
     	 */
@@ -230,7 +238,7 @@ public class FlowUtils {
         flowBuilder.setId(new FlowId(flowId));
         FlowKey key = new FlowKey(new FlowId(flowId));
         flowBuilder.setBarrier(true);
-        flowBuilder.setTableId((short)0);
+        flowBuilder.setTableId((short) 0);
         flowBuilder.setKey(key);
         flowBuilder.setPriority(30000);     // for DELTA identification
         flowBuilder.setFlowName(flowId);

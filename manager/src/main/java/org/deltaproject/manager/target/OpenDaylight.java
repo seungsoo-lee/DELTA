@@ -49,48 +49,41 @@ public class OpenDaylight implements TargetController {
         try {
             if (version.equals("helium")) {
                 process = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo " + controllerPath);
+
+                stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+
+                while ((str = stdOut.readLine()) != null) {
+                    log.debug(str);
+                    if (str.contains("initialized successfully")) {
+                        log.info("OpenDaylight is activated");
+                        isRunning = true;
+                        break;
+                    }
+                }
+
+                if (!isRunning) {
+                    log.info("Failed to start OpenDaylight");
+                    return false;
+                }
+
+                installAppAgent();
+
             } else if (version.equals("carbon")) {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " /home/vagrant/distribution-karaf-0.2.4-Helium-SR4/bin/karaf");
-            }
+                process = Runtime.getRuntime().exec("ssh " + sshAddr + " /home/vagrant/distribution-karaf-0.6.0-Carbon/bin/karaf");
 
-            /*
-            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
-            pidField.setAccessible(true);
-            Object value = pidField.get(process);
-            this.currentPID = (Integer) value;
-            */
+                stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
 
-            stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-
-            while ((str = stdOut.readLine()) != null) {
-                log.debug(str);
-                if (str.contains("initialized successfully")) {
-                    log.info("OpenDaylight is activated");
-                    isRunning = true;
-                    break;
+                while ((str = stdOut.readLine()) != null) {
+                    log.debug(str);
+                    if (str.contains("shutdown OpenDaylight")) {
+                        log.info("OpenDaylight is activated");
+                        isRunning = true;
+                        break;
+                    }
                 }
             }
-
-            if (!isRunning) {
-                log.info("Failed to start OpenDaylight");
-                return false;
-            }
-
-            /*
-            Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep java");
-            String tempS;
-            BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
-
-            while ((tempS = stdOut2.readLine()) != null && !tempS.isEmpty()) {
-                if (tempS.contains("opendaylight")) {
-                    String[] list = StringUtils.split(tempS);
-                    currentPID = Integer.parseInt(list[1]);
-                }
-            }
-            */
-
-            installAppAgent();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -162,11 +155,19 @@ public class OpenDaylight implements TargetController {
     public void killController() {
         try {
             if (stdIn != null) {
-                stdIn.write("exit\n");
-                stdIn.flush();
-                stdIn.write("y\n");
-                stdIn.flush();
-                stdIn.close();
+                if (version.equals("helium")) {
+                    stdIn.write("exit\n");
+                    stdIn.flush();
+                    stdIn.write("y\n");
+                    stdIn.flush();
+                    stdIn.close();
+                } else {
+                    stdIn.write("system:shutdown\n");
+                    stdIn.flush();
+                    stdIn.write("yes\n");
+                    stdIn.flush();
+                    stdIn.close();
+                }
             }
 
 //            if (this.currentPID != -1) {

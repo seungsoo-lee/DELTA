@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+# Script to distribute the compiled files to VMs
+#
+
+scp $DELTA_ROOT/agents/apps/opendaylight/opendaylight-carbon/target/delta-agent-app-odl-carbon-1.0-SNAPSHOT.jar $DELTA_APP:~/
+scp $DELTA_ROOT/tools/dev/app-agent-setup/opendaylight/odl-carbon-setup $DELTA_APP:~/

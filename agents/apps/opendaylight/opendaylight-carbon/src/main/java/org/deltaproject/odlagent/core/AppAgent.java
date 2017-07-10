@@ -10,6 +10,7 @@ package org.deltaproject.odlagent.core;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 
 /**
@@ -67,4 +68,6 @@ public interface AppAgent {
      * @param notificationService
      */
     void setNotificationService(NotificationService notificationService);
+
+    void setSalFlowService(SalFlowService salFlowService);
 }

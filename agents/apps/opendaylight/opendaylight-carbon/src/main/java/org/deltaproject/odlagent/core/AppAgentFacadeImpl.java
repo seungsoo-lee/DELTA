@@ -12,17 +12,25 @@ import com.google.common.util.concurrent.CheckedFuture;
 import org.deltaproject.odlagent.utils.FlowUtils;
 import org.deltaproject.odlagent.utils.InventoryUtils;
 import org.deltaproject.odlagent.utils.PacketUtils;
+import org.deltaproject.odlagent.utils.TestProviderTransactionUtil;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.RemoveFlowInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.FlowStatisticsData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -37,9 +45,10 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
+/*
  *
  */
 public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingListener {
@@ -70,6 +79,7 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
     private PacketProcessingService packetProcessingService;
     private PacketInDispatcherImpl packetInDispatcher;
     private DataBroker dataBroker;
+    private SalFlowService salFlowService;
 
     private ArrayList<NodeId> nodeIdList;
 
@@ -88,17 +98,21 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
         this.dataBroker = db;
     }
 
+    public void setSalFlowService(SalFlowService sal) {
+        this.salFlowService = sal;
+    }
+
     @Override
     public synchronized void onSwitchAppeared(InstanceIdentifier<Table> appearedTablePath) {
         LOG.debug("expected table acquired, learning ..");
 
-        /**
+        /*
          * appearedTablePath is in form of /nodes/node/node-id/table/table-id
          * so we shorten it to /nodes/node/node-id to get identifier of switch.
          *
          */
         InstanceIdentifier<Node> nodePath = InstanceIdentifierUtils.getNodePath(appearedTablePath);
-        packetInDispatcher.getHandlerMapping().put(nodePath, this);
+        //packetInDispatcher.getHandlerMapping().put(nodePath, this);
 
         NodeId nodeId = nodePath.firstKeyOf(Node.class, NodeKey.class).getId();
         nodeIdList.add(nodeId);
@@ -145,21 +159,8 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
                 if (tablePath == null)
                     return;
 
-//                NodeId ingressNodeId = InventoryUtils.getNodeId(notification.getIngress());
-//                FlowUtils.programL2Flow(dataBroker, ingressNodeId, dstMacStr, connectorId, InventoryUtils.getNodeConnectorId(destNodeConnector));
-
-                /*
-                FlowId flowId = new FlowId(String.valueOf(flowIdInc.getAndIncrement()));
-                FlowKey flowKey = new FlowKey(flowId);
-                InstanceIdentifier<Flow> flowPath = InstanceIdentifierUtils.createFlowPath(tablePath, flowKey);
-
-                Short tableId = InstanceIdentifierUtils.getTableId(tablePath);
-                FlowBuilder srcToDstFlow = FlowUtils.createDirectMacToMacFlow(tableId, DIRECT_FLOW_PRIORITY, srcMac,
-                        dstMac, destNodeConnector);
-                srcToDstFlow.setCookie(new FlowCookie(BigInteger.valueOf(flowCookieInc.getAndIncrement())));
-
-                dataStoreAccessor.writeFlowToConfig(flowPath, srcToDstFlow.build());
-                */
+                //NodeId ingressNodeId = InventoryUtils.getNodeId(notification.getIngress());
+                //FlowUtils.programL2Flow(dataBroker, ingressNodeId, dstMacStr, connectorId, InventoryUtils.getNodeConnectorId(destNodeConnector));
             }
         }
     }
@@ -188,16 +189,14 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
         this.packetInDispatcher = packetInDispatcher;
     }
 
-    private void connectManager() {
+    public void connectManager() {
         cm = new Interface();
         cm.setAgent(this);
         cm.setServerAddr();
         cm.connectServer("AppAgent");
         cm.start();
-    }
 
-    public void test() {
-
+        LOG.info("[DELTA] manager connected");
     }
 
     public void setControlMessageDrop() {
@@ -248,13 +247,106 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
     }
 
     /*
-     * 3.1.050: Flow Rule Modification
+     * 3.1.070: Flow Rule Modification
      */
     public String testFlowRuleModification() {
-        LOG.info("[DELTA] Flow Rule Modification");
+        LOG.info("[DELTA] Flow Rule Modification!");
+
+        String modified = "null";
+
+        int flowCount = 0;
+        int flowStatsCount = 0;
+
+        for (NodeId nodeId : nodeIdList) {
+            NodeKey nodeKey = new NodeKey(nodeId);
+
+            InstanceIdentifier<FlowCapableNode> nodeRef = InstanceIdentifier
+                    .create(Nodes.class).child(Node.class, nodeKey)
+                    .augmentation(FlowCapableNode.class);
+
+            ReadOnlyTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction();
+            FlowCapableNode node = TestProviderTransactionUtil.getDataObject(
+                    readOnlyTransaction, nodeRef);
+
+            if (node != null) {
+                List<Table> tables = node.getTable();
+
+                for (Iterator<Table> iterator2 = tables.iterator(); iterator2.hasNext(); ) {
+                    TableKey tableKey = iterator2.next().getKey();
+                    InstanceIdentifier<Table> tableRef = InstanceIdentifier
+                            .create(Nodes.class).child(Node.class, nodeKey)
+                            .augmentation(FlowCapableNode.class).child(Table.class, tableKey);
+                    Table table = TestProviderTransactionUtil.getDataObject(
+                            readOnlyTransaction, tableRef);
+
+                    if (table != null) {
+                        if (table.getFlow() != null) {
+                            List<Flow> flows = table.getFlow();
+                            // LOG.info("[DELTA] Flowsize : " + flows.size());
+
+                            for (Iterator<Flow> iterator3 = flows.iterator(); iterator3.hasNext(); ) {
+                                flowCount++;
+                                FlowKey flowKey = iterator3.next().getKey();
+                                InstanceIdentifier<Flow> flowRef = InstanceIdentifier
+                                        .create(Nodes.class).child(Node.class, nodeKey)
+                                        .augmentation(FlowCapableNode.class).child(Table.class, tableKey)
+                                        .child(Flow.class, flowKey);
+
+                                Flow flow = TestProviderTransactionUtil.getDataObject(
+                                        readOnlyTransaction, flowRef);
+
+                                if (flow != null) {
+                                    modified = flow.toString() + "\n";
+                                    FlowStatisticsData data = flow
+                                            .getAugmentation(FlowStatisticsData.class);
+                                    if (null != data) {
+                                        flowStatsCount++;
+                                        // LOG.info("[DELTA] Flow 2 : " + data.toString());
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (flowCount == flowStatsCount) {
+            LOG.info("flowStats - Success");
+        } else {
+            LOG.info("flowStats - Failed");
+            LOG.debug("System fetchs stats data in 50 seconds interval, so pls wait and try again.");
+        }
+
+        return modified;
+    }
+
+    /*
+     * 3.1.080: Flow Table Clearance
+     */
+    public String testFlowTableClearance(boolean infinite) {
+        LOG.info("[DELTA] Flow Table Clearance");
 
         String modified = "";
+        int cnt = 0;
 
+        while (cnt != 100) {
+            for (NodeId id : nodeIdList) {
+                RemoveFlowInputBuilder flowBuilder = new RemoveFlowInputBuilder()
+                        .setBarrier(false)
+                        .setNode(InventoryUtils.getNodeRef(id));
+
+                if (salFlowService == null)
+                    LOG.info("salFlowService is NULL");
+                else
+                    salFlowService.removeFlow(flowBuilder.build());
+            }
+            cnt++;
+
+            if (!infinite)
+                break;
+        }
 
         return modified;
     }
