@@ -61,12 +61,16 @@ public class AttackConductor {
         CaseInfo.updateControllerCase(infoControllerCase);
         CaseInfo.updateSwitchCase(infoSwitchCase);
 
-        testSwitchCase = new TestSwitchCase(channelm);
+//        testSwitchCase = new TestSwitchCase();
         testControllerCase = new TestControllerCase(appm, hostm, channelm, controllerm);
         testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
 
         testFuzzing = new TestFuzzing(appm, hostm, channelm, controllerm);
         testState = new TestStateDiagram(appm);
+    }
+
+    public ChannelAgentManager getChannelManger() {
+        return channelm;
     }
 
     public String showConfig() {
@@ -118,7 +122,7 @@ public class AttackConductor {
         }
         long end = System.currentTimeMillis();
         log.info("Running Time(s) : " + (end - start) / 1000.0);
-        log.info(test.getName()+" is done\n");
+        log.info(test.getName() + " is done\n");
     }
 
     public void printAttackList() {
@@ -163,5 +167,9 @@ public class AttackConductor {
             return true;
         else
             return false;
+    }
+
+    public void setTestSwitchCase(TestSwitchCase testSwitchCase) {
+        this.testSwitchCase = testSwitchCase;
     }
 }

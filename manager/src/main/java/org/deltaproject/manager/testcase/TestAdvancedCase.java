@@ -149,10 +149,9 @@ public class TestAdvancedCase {
 
     public void initController(boolean switchWait) {
         if (!controllerm.isRunning()) {
-            log.info("Target controller: " + controllerm.getType() + " " + controllerm.getVersion());
-
             log.info("Target controller is starting..");
             if (controllerm.createController()) {
+                log.info("Target controller: " + controllerm.getType() + " " + controllerm.getVersion());
                 log.info("Target controller setup is completed");
             } else {
                 log.info("Target controller setup is failed");

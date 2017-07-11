@@ -70,10 +70,6 @@ public class Configuration {
         return this.FLOODLIGHT_ROOT;
     }
 
-    public String getFloodlightVer() {
-        return this.FLOODLIGHT_VER;
-    }
-
     public String getTargetVer() {
         return this.TARGET_VERSION;
     }
@@ -82,24 +78,8 @@ public class Configuration {
         return this.ODL_ROOT;
     }
 
-    public String getODLVer() {
-        return this.ODL_VER;
-    }
-
-    public String getODLAppAgent() {
-        return this.ODL_APPAGENT;
-    }
-
     public String getONOSRoot() {
         return this.ONOS_ROOT;
-    }
-
-    public String getONOSVer() {
-        return this.ONOS_VER;
-    }
-
-    public String getONOSKarafRoot() {
-        return this.ONOS_KARAF_ROOT;
     }
 
     public String getCbenchRoot() {
@@ -160,6 +140,110 @@ public class Configuration {
 
     public String getAMPort() {
         return this.AM_PORT;
+    }
+
+    public void setFLOODLIGHT_ROOT(String FLOODLIGHT_ROOT) {
+        this.FLOODLIGHT_ROOT = FLOODLIGHT_ROOT;
+    }
+
+    public void setFLOODLIGHT_VER(String FLOODLIGHT_VER) {
+        this.FLOODLIGHT_VER = FLOODLIGHT_VER;
+    }
+
+    public void setODL_ROOT(String ODL_ROOT) {
+        this.ODL_ROOT = ODL_ROOT;
+    }
+
+    public void setODL_VER(String ODL_VER) {
+        this.ODL_VER = ODL_VER;
+    }
+
+    public void setODL_APPAGENT(String ODL_APPAGENT) {
+        this.ODL_APPAGENT = ODL_APPAGENT;
+    }
+
+    public void setONOS_ROOT(String ONOS_ROOT) {
+        this.ONOS_ROOT = ONOS_ROOT;
+    }
+
+    public void setONOS_VER(String ONOS_VER) {
+        this.ONOS_VER = ONOS_VER;
+    }
+
+    public void setONOS_KARAF_ROOT(String ONOS_KARAF_ROOT) {
+        this.ONOS_KARAF_ROOT = ONOS_KARAF_ROOT;
+    }
+
+    public void setCBENCH_ROOT(String CBENCH_ROOT) {
+        this.CBENCH_ROOT = CBENCH_ROOT;
+    }
+
+    public void setTARGET_CONTROLLER(String TARGET_CONTROLLER) {
+        this.TARGET_CONTROLLER = TARGET_CONTROLLER;
+    }
+
+    public void setTARGET_VERSION(String TARGET_VERSION) {
+        this.TARGET_VERSION = TARGET_VERSION;
+    }
+
+    public void setCONTROLLER_SSH(String CONTROLLER_SSH) {
+        this.CONTROLLER_SSH = CONTROLLER_SSH;
+    }
+
+    public void setCHANNEL_SSH(String CHANNEL_SSH) {
+        this.CHANNEL_SSH = CHANNEL_SSH;
+    }
+
+    public void setHOST_SSH(String HOST_SSH) {
+        this.HOST_SSH = HOST_SSH;
+    }
+
+    public void setTARGET_HOST(String TARGET_HOST) {
+        this.TARGET_HOST = TARGET_HOST;
+    }
+
+    public void setOF_PORT(String OF_PORT) {
+        this.OF_PORT = OF_PORT;
+    }
+
+    public void setOF_VERSION(String OF_VERSION) {
+        this.OF_VERSION = OF_VERSION;
+    }
+
+    public void setMITM_NIC(String MITM_NIC) {
+        this.MITM_NIC = MITM_NIC;
+    }
+
+    public void setCONTROLLER_IP(String CONTROLLER_IP) {
+        this.CONTROLLER_IP = CONTROLLER_IP;
+    }
+
+    public void setOriginal(String original) {
+        this.original = original;
+    }
+
+    public void setSwitchList(ArrayList<String> switchList) {
+        this.switchList = switchList;
+    }
+
+    public void setDUMMY_CONT_IP(String DUMMY_CONT_IP) {
+        this.DUMMY_CONT_IP = DUMMY_CONT_IP;
+    }
+
+    public void setDUMMY_CONT_PORT(String DUMMY_CONT_PORT) {
+        this.DUMMY_CONT_PORT = DUMMY_CONT_PORT;
+    }
+
+    public void setAM_IP(String AM_IP) {
+        this.AM_IP = AM_IP;
+    }
+
+    public void setAM_PORT(String AM_PORT) {
+        this.AM_PORT = AM_PORT;
+    }
+
+    public void setWEB(String WEB) {
+        this.WEB = WEB;
     }
 
     public String show() {

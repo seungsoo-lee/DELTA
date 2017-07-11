@@ -1,7 +1,11 @@
 package org.deltaproject.webui;
 
 import org.deltaproject.manager.core.AttackConductor;
+import org.deltaproject.manager.core.ControllerManager;
+import org.deltaproject.manager.testcase.TestSwitchCase;
 import org.deltaproject.manager.utils.AgentLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.deltaproject.webui.TestCase.Status.*;
 
@@ -14,6 +18,7 @@ public class TestCaseExecutor extends Thread {
     private AttackConductor conductor;
     private TestQueue queue = TestQueue.getInstance();
     private boolean running;
+    private static final Logger log = LoggerFactory.getLogger(ControllerManager.class.getName());
 
     public TestCaseExecutor(AttackConductor conductor) {
         this.conductor = conductor;
@@ -24,6 +29,8 @@ public class TestCaseExecutor extends Thread {
     public void run() {
         while (running) {
             if (!queue.isEmpty()) {
+                conductor.setTestSwitchCase(new TestSwitchCase(conductor.getChannelManger()));
+
                 TestCase test = queue.getNext();
                 try {
                     test.setStatus(RUNNING);
@@ -32,6 +39,7 @@ public class TestCaseExecutor extends Thread {
                     AgentLogger.stopAllLogger();
                 } catch (InterruptedException e) {
                     test.setStatus(UNAVAILABLE);
+                    log.error(e.toString());
                 }
             }
 

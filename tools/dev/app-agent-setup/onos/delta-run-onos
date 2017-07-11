@@ -30,8 +30,15 @@ case $onos_version in
     *) usage;;
 esac
 
+# Check if ONOS exists on the AppAgent
+onos_directory=/tmp/onos-$onos_version
+directory_check=$(ssh $DELTA_APP "[ -d $onos_directory ] && echo exists || echo does not exists")
+
+[[ "$directory_check" =~ "not" ]] && $DELTA_ROOT/tools/dev/app-agent-setup/onos/delta-setup-onos $onos_version
+
+# Run ONOS
 ssh $DELTA_APP "
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle
 export ONOS_APPS=drivers,openflow,proxyarp,mobility,fwd
-/tmp/onos-$onos_version/bin/onos-service clean
+$onos_directory/bin/onos-service clean
 "

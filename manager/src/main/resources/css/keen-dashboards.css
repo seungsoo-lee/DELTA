@@ -77,14 +77,14 @@ body.application .return-link:hover,
 }
 .chart-wrapper .chart-title {
   border-bottom: 1px solid #d7d7d7;
-  color: #666;
+  color: black;
   font-size: 14px;
-  font-weight: 200;
+  font-weight: bold;
   padding: 7px 10px 4px;
 }
 
 .chart-wrapper .chart-stage {
-  overflow: hidden;
+  overflow: visible;
   padding: 5px 10px;
   position: relative;
 }
@@ -98,8 +98,17 @@ body.application .return-link:hover,
 }
 
 .fill {
-  height: 180px;
+  height: 290px;
   width: 100%;
   overflow-y: scroll;
   resize: none;
+}
+
+textarea {
+  background: #3d4a57;
+  border-radius: .2em;
+  white-space: pre-wrap;
+  padding: .5em;
+  font-family: "Consolas", "Ubuntu Mono", "Monaco", monospace;
+  color: white;
 }
