@@ -250,7 +250,7 @@ public class Interface extends Thread {
                 }
 
                 /*
-                 *  CONTROL_PLANE_OF test cases
+                 *  DATA_PLANE_OF test cases
                  */
                 if (recv.contains("runDummyController")) {
                     testSwitch.runDummyController(DummyController.HANDSHAKE_DEFAULT);
@@ -258,7 +258,57 @@ public class Interface extends Thread {
                 } else if (recv.equalsIgnoreCase("1.1.010")) {
                     String res = testSwitch.testPortRangeViolation(recv);
                     dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.020")) {
+                    String res = testSwitch.testTableID(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.030")) {
+                    String res = testSwitch.testGroupID(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.040")) {
+                    String res = testSwitch.testMeterID(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.050")) {
+                    String res = testSwitch.testTableLoop(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.060")) {
+                    String res = testSwitch.testCorruptedControlMsgType(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.070")) {
+                    String res = testSwitch.testUnsupportedVersionNumber(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.080")) {
+                    String res = testSwitch.testMalformedVersionNumber(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.090")) {
+                    String res = testSwitch.testInvalidOXMType(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.100")) {
+                    String res = testSwitch.testInvalidOXMLength(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.110")) {
+                    String res = testSwitch.testInvalidOXMValue(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.120")) {
+                    String res = testSwitch.testDisabledTableFeatureRequest(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.130")) {
+                    String res = testSwitch.testHandshakeWithoutHello(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.140")) {
+                    String res = testSwitch.testControlMsgBeforeHello(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.150")) {
+                    String res = testSwitch.testIncompatibleHelloAfterConnection(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.160")) {
+                    String res = testSwitch.testCorruptedCookieValue(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("1.1.170")) {
+                    String res = testSwitch.testMalformedBufferIDValue(recv);
+                    dos.writeUTF(res);
                 }
+
+
 
                 /*
                  *  ADVANCED test cases

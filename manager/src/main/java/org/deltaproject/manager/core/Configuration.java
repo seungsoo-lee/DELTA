@@ -46,6 +46,8 @@ public class Configuration {
 
     private String WEB = "";
 
+    private String TOPOLOGY_TYPE = "vm";
+
     private static final Configuration instance = new Configuration();
 
 
@@ -61,6 +63,8 @@ public class Configuration {
         switchList = new ArrayList<String>();
         readConfigFile(path);
     }
+
+    public String getTopologyType() { return TOPOLOGY_TYPE; }
 
     public ArrayList<String> getSwitchList() {
         return switchList;
