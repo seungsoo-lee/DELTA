@@ -1,11 +1,9 @@
 package org.deltaproject.manager.target;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionContext;
 import org.deltaproject.manager.utils.AgentLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.management.Agent;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -70,14 +68,18 @@ public class ONOS implements TargetController {
 
             Thread.sleep(10000);
 
-            str = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
-            if (str.contains("Welcome")) {
-                isRunning = true;
-                log.info("ONOS is activated");
-            } else {
-                log.info("Failed to start ONOS");
-                return false;
+            do {
+                str = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
             }
+            while (!str.contains("Welcome"));
+
+            isRunning = true;
+            log.info("ONOS is activated");
+
+//            else {
+//                log.info("Failed to start ONOS");
+//                return false;
+//            }
 
             try {
                 Thread.sleep(3000);

@@ -1,6 +1,5 @@
 package org.deltaproject.manager.core;
 
-import org.deltaproject.manager.testcase.TestControllerCase;
 import org.deltaproject.manager.utils.AgentLogger;
 import org.deltaproject.manager.utils.ProgressBar;
 import org.deltaproject.webui.TestCase;
@@ -10,7 +9,6 @@ import org.deltaproject.webui.TestQueue;
 import org.deltaproject.webui.WebUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.management.Agent;
 
 import java.io.BufferedReader;
 import java.io.IOException;

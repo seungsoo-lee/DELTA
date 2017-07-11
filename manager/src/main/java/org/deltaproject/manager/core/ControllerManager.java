@@ -36,7 +36,7 @@ public class ControllerManager {
         targetList = new ArrayList<TargetController>();
         switchList = new ArrayList<String>();
 
-        setConfig();
+//        setConfig();
         connectedSwitches = new ArrayList<String>();
         sshAddr = cfg.getAppSSH();
     }
@@ -69,6 +69,7 @@ public class ControllerManager {
 
     public boolean createController() {
         boolean result;
+        setConfig();
         for (TargetController tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
                 result = tc.createController();

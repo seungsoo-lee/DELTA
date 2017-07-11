@@ -5,9 +5,11 @@ $(document).ready(function () {
             'selectAll',
             'selectNone',
             {
-                text: "Queue selected",
+                text: "Run Selected Entries",
                 action: function (e, dt, node, config) {
 
+                    // send configuration info
+                    sendConfig();
                     var queueArray = new Array();
                     dt.rows({selected: true}).every(function (rowIdx, tableLoop, rowLoop) {
                         queueArray.push(this.data().casenum);
@@ -35,7 +37,7 @@ $(document).ready(function () {
         select: {
             style: 'multi'
         },
-        lengthMenu: [10, 20, 50, 100],
+        lengthMenu: [50, 100],
         searching: true,
         'columns': [
             {'data': 'category'},
@@ -62,7 +64,7 @@ $(document).ready(function () {
         select: {
             style: 'multi'
         },
-        lengthMenu: [10, 20, 50, 100],
+        lengthMenu: [20, 50, 100],
         searching: true,
         'columns': [
             {'data': 'index'},
@@ -147,10 +149,34 @@ $('#targetController').change(function() {
         $('#targetVersion').append('<option value="1.6.0">1.6.0</option>');
         $('#targetVersion').append('<option value="1.9.0">1.9.0</option>');
     } else if (targetController == 'OpenDaylight') {
-        $('#targetVersion').append('<option value="helium-sr3">helium-sr3</option>');
+        $('#targetVersion').append('<option value="helium-sr3">helium</option>');
     } else if (targetController == 'Floodlight') {
         $('#targetVersion').append('<option value="1.2">1.2</option>');
         $('#targetVersion').append('<option value="0.91">0.91</option>');
     }
     $("#targetVersion").selectpicker("refresh");
 });
+
+// send configuration info to the server from UI
+
+function sendConfig() {
+
+    var configMsg = $('#targetController').val() + " " + $('#targetVersion').val() + " " + $('#ofPort').val() + " "
+         + $('#ofVersion').val() + " " + $('#controllerIp').val() + " " + $('#switchIp').val();
+
+    $.ajax({
+        url: "/json/config/post",
+        type: "POST",
+        data: configMsg,
+        dataType: "text",
+        contentType: "text/plain",
+        async: false,
+        success: function (data) {
+            // alert(data);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.status);
+            alert(thrownError);
+        }
+    });
+}

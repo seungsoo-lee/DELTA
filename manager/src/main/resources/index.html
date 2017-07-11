@@ -95,14 +95,16 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="ofPort" class="col-md-5">OF Port</label>
+                            <label for="ofPort" class="col-md-5">OpenFlow Port</label>
                             <div class="col-md-7">
-                                <input type="text" class="form-control" placeholder="OF Port" id="ofPort"
-                                       aria-describedby="basic-addon2" value="6633">
+                                <select class="selectpicker form-control" id="ofPort" data-width="100%">
+                                    <option selected>6633</option>
+                                    <option>6653</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="ofVersion" class="col-md-5">OF Version</label>
+                            <label for="ofVersion" class="col-md-5">OpenFlow Version</label>
                             <div class="col-md-7">
                                 <select class="selectpicker form-control" id="ofVersion" data-width="100%">
                                     <option selected>1.0</option>

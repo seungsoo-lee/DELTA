@@ -61,7 +61,7 @@ public class AttackConductor {
         CaseInfo.updateControllerCase(infoControllerCase);
         CaseInfo.updateSwitchCase(infoSwitchCase);
 
-        testSwitchCase = new TestSwitchCase();
+//        testSwitchCase = new TestSwitchCase();
         testControllerCase = new TestControllerCase(appm, hostm, channelm, controllerm);
         testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
 
@@ -163,5 +163,9 @@ public class AttackConductor {
             return true;
         else
             return false;
+    }
+
+    public void setTestSwitchCase(TestSwitchCase testSwitchCase) {
+        this.testSwitchCase = testSwitchCase;
     }
 }
