@@ -1,7 +1,7 @@
 package org.deltaproject.channelagent;
 
 
-import org.deltaproject.channelagent.core.AMInterface;
+import org.deltaproject.channelagent.core.Interface;
 import org.slf4j.impl.SimpleLogger;
 
 public class Main {
@@ -12,8 +12,8 @@ public class Main {
 		}
 
 		System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "TRUE");
-		AMInterface amInterface = new AMInterface(args[0], args[1]);
-		amInterface.connectAgentManager();
+		Interface amInterface = new Interface(args[0], args[1]);
+		amInterface.connectManager();
 
 		try {
 			Thread.sleep(1000);
