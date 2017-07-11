@@ -110,26 +110,10 @@ public class Interface extends Thread {
     public void replayingKnownAttack(String recv) throws IOException {
         String result = "";
 
-        /*
         if (recv.contains("3.1.020")) {
             app.setControlMessageDrop();
-
-            while (true) {
-                if (!app.getDroppedPkt().contains("nothing")) {
-                    break;
-                }
-
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            dos.writeUTF(app.getDroppedPkt());
-        } else */
-
-        if (recv.contains("3.1.030")) {
+            dos.writeUTF("null");
+        } else if (recv.contains("3.1.030")) {
             app.setInfiniteLoop();
             return;
         } else if (recv.contains("3.1.040")) {
@@ -139,12 +123,10 @@ public class Interface extends Thread {
             result = app.testFlowRuleModification();
             dos.writeUTF(result);
         } else if (recv.contains("3.1.080")) {
-
             if (recv.contains("false"))
                 app.testFlowTableClearance(false);
             else
                 app.testFlowTableClearance(true);
-
             return;
         } else if (recv.contains("3.1.090")) {
             result = act.testEventListenerUnsubscription("l2switch");

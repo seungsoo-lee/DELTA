@@ -21,8 +21,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
-public class AMInterface extends Thread {
-    private static final Logger log = LoggerFactory.getLogger(AMInterface.class);
+public class Interface extends Thread {
+    private static final Logger log = LoggerFactory.getLogger(Interface.class);
     private int result = 1;
 
     private Socket socket;
@@ -41,7 +41,7 @@ public class AMInterface extends Thread {
     private PktListener pktListener;
 
     private NetworkInterface device;
-    private byte OFVersion;
+    private byte ofVersion;
     private String ofPort;
     private String handler;
     private String cbench;
@@ -52,14 +52,12 @@ public class AMInterface extends Thread {
 
     private TestControllerCase testController;
 
-    public AMInterface(String ip, String port) {
+    public Interface(String ip, String port) {
         amIP = ip;
         amPort = Integer.parseInt(port);
-
-        dummysw = new DummySwitch();
     }
 
-    public AMInterface(String config) {
+    public Interface(String config) {
         BufferedReader br = null;
         InputStreamReader isr = null;
         FileInputStream fis = null;
@@ -115,7 +113,7 @@ public class AMInterface extends Thread {
 
             String line;
             while ((line = stderr.readLine()) != null) {
-                System.out.println(line);
+                log.info(line);
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -131,11 +129,11 @@ public class AMInterface extends Thread {
 
         for (String s : list) {
             if (s.startsWith("version")) {
-                String OFVersion = s.substring(s.indexOf(":") + 1);
-                if (OFVersion.equals("1.0"))
-                    this.OFVersion = 1;
-                else if (OFVersion.equals("1.3"))
-                    this.OFVersion = 4;
+                String ofVersion = s.substring(s.indexOf(":") + 1);
+                if (ofVersion.equals("1.0"))
+                    this.ofVersion = 1;
+                else if (ofVersion.equals("1.3"))
+                    this.ofVersion = 4;
             } else if (s.startsWith("nic")) {
                 nic = s.substring(s.indexOf(":") + 1);
                 this.device = NIC.getInterfaceByName(nic);
@@ -158,18 +156,19 @@ public class AMInterface extends Thread {
             }
         }
 
-        log.info("Configuration setup");
-        log.info("OpenFlow version/port\t: " + OFVersion + "/" + ofPort);
-        log.info("MITM Network Interface\t: " + nic);
-        log.info("Target Controller IP\t: " + controllerIP);
-        log.info("Target Switch IP\t\t: " + switchIP);
-        log.info("Cbench Root Path\t\t: " + cbench);
+        log.info("[Channel Agent] Configuration setup");
+        log.info("[Channel Agent] OpenFlow version/port\t: " + ofVersion + "/" + ofPort);
+        log.info("[Channel Agent] MITM Network Interface\t: " + nic);
+        log.info("[Channel Agent] Target Controller IP\t\t: " + controllerIP);
+        log.info("[Channel Agent] Target Switch IP\t\t: " + switchIP);
+        log.info("[Channel Agent] Cbench Root Path\t\t: " + cbench);
 
-        pktListener = new PktListener(device, controllerIP, switchIP, OFVersion, this.ofPort, this.handler);
-        testController = new TestControllerCase(controllerIP, OFVersion, ofPort);
+        dummysw = new DummySwitch();
+        pktListener = new PktListener(device, controllerIP, switchIP, ofVersion, this.ofPort, this.handler);
+        testController = new TestControllerCase(controllerIP, ofVersion, ofPort);
     }
 
-    public void connectAgentManager() {
+    public void connectManager() {
         try {
             socket = new Socket(amIP, amPort);
             // socket.setReuseAddress(true);
@@ -185,19 +184,15 @@ public class AMInterface extends Thread {
 
             String ack = dis.readUTF();
             if (ack.contains("OK")) {
-                log.info("Connected with Agent-Manager");
+                log.info("[Channel Agent] Connected with Agent-Manager");
             } else {
-                log.info("Connection failed");
+                log.info("[Channel Agent] Connection failed");
                 System.exit(1);
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    }
-
-    public void testFunc() {
-
     }
 
     @Override
@@ -213,73 +208,26 @@ public class AMInterface extends Thread {
                 if (recv.startsWith("config")) {
                     this.setConfiguration(recv);
                     continue;
-                } else if (recv.equalsIgnoreCase("3.1.010")) {
-                    System.out.println("\n[Channel-Agent] Pacekt-In Flooding test starts");
-                    this.executeCbench();
-                    dos.writeUTF("success");
-                } else if (recv.equalsIgnoreCase("3.1.160")) {
-                    System.out.println("\n[Channel-Agent] LinkFabrication test starts");
-                    pktListener.setTypeOfAttacks(TestCase.LINKFABRICATION);
-                    pktListener.startListening();
-                    pktListener.startARPSpoofing();
+                }
 
-                    Thread.sleep(40000);
-
-                    dos.writeUTF("success");
-                } else if (recv.equalsIgnoreCase("3.1.170")) {
-                    System.out.println("\n[Channel-Agent] Evaesdrop test starts");
-                    pktListener.setTypeOfAttacks(TestCase.EVAESDROP);
-                    pktListener.startListening();
-                    pktListener.startARPSpoofing();
-                } else if (recv.equalsIgnoreCase("3.1.170-2")) {
-                    String result = pktListener.getTopoInfo();
-
-                    if (result != null && !result.isEmpty() && result.length() > 0)
-                        result = "success|\n:: Result for Building Topology ::\n" + result;
-                    else
-                        result = "fail";
-
-                    System.out.println("\n[Channel-Agent] Topology Information " + result);
-                    dos.writeUTF(result);
-                } else if (recv.equalsIgnoreCase("3.1.180")) {
-                    System.out.println("\n[Channel-Agent] MITM test starts");
-                    pktListener.setTypeOfAttacks(TestCase.MITM);
-                    pktListener.startListening();
-                    pktListener.startARPSpoofing();
-                    dos.writeUTF("success");
-                } else if (recv.equalsIgnoreCase("3.1.050")) { // Switch Table
-                    // Flooding
-
-                    Thread.sleep(15000);
-
-                    dos.writeUTF("success");
-                } else if (recv.equalsIgnoreCase("3.1.060")) {
-                    System.out.println("\n[Channel-Agent] Switch Identification Spoofing Test");
-                    pktListener.testSwitchIdentification();
-
-                    dos.writeUTF("success");
-                } else if (recv.startsWith("fuzzing")) {
-                    dummysw.connectTargetController(controllerIP, ofPort);
-                    dummysw.setOFFactory(this.OFVersion);
-                    // dummysw.setSeed(pktListener.getSeedPackets());
-                    dummysw.start();
-                } else if (recv.equalsIgnoreCase("exit")) {
-                    pktListener.setTypeOfAttacks(TestCase.EMPTY);
-                    pktListener.stopARPSpoofing();
-                } else if (recv.contains("startsw")) {
+                /*
+                 *  CONTROL_PLANE_OF test cases
+                 */
+                if (recv.contains("startsw")) {
                     if (recv.contains("nohello")) {
                         testController.startSW(DummySwitch.HANDSHAKE_NO_HELLO);
                     } else {
                         testController.startSW(DummySwitch.HANDSHAKE_DEFAULT);
                     }
                     dos.writeUTF("switchok");
-                } else if (recv.equalsIgnoreCase("stoptemp")) {
-                    testController.stopTempSW();
                 } else if (recv.equalsIgnoreCase("2.1.010")) {
                     String res = testController.testMalformedVersionNumber(recv);
                     dos.writeUTF(res);
                 } else if (recv.equalsIgnoreCase("2.1.020")) {
                     String res = testController.testCorruptedControlMsgType(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("2.1.030")) {
+                    String res = testController.testHandShakeWithoutHello(recv);
                     dos.writeUTF(res);
                 } else if (recv.equalsIgnoreCase("2.1.040")) {
                     String res = testController.testControlMsgBeforeHello(recv);
@@ -298,6 +246,66 @@ public class AMInterface extends Thread {
                         String res = testController.testTLSSupport(recv);
                         dos.writeUTF(res);
                     }
+                }
+
+                /*
+                 *  ADVANCED test cases
+                 */
+                if (recv.equalsIgnoreCase("3.1.010")) {
+                    log.info("\n[Channel Agent] Pacekt-In Flooding test starts");
+                    this.executeCbench();
+                    dos.writeUTF("success");
+                } else if (recv.equalsIgnoreCase("3.1.160")) {
+                    log.info("\n[Channel Agent] LinkFabrication test starts");
+                    pktListener.setTypeOfAttacks(TestCase.LINKFABRICATION);
+                    pktListener.startListening();
+                    pktListener.startARPSpoofing();
+
+                    Thread.sleep(40000);
+
+                    dos.writeUTF("success");
+                } else if (recv.equalsIgnoreCase("3.1.170")) {
+                    log.info("\n[Channel Agent] Evaesdrop test starts");
+                    pktListener.setTypeOfAttacks(TestCase.EVAESDROP);
+                    pktListener.startListening();
+                    pktListener.startARPSpoofing();
+                } else if (recv.equalsIgnoreCase("3.1.170-2")) {
+                    String result = pktListener.getTopoInfo();
+
+                    if (result != null && !result.isEmpty() && result.length() > 0)
+                        result = "success|\n:: Result for Building Topology ::\n" + result;
+                    else
+                        result = "fail";
+
+                    log.info("\n[Channel Agent] Topology Information " + result);
+                    dos.writeUTF(result);
+                } else if (recv.equalsIgnoreCase("3.1.180")) {
+                    log.info("\n[Channel Agent] MITM test starts");
+                    pktListener.setTypeOfAttacks(TestCase.MITM);
+                    pktListener.startListening();
+                    pktListener.startARPSpoofing();
+                    dos.writeUTF("success");
+                } else if (recv.equalsIgnoreCase("3.1.050")) { // Switch Table
+                    // Flooding
+
+                    Thread.sleep(15000);
+
+                    dos.writeUTF("success");
+                } else if (recv.equalsIgnoreCase("3.1.060")) {
+                    log.info("\n[Channel Agent] Switch Identification Spoofing Test");
+                    pktListener.testSwitchIdentification();
+
+                    dos.writeUTF("success");
+                } else if (recv.startsWith("fuzzing")) {
+                    dummysw.connectTargetController(controllerIP, ofPort);
+                    dummysw.setOFFactory(this.ofVersion);
+                    // dummysw.setSeed(pktListener.getSeedPackets());
+                    dummysw.start();
+                } else if (recv.equalsIgnoreCase("exit")) {
+                    pktListener.setTypeOfAttacks(TestCase.EMPTY);
+                    pktListener.stopARPSpoofing();
+                } else if (recv.equalsIgnoreCase("stoptemp")) {
+                    testController.stopTempSW();
                 } else if (recv.contains("0.0.011")) {
                     if (recv.contains("0.0.011")) {
                         log.info("Control plane fuzzing test starts");
@@ -335,7 +343,7 @@ public class AMInterface extends Thread {
                     dos.writeUTF(pktListener.getFuzzingMsg());
                     //dos.writeUTF("MSG");
                 } else if (recv.contains("close")) {
-                    System.out.println("[Channel-Agent] Closing...");
+                    log.info("[Channel Agent] Closing...");
                     dis.close();
                     dos.close();
                     System.exit(0);
@@ -369,7 +377,6 @@ public class AMInterface extends Thread {
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-            // System.exit(0);
         }
 
         log.info("Thread exit");

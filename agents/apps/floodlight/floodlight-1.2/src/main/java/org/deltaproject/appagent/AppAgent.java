@@ -621,8 +621,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         if (switches.size() == 0)
             return "nothing sw";
 
-        Random random = new Random();
-
         OFActionOutput.Builder aob = of.actions().buildOutput();
         aob.setPort(OFPort.of(2));
         List<OFAction> actions = new ArrayList<OFAction>();
@@ -632,12 +630,11 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 
         Match.Builder mb = of.buildMatch();
         mb.setExact(MatchField.IN_PORT, OFPort.of(1));
-        mb.setExact(MatchField.ETH_DST, MacAddress.of("00:00:00:00:00:11"));
-        mb.setExact(MatchField.ETH_SRC, MacAddress.of("00:00:00:00:00:22"));
-
+        //mb.setExact(MatchField.ETH_DST, MacAddress.of("00:00:00:00:00:11"));
+        //mb.setExact(MatchField.ETH_SRC, MacAddress.of("00:00:00:00:00:22"));
         fmb.setMatch(mb.build());
         fmb.setActions(actions);
-        fmb.setPriority(555);
+        fmb.setPriority(100);
 
         OFFlowMod msg = fmb.build();
         switches.get(0).write(msg);

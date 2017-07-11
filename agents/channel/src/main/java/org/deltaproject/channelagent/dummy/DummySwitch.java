@@ -12,6 +12,8 @@ import org.deltaproject.channelagent.fuzzing.SeedPackets;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.errormsg.OFErrorMsgs;
+import org.projectfloodlight.openflow.types.DatapathId;
+import org.projectfloodlight.openflow.types.OFAuxId;
 import org.projectfloodlight.openflow.types.U16;
 
 import com.google.common.primitives.Longs;
@@ -256,18 +258,15 @@ public class DummySwitch extends Thread {
     }
 
     public void sendFeatureReply(long xid) throws OFParseError {
-        byte[] msg;
+        OFFeaturesReply.Builder frb = factory.buildFeaturesReply();
+        frb.setDatapathId(DatapathId.of((long)1));
+        frb.setNBuffers((long) 256);
+        frb.setNTables((short) 254);
+        frb.setAuxiliaryId(OFAuxId.of((short) 0));
+        frb.setReserved((long) 0);
+        frb.setXid(xid);
 
-        if (factory.getVersion() == OFVersion.OF_13) {
-            msg = Utils.hexStringToByteArray(DummyOF13.FEATURE_REPLY);
-        } else {
-            msg = Utils.hexStringToByteArray(DummyOF10.FEATURE_REPLY);
-        }
-
-        byte[] xidbytes = Longs.toByteArray(xid);
-        System.arraycopy(xidbytes, 4, msg, 4, 4);
-
-        sendRawMsg(msg);
+        sendMsg(frb.build(), -1);
     }
 
     public void sendGetConfigReply(long xid) {
@@ -394,6 +393,12 @@ public class DummySwitch extends Thread {
             bb.readerIndex(offset);
 
             byte version = bb.readByte();
+
+            if (version >= 5) {
+                log.info("[Channel Agent] OF Version >= 1.4 not supported");
+                return false;
+            }
+
             bb.readByte();
             int length = U16.f(bb.readShort());
             bb.readerIndex(offset);
@@ -407,23 +412,23 @@ public class DummySwitch extends Thread {
                 long xid = message.getXid();
 
                 if (message.getType() == OFType.HELLO) {
-                    log.info("[CA] receive HELLO msg");
+                    log.info("[Channel Agent] receive HELLO msg");
                 } else if (message.getType() == OFType.FEATURES_REQUEST) {
-                    log.info("[CA] receive FEATURES_REQUEST msg");
+                    log.info("[Channel Agent] receive FEATURES_REQUEST msg");
                     sendFeatureReply(xid);
                 } else if (message.getType() == OFType.GET_CONFIG_REQUEST) {
-                    log.info("[CA] receive GET_CONFIG_REQUEST msg");
+                    log.info("[Channel Agent] receive GET_CONFIG_REQUEST msg");
                     sendGetConfigReply(xid);
                 } else if (message.getType() == OFType.BARRIER_REQUEST) {
                     sendBarrierRes(xid);
                 } else if (message.getType() == OFType.STATS_REQUEST) {
-                    log.info("[CA] receive STATS_REQ msg");
+                    log.info("[Channel Agent] receive STATS_REQ msg");
                     sendStatReply(message, xid);
                     handshaked = true;
                 } else if (message.getType() == OFType.EXPERIMENTER) {
                     sendExperimenter(xid);
                 } else if (message.getType() == OFType.ECHO_REQUEST) {
-                    log.info("[CA] receive ECHO_REQUEST msg");
+                    log.info("[Channel Agent] receive ECHO_REQUEST msg");
                     sendEchoReply(xid);
                 } else if (message.getType() == OFType.ERROR) {
                     printError(message);
@@ -433,7 +438,7 @@ public class DummySwitch extends Thread {
                         OFFlowAdd fa = (OFFlowAdd) fm;
                         if (fa.getPriority() == 555) {
                             backupFlowAdd = fa;
-                            log.info("[CA] catch unflagged msg");
+                            log.info("[Channel Agent] catch unflagged msg");
                         }
                     }
                 } else if (message.getType() == OFType.ROLE_REQUEST) {
@@ -441,7 +446,7 @@ public class DummySwitch extends Thread {
                 }
 
                 if (xid == this.requestXid) {
-                    log.info("[CA] receive Response msg");
+                    log.info("[Channel Agent] receive Response msg");
                     res = message;
                 }
 
@@ -484,7 +489,7 @@ public class DummySwitch extends Thread {
                 try {
                     in.close();
 
-                    if(socket != null)
+                    if (socket != null)
                         socket.close();
                 } catch (IOException e1) {
                     // TODO Auto-generated catch block
