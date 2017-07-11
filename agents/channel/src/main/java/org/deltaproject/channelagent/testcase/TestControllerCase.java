@@ -146,7 +146,7 @@ public class TestControllerCase {
 
         String result = "Send a packet-in message with unknown message type";
         log.info("[Channel Agent] " + result);
-        result += result + '\n';
+        result = result + '\n';
 
         byte[] msg;
         if (targetOFVersion == 4) {
@@ -199,7 +199,7 @@ public class TestControllerCase {
 
         String result = "Send a packet-in message before handshake";
         log.info("[Channel Agent] " + result);
-        result += result + '\n';
+        result = result + '\n';
 
         byte[] msg;
         if (targetOFVersion == 4) {
@@ -261,7 +261,7 @@ public class TestControllerCase {
 
         String result = "Send a un-flagged flow remove msg";
         log.info("[Channel Agent] " + result);
-        result += result + '\n';
+        result = result + '\n';
 
         while (!isHandshaked()) {
             try {

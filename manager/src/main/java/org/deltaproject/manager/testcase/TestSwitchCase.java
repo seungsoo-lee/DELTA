@@ -2,6 +2,8 @@ package org.deltaproject.manager.testcase;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import org.apache.commons.lang3.StringUtils;
+import org.deltaproject.manager.core.ChannelAgentManager;
 import org.deltaproject.manager.core.Configuration;
 import org.deltaproject.manager.dummy.DummyController;
 import org.deltaproject.webui.TestCase;
@@ -33,7 +35,6 @@ public class TestSwitchCase {
     public static final int HANDSHAKE_NO_HELLO = 1;
     public static final int HANDSHAKE_INCOMPATIBLE_HELLO = 2;
     public static final int NO_HANDSHAKE = 3;
-
     public static final int DEFAULT_TIMEOUT = 5000;
 
     private Configuration cfg = Configuration.getInstance();
@@ -50,7 +51,9 @@ public class TestSwitchCase {
     private Process proc;
     private int procPID;
 
-    public TestSwitchCase() {
+    private ChannelAgentManager chm;
+
+    public TestSwitchCase(ChannelAgentManager cm) {
         random = new Random();
 
         ofversion = cfg.getOFVer();
@@ -60,9 +63,12 @@ public class TestSwitchCase {
             defaultFactory = OFFactories.getFactory(OFVersion.OF_13);
 
         ofport = Integer.parseInt(cfg.getOFPort());
+        chm = cm;
     }
 
     public void runRemoteAgents() {
+        chm.runAgent();
+
         log.info("Run test mininet topology");
 
         String mininet;
@@ -91,6 +97,8 @@ public class TestSwitchCase {
     }
 
     public void stopRemoteAgents() {
+        chm.stopAgent();
+
         if (procPID != -1)
             try {
                 proc = Runtime.getRuntime().exec("sudo kill -9 " + this.procPID);
@@ -237,31 +245,35 @@ public class TestSwitchCase {
 
     /*
      * 1.1.010 - Port Range Violation
-     * Verify that the switch rejects the use of ports that are greater thanc
+     * Verify that the switch rejects the use of ports that are greater than
      * OFPP_MAX and are not part of the reserved ports.
      */
     public void testPortRangeViolation(TestCase test) throws InterruptedException {
         log.info(test.getcasenum() + " - Port Range Violation - Test switch protection against disallowed ports");
 
-        setUpDummyController(HANDSHAKE_DEFAULT);
+        log.info("Run dummy controller");
+        chm.write("runDummyController");
 
-        OFPortMod request = defaultFactory.buildPortMod().setXid(r_xid).setPortNo(OFPort.ANY).build();
-        log.info("Send msg: " + request.toString());
-        dmcnt.sendMsg(request, -1);
+        String response = chm.read();
+        if (!response.contains("runDummyController")) {
+            log.info("Run dummy controller fail!");
+            return;
+        }
 
-        Thread.sleep(999);
+        chm.write(test.getcasenum());
+        response = chm.read();
 
-        OFMessage response = dmcnt.getResponse();
+        String[] split = StringUtils.split(response, "\n");
+        log.info(split[0]);
+        log.info(split[1]);
 
-        if (response != null) {
+        if (!split[1].contains("null")) {
             test.setResult(PASS);
-            log.info("Response err msg: " + response.toString() + ", PASS");
+            log.info("Response err msg: " + split[0] + ", PASS");
         } else {
             test.setResult(FAIL);
             log.info("Response is null, FAIL");
         }
-
-        stopDummyController();
     }
 
     /*

@@ -1,11 +1,13 @@
 package org.deltaproject.channelagent.core;
 
 import jpcap.NetworkInterface;
+import org.deltaproject.channelagent.dummy.DummyController;
 import org.deltaproject.channelagent.dummy.DummySwitch;
 import org.deltaproject.channelagent.pkthandler.NIC;
 import org.deltaproject.channelagent.pkthandler.PktListener;
 import org.deltaproject.channelagent.testcase.TestCase;
 import org.deltaproject.channelagent.testcase.TestControllerCase;
+import org.deltaproject.channelagent.testcase.TestSwitchCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,9 +50,8 @@ public class Interface extends Thread {
     private String controllerIP;
     private String switchIP;
 
-    private DummySwitch dummysw;
-
     private TestControllerCase testController;
+    private TestSwitchCase testSwitch;
 
     public Interface(String ip, String port) {
         amIP = ip;
@@ -163,9 +164,9 @@ public class Interface extends Thread {
         log.info("[Channel Agent] Target Switch IP\t\t: " + switchIP);
         log.info("[Channel Agent] Cbench Root Path\t\t: " + cbench);
 
-        dummysw = new DummySwitch();
-        pktListener = new PktListener(device, controllerIP, switchIP, ofVersion, this.ofPort, this.handler);
+        pktListener = new PktListener(device, controllerIP, switchIP, ofVersion, ofPort, handler);
         testController = new TestControllerCase(controllerIP, ofVersion, ofPort);
+        testSwitch = new TestSwitchCase(controllerIP, ofVersion, ofPort);
     }
 
     public void connectManager() {
@@ -249,6 +250,17 @@ public class Interface extends Thread {
                 }
 
                 /*
+                 *  CONTROL_PLANE_OF test cases
+                 */
+                if (recv.contains("runDummyController")) {
+                    testSwitch.runDummyController(DummyController.HANDSHAKE_DEFAULT);
+                    dos.writeUTF("runDummyController");
+                } else if (recv.equalsIgnoreCase("1.1.010")) {
+                    String res = testSwitch.testPortRangeViolation(recv);
+                    dos.writeUTF(res);
+                }
+
+                /*
                  *  ADVANCED test cases
                  */
                 if (recv.equalsIgnoreCase("3.1.010")) {
@@ -296,11 +308,14 @@ public class Interface extends Thread {
                     pktListener.testSwitchIdentification();
 
                     dos.writeUTF("success");
-                } else if (recv.startsWith("fuzzing")) {
-                    dummysw.connectTargetController(controllerIP, ofPort);
-                    dummysw.setOFFactory(this.ofVersion);
-                    // dummysw.setSeed(pktListener.getSeedPackets());
-                    dummysw.start();
+                }
+
+                /* for fuzzing later
+                else if (recv.startsWith("fuzzing")) {
+                    dmSwitch.connectTargetController(controllerIP, ofPort);
+                    dmSwitch.setOFFactory(this.ofVersion);
+                    // dmSwitch.setSeed(pktListener.getSeedPackets());
+                    dmSwitch.start();
                 } else if (recv.equalsIgnoreCase("exit")) {
                     pktListener.setTypeOfAttacks(TestCase.EMPTY);
                     pktListener.stopARPSpoofing();
@@ -333,16 +348,18 @@ public class Interface extends Thread {
                     pktListener.setFuzzingMode(0);
                     pktListener.setTypeOfAttacks(TestCase.CONTROLPLANE_FUZZING);
 
-                    /*
-                    dummysw.connectTargetController(controllerIP, ofPort);
-                    dummysw.setOFFactory(this.OFVersion);
-                    dummysw.setSeed(pktListener.getSeedPackets());
-                    dummysw.start();
-                    */
+
+                    dmSwitch.connectTargetController(controllerIP, ofPort);
+                    dmSwitch.setOFFactory(this.OFVersion);
+                    dmSwitch.setSeed(pktListener.getSeedPackets());
+                    dmSwitch.start();
                 } else if (recv.contains("getmsg")) {
                     dos.writeUTF(pktListener.getFuzzingMsg());
                     //dos.writeUTF("MSG");
-                } else if (recv.contains("close")) {
+                } else
+                */
+
+                if (recv.contains("close")) {
                     log.info("[Channel Agent] Closing...");
                     dis.close();
                     dos.close();

@@ -259,7 +259,7 @@ public class DummySwitch extends Thread {
 
     public void sendFeatureReply(long xid) throws OFParseError {
         OFFeaturesReply.Builder frb = factory.buildFeaturesReply();
-        frb.setDatapathId(DatapathId.of((long)1));
+        frb.setDatapathId(DatapathId.of((long) 1));
         frb.setNBuffers((long) 256);
         frb.setNTables((short) 254);
         frb.setAuxiliaryId(OFAuxId.of((short) 0));
@@ -467,17 +467,13 @@ public class DummySwitch extends Thread {
         // TODO Auto-generated method stub
         byte[] recv;
         int readlen;
-        boolean synack = false;
 
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 recv = new byte[2048];
                 if ((readlen = in.read(recv, 0, recv.length)) != -1) {
-                    if (!synack) {
-                        synack = true;
-                    } else {
+                    if (readlen >= 8)
                         parseOFMsg(recv, readlen);
-                    }
                 } else
                     break; // end of connection
             }
@@ -485,16 +481,15 @@ public class DummySwitch extends Thread {
             // if any error occurs
             e.printStackTrace();
         } finally {
-            if (in != null)
-                try {
+            try {
+                if (in != null)
                     in.close();
-
-                    if (socket != null)
-                        socket.close();
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
+                if (socket != null)
+                    socket.close();
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
         }
     }
 }
