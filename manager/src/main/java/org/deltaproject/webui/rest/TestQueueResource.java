@@ -58,7 +58,30 @@ public class TestQueueResource {
             log.info(count + " test case(s) queued.");
         }
 
-        return Response.status(201).
-                entity(count + " test(s) has been queued.").build();
+        return Response.status(201).entity(count + " test(s) has been queued.").build();
+    }
+
+    @POST
+    @Path("/stop")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response stopQueuedTestCases(String indexes) {
+
+        TestQueue testQueue = TestQueue.getInstance();
+
+        String[] indexList = indexes.split(",");
+        for (int i = 0; i < indexList.length; i++) {
+            Integer testCaseIdx = Integer.parseInt(indexList[i].trim());
+            TestCase testCase = testQueue.get(testCaseIdx);
+
+            if (testCase.getStatus() == TestCase.Status.QUEUED) {
+                testQueue.remove(testCaseIdx);
+
+            } else if (testCase.getStatus() == TestCase.Status.RUNNING) {
+                testQueue.getRunningTestCase();
+            }
+        }
+
+        return Response.status(201).entity("Test(s) has been stoped.").build();
     }
 }

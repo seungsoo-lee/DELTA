@@ -33,9 +33,9 @@ public class TestCaseExecutor extends Thread {
 
                 TestCase test = queue.getNext();
                 try {
-                    test.setStatus(RUNNING);
+                    queue.setRunningTestCase(test);
                     conductor.executeTestCase(test);
-                    test.setStatus(COMPLETE);
+                    queue.unsetRunningTestCase(test);
                     AgentLogger.stopAllLogger();
                 } catch (InterruptedException e) {
                     test.setStatus(UNAVAILABLE);

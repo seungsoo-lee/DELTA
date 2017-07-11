@@ -1,4 +1,6 @@
 $(document).ready(function () {
+
+    //Test Case Table
     var testcase_table = $('#testcase-table').DataTable({
         dom: 'frBtlip',
         buttons: [
@@ -59,8 +61,40 @@ $(document).ready(function () {
         "order": [[0, "asc"], [1, "asc"]],
     });
 
+    //Queue Table
     var queue_table = $('#queue-table').DataTable({
-        dom: 'frtlip',
+        dom: 'frBtlip',
+        buttons: [
+            {
+                text: "Remove selected entries",
+                action: function (e, dt, node, config) {
+
+                    var queueArray = new Array();
+                    dt.rows({selected: true}).every(function (rowIdx, tableLoop, rowLoop) {
+                        if (this.data().status != 'COMPLETE') {
+                            queueArray.push(this.data().index);
+                        }
+                    });
+
+                    $.ajax({
+                        url: "/json/testqueue/stop",
+                        type: "POST",
+                        data: queueArray.toString(),
+                        dataType: "text",
+                        contentType: "text/plain",
+                        async: false,
+                        success: function (data) {
+                            alert(data);
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert(xhr.status);
+                            alert(thrownError);
+                        }
+
+                    });
+                }
+            }
+        ],
         select: {
             style: 'multi'
         },
@@ -90,9 +124,6 @@ $(document).ready(function () {
                 else if (aData['result'] == "PASS") {
                     $('td', nRow).css('background-color', '#ccff99');
                 }
-                else {
-                    $('td', nRow).css('background-color', '#ffffff');
-                }
             }
         },
         "createdRow": function (row, data) {
@@ -107,7 +138,7 @@ $(document).ready(function () {
 
     setInterval(function () {
         queue_table.ajax.reload();
-    }, 3000);
+    }, 4000);
 
     setInterval(function () {
 
@@ -125,6 +156,16 @@ $(document).ready(function () {
             }
         });
     }, 1000);
+
+    // $('#queue-table tbody').on( 'click', 'tr', function () {
+    //     if ( $(this).hasClass('selected') ) {
+    //         $(this).removeClass('selected');
+    //     }
+    //     else {
+    //         queue_table.$('tr.selected').removeClass('selected');
+    //         $(this).addClass('selected');
+    //     }
+    // } );
 
 });
 
