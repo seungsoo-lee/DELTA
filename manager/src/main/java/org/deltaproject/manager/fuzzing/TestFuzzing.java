@@ -37,7 +37,7 @@ public class TestFuzzing {
             channelm.runAgent();
 
         if (host)
-            hostm.runFuzzingTopo();
+            hostm.runAgent("test-fuzzing-topo.py");
 
         try {
             Thread.sleep(1500);

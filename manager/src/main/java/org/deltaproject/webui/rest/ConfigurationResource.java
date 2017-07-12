@@ -35,6 +35,7 @@ public class ConfigurationResource {
         cfg.setOF_PORT(recvMsgArr[2]);
         cfg.setOF_VERSION(recvMsgArr[3]);
         cfg.setCONTROLLER_IP(recvMsgArr[4]);
+        cfg.setTOPOLOGY_TYPE(recvMsgArr[6]);
 
         ArrayList<String> switchList = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(recvMsgArr[5], ",");
@@ -43,7 +44,7 @@ public class ConfigurationResource {
         }
 
         cfg.setSwitchList(switchList);
-        log.info("Configuration changed");
+        log.info("Configuration changed.");
 
         return Response.status(201).build();
     }

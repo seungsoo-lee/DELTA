@@ -112,3 +112,7 @@ textarea {
   font-family: "Consolas", "Ubuntu Mono", "Monaco", monospace;
   color: white;
 }
+
+.index_amlog {
+  height: 338px;
+}

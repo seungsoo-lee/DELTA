@@ -46,7 +46,7 @@ public class Configuration {
 
     private String WEB = "";
 
-    private String TOPOLOGY_TYPE = "vm";
+    private String TOPOLOGY_TYPE = "";
 
     private static final Configuration instance = new Configuration();
 
@@ -248,6 +248,10 @@ public class Configuration {
 
     public void setWEB(String WEB) {
         this.WEB = WEB;
+    }
+
+    public void setTOPOLOGY_TYPE(String TOPOLOGY_TYPE) {
+        this.TOPOLOGY_TYPE = TOPOLOGY_TYPE;
     }
 
     public String show() {

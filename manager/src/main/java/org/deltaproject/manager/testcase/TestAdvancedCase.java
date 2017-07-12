@@ -37,7 +37,7 @@ public class TestAdvancedCase {
         }
 
         if (host) {
-            hostm.runAgent();
+            hostm.runAgent("test-advanced-topo.py");
         }
 
         try {

@@ -7,7 +7,7 @@ $(document).ready(function () {
             'selectAll',
             'selectNone',
             {
-                text: "Run Selected Entries",
+                text: "Run selected entries",
                 action: function (e, dt, node, config) {
 
                     // send configuration info
@@ -157,16 +157,6 @@ $(document).ready(function () {
         });
     }, 1000);
 
-    // $('#queue-table tbody').on( 'click', 'tr', function () {
-    //     if ( $(this).hasClass('selected') ) {
-    //         $(this).removeClass('selected');
-    //     }
-    //     else {
-    //         queue_table.$('tr.selected').removeClass('selected');
-    //         $(this).addClass('selected');
-    //     }
-    // } );
-
 });
 
 // $.ajax({
@@ -203,7 +193,7 @@ $('#targetController').change(function() {
 function sendConfig() {
 
     var configMsg = $('#targetController').val() + " " + $('#targetVersion').val() + " " + $('#ofPort').val() + " "
-         + $('#ofVersion').val() + " " + $('#controllerIp').val() + " " + $('#switchIp').val();
+         + $('#ofVersion').val() + " " + $('#controllerIp').val() + " " + $('#switchIp').val() + " " + $('#topologyType').val();
 
     $.ajax({
         url: "/json/config/post",

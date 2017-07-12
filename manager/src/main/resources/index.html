@@ -70,7 +70,7 @@
     <div class="row">
         <div class="col-md-4">
             <div class="chart-wrapper">
-                <div class="chart-title"> DELTA configuration</div>
+                <div class="chart-title"> DELTA Configuration</div>
                 <div class="chart-stage">
                     <form class="form-horizontal" role="form">
                         <div class="form-group">
@@ -126,6 +126,15 @@
                                        aria-describedby="basic-addon2" value="10.100.100.13,10.100.100.13,10.100.100.13">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label for="ofVersion" class="col-md-5">Topology Type</label>
+                            <div class="col-md-7">
+                                <select class="selectpicker form-control" id="topologyType" data-width="100%">
+                                    <option selected value="VM">VM (All-in-one)</option>
+                                    <option value="HW">Hardware</option>
+                                </select>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -137,7 +146,7 @@
                     DELTA log
                 </div>
                 <div class="chart-stage">
-                    <textarea readonly id="deltalog" class="fill"></textarea>
+                    <textarea readonly id="deltalog" class="fill index_amlog"></textarea>
                 </div>
             </div>
         </div>

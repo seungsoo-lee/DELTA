@@ -61,9 +61,7 @@ public class HostAgentManager extends Thread {
         return "false";
     }
 
-    public boolean runAgent() {
-        String amAddr = cfg.getAMIP() + " " + cfg.getAMPort();
-        String controllerAddr = cfg.getControllerIP() + " " + cfg.getOFPort();
+    public boolean runAgent(String topologyFile) {
         String version;
 
         if (cfg.getOFVer().equals("1.0")) {
@@ -73,8 +71,19 @@ public class HostAgentManager extends Thread {
         }
 
         try {
-            String[] cmdArray = {"ssh", cfg.getHostSSH(), "sudo", "python", "test-advanced-topo.py",
-                    cfg.getControllerIP(), cfg.getOFPort(), cfg.getAMIP(), cfg.getAMPort(), version};
+
+            String[] cmdArray = null;
+
+            // in the case of all-in-one setting
+            if (cfg.getTopologyType().equals("VM")) {
+                cmdArray = new String[] {"ssh", cfg.getHostSSH(), "sudo", "python", topologyFile,
+                        cfg.getControllerIP(), cfg.getOFPort(), cfg.getAMIP(), cfg.getAMPort(), version};
+
+            // in the case of hardware setting
+            } else if (cfg.getTopologyType().equals("HW")) {
+                cmdArray = new String[] {"java", "-jar", "$HOME/delta-agent-host-1.0-SNAPSHOT.jar", cfg.getAMIP(),
+                        cfg.getAMPort()};
+            }
 
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
             pb.redirectErrorStream(true);
@@ -95,29 +104,29 @@ public class HostAgentManager extends Thread {
         return true;
     }
 
-    public boolean runFuzzingTopo() {
-        String amAddr = cfg.getAMIP() + " " + cfg.getAMPort();
-        String controllerAddr = cfg.getControllerIP() + " " + cfg.getOFPort();
-        String version;
-
-        if (cfg.getOFVer().equals("1.0")) {
-            version = "OpenFlow10";
-        } else {
-            version = "OpenFlow13";
-        }
-
-        try {
-            proc = Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + " sudo python test-fuzzing-topo.py " + controllerAddr + " " + amAddr + " " + version);
-            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
-            pidField.setAccessible(true);
-            Object value = pidField.get(proc);
-            this.procPID = (Integer) value;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return true;
-    }
+//    public boolean runFuzzingTopo() {
+//        String amAddr = cfg.getAMIP() + " " + cfg.getAMPort();
+//        String controllerAddr = cfg.getControllerIP() + " " + cfg.getOFPort();
+//        String version;
+//
+//        if (cfg.getOFVer().equals("1.0")) {
+//            version = "OpenFlow10";
+//        } else {
+//            version = "OpenFlow13";
+//        }
+//
+//        try {
+//            proc = Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + " sudo python test-fuzzing-topo.py " + controllerAddr + " " + amAddr + " " + version);
+//            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
+//            pidField.setAccessible(true);
+//            Object value = pidField.get(proc);
+//            this.procPID = (Integer) value;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        return true;
+//    }
 
     public void stopAgent() {
         try {
