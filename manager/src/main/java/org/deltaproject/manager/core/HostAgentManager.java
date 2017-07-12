@@ -81,7 +81,7 @@ public class HostAgentManager extends Thread {
 
             // in the case of hardware setting
             } else if (cfg.getTopologyType().equals("HW")) {
-                cmdArray = new String[] {"java", "-jar", "$HOME/delta-agent-host-1.0-SNAPSHOT.jar", cfg.getAMIP(),
+                cmdArray = new String[] {"java", "-jar", "delta-agent-host-1.0-SNAPSHOT.jar", cfg.getAMIP(),
                         cfg.getAMPort()};
             }
 
