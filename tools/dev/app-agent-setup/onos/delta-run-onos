@@ -31,7 +31,7 @@ case $onos_version in
 esac
 
 # Check if ONOS exists on the AppAgent
-onos_directory=/opt/onos-$onos_version
+onos_directory=/tmp/onos-$onos_version
 directory_check=$(ssh $DELTA_APP "[ -d $onos_directory ] && echo exists || echo does not exists")
 
 [[ "$directory_check" =~ "not" ]] && $DELTA_ROOT/tools/dev/app-agent-setup/onos/delta-setup-onos $onos_version
