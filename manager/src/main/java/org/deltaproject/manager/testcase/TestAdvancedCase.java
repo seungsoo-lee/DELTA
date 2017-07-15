@@ -160,7 +160,7 @@ public class TestAdvancedCase {
 			/* waiting for switches */
             log.info("Listen to switches..");
             controllerm.isConnectedSwitch(switchWait);
-            log.info("All switches are connected");
+            log.info(cfg.getSwitchList().size() + " switch(es) connected");
 
             try {
                 Thread.sleep(5000);
