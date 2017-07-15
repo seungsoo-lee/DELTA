@@ -87,7 +87,7 @@ public class AttackConductor {
             appm.setAppSocket(socket, dos, dis);
             dos.writeUTF("OK");
             dos.flush();
-            log.info("AppAgent is connected");
+            log.info("App agent connected");
         } else if (agentType.contains("ActAgent")) {        /* for OpenDaylightHandler */
             appm.setActSocket(socket, dos, dis);
         } else if (agentType.contains("ChannelAgent")) {
@@ -101,11 +101,11 @@ public class AttackConductor {
                     + ",handler:dummy" + ",cbench:" + cfg.getCbenchRoot();
 
             channelm.write(config);
-            log.info("Channel agent is connected");
+            log.info("Channel agent connected");
         } else if (agentType.contains("HostAgent")) {
             hostm.setSocket(socket, dos, dis);
             hostm.write("target:" + cfg.getTargetHost());
-            log.info("Host agent is connected");
+            log.info("Host agent connected");
         }
     }
 
