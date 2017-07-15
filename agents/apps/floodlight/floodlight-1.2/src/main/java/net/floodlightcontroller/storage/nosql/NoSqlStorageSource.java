@@ -244,7 +244,7 @@ public abstract class NoSqlStorageSource extends AbstractStorageSource {
                 return value;
             
             // FIXME: For now we convert by first converting the source value to a
-            // string and then converting to the target type. This logic probably needs
+            // string and then converting to the handler type. This logic probably needs
             // another pass to make it more robust/optimized.
             
             String s = value.toString();

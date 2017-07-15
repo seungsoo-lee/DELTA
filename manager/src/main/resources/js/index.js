@@ -170,7 +170,7 @@ $(document).ready(function () {
 //     }
 // });
 
-//change target version select options according to target controller
+//change handler version select options according to handler controller
 
 $('#targetController').change(function() {
     $('#targetVersion').empty();

@@ -36,7 +36,7 @@ window.HeaderView = Backbone.View.extend({
     },
 
     search:function (event) {
-//        var key = event.target.value;
+//        var key = event.handler.value;
         var key = $('#searchText').val();
         console.log('search ' + key);
         // TODO search the host and switch lists

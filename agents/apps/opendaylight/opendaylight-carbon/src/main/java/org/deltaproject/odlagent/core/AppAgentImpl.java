@@ -30,7 +30,7 @@ import java.util.Set;
  * <ul>
  * <li>in HUB mode simply floods all switch ports (except ingress port)</li>
  * <li>in LSWITCH mode collects source MAC address of packetIn and bind it with ingress port.
- * If target MAC address is already bound then a flow is created (for direct communication between
+ * If handler MAC address is already bound then a flow is created (for direct communication between
  * corresponding MACs)</li>
  * </ul>
  */

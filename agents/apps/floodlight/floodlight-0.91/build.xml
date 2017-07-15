@@ -21,7 +21,7 @@
 
 <!--
     The build uses pregenerated Thrift code by default to reduce build
-    dependencies. To generate it locally run the gen-thrift target.
+    dependencies. To generate it locally run the gen-thrhandlerrget.
     If you change the Thrift files be sure to also commit the updated
     generated code.
 -->

@@ -145,7 +145,7 @@ public class TestFuzzing {
             log.info("Channel-Agent starts to replay seed packets with fuzzing");
             channelm.write("seedstop");
 
-            /* STEP 3: pick target OF msg */
+            /* STEP 3: pick handler OF msg */
             stopRemoteAgents(false, true);
             runRemoteAgents(false, true);
 

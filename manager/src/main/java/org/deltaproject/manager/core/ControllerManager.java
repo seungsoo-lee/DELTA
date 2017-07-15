@@ -1,9 +1,9 @@
 package org.deltaproject.manager.core;
 
-import org.deltaproject.manager.target.FloodlightHandler;
-import org.deltaproject.manager.target.ONOSHandler;
-import org.deltaproject.manager.target.OpenDaylightHandler;
-import org.deltaproject.manager.target.ControllerHandler;
+import org.deltaproject.manager.handler.FloodlightHandler;
+import org.deltaproject.manager.handler.ONOSHandler;
+import org.deltaproject.manager.handler.OpenDaylightHandler;
+import org.deltaproject.manager.handler.ControllerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

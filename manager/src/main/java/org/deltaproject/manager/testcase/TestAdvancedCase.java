@@ -149,7 +149,7 @@ public class TestAdvancedCase {
 
     public void initController(boolean switchWait) {
         if (!controllerm.isRunning()) {
-            log.info("Run target controller..");
+            log.info("Run handler controller..");
             if (controllerm.createController()) {
                 log.info("Target controller: " + controllerm.getType() + " " + controllerm.getVersion());
             } else {
@@ -759,7 +759,7 @@ public class TestAdvancedCase {
             e.printStackTrace();
         }
 
-        log.info("Agent-Manager checks the status of target controller");
+        log.info("Agent-Manager checks the status of handler controller");
 
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.CONTROLLER_STATE);

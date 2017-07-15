@@ -37,7 +37,7 @@ public class DummySwitch extends Thread {
     private InputStream in;
     private OutputStream out;
 
-    /* for target controller */
+    /* for handler controller */
     private String IP = "";
     private int PORT = 0;
 

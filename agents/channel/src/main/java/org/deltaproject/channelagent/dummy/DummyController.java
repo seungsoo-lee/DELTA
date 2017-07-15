@@ -39,7 +39,7 @@ public class DummyController extends Thread {
     private InputStream in;
     private OutputStream out;
 
-    /* for target controller */
+    /* for handler controller */
     private int port = 0;
 
     /* for OF message */
