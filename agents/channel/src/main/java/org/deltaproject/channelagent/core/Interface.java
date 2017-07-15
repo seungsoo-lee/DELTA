@@ -160,7 +160,7 @@ public class Interface extends Thread {
         log.info("[Channel Agent] Configuration setup");
         log.info("[Channel Agent] OpenFlow version/port\t: " + ofVersion + "/" + ofPort);
         log.info("[Channel Agent] MITM Network Interface\t: " + nic);
-        log.info("[Channel Agent] Target Controller IP\t\t: " + controllerIP);
+        log.info("[Channel Agent] Target Controller IP\t: " + controllerIP);
         log.info("[Channel Agent] Target Switch IP\t\t: " + switchIP);
         log.info("[Channel Agent] Cbench Root Path\t\t: " + cbench);
 
@@ -209,44 +209,6 @@ public class Interface extends Thread {
                 if (recv.startsWith("config")) {
                     this.setConfiguration(recv);
                     continue;
-                }
-
-                /*
-                 *  CONTROL_PLANE_OF test cases
-                 */
-                if (recv.contains("startsw")) {
-                    if (recv.contains("nohello")) {
-                        testController.startSW(DummySwitch.HANDSHAKE_NO_HELLO);
-                    } else {
-                        testController.startSW(DummySwitch.HANDSHAKE_DEFAULT);
-                    }
-                    dos.writeUTF("switchok");
-                } else if (recv.equalsIgnoreCase("2.1.010")) {
-                    String res = testController.testMalformedVersionNumber(recv);
-                    dos.writeUTF(res);
-                } else if (recv.equalsIgnoreCase("2.1.020")) {
-                    String res = testController.testCorruptedControlMsgType(recv);
-                    dos.writeUTF(res);
-                } else if (recv.equalsIgnoreCase("2.1.030")) {
-                    String res = testController.testHandShakeWithoutHello(recv);
-                    dos.writeUTF(res);
-                } else if (recv.equalsIgnoreCase("2.1.040")) {
-                    String res = testController.testControlMsgBeforeHello(recv);
-                    dos.writeUTF(res);
-                } else if (recv.equalsIgnoreCase("2.1.050")) {
-                    String res = testController.testMultipleMainConnectionReq(recv);
-                    dos.writeUTF(res);
-                } else if (recv.equalsIgnoreCase("2.1.060")) {
-                    String res = testController.testUnFlaggedFlowRemoveMsgNotification(recv);
-                    dos.writeUTF(res);
-                } else if (recv.contains("2.1.070")) {
-                    if (recv.contains("exit")) {
-                        testController.exitTopo();
-                        continue;
-                    } else {
-                        String res = testController.testTLSSupport(recv);
-                        dos.writeUTF(res);
-                    }
                 }
 
                 /*
@@ -308,17 +270,53 @@ public class Interface extends Thread {
                     dos.writeUTF(res);
                 }
 
-
+                /*
+                 *  CONTROL_PLANE_OF test cases
+                 */
+                if (recv.contains("startsw")) {
+                    if (recv.contains("nohello")) {
+                        testController.startSW(DummySwitch.HANDSHAKE_NO_HELLO);
+                    } else {
+                        testController.startSW(DummySwitch.HANDSHAKE_DEFAULT);
+                    }
+                    dos.writeUTF("switchok");
+                } else if (recv.equalsIgnoreCase("2.1.010")) {
+                    String res = testController.testMalformedVersionNumber(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("2.1.020")) {
+                    String res = testController.testCorruptedControlMsgType(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("2.1.030")) {
+                    String res = testController.testHandShakeWithoutHello(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("2.1.040")) {
+                    String res = testController.testControlMsgBeforeHello(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("2.1.050")) {
+                    String res = testController.testMultipleMainConnectionReq(recv);
+                    dos.writeUTF(res);
+                } else if (recv.equalsIgnoreCase("2.1.060")) {
+                    String res = testController.testUnFlaggedFlowRemoveMsgNotification(recv);
+                    dos.writeUTF(res);
+                } else if (recv.contains("2.1.070")) {
+                    if (recv.contains("exit")) {
+                        testController.exitTopo();
+                        continue;
+                    } else {
+                        String res = testController.testTLSSupport(recv);
+                        dos.writeUTF(res);
+                    }
+                }
 
                 /*
                  *  ADVANCED test cases
                  */
                 if (recv.equalsIgnoreCase("3.1.010")) {
-                    log.info("\n[Channel Agent] Pacekt-In Flooding test starts");
+                    log.info("[Channel Agent] Pacekt-In Flooding test starts");
                     this.executeCbench();
                     dos.writeUTF("success");
                 } else if (recv.equalsIgnoreCase("3.1.160")) {
-                    log.info("\n[Channel Agent] LinkFabrication test starts");
+                    log.info("[Channel Agent] LinkFabrication test starts");
                     pktListener.setTypeOfAttacks(TestCase.LINKFABRICATION);
                     pktListener.startListening();
                     pktListener.startARPSpoofing();
@@ -327,7 +325,7 @@ public class Interface extends Thread {
 
                     dos.writeUTF("success");
                 } else if (recv.equalsIgnoreCase("3.1.170")) {
-                    log.info("\n[Channel Agent] Evaesdrop test starts");
+                    log.info("[Channel Agent] Evaesdrop test starts");
                     pktListener.setTypeOfAttacks(TestCase.EVAESDROP);
                     pktListener.startListening();
                     pktListener.startARPSpoofing();
@@ -339,10 +337,10 @@ public class Interface extends Thread {
                     else
                         result = "fail";
 
-                    log.info("\n[Channel Agent] Topology Information " + result);
+                    log.info("[Channel Agent] Topology Information " + result);
                     dos.writeUTF(result);
                 } else if (recv.equalsIgnoreCase("3.1.180")) {
-                    log.info("\n[Channel Agent] MITM test starts");
+                    log.info("[Channel Agent] MITM test starts");
                     pktListener.setTypeOfAttacks(TestCase.MITM);
                     pktListener.startListening();
                     pktListener.startARPSpoofing();
@@ -354,7 +352,7 @@ public class Interface extends Thread {
 
                     dos.writeUTF("success");
                 } else if (recv.equalsIgnoreCase("3.1.060")) {
-                    log.info("\n[Channel Agent] Switch Identification Spoofing Test");
+                    log.info("[Channel Agent] Switch Identification Spoofing Test");
                     pktListener.testSwitchIdentification();
 
                     dos.writeUTF("success");
