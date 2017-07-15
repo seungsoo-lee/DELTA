@@ -517,8 +517,8 @@ public class TestAdvancedCase {
      * 3.1.090 - Event Unsubscription
      */
     public boolean testEventUnsubscription(TestCase test) {
-        if (controllerm.getType().equals("ONOS")) {
-            log.info("ONOS is impossible to replay [" + test.getcasenum() + "] ");
+        if (controllerm.getType().equals("ONOSHandler")) {
+            log.info("ONOSHandler is impossible to replay [" + test.getcasenum() + "] ");
             return false;
         }
 
@@ -533,7 +533,7 @@ public class TestAdvancedCase {
 
         String remove = "";
 
-        if (controllerm.getType().equals("OpenDaylight"))
+        if (controllerm.getType().equals("OpenDaylightHandler"))
             remove = appm.read2();
         else
             remove = appm.read();
@@ -583,7 +583,7 @@ public class TestAdvancedCase {
 
         String remove = "";
 
-        if (controllerm.getType().equals("OpenDaylight"))
+        if (controllerm.getType().equals("OpenDaylightHandler"))
             remove = appm.read2();
         else
             remove = appm.read();

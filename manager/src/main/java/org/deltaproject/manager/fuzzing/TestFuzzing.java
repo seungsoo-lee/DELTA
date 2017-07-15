@@ -79,7 +79,7 @@ public class TestFuzzing {
             controllerm.isConnectedSwitch(true);
             log.info("All switches are connected");
 
-            if (controllerm.getType().contains("ONOS")) {
+            if (controllerm.getType().contains("ONOSHandler")) {
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException e) {

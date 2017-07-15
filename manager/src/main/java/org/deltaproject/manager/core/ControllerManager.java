@@ -1,9 +1,9 @@
 package org.deltaproject.manager.core;
 
-import org.deltaproject.manager.target.Floodlight;
-import org.deltaproject.manager.target.ONOS;
-import org.deltaproject.manager.target.OpenDaylight;
-import org.deltaproject.manager.target.TargetController;
+import org.deltaproject.manager.target.FloodlightHandler;
+import org.deltaproject.manager.target.ONOSHandler;
+import org.deltaproject.manager.target.OpenDaylightHandler;
+import org.deltaproject.manager.target.ControllerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ public class ControllerManager {
 
     private int cbenchPID = -1;
 
-    private ArrayList<TargetController> targetList;
+    private ArrayList<ControllerHandler> targetList;
     private ArrayList<String> switchList;
     private ArrayList<String> connectedSwitches;
 
@@ -33,7 +33,7 @@ public class ControllerManager {
 
 
     public ControllerManager() {
-        targetList = new ArrayList<TargetController>();
+        targetList = new ArrayList<ControllerHandler>();
         switchList = new ArrayList<String>();
 
 //        setConfig();
@@ -42,9 +42,9 @@ public class ControllerManager {
     }
 
     public void setConfig() {
-        TargetController fl = new Floodlight(cfg.getFloodlightRoot(), cfg.getTargetVer(), cfg.getAppSSH());
-        TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getTargetVer(), cfg.getAppSSH());
-        TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getTargetVer(), cfg.getAppSSH());
+        ControllerHandler fl = new FloodlightHandler(cfg.getFloodlightRoot(), cfg.getTargetVer(), cfg.getAppSSH());
+        ControllerHandler odl = new OpenDaylightHandler(cfg.getODLRoot(), cfg.getTargetVer(), cfg.getAppSSH());
+        ControllerHandler onos = new ONOSHandler(cfg.getONOSRoot(), cfg.getTargetVer(), cfg.getAppSSH());
 
         targetList.add(fl);
         targetList.add(odl);
@@ -58,7 +58,7 @@ public class ControllerManager {
     }
 
     public BufferedReader getStdOut() {
-        for (TargetController tc : targetList) {
+        for (ControllerHandler tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
                 return tc.getStdOut();
             }
@@ -70,7 +70,7 @@ public class ControllerManager {
     public boolean createController() {
         boolean result;
         setConfig();
-        for (TargetController tc : targetList) {
+        for (ControllerHandler tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
                 result = tc.createController();
 
@@ -89,7 +89,7 @@ public class ControllerManager {
             e.printStackTrace();
         }
 
-        for (TargetController tc : targetList) {
+        for (ControllerHandler tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
                 tc.killController();
                 return true;
@@ -111,7 +111,7 @@ public class ControllerManager {
 
         result += "Target Controller: ";
 
-        for (TargetController tc : targetList) {
+        for (ControllerHandler tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
                 result += tc.getType() + " - " + tc.getVersion();
             }
@@ -119,7 +119,7 @@ public class ControllerManager {
 
         result += "\nTarget Path: ";
 
-        for (TargetController tc : targetList) {
+        for (ControllerHandler tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
                 result += tc.getPath();
             }
@@ -145,7 +145,7 @@ public class ControllerManager {
     public boolean isRunning() {
         int controllerPID = -1;
 
-        for (TargetController tc : targetList) {
+        for (ControllerHandler tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
                 controllerPID = tc.getPID();
             }

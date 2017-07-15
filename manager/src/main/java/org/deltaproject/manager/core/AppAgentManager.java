@@ -16,7 +16,7 @@ public class AppAgentManager {
     private DataOutputStream dos;
     private DataInputStream dis;
 
-    /* Activator for OpenDaylight */
+    /* Activator for OpenDaylightHandler */
     private Socket actSocket;
     private DataOutputStream dos2;
     private DataInputStream dis2;
@@ -70,7 +70,7 @@ public class AppAgentManager {
     }
 
     public boolean write(String code) {
-        if (targetController.contains("OpenDaylight")) {
+        if (targetController.contains("OpenDaylightHandler")) {
             if (code.contains("3.1.090") || code.contains("3.1.100")) {
                 try {
                     dos2.writeUTF(code);

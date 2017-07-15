@@ -88,7 +88,7 @@ public class AttackConductor {
             dos.writeUTF("OK");
             dos.flush();
             log.info("AppAgent is connected");
-        } else if (agentType.contains("ActAgent")) {        /* for OpenDaylight */
+        } else if (agentType.contains("ActAgent")) {        /* for OpenDaylightHandler */
             appm.setActSocket(socket, dos, dis);
         } else if (agentType.contains("ChannelAgent")) {
             channelm.setSocket(socket, dos, dis);

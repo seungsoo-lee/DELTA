@@ -75,7 +75,7 @@ public class TestCase {
      */
     public enum ControllerType {
         /**
-         * Represents that the controller type is ONOS.
+         * Represents that the controller type is ONOSHandler.
          */
         ONOS,
 
