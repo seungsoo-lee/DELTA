@@ -104,7 +104,7 @@ public class AttackConductor {
             log.info("Channel agent is connected");
         } else if (agentType.contains("HostAgent")) {
             hostm.setSocket(socket, dos, dis);
-            hostm.write("handler:" + cfg.getTargetHost());
+            hostm.write("target:" + cfg.getTargetHost());
             log.info("Host agent is connected");
         }
     }
