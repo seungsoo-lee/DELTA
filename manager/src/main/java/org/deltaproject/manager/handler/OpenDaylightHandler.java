@@ -85,7 +85,6 @@ public class OpenDaylightHandler implements ControllerHandler {
             log.info("OpenDaylight is activated");
 
 
-
         } catch (Exception e) {
             log.error(e.toString());
         }
@@ -102,7 +101,7 @@ public class OpenDaylightHandler implements ControllerHandler {
         if (version.equals("helium")) {
             successMsg = "Installed";
         } else if (version.equals("carbon")) {
-            successMsg = "Bundle ID: ";
+            return true;
         }
 
         try {

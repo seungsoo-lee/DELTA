@@ -134,19 +134,20 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
      * 3.1.100: Application Eviction
      */
     public String testApplicationEviction(String target) {
+        System.out.println("[DELTA] Application Eviction attack");
         LOG.info("[DELTA] Application Eviction attack");
 
         Bundle[] blist = getBundleContext().getBundles();
         boolean isStopped = false;
 
         if (blist == null) {
-            LOG.info("DELTA blist is NULL");
+            System.out.println("DELTA bundle list is NULL");
             return "null";
         }
 
         for (Bundle b : blist) {
             if (b.getSymbolicName().contains(target)) {
-                LOG.info("[DELTA] stop - " + b.getSymbolicName());
+                System.out.println("[DELTA] Stop - " + b.getSymbolicName());
 
                 try {
                     b.stop();
