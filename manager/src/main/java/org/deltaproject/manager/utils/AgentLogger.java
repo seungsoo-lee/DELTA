@@ -73,7 +73,7 @@ public class AgentLogger {
 
     public static class RunWhenShuttingDown extends Thread {
         public void run() {
-            System.out.println("Control-C caught. Shutting down...");
+            System.out.println("Control-C caught. Removing all log files...");
             File f = new File(LOG_PATH + APP_AGENT);
             f.delete();
             f = new File(LOG_PATH + CHANNEL_AGENT);

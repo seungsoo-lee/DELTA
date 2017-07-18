@@ -80,9 +80,11 @@ public class OpenDaylightHandler implements ControllerHandler {
                 while (!str.contains("shutdown OpenDaylight"));
             }
 
-            log.info("OpenDaylightHandler is activated");
-
             installAppAgent();
+
+            log.info("OpenDaylight is activated");
+
+
 
         } catch (Exception e) {
             log.error(e.toString());
@@ -94,21 +96,30 @@ public class OpenDaylightHandler implements ControllerHandler {
     public boolean installAppAgent() {
         boolean isInstalled = false;
 
-        String str = "";
-        String user = sshAddr.substring(0, sshAddr.indexOf('@'));
+        String stdOut = "";
+        String successMsg = "";
+
+        if (version.equals("helium")) {
+            successMsg = "Installed";
+        } else if (version.equals("carbon")) {
+            successMsg = "Bundle ID: ";
+        }
 
         try {
-            stdIn.write("install file:" + "/home/" + user + "/delta-agent-app-odl-helium-sr3-1.0-SNAPSHOT.jar" + "\n");
+            stdIn.write("install file:" + "/home/" + user + "/delta-agent-app-odl-" + version + "-1.0-SNAPSHOT.jar" + "\n");
             stdIn.flush();
 
             while (!isInstalled) {
-                str = stdOut.readLine();
-                if (str.contains("Installed")) {
+                stdOut = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
+                if (stdOut.contains(successMsg)) {
                     isInstalled = true;
 
-                    int idx = str.indexOf("Installed");
-                    this.bundleID = Integer.parseInt(str.substring(idx - 4,
-                            idx - 1));
+                    int idx = stdOut.indexOf(successMsg);
+                    if (version.equals("helium")) {
+                        this.bundleID = Integer.parseInt(stdOut.substring(idx - 4, idx - 1));
+                    } else if (version.equals("carbon")) {
+                        this.bundleID = Integer.parseInt(stdOut.substring(idx + successMsg.length()).replace("\n", ""));
+                    }
 
                     stdIn.write("start " + bundleID + "\n");
                     stdIn.flush();
@@ -124,22 +135,24 @@ public class OpenDaylightHandler implements ControllerHandler {
                 e.printStackTrace();
             }
 
-            // for service chain interference
-            stdIn.write("install file:" + "/home/" + user + "/delta-agent-app-odl-helium-sr3-sub-1.0-SNAPSHOT.jar" + "\n");
-            stdIn.flush();
+            if (version.equals("helium")) {
+                // for service chain interference
+                stdIn.write("install file:" + "/home/" + user + "/delta-agent-app-odl-" + version + "-sub-1.0-SNAPSHOT.jar" + "\n");
+                stdIn.flush();
 
-            isInstalled = false;
-            while (!isInstalled) {
-                str = stdOut.readLine();
-                if (str.contains("Installed")) {
-                    isInstalled = true;
+                isInstalled = false;
+                while (!isInstalled) {
+                    stdOut = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
+                    if (stdOut.contains(successMsg)) {
+                        isInstalled = true;
 
-                    int idx = str.indexOf("Installed");
-                    this.bundleID = Integer.parseInt(str.substring(idx - 4,
-                            idx - 1));
+                        int idx = stdOut.indexOf(successMsg);
+                        this.bundleID = Integer.parseInt(stdOut.substring(idx - 4,
+                                idx - 1));
 
-                    stdIn.write("start " + bundleID + "\n");
-                    stdIn.flush();
+                        stdIn.write("start " + bundleID + "\n");
+                        stdIn.flush();
+                    }
                 }
             }
 

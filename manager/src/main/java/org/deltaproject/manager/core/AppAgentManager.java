@@ -70,7 +70,7 @@ public class AppAgentManager {
     }
 
     public boolean write(String code) {
-        if (targetController.contains("OpenDaylightHandler")) {
+        if (targetController.contains("OpenDaylight")) {
             if (code.contains("3.1.090") || code.contains("3.1.100")) {
                 try {
                     dos2.writeUTF(code);
