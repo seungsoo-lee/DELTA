@@ -176,10 +176,11 @@ $('#targetController').change(function() {
     $('#targetVersion').empty();
     targetController = $('#targetController').val();
     if (targetController == 'ONOS') {
-        $('#targetVersion').append('<option value="1.1.0">1.1.0</option>');
-        $('#targetVersion').append('<option value="1.6.0">1.6.0</option>');
         $('#targetVersion').append('<option value="1.9.0">1.9.0</option>');
+        $('#targetVersion').append('<option value="1.6.0">1.6.0</option>');
+        $('#targetVersion').append('<option value="1.1.0">1.1.0</option>');
     } else if (targetController == 'OpenDaylight') {
+        $('#targetVersion').append('<option value="carbon">carbon</option>');
         $('#targetVersion').append('<option value="helium-sr3">helium</option>');
     } else if (targetController == 'Floodlight') {
         $('#targetVersion').append('<option value="1.2">1.2</option>');

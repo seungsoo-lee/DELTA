@@ -157,7 +157,7 @@ public class ONOSHandler implements ControllerHandler {
     @Override
     public String getType() {
         // TODO Auto-generated method stub
-        return "ONOSHandler";
+        return "ONOS";
     }
 
     @Override

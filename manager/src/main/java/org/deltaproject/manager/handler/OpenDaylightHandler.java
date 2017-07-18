@@ -1,20 +1,23 @@
 package org.deltaproject.manager.handler;
 
+import org.deltaproject.manager.utils.AgentLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 public class OpenDaylightHandler implements ControllerHandler {
 
     public static final String HYDROGEN = "";
     private static final Logger log = LoggerFactory.getLogger(OpenDaylightHandler.class.getName());
 
-    private Process process = null;
+    private Process proc = null;
     private boolean isRunning = false;
 
     public String version = "";
-    public String controllerPath = "";
     public String appPath = "";
     public String sshAddr = "";
 
@@ -24,13 +27,14 @@ public class OpenDaylightHandler implements ControllerHandler {
     private BufferedWriter stdIn;
     private BufferedReader stdOut;
 
+    private Thread loggerThd;
+
+    private String controllerPath;
+    private String user;
 
     public OpenDaylightHandler(String path, String v, String ssh) {
         this.version = v;
         this.sshAddr = ssh;
-
-        String user = sshAddr.substring(0, sshAddr.indexOf('@'));
-        controllerPath = "/home/" + user + "/odl-helium-sr3/opendaylight/distribution/opendaylight/handler/distribution.opendaylight-osgipackage/opendaylight/run.sh -Xmx2g";
     }
 
     public OpenDaylightHandler setAppAgentPath(String path) {
@@ -42,48 +46,46 @@ public class OpenDaylightHandler implements ControllerHandler {
     public boolean createController() {
         isRunning = false;
         String str;
+        String[] cmdArray = null;
 
         try {
             if (version.equals("helium")) {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo " + controllerPath);
-
-                stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-
-                while ((str = stdOut.readLine()) != null) {
-                    log.debug(str);
-                    if (str.contains("initialized successfully")) {
-                        log.info("OpenDaylightHandler is activated");
-                        isRunning = true;
-                        break;
-                    }
-                }
-
-                if (!isRunning) {
-                    log.info("Failed to start OpenDaylightHandler");
-                    return false;
-                }
-
-                installAppAgent();
+                user = sshAddr.substring(0, sshAddr.indexOf('@'));
+                controllerPath = "/home/" + user + "/odl-helium-sr3/opendaylight/distribution/opendaylight/handler/distribution.opendaylight-osgipackage/opendaylight/run.sh -Xmx2g";
+                cmdArray = new String[]{"ssh", sshAddr, "sudo", controllerPath};
 
             } else if (version.equals("carbon")) {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " /home/vagrant/distribution-karaf-0.6.0-Carbon/bin/karaf");
-
-                stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-
-                while ((str = stdOut.readLine()) != null) {
-                    log.debug(str);
-                    if (str.contains("shutdown OpenDaylightHandler")) {
-                        log.info("OpenDaylightHandler is activated");
-                        isRunning = true;
-                        break;
-                    }
-                }
+                user = sshAddr.substring(0, sshAddr.indexOf('@'));
+                controllerPath = "/home/" + user + "/distribution-karaf-0.6.0-Carbon/bin/karaf";
+                cmdArray = new String[]{"ssh", sshAddr, controllerPath};
             }
 
+            ProcessBuilder pb = new ProcessBuilder(cmdArray);
+            pb.redirectErrorStream(true);
+            proc = pb.start();
+            loggerThd = new Thread(AgentLogger.getLoggerThreadInstance(proc, AgentLogger.APP_AGENT));
+            loggerThd.start();
+
+            stdIn = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
+
+            if (version.equals("helium")) {
+                do {
+                    str = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
+                }
+                while (!str.contains("initialized successfully"));
+            } else if (version.equals("carbon")) {
+                do {
+                    str = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
+                }
+                while (!str.contains("shutdown OpenDaylight"));
+            }
+
+            log.info("OpenDaylightHandler is activated");
+
+            installAppAgent();
+
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.toString());
         }
 
         return true;
@@ -190,13 +192,13 @@ public class OpenDaylightHandler implements ControllerHandler {
     }
 
     public Process getProc() {
-        return this.process;
+        return this.proc;
     }
 
     @Override
     public String getType() {
         // TODO Auto-generated method stub
-        return "OpenDaylightHandler";
+        return "OpenDaylight";
     }
 
     @Override
