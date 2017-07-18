@@ -231,6 +231,8 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
                 IPv4 ip_pkt = null;
 
                 if (isDrop) {
+                    System.out.println("[App-Agent] Drop message " + msg.toString());
+
                     if (droppedPacket == null)
                         droppedPacket = pi;
 
@@ -285,17 +287,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
     public String testControlMessageDrop() {
         System.out.println("[App-Agent] Test Control_Message_Drop");
         String drop = "nothing";
-
-        for (int i = 0; i < 10; i++) {
-            if (this.droppedPacket == null) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        }
 
         if (droppedPacket != null) {
             drop = droppedPacket.toString();

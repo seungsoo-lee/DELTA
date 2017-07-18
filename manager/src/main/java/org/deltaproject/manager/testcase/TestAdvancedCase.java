@@ -267,6 +267,12 @@ public class TestAdvancedCase {
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
 
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         String appresult = appm.read();
         log.info("Dropped packet: " + appresult);
 
