@@ -42,14 +42,9 @@ public class AgentManager extends Thread {
 
         sc = new BufferedReader(new InputStreamReader(System.in));
 
+        System.out.println("\n DELTA: A Penetration Testing Framework for Software-Defined Networks\n");
+        printHelp();
         while (true) {
-            ProgressBar.clearConsole();
-            System.out.println("\n DELTA: A Penetration Testing Framework for Software-Defined Networks\n");
-            System.out.println(" [pP]\t- Show all known attacks");
-            System.out.println(" [cC]\t- Show configuration info");
-            System.out.println(" [kK]\t- Replaying known attack(s)");
-            System.out.println(" [uU]\t- Finding an unknown attack");
-            System.out.println(" [qQ]\t- Quit\n");
             System.out.print("\nCommand> ");
 
             input = sc.readLine();
@@ -59,16 +54,25 @@ public class AgentManager extends Thread {
                 webUI.deactivate();
                 testCaseExecutor.interrupt();
                 break;
+            } else if (input.equalsIgnoreCase("h")){
+                printHelp();
             } else {
                 try {
                     processUserInput(input);
-                    System.out.print("\nPress ENTER key to continue..");
-                    sc.readLine();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }
+    }
+
+    public void printHelp() {
+        System.out.println(" [pP]\t- Show all known attacks");
+        System.out.println(" [cC]\t- Show configuration info");
+        System.out.println(" [kK]\t- Replaying known attack(s)");
+        System.out.println(" [uU]\t- Finding an unknown attack");
+        System.out.println(" [hH]\t- Show Menu");
+        System.out.println(" [qQ]\t- Quit\n");
     }
 
     public boolean processUserInput(String in) throws IOException, InterruptedException {
