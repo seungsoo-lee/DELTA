@@ -36,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 
 
 public class AppAgent implements IFloodlightModule, IOFMessageListener {
-
     class CPU extends Thread {
         int result = 1;
 
@@ -55,7 +54,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         }
     }
 
-    protected static Logger logger;
+    protected static Logger logger = LoggerFactory.getLogger(AppAgent.class);
 
     private short FLOWMOD_DEFAULT_IDLE_TIMEOUT = (short) 0;
     private short FLOWMOD_DEFAULT_HARD_TIMEOUT = (short) 0;
@@ -136,7 +135,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
     public void init(FloodlightModuleContext context)
             throws FloodlightModuleException {
         // TODO Auto-generated method stub
-        logger = LoggerFactory.getLogger(AppAgent.class);
 
         floodlightProvider = context
                 .getServiceImpl(IFloodlightProviderService.class);
@@ -435,7 +433,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
     }
 
     public void testResourceExhaustionMem() {
-        System.out.println("[AppAgent] Resource Exhausion : Mem");
+        logger.info("[AppAgent] Resource Exhausion : Mem");
         ArrayList<long[][]> arry;
         // ary = new long[Integer.MAX_VALUE][Integer.MAX_VALUE];
         arry = new ArrayList<long[][]>();
@@ -445,7 +443,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
     }
 
     public boolean testResourceExhaustionCPU() {
-        System.out.println("[AppAgent] Resource Exhausion : CPU");
+        logger.info("[AppAgent] Resource Exhausion : CPU");
 
         for (int count = 0; count < 100; count++) {
             CPU cpu_thread = new CPU();
@@ -456,14 +454,14 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
     }
 
     public boolean testSystemVariableManipulation() {
-        System.out.println("[AppAgent] System_Variable_Manipulation");
+        logger.info("[AppAgent] System_Variable_Manipulation");
         this.sys = new SystemTime();
         sys.start();
         return true;
     }
 
     public boolean testSystemCommandExecution() {
-        System.out.println("[AppAgent] System_Command_Execution");
+        logger.info("[AppAgent] System_Command_Execution");
         System.exit(0);
 
         return true;
@@ -513,7 +511,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
     }
 
     public boolean testFlowRuleFlooding() {
-        System.out.println("[AppAgent] Flow Rule Flooding attack");
+        logger.info("[AppAgent] Flow Rule Flooding attack");
 
         OFFactory of = null;
 
@@ -608,7 +606,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
     }
 
     public String sendUnFlaggedFlowRemoveMsg() {
-        System.out.println("[AppAgent] Send UnFlagged Flow Remove Message");
+        logger.info("[AppAgent] Send UnFlagged Flow Remove Message");
 
         OFFactory of = null;
 
@@ -654,7 +652,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
                 for (OFPortDesc ofp : iofSwitch.getEnabledPorts()) {
                     this.linkDiscoveryService.AddToSuppressLLDPs(sw,
                             ofp.getPortNo());
-                    System.out.println("Blocking");
+                    logger.info("Blocking");
 
                 }
             }
@@ -662,12 +660,12 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 
          List<String> list = debugEventService.getModuleList();
          for (String s : list) {
-         System.out.println("module: " + s);
+         logger.info("module: " + s);
          }
          List<EventInfoResource> elist =
          debugEventService.getAllEventHistory();
          for(EventInfoResource e : elist) {
-         System.out.println("event :"+e.toString());
+         logger.info("event :"+e.toString());
          }
          ScheduledExecutorService ses = threadPoolService.getScheduledExecutor(); */
     }
@@ -709,12 +707,12 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         List<IOFMessageListener> packetin_listeners = floodlightProvider
                 .getListeners().get(OFType.PACKET_IN);
 
-        System.out.println("[ATTACK] List of Packet-In Listener: " + packetin_listeners.size());
+        logger.info("[ATTACK] List of Packet-In Listener: " + packetin_listeners.size());
 
         int cnt = 1;
 
         for (IOFMessageListener listen : packetin_listeners) {
-            System.out.println("[ATTACK] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
+            logger.info("[ATTACK] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
         }
 
         IOFMessageListener temp = packetin_listeners.get(0);
@@ -723,10 +721,10 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 
         cnt = 1;
 
-        System.out.println("[ATTACK] List of Packet-In Listener: " + packetin_listeners.size());
+        logger.info("[ATTACK] List of Packet-In Listener: " + packetin_listeners.size());
 
         for (IOFMessageListener listen : packetin_listeners) {
-            System.out.println("[ATTACK] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
+            logger.info("[ATTACK] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
         }
 
         isRemovedPayload = true;
