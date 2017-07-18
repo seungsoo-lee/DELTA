@@ -256,6 +256,7 @@ public class TestAdvancedCase {
 		/* step 2: conduct the attack */
         log.info("App-Agent starts");
         appm.write(test.getcasenum());
+        String appresult = appm.read();
 
 		/* step 3: try communication */
         log.info("Host-Agent sends packets to others");
@@ -273,7 +274,8 @@ public class TestAdvancedCase {
             e.printStackTrace();
         }
 
-        String appresult = appm.read();
+        appm.write(test.getcasenum() + "-2");
+        appresult = appm.read();
         log.info("Dropped packet: " + appresult);
 
         result.setLatency(null, flowResult);

@@ -104,8 +104,11 @@ public class Interface extends Thread {
 
         if (recv.equals("3.1.020")) {
             app.setControlMessageDrop();
+            result = "setok";
+            dos.writeUTF(result);
+        } else if (recv.equals("3.1.020-2")) {
             result = app.testControlMessageDrop();
-            System.out.println("SEND : " + result);
+            System.out.println("[App-Agent] SEND : " + result);
             dos.writeUTF(result);
         } else if (recv.equals("3.1.030")) {
             app.setInfiniteLoop();
