@@ -5,6 +5,8 @@ import org.deltaproject.manager.utils.AgentLogger;
 import org.slf4j.impl.SimpleLogger;
 
 import java.io.IOException;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 /**
  * Created by changhoon on 5/10/16.
@@ -12,8 +14,8 @@ import java.io.IOException;
 public class Main {
 
     public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_GREEN_B = "\u001B[00;32m";
-    public static final String ANSI_GREEN_N = "\u001B[01;92m";
+    public static final String ANSI_GREEN_B = "\u001B[21;97m";
+    public static final String ANSI_GREEN_N = "\u001B[1;92m";
 
     public static void main(String args[]) throws IOException {
         if (args.length < 1) {
@@ -22,11 +24,13 @@ public class Main {
         }
 
         System.out.print(ANSI_GREEN_N);
-        System.out.print("    ____   ______ __   ______ ___                                             \n" +
+        System.out.print(
+                "    ____   ______ __   ______ ___                                             \n" +
                 "   / __ \\ / ____// /  /_  __//   |   _                                        \n" +
                 "  / / / // __/  / /    / /  / /| |  (_)                                       \n" +
                 " / /_/ // /___ / /___ / /  / ___ | _                                          \n" +
                 "/_____//_____//_____//_/  /_/  |_|(_)                                         \n");
+        System.out.print(ANSI_RESET);
         System.out.print(ANSI_GREEN_B);
         System.out.print(
                 "   _____  ____   _   __   _____  ______ ______ __  __ ____   ____ ________  __\n" +
@@ -47,11 +51,12 @@ public class Main {
                 "                                                                              \n");
 
         System.out.print(ANSI_RESET);
-
-        AgentLogger.checkLogDirectory();
-        System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "TRUE");
         System.setProperty(SimpleLogger.LOG_FILE_KEY, System.getenv("DELTA_ROOT") + "/log/manager.log");
+        System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "TRUE");
         System.setProperty(SimpleLogger.SHOW_DATE_TIME_KEY, "FALSE");
+        AgentLogger.checkLogDirectory();
+
+        LogManager.getLogManager().reset();
 
         AgentManager am = new AgentManager(args[0]);
 
