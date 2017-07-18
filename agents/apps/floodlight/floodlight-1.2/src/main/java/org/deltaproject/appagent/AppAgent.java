@@ -290,8 +290,10 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 
         if (droppedPacket != null) {
             drop = droppedPacket.toString();
+            System.out.println("[App-Agent] Send dropped msg : " + drop);
         }
 
+        drop = "testmsg";
         return drop;
     }
 
