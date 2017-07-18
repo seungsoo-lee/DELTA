@@ -135,6 +135,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
      */
     public String testApplicationEviction(String target) {
         System.out.println("[DELTA] Application Eviction attack");
+        LOG.info("[DELTA] Application Eviction attack");
 
         Bundle[] blist = getBundleContext().getBundles();
         boolean isStopped = false;

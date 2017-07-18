@@ -171,8 +171,9 @@ public class Interface extends Thread {
         try {
             while (dis.available() > 0) {
                 // reads characters encoded with modified UTF-8
-
                 recv = dis.readUTF();
+                System.out.println("[DELTA] Receive msg from agent-manager " + recv);
+
                 replayingKnownAttack(recv);
             }
         } catch (Exception e) {
