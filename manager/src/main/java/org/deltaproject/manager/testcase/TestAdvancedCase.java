@@ -254,7 +254,6 @@ public class TestAdvancedCase {
 
 		/* step 2: conduct the attack */
         appm.write(test.getcasenum());
-        appm.read();
         log.info("App-Agent set Packet-In msg drop");
 
 		/* step 3: try communication */
@@ -273,7 +272,7 @@ public class TestAdvancedCase {
             e.printStackTrace();
         }
 
-        appm.write(test.getcasenum() + "-2");
+        appm.write("getmsg");
         String appresult = appm.read();
         log.info("Dropped Packet-In: " + appresult);
 
