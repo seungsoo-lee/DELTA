@@ -83,6 +83,7 @@ public class Interface extends Thread {
 
             dos.writeUTF(agent);
             dos.flush();
+            System.out.println("[DELTA] Connected with Agent-Manager");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
