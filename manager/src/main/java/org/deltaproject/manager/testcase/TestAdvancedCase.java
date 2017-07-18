@@ -39,7 +39,6 @@ public class TestAdvancedCase {
     }
 
     public void runRemoteAgents(boolean channel, boolean host) {
-
         initController(true);
         log.info("Run controller/channel/host agents..");
         if (channel) {
@@ -254,9 +253,9 @@ public class TestAdvancedCase {
         log.info(test.getcasenum() + " - Control Message Drop - Test for controller protection against application dropping control messages");
 
 		/* step 2: conduct the attack */
-        log.info("App-Agent starts");
         appm.write(test.getcasenum());
-        String appresult = appm.read();
+        appm.read();
+        log.info("App-Agent set Packet-In msg drop");
 
 		/* step 3: try communication */
         log.info("Host-Agent sends packets to others");
@@ -275,8 +274,8 @@ public class TestAdvancedCase {
         }
 
         appm.write(test.getcasenum() + "-2");
-        appresult = appm.read();
-        log.info("Dropped packet: " + appresult);
+        String appresult = appm.read();
+        log.info("Dropped Packet-In: " + appresult);
 
         result.setLatency(null, flowResult);
 

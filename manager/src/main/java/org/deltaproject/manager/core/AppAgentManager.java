@@ -25,7 +25,7 @@ public class AppAgentManager {
 
     private Configuration cfg = Configuration.getInstance();
 
-    private static final Logger log = LoggerFactory.getLogger(AgentManager.class);
+    private static final Logger log = LoggerFactory.getLogger(AppAgentManager.class);
 
     public AppAgentManager() {
         this.targetController = cfg.getTargetController();
@@ -70,7 +70,6 @@ public class AppAgentManager {
     }
 
     public boolean write(String code) {
-        log.info("target is " + targetController);
         if (targetController.contains("OpenDaylight")) {
 
             if (code.contains("3.1.090") || code.contains("3.1.100")) {
@@ -108,7 +107,6 @@ public class AppAgentManager {
 
     public String read() {
         String result = "";
-
 
         try {
             if (dis.available() > 0) {
