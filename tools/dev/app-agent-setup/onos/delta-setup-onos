@@ -36,14 +36,13 @@ esac
 # get ONOS
 ssh $DELTA_APP "
     sudo apt-get install unzip -y
-    cd /tmp
     wget http://downloads.onosproject.org/release/onos-$onos_version.zip
     unzip onos-$onos_version.zip
     rm onos-$onos_version.zip
 "
-scp $DELTA_ROOT/agents/apps/onos/onos-$onos_version/target/delta-agent-app-onos-$onos_version-1.0-SNAPSHOT.jar $DELTA_APP:/tmp/
+scp $DELTA_ROOT/agents/apps/onos/onos-$onos_version/target/delta-agent-app-onos-$onos_version-1.0-SNAPSHOT.jar $DELTA_APP:~
 # copy delta app agent
-ssh $DELTA_APP cp /tmp/delta-agent-app-onos-$onos_version-1.0-SNAPSHOT.jar /tmp/onos-$onos_version/apache-karaf-$karaf_version/deploy/
+ssh $DELTA_APP cp ~/delta-agent-app-onos-$onos_version-1.0-SNAPSHOT.jar ~/onos-$onos_version/apache-karaf-$karaf_version/deploy/
 
 status=$?
 echo # new line for prompt
