@@ -1,7 +1,11 @@
 package org.deltaproject.appagent;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import net.floodlightcontroller.core.*;
+import net.floodlightcontroller.core.FloodlightContext;
+import net.floodlightcontroller.core.IFloodlightProviderService;
+import net.floodlightcontroller.core.IOFMessageListener;
+import net.floodlightcontroller.core.IOFSwitch;
+import net.floodlightcontroller.core.IShutdownService;
 import net.floodlightcontroller.core.internal.IOFSwitchService;
 import net.floodlightcontroller.core.module.FloodlightModuleContext;
 import net.floodlightcontroller.core.module.FloodlightModuleException;
@@ -20,18 +24,37 @@ import net.floodlightcontroller.storage.IResultSet;
 import net.floodlightcontroller.storage.IStorageSourceService;
 import net.floodlightcontroller.storage.memory.MemoryStorageSource;
 import net.floodlightcontroller.threadpool.IThreadPoolService;
-import org.projectfloodlight.openflow.protocol.*;
+import org.projectfloodlight.openflow.protocol.OFFactory;
+import org.projectfloodlight.openflow.protocol.OFFlowAdd;
+import org.projectfloodlight.openflow.protocol.OFFlowDelete;
+import org.projectfloodlight.openflow.protocol.OFFlowMod;
+import org.projectfloodlight.openflow.protocol.OFFlowStatsEntry;
+import org.projectfloodlight.openflow.protocol.OFFlowStatsReply;
+import org.projectfloodlight.openflow.protocol.OFMessage;
+import org.projectfloodlight.openflow.protocol.OFPacketIn;
+import org.projectfloodlight.openflow.protocol.OFStatsReply;
+import org.projectfloodlight.openflow.protocol.OFStatsRequest;
+import org.projectfloodlight.openflow.protocol.OFStatsType;
+import org.projectfloodlight.openflow.protocol.OFType;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
-import org.projectfloodlight.openflow.protocol.instruction.OFInstruction;
-import org.projectfloodlight.openflow.protocol.instruction.OFInstructionApplyActions;
 import org.projectfloodlight.openflow.protocol.match.Match;
 import org.projectfloodlight.openflow.protocol.match.MatchField;
-import org.projectfloodlight.openflow.types.*;
+import org.projectfloodlight.openflow.types.DatapathId;
+import org.projectfloodlight.openflow.types.EthType;
+import org.projectfloodlight.openflow.types.MacAddress;
+import org.projectfloodlight.openflow.types.OFPort;
+import org.projectfloodlight.openflow.types.TableId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 
@@ -89,7 +112,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
     private HashMap<String, Integer> map = new HashMap<>();
 
     private IStaticFlowEntryPusherService fservice;
-    private AMInterface cm;
+    private Interface cm;
 
     private int flownum;
 
@@ -155,10 +178,13 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
                 .getServiceImpl(ILinkDiscoveryService.class);
 
 
-        cm = new AMInterface(this);
+        cm = new Interface(this);
         cm.setServerAddr();
         cm.connectServer("AppAgent");
         cm.start();
+
+        // TODO: to prevent noisy error messge
+
     }
 
     @Override
@@ -223,7 +249,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 
 
     public boolean setControlMessageDrop() {
-        System.out.println("[AppAgent] Control_Message_Drop");
+        System.out.println("[App-Agent] Set Control_Message_Drop");
         isDrop = true;
 
         List<IOFMessageListener> listeners = floodlightProvider.getListeners()
@@ -250,18 +276,18 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         listeners = floodlightProvider.getListeners().get(OFType.PACKET_IN);
 
         for (IOFMessageListener listen : listeners) {
-            System.out.println(listen.getName());
+            System.out.println("[App-Agent] PACKET_IN Listener: " + listen.getName());
         }
 
         return true;
     }
 
     public String testControlMessageDrop() {
-        System.out.println("[AppAgent] Control_Message_Drop");
+        System.out.println("[App-Agent] Test Control_Message_Drop");
         String drop = "nothing";
 
         for (int i = 0; i < 10; i++) {
-            while (this.droppedPacket == null) {
+            if (this.droppedPacket == null) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {

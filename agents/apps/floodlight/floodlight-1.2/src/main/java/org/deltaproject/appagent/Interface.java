@@ -7,7 +7,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-public class AMInterface extends Thread {
+public class Interface extends Thread {
     int result = 1;
 
     private AppAgent app;
@@ -21,7 +21,7 @@ public class AMInterface extends Thread {
     private String serverIP = "10.0.2.2";   // by default
     private int serverPort = 3366;
 
-    public AMInterface(AppAgent in) {
+    public Interface(AppAgent in) {
         this.app = in;
     }
 
@@ -105,6 +105,7 @@ public class AMInterface extends Thread {
         if (recv.equals("3.1.020")) {
             app.setControlMessageDrop();
             result = app.testControlMessageDrop();
+            System.out.println("SEND : " + result);
             dos.writeUTF(result);
         } else if (recv.equals("3.1.030")) {
             app.setInfiniteLoop();

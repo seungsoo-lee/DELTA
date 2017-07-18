@@ -53,7 +53,7 @@ public class TestAdvancedCase {
         Runtime.getRuntime().addShutdownHook(new RunWhenShuttingDown());
 
         try {
-            Thread.sleep(1500);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -169,6 +169,7 @@ public class TestAdvancedCase {
             log.info("Run target controller..");
             if (controllerm.createController()) {
                 log.info("Target controller: " + controllerm.getType() + " " + controllerm.getVersion());
+                appm.setTargetController(controllerm.getType());
             } else {
                 log.info("Target controller setup is failed");
                 return;
@@ -260,7 +261,7 @@ public class TestAdvancedCase {
         log.info("Host-Agent sends packets to others");
         String flowResult = generateFlow("ping");
 
-        log.info("Agent-Manager retrieves result from Host-Agent");
+        log.info("Agent-Manager retrieves result from App Agent");
 
 		/* step 4: decide if the attack is feasible */
         ResultInfo result = new ResultInfo();

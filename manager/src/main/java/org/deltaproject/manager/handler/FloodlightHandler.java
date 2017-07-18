@@ -1,12 +1,15 @@
 package org.deltaproject.manager.handler;
 
 import org.apache.commons.lang3.StringUtils;
+import org.deltaproject.manager.utils.AgentLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Field;
 
 public class FloodlightHandler implements ControllerHandler {
-    private Process process = null;
+    private Process proc = null;
     private boolean isRunning = false;
 
     public String version = "";
@@ -16,7 +19,11 @@ public class FloodlightHandler implements ControllerHandler {
     private int currentPID = -1;
 
     private BufferedWriter stdIn;
-    private BufferedReader stdOut;
+    private String stdOut;
+
+    private Thread loggerThd;
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public FloodlightHandler(String controllerPath, String version, String ssh) {
         this.controllerPath = controllerPath;
@@ -28,20 +35,27 @@ public class FloodlightHandler implements ControllerHandler {
         isRunning = false;
 
         String str;
-        String name;
+        String[] cmdArray = null;
 
         try {
             if (version.equals("1.2")) {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo java -jar floodlight-1.2.jar -cf ./floodlightdefault.properties");
-                name = "floodlight-1.2.jar";
+                cmdArray = new String[]{"ssh", sshAddr, "sudo", "java", "-jar", "floodlight-1.2.jar", "-cf", "./floodlightdefault.properties"};
+            } else if (version.equals("0.91")) {
+                cmdArray = new String[]{"ssh", sshAddr, "sudo", "java", "-jar", "floodlight-0.91.jar"};
             } else {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo java -jar floodlight-0.91.jar");
-                name = "floodlight-0.91.jar";
+                log.error("Unavailable Floodlight version.. Exit..");
+                return false;
             }
+
+            ProcessBuilder pb = new ProcessBuilder(cmdArray);
+            pb.redirectErrorStream(true);
+            proc = pb.start();
+            loggerThd = new Thread(AgentLogger.getLoggerThreadInstance(proc, AgentLogger.APP_AGENT));
+            loggerThd.start();
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
-            Object value = pidField.get(process);
+            Object value = pidField.get(proc);
 
             this.currentPID = (Integer) value;
 
@@ -52,30 +66,12 @@ public class FloodlightHandler implements ControllerHandler {
                 e.printStackTrace();
             }
 
-            stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            stdIn = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
 
-
-            while ((str = stdOut.readLine()) != null) {
-                // System.out.println(str);
-                if (str.contains("Starting DebugServer on :6655")) {
-                    isRunning = true;
-                    break;
-                }
+            do {
+                stdOut = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
             }
-
-            Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep java");
-            String tempS;
-
-            BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
-
-            while ((tempS = stdOut2.readLine()) != null && !tempS.isEmpty()) {
-                if (tempS.contains(name)) {
-                    String[] list = StringUtils.split(tempS);
-
-                    currentPID = Integer.parseInt(list[1]);
-                }
-            }
+            while (!stdOut.contains("Starting DebugServer on :6655"));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -104,7 +100,7 @@ public class FloodlightHandler implements ControllerHandler {
     }
 
     public Process getProc() {
-        return this.process;
+        return this.proc;
     }
 
 
@@ -143,7 +139,6 @@ public class FloodlightHandler implements ControllerHandler {
 
     @Override
     public BufferedReader getStdOut() {
-        // TODO Auto-generated method stub
-        return this.stdOut;
+        return null;
     }
 }

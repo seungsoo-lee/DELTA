@@ -109,12 +109,19 @@ public class AppAgentManager {
     public String read() {
         String result = "";
 
+
         try {
-            result = dis.readUTF();
-        } catch (EOFException e) {
-            log.info("Connection for AppAgent is terminated");
+            if (dis.available() > 0) {
+                try {
+                    result = dis.readUTF();
+                } catch (EOFException e) {
+                    log.info("Connection for AppAgent is terminated");
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return result;
@@ -129,5 +136,9 @@ public class AppAgentManager {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public void setTargetController(String targetController) {
+        this.targetController = targetController;
     }
 }

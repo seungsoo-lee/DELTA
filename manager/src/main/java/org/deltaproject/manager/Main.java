@@ -6,7 +6,6 @@ import org.slf4j.impl.SimpleLogger;
 
 import java.io.IOException;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 /**
  * Created by changhoon on 5/10/16.

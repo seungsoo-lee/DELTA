@@ -52,7 +52,7 @@ public class ControllerManager {
 
         cbechPath = cfg.getCbenchRoot();
         targetController = cfg.getTargetController();
-        targetVersion = "v" + cfg.getTargetVer();
+        targetVersion = cfg.getTargetVer();
         ofPort = cfg.getOFPort();
         switchList = cfg.getSwitchList();
     }
