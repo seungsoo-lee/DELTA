@@ -192,6 +192,8 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
             throws FloodlightModuleException {
         // TODO Auto-generated method stub
         floodlightProvider.addOFMessageListener(OFType.PACKET_IN, this);
+
+        /*
         floodlightProvider.addOFMessageListener(OFType.FLOW_REMOVED, this);
         floodlightProvider.addOFMessageListener(OFType.ERROR, this);
 
@@ -216,15 +218,19 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         floodlightProvider.addOFMessageListener(OFType.SET_CONFIG, this);
         floodlightProvider.addOFMessageListener(OFType.STATS_REPLY, this);
         floodlightProvider.addOFMessageListener(OFType.STATS_REQUEST, this);
+        */
     }
 
     @Override
     public Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
+        // System.out.println("[App-Agent] receive message " + msg.toString() + isDrop);
+
         // TODO Auto-generated method stub
         switch (msg.getType()) {
             case PACKET_IN:
-                OFPacketIn pi = (OFPacketIn) msg;
+                // System.out.println("[App-Agent] receive message " + msg.toString() + " " + isDrop);
 
+                OFPacketIn pi = (OFPacketIn) msg;
                 Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
 
                 IPacket pkt = eth.getPayload();
@@ -278,7 +284,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         listeners = floodlightProvider.getListeners().get(OFType.PACKET_IN);
 
         for (IOFMessageListener listen : listeners) {
-            System.out.println("[App-Agent] PACKET_IN Listener: " + listen.getName());
+            System.out.println("[App-Agent] Modified PACKET_IN listener: " + listen.getName());
         }
 
         return true;
