@@ -588,8 +588,10 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        if (controllerm.getType().equals("OpenDaylight"))
+        if (controllerm.getType().equals("OpenDaylight")) {
             appm.write("restore");
+            log.info("Restart evicted applications.. " + appm.read2());
+        }
 
         //appm.closeSocket();
         return true;

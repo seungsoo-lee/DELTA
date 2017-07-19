@@ -136,7 +136,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
     public String testApplicationEviction(String target) {
         if (target.contains("restore")) {
             Bundle[] blist = getBundleContext().getBundles();
-            boolean isStopped = false;
+            boolean restart = false;
 
             if (blist == null) {
                 System.out.println("DELTA bundle list is NULL");
@@ -144,7 +144,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
             }
 
             for (Bundle b : blist) {
-                if (b.getSymbolicName().contains("l2swtich")) {
+                if (b.getSymbolicName().contains("l2switch")) {
                     System.out.println("[App-Agent] Restart - " + b.getSymbolicName());
 
                     try {
