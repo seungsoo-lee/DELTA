@@ -164,43 +164,22 @@ public class OpenDaylightHandler implements ControllerHandler {
     }
 
     public void killController() {
+        Process pc = null;
         try {
-            if (stdIn != null) {
-                if (version.equals("helium")) {
-                    stdIn.write("exit\n");
-                    stdIn.flush();
-                    stdIn.write("y\n");
-                    stdIn.flush();
-                    stdIn.close();
-                } else {
-                    stdIn.write("system:shutdown\n");
-                    stdIn.flush();
-                    stdIn.write("yes\n");
-                    stdIn.flush();
-                    stdIn.close();
-                }
-            }
-
-//            if (this.currentPID != -1) {
-//                Process pc = null;
-//                try {
-//                    pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo kill -9 " + this.currentPID);
-//                    pc.getErrorStream().close();
-//                    pc.getInputStream().close();
-//                    pc.getOutputStream().close();
-//                    pc.waitFor();
-//                } catch (IOException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                } catch (InterruptedException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                }
-//            }
+            pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo killall java");
+            pc.getErrorStream().close();
+            pc.getInputStream().close();
+            pc.getOutputStream().close();
+            pc.waitFor();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
+
+        this.currentPID = -1;
     }
 
     public Process getProc() {

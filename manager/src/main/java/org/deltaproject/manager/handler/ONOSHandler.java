@@ -46,11 +46,11 @@ public class ONOSHandler implements ControllerHandler {
 
         try {
             if (this.version.contains("1.1")) {
-                cmdArray = new String[] {"ssh", sshAddr, onos1_1, "clean"};
+                cmdArray = new String[]{"ssh", sshAddr, onos1_1, "clean"};
             } else if (this.version.contains("1.6")) {
-                cmdArray = new String[] {System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.6"};
+                cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.6"};
             } else if (this.version.contains("1.9")) {
-                cmdArray = new String[] {System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.9"};
+                cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.9"};
             }
 
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
@@ -110,37 +110,22 @@ public class ONOSHandler implements ControllerHandler {
     }
 
     public void killController() {
+        Process pc = null;
         try {
-            if (stdIn != null) {
-                stdIn.write("system:shutdown -f\n");
-                stdIn.flush();
-                stdIn.close();
-            }
-
-            if (stdOut != null) {
-                stdOut.close();
-            }
-
-            if (this.currentPID != -1) {
-                Process pc = null;
-                try {
-                    pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo kill -9 " + this.currentPID);
-                    pc.getErrorStream().close();
-                    pc.getInputStream().close();
-                    pc.getOutputStream().close();
-                    pc.waitFor();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
+            pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo killall java");
+            pc.getErrorStream().close();
+            pc.getInputStream().close();
+            pc.getOutputStream().close();
+            pc.waitFor();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
+
+        this.currentPID = -1;
     }
 
 

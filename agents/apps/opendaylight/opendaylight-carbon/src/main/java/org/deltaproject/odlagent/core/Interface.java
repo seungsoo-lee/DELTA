@@ -83,7 +83,7 @@ public class Interface extends Thread {
 
             dos.writeUTF(agent);
             dos.flush();
-            System.out.println("[DELTA] Connected with Agent-Manager");
+            System.out.println("[App-Agent] Connected with Agent-Manager");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -147,6 +147,9 @@ public class Interface extends Thread {
         } else if (recv.contains("3.1.140")) {
             app.testSystemCommandExecution();
             return;
+        } else if (recv.contains("restore")) {
+            act.testApplicationEviction("restore");
+            dos.writeUTF("OK");
         }
 
         /* else if (recv.contains("3.1.190")) {
@@ -169,16 +172,17 @@ public class Interface extends Thread {
         String recv;
 
         try {
-            while (dis.available() > 0) {
+            while (true) {
                 // reads characters encoded with modified UTF-8
                 recv = dis.readUTF();
-                System.out.println("[DELTA] Receive msg from agent-manager " + recv);
-
+                System.out.println("[App-Agent] Receive msg from agent-manager " + recv);
                 replayingKnownAttack(recv);
             }
         } catch (Exception e) {
             // if any error occurs
-            e.printStackTrace();
+            // e.printStackTrace();
+        } finally {
+
         }
     }
 }

@@ -113,7 +113,7 @@ public class TestAdvancedCase {
                 break;
             case "3.1.100":
                 if (controllerm.getType().equals("Floodlight")) {
-                    System.out.println("\nIt is not possible to replay this attack in Floodlight [" + test.getcasenum() + "] ");
+                    log.info("\nIt is not possible to replay this attack in Floodlight [" + test.getcasenum() + "] ");
                     return;
                 }
                 runRemoteAgents(false, true);
@@ -254,7 +254,7 @@ public class TestAdvancedCase {
 
 		/* step 2: conduct the attack */
         appm.write(test.getcasenum());
-        log.info("App-Agent set Packet-In msg drop");
+        log.info("App-Agent set Packet-In msg drop [" + appm.read() + "]");
 
 		/* step 3: try communication */
         log.info("Host-Agent sends packets to others");
@@ -265,12 +265,6 @@ public class TestAdvancedCase {
 		/* step 4: decide if the attack is feasible */
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
-
-        try {
-            Thread.sleep(4000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         appm.write("getmsg");
         String appresult = appm.read();
@@ -586,6 +580,9 @@ public class TestAdvancedCase {
         result.setLatency(null, resultFlow);
 
         analyzer.checkResult(test, result);
+
+        if (controllerm.getType().equals("OpenDaylight"))
+            appm.write("restore");
 
         appm.closeSocket();
         return true;

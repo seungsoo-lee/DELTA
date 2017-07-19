@@ -83,7 +83,7 @@ public class FloodlightHandler implements ControllerHandler {
     public void killController() {
         Process pc = null;
         try {
-            pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo kill -9 " + this.currentPID);
+            pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo killall java");
             pc.getErrorStream().close();
             pc.getInputStream().close();
             pc.getOutputStream().close();

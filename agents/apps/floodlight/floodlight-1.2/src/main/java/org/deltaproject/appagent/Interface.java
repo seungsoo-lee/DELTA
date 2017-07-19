@@ -1,5 +1,8 @@
 package org.deltaproject.appagent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -8,6 +11,8 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 public class Interface extends Thread {
+    protected static Logger logger = LoggerFactory.getLogger(Interface.class);
+
     int result = 1;
 
     private AppAgent app;
@@ -104,7 +109,8 @@ public class Interface extends Thread {
 
         if (recv.equals("3.1.020")) {
             app.setControlMessageDrop();
-            return;
+            dos.writeUTF("OK");
+            dos.flush();
         } else if (recv.equals("getmsg")) {
             result = app.testControlMessageDrop();
             dos.writeUTF(result);
@@ -162,13 +168,18 @@ public class Interface extends Thread {
         // TODO Auto-generated method stub
         String recv;
         try {
-            while ((recv = dis.readUTF()) != null) {
-                // reads characters encoded with modified UTF-8
+            while (true) {
+                recv = dis.readUTF();
                 replayingKnownAttack(recv);
             }
+//            while ((recv = dis.readUTF()) != null) {
+//                // reads characters encoded with modified UTF-8
+//                replayingKnownAttack(recv);
+//            }
         } catch (Exception e) {
+            logger.info("in run");
             // if any error occurs
-            e.printStackTrace();
+            // e.printStackTrace();
         } finally {
             try {
                 dis.close();

@@ -71,7 +71,7 @@ public class AppAgentManager {
 
     public boolean write(String code) {
         if (targetController.contains("OpenDaylight")) {
-            if (code.contains("3.1.090") || code.contains("3.1.100")) {
+            if (code.contains("3.1.090") || code.contains("3.1.100") || code.contains("restore")) {
                 try {
                     dos2.writeUTF(code);
                     dos2.flush();
@@ -108,17 +108,11 @@ public class AppAgentManager {
         String result = "";
 
         try {
-            if (dis.available() > 0) {
-                try {
-                    result = dis.readUTF();
-                } catch (EOFException e) {
-                    log.info("Connection for AppAgent is terminated");
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
+            result = dis.readUTF();
+        } catch (EOFException e) {
+            log.info("Connection for AppAgent is terminated");
         } catch (IOException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return result;
