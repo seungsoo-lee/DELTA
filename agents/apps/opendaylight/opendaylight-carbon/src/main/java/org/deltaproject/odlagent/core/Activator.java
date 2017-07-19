@@ -145,8 +145,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
 
             for (Bundle b : blist) {
                 if (b.getSymbolicName().contains("l2switch")) {
-                    System.out.println("[App-Agent] Restart - " + b.getSymbolicName());
-
+                    
                     try {
                         b.start();
                     } catch (BundleException e) {
