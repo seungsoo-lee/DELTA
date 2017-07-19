@@ -53,7 +53,10 @@ public class TestSwitchCase {
 
     public TestSwitchCase(ChannelAgentManager cm) {
         random = new Random();
+        chm = cm;
+    }
 
+    public void setConfig() {
         ofversion = cfg.getOFVer();
         if (ofversion.equals("1.0"))
             defaultFactory = OFFactories.getFactory(OFVersion.OF_10);
@@ -61,7 +64,6 @@ public class TestSwitchCase {
             defaultFactory = OFFactories.getFactory(OFVersion.OF_13);
 
         ofport = Integer.parseInt(cfg.getOFPort());
-        chm = cm;
     }
 
     public void runRemoteAgents() {

@@ -61,7 +61,7 @@ public class AttackConductor {
         CaseInfo.updateControllerCase(infoControllerCase);
         CaseInfo.updateSwitchCase(infoSwitchCase);
 
-//        testSwitchCase = new TestSwitchCase();
+        testSwitchCase = new TestSwitchCase(channelm);
         testControllerCase = new TestControllerCase(appm, hostm, channelm, controllerm);
         testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
 
@@ -69,15 +69,17 @@ public class AttackConductor {
         testState = new TestStateDiagram(appm);
     }
 
-    public ChannelAgentManager getChannelManger() {
-        return channelm;
+    public void refreshConfig() {
+        controllerm.setConfig();
+        testSwitchCase.setConfig();
+        this.setTestSwitchCase(new TestSwitchCase(channelm));
     }
 
     public String showConfig() {
         return cfg.show();
     }
 
-    public void setSocket(Socket socket) throws IOException {
+    public void setSocket(Socket socket) throws Exception {
         dos = new DataOutputStream(socket.getOutputStream());
         dis = new DataInputStream(socket.getInputStream());
 
@@ -171,5 +173,17 @@ public class AttackConductor {
 
     public void setTestSwitchCase(TestSwitchCase testSwitchCase) {
         this.testSwitchCase = testSwitchCase;
+    }
+
+    public HostAgentManager getHostm() {
+        return hostm;
+    }
+
+    public ChannelAgentManager getChannelm() {
+        return channelm;
+    }
+
+    public ControllerManager getControllerm() {
+        return controllerm;
     }
 }

@@ -33,12 +33,6 @@ public class ControllerManager {
 
 
     public ControllerManager() {
-        targetList = new ArrayList<ControllerHandler>();
-        switchList = new ArrayList<String>();
-
-//        setConfig();
-        connectedSwitches = new ArrayList<String>();
-        sshAddr = cfg.getAppSSH();
     }
 
     public void setConfig() {
@@ -46,10 +40,14 @@ public class ControllerManager {
         ControllerHandler odl = new OpenDaylightHandler(cfg.getODLRoot(), cfg.getTargetVer(), cfg.getAppSSH());
         ControllerHandler onos = new ONOSHandler(cfg.getONOSRoot(), cfg.getTargetVer(), cfg.getAppSSH());
 
+        targetList = new ArrayList<ControllerHandler>();
         targetList.add(fl);
         targetList.add(odl);
         targetList.add(onos);
+        switchList = new ArrayList<String>();
 
+        connectedSwitches = new ArrayList<String>();
+        sshAddr = cfg.getAppSSH();
         cbechPath = cfg.getCbenchRoot();
         targetController = cfg.getTargetController();
         targetVersion = cfg.getTargetVer();

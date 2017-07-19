@@ -29,7 +29,9 @@ public class TestCaseExecutor extends Thread {
     public void run() {
         while (running) {
             if (!queue.isEmpty()) {
-                conductor.setTestSwitchCase(new TestSwitchCase(conductor.getChannelManger()));
+
+                // apply configuration from Web UI
+                conductor.refreshConfig();
 
                 TestCase test = queue.getNext();
                 try {

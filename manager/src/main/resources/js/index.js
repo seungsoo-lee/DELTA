@@ -181,7 +181,7 @@ $('#targetController').change(function() {
         $('#targetVersion').append('<option value="1.1.0">1.1.0</option>');
     } else if (targetController == 'OpenDaylight') {
         $('#targetVersion').append('<option value="carbon">carbon</option>');
-        $('#targetVersion').append('<option value="helium-sr3">helium</option>');
+        $('#targetVersion').append('<option value="helium-sr3C">helium</option>');
     } else if (targetController == 'Floodlight') {
         $('#targetVersion').append('<option value="1.2">1.2</option>');
         $('#targetVersion').append('<option value="0.91">0.91</option>');

@@ -54,7 +54,7 @@ public class AgentManager extends Thread {
                 webUI.deactivate();
                 testCaseExecutor.interrupt();
                 break;
-            } else if (input.equalsIgnoreCase("h")){
+            } else if (input.equalsIgnoreCase("h")) {
                 printHelp();
             } else {
                 try {
@@ -128,8 +128,8 @@ public class AgentManager extends Thread {
                 temp = listenAgent.accept();
                 conductor.setSocket(temp);
             }
-        } catch (IOException e) {
-            //e.printStackTrace();
+        } catch (Exception e) {
+            // e.printStackTrace();
             closeServerSocket();
         }
     }

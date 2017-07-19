@@ -32,20 +32,20 @@ public class AppAgentManager {
     }
 
     public void closeSocket() {
-        if (actSocket != null)
+        if (actSocket.isConnected())
             try {
                 actSocket.close();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                // e.printStackTrace();
             }
 
-        if (appSocket != null)
+        if (appSocket.isConnected())
             try {
                 appSocket.close();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                // e.printStackTrace();
             }
     }
 

@@ -41,6 +41,9 @@ public class TestAdvancedCase {
     public void runRemoteAgents(boolean channel, boolean host) {
         initController(true);
         log.info("Run controller/channel/host agents..");
+
+        appm.setTargetController(controllerm.getType());
+
         if (channel) {
             channelm.runAgent();
         }
@@ -165,11 +168,9 @@ public class TestAdvancedCase {
 
     public void initController(boolean switchWait) {
         if (!controllerm.isRunning()) {
-            log.info("Run target controller..");
-            if (controllerm.createController()) {
-                log.info("Target controller: " + controllerm.getType() + " " + controllerm.getVersion());
-                appm.setTargetController(controllerm.getType());
-            } else {
+            log.info("Run target controller: " + controllerm.getType() + " " + controllerm.getVersion());
+
+            if (!controllerm.createController()) {
                 log.info("Target controller setup is failed");
                 return;
             }
@@ -256,7 +257,13 @@ public class TestAdvancedCase {
         appm.write(test.getcasenum());
         log.info("App-Agent set Packet-In msg drop [" + appm.read() + "]");
 
-		/* step 3: try communication */
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        /* step 3: try communication */
         log.info("Host-Agent sends packets to others");
         String flowResult = generateFlow("ping");
 
@@ -274,7 +281,7 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        appm.closeSocket();
+        //appm.closeSocket();
         return true;
     }
 
@@ -307,7 +314,7 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        appm.closeSocket();
+        //appm.closeSocket();
         return true;
     }
 
@@ -337,7 +344,7 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        appm.closeSocket();
+        //appm.closeSocket();
 
         return true;
     }
@@ -359,7 +366,7 @@ public class TestAdvancedCase {
 
         channelm.write("exit");
         controllerm.flushARPcache();
-        appm.closeSocket();
+        //appm.closeSocket();
 
         return true;
     }
@@ -393,7 +400,7 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        appm.closeSocket();
+        //appm.closeSocket();
         return true;
     }
 
@@ -427,7 +434,7 @@ public class TestAdvancedCase {
 
         channelm.write("exit");
         controllerm.flushARPcache();
-        appm.closeSocket();
+        //appm.closeSocket();
         return true;
     }
 
@@ -462,7 +469,7 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        appm.closeSocket();
+        //appm.closeSocket();
         return true;
     }
 
@@ -492,7 +499,7 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        appm.closeSocket();
+        //appm.closeSocket();
         return true;
     }
 
@@ -538,7 +545,7 @@ public class TestAdvancedCase {
         result.setLatency(null, resultFlow);
         analyzer.checkResult(test, result);
 
-        appm.closeSocket();
+        //appm.closeSocket();
         return true;
     }
 
@@ -584,7 +591,7 @@ public class TestAdvancedCase {
         if (controllerm.getType().equals("OpenDaylight"))
             appm.write("restore");
 
-        appm.closeSocket();
+        //appm.closeSocket();
         return true;
     }
 
@@ -625,7 +632,7 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        appm.closeSocket();
+        //appm.closeSocket();
         return true;
     }
 
@@ -667,7 +674,7 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        appm.closeSocket();
+        //appm.closeSocket();
         return true;
     }
 
@@ -698,7 +705,7 @@ public class TestAdvancedCase {
         long end = System.currentTimeMillis();
         log.info("Running Time: " + (end - start));
 
-        appm.closeSocket();
+        //appm.closeSocket();
         return true;
     }
 
@@ -724,7 +731,7 @@ public class TestAdvancedCase {
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.CONTROLLER_STATE);
         if (analyzer.checkResult(test, result)) {
-            appm.closeSocket();
+            //appm.closeSocket();
         }
         return true;
     }
@@ -768,7 +775,7 @@ public class TestAdvancedCase {
 
         channelm.write("exit");
         controllerm.flushARPcache();
-        appm.closeSocket();
+        //appm.closeSocket();
 
         return true;
     }
@@ -823,7 +830,7 @@ public class TestAdvancedCase {
 
         channelm.write("exit");
         controllerm.flushARPcache();
-        appm.closeSocket();
+        //appm.closeSocket();
         return true;
     }
 
@@ -859,7 +866,7 @@ public class TestAdvancedCase {
 
         channelm.write("exit");
         controllerm.flushARPcache();
-        // appm.closeSocket();
+        // //appm.closeSocket();
         return true;
     }
 
@@ -899,7 +906,7 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        appm.closeSocket();
+        //appm.closeSocket();
 
         return true;
     }
@@ -940,7 +947,7 @@ public class TestAdvancedCase {
         result.setLatency(before, after);
         analyzer.checkResult(test, result);
 
-        appm.closeSocket();
+        //appm.closeSocket();
         controllerm.killController();
 
         return true;
@@ -970,7 +977,7 @@ public class TestAdvancedCase {
 
         channelm.write("exit");
         controllerm.flushARPcache();
-        appm.closeSocket();
+        //appm.closeSocket();
         return true;
     }
 }
