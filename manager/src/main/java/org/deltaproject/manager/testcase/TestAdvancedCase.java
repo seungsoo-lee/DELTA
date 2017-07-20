@@ -23,13 +23,6 @@ public class TestAdvancedCase {
 
     private ResultAnalyzer analyzer;
 
-    public class RunWhenShuttingDown extends Thread {
-        public void run() {
-            System.out.println("Control-C caught. Shutting down all agents...");
-            stopRemoteAgents();
-        }
-    }
-
     public TestAdvancedCase(AppAgentManager am, HostAgentManager hm, ChannelAgentManager cm, ControllerManager ctm) {
         this.appm = am;
         this.hostm = hm;
@@ -51,8 +44,6 @@ public class TestAdvancedCase {
         if (host) {
             hostm.runAgent("test-advanced-topo.py");
         }
-
-        Runtime.getRuntime().addShutdownHook(new RunWhenShuttingDown());
 
         try {
             Thread.sleep(3000);
@@ -462,8 +453,10 @@ public class TestAdvancedCase {
 
         ResultInfo result = new ResultInfo();
 
+        log.info("Agent-Manager retrieves result from App-Agent and Host-Agent");
 		/* step 4: decide if the attack is feasible */
         result.addType(ResultInfo.COMMUNICATON);
+        result.addType(ResultInfo.APPAGENT_REPLY);
         result.setLatency(null, resultFlow);
         result.setResult(modified);
 
@@ -569,17 +562,17 @@ public class TestAdvancedCase {
 
         log.info("Removed Item: " + remove);
 
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
 		/* step 3: try communication */
         log.info("Host-Agent sends packets to others");
         String resultFlow = generateFlow("ping");
         log.info("Agent-Manager retrieves result from Host-Agent");
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
 		/* step 4: decide if the attack is feasible */
         ResultInfo result = new ResultInfo();
@@ -588,7 +581,7 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        if (controllerm.getType().equals("OpenDaylight")) {
+        if (controllerm.getType().equals("OpenDaylight") && controllerm.getVersion().equals("carbon")) {
             appm.write("restore");
             log.info("Restart evicted applications.. " + appm.read2());
         }

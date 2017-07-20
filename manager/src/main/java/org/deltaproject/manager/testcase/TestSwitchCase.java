@@ -90,12 +90,12 @@ public class TestSwitchCase {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
 
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -201,7 +201,7 @@ public class TestSwitchCase {
     public void testPortRangeViolation(TestCase test) throws InterruptedException {
         log.info(test.getcasenum() + " - Port Range Violation - Test switch protection against disallowed ports");
 
-        if(!runDummyController())
+        if (!runDummyController())
             return;
 
         chm.write(test.getcasenum());
@@ -231,7 +231,7 @@ public class TestSwitchCase {
 
         log.info(test.getcasenum() + " - Table Identifier Violation - Test switch protection against invalid table ID");
 
-        if(!runDummyController())
+        if (!runDummyController())
             return;
 
         chm.write(test.getcasenum());
@@ -262,7 +262,7 @@ public class TestSwitchCase {
 
         log.info(test.getcasenum() + " - Group Identifier Violation - Test switch protection against disallowed group numbers");
 
-        if(!runDummyController())
+        if (!runDummyController())
             return;
 
         chm.write(test.getcasenum());
@@ -293,7 +293,7 @@ public class TestSwitchCase {
 
         log.info(test.getcasenum() + " - Meter Identifier Violation - Test switch protection against disallowed meter numbers");
 
-        if(!runDummyController())
+        if (!runDummyController())
             return;
 
         chm.write(test.getcasenum());
@@ -324,7 +324,7 @@ public class TestSwitchCase {
 
         log.info(test.getcasenum() + " - Table Loop Violation - Test switch protection against invalid GoToTable request");
 
-        if(!runDummyController())
+        if (!runDummyController())
             return;
 
         chm.write(test.getcasenum());
@@ -350,7 +350,7 @@ public class TestSwitchCase {
     public void testCorruptedControlMsgType(TestCase test) throws InterruptedException {
         log.info(test.getcasenum() + " - Corrupted Control Message Type - Test switch protection against control message with unsupported type");
 
-        if(!runDummyController())
+        if (!runDummyController())
             return;
 
         chm.write(test.getcasenum());
@@ -400,7 +400,7 @@ public class TestSwitchCase {
     public void testMalformedVersionNumber(TestCase test) throws InterruptedException {
         log.info(test.getcasenum() + " - Malformed Version Number - Test switch protection against communication with mismatched OpenFlow versions");
 
-        if(!runDummyController())
+        if (!runDummyController())
             return;
 
         chm.write(test.getcasenum());
@@ -426,7 +426,7 @@ public class TestSwitchCase {
     public void testInvalidOXMType(TestCase test) throws InterruptedException {
         log.info(test.getcasenum() + " - Invalid OXM - Type - Test switch protection against flow mod with invalid message type");
 
-        if(!runDummyController())
+        if (!runDummyController())
             return;
 
         chm.write(test.getcasenum());
@@ -457,7 +457,7 @@ public class TestSwitchCase {
 
         log.info(test.getcasenum() + " - Invalid OXM - Length - Test switch protection against flow mod with invalid message length");
 
-        if(!runDummyController())
+        if (!runDummyController())
             return;
 
         chm.write(test.getcasenum());
@@ -488,7 +488,7 @@ public class TestSwitchCase {
 
         log.info(test.getcasenum() + " - Invalid OXM - Value - Test switch protection against flow mod with invalid message value");
 
-        if(!runDummyController())
+        if (!runDummyController())
             return;
 
         chm.write(test.getcasenum());
@@ -520,7 +520,7 @@ public class TestSwitchCase {
 
         log.info(test.getcasenum() + " - Disabled Table Features Request - Test for switch protection against table features request when feature is disabled");
 
-        if(!runDummyController())
+        if (!runDummyController())
             return;
 
         chm.write(test.getcasenum());
@@ -595,7 +595,7 @@ public class TestSwitchCase {
     public void testIncompatibleHelloAfterConnection(TestCase test) throws InterruptedException {
         log.info(test.getcasenum() + " - Incompatible Hello after Connection Establishment - Test for switch protection against abuse of the Hello_Failed error message");
 
-        if(!runDummyController())
+        if (!runDummyController())
             return;
 
         chm.write(test.getcasenum());
@@ -622,7 +622,7 @@ public class TestSwitchCase {
     public void testCorruptedCookieValue(TestCase test) throws InterruptedException {
         log.info(test.getcasenum() + " - Corrupted Cookie Values - Test for switch protection against replay attacks");
 
-        if(!runDummyController())
+        if (!runDummyController())
             return;
 
         chm.write(test.getcasenum());
@@ -649,7 +649,7 @@ public class TestSwitchCase {
     public void testMalformedBufferIDValue(TestCase test) throws InterruptedException {
         log.info(test.getcasenum() + " - Malformed Buffer ID Values - Test for switch protection against disallowed buffer ID values");
 
-        if(!runDummyController())
+        if (!runDummyController())
             return;
 
         chm.write(test.getcasenum());

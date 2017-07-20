@@ -258,7 +258,7 @@ public class ControllerManager {
             try {
                 cnt = 0;
                 String cmd = "";
-                temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo netstat -ap | grep " + ofPort);
+                temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo netstat -ap | grep " + "66[3,5]3");
 
                 BufferedReader stdOut = new BufferedReader(new InputStreamReader(temp.getInputStream()));
 

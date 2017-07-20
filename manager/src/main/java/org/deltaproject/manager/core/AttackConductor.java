@@ -67,6 +67,7 @@ public class AttackConductor {
 
         testFuzzing = new TestFuzzing(appm, hostm, channelm, controllerm);
         testState = new TestStateDiagram(appm);
+
     }
 
     public void refreshConfig() {

@@ -45,6 +45,7 @@ public class ConfigurationResource {
 
         cfg.setSwitchList(switchList);
         log.info("Configuration changed.");
+        log.info(cfg.toString());
 
         return Response.status(201).build();
     }

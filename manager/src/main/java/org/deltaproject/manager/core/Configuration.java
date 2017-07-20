@@ -329,7 +329,6 @@ public class Configuration {
                 ", OF_VERSION='" + OF_VERSION + '\'' +
                 ", MITM_NIC='" + MITM_NIC + '\'' +
                 ", CONTROLLER_IP='" + CONTROLLER_IP + '\'' +
-                ", original='" + original + '\'' +
                 ", switchList=" + switchList +
                 ", DUMMY_CONT_IP='" + DUMMY_CONT_IP + '\'' +
                 ", DUMMY_CONT_PORT='" + DUMMY_CONT_PORT + '\'' +
