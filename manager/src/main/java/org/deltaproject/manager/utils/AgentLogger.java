@@ -54,6 +54,7 @@ public class AgentLogger {
                 output = new FileWriter(LOG_PATH + name, true);
                 checkLogDirectory();
                 String line;
+                output.write("=================================================================================\n");
                 while ((line = stderrBr.readLine()) != null) {
                     temp += line;
                     output.write(line + "\n");

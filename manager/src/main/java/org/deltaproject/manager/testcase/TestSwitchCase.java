@@ -36,7 +36,7 @@ public class TestSwitchCase {
     public static final int NO_HANDSHAKE = 3;
     public static final int DEFAULT_TIMEOUT = 5000;
 
-    private Configuration cfg = Configuration.getInstance();
+    private Configuration cfg;
 
     private OFFactory defaultFactory;
     private Random random;
@@ -56,14 +56,15 @@ public class TestSwitchCase {
         chm = cm;
     }
 
-    public void setConfig() {
-        ofversion = cfg.getOFVer();
+    public void setConfig(Configuration cfg) {
+        this.cfg = cfg;
+        ofversion = cfg.getOF_VERSION();
         if (ofversion.equals("1.0"))
             defaultFactory = OFFactories.getFactory(OFVersion.OF_10);
         else if (ofversion.equals("1.3"))
             defaultFactory = OFFactories.getFactory(OFVersion.OF_13);
 
-        ofport = Integer.parseInt(cfg.getOFPort());
+        ofport = Integer.parseInt(cfg.getOF_PORT());
     }
 
     public void runRemoteAgents() {
@@ -76,12 +77,12 @@ public class TestSwitchCase {
             String mininet;
 
             if (ofversion.equals("1.0"))
-                mininet = " sudo python test-switch-topo.py " + cfg.getDMCIP() + " " + cfg.getDMCPort() + " OpenFlow10";
+                mininet = " sudo python test-switch-topo.py " + cfg.getAM_IP() + " " + cfg.getAM_PORT() + " OpenFlow10";
             else
-                mininet = " sudo python test-switch-topo.py " + cfg.getDMCIP() + " " + cfg.getDMCPort() + " OpenFlow13";
+                mininet = " sudo python test-switch-topo.py " + cfg.getAM_IP() + " " + cfg.getAM_PORT() + " OpenFlow13";
 
             try {
-                proc = Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + mininet);
+                proc = Runtime.getRuntime().exec("ssh " + cfg.getHOST_SSH() + mininet);
 
                 Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
                 pidField.setAccessible(true);
@@ -424,7 +425,7 @@ public class TestSwitchCase {
      * message with invalid OXM type.
      */
     public void testInvalidOXMType(TestCase test) throws InterruptedException {
-        log.info(test.getcasenum() + " - Invalid OXM - Type - Test switch protection against flow mod with invalid message type");
+//        log.info(test.getcasenum() + " - Invalid OXM - Type - Test switch protection against flow mod with invalid message type");
 
         if (!runDummyController())
             return;
