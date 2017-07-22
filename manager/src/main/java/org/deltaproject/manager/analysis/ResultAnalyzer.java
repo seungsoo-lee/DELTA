@@ -99,12 +99,6 @@ public class ResultAnalyzer {
                     isSuccess = checkTopoInfo(result.getResult());
                     break;
             }
-
-//            if (isSuccess) {
-//                test.setResult(FAIL);
-//                log.info(test.getcasenum() + ", FAIL");
-//                break;
-//            }
         }
 
         if (!isSuccess) {
@@ -113,6 +107,7 @@ public class ResultAnalyzer {
             return true;
         } else {
             test.setResult(FAIL);
+            log.info(test.getcasenum() + ", FAIL");
             return false;
         }
     }
