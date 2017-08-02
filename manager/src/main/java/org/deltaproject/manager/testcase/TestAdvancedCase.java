@@ -3,10 +3,12 @@ package org.deltaproject.manager.testcase;
 import org.deltaproject.manager.analysis.ResultAnalyzer;
 import org.deltaproject.manager.analysis.ResultInfo;
 import org.deltaproject.manager.core.*;
+import org.deltaproject.manager.utils.AgentLogger;
 import org.deltaproject.webui.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.lang.reflect.Field;
 
 public class TestAdvancedCase {
@@ -26,24 +28,34 @@ public class TestAdvancedCase {
         this.hostm = hm;
         this.channelm = cm;
         this.controllerm = ctm;
-
         this.analyzer = new ResultAnalyzer(controllerm, appm);
     }
 
     public void runRemoteAgents(boolean channel, boolean host) {
-        log.info("Run channel/host agent..");
-        channelm.runAgent();
-        hostm.runAgent();
+        log.info("Run controller/channel/host agents..");
+
+        appm.setTargetController(controllerm.getType());
+
+        if (channel) {
+            channelm.runAgent();
+        }
+
+        if (host) {
+            hostm.runAgent("test-advanced-topo.py");
+        }
 
         try {
-            Thread.sleep(1500);
+            Thread.sleep(30000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        initController(true);
     }
 
     public void stopRemoteAgents() {
-        log.info("Stop channel/host agent..");
+        log.info("Stop controller/channel/host agents..");
+        controllerm.killController();
         hostm.stopAgent();
         channelm.stopAgent();
 
@@ -79,7 +91,7 @@ public class TestAdvancedCase {
                 runRemoteAgents(true, true);
                 testSwitchIdentificationSpoofing(test);
                 break;
-            case "------1":         // testSwitchOFCase
+            case "-------":         // testSwitchOFCase
                 testMalformedControlMessage(test);
                 break;
             case "3.1.070":
@@ -95,6 +107,10 @@ public class TestAdvancedCase {
                 testEventUnsubscription(test);
                 break;
             case "3.1.100":
+                if (controllerm.getType().equals("Floodlight")) {
+                    log.info("\nIt is not possible to replay this attack in Floodlight [" + test.getcasenum() + "] ");
+                    return;
+                }
                 runRemoteAgents(false, true);
                 testApplicationEviction(test);
                 break;
@@ -134,7 +150,7 @@ public class TestAdvancedCase {
                 runRemoteAgents(false, true);
                 testSwitchFirmwareMisuse(test);
                 break;
-            case "------2":          // testControllerOFCase
+            case "------ ":          // testControllerOFCase
                 testControlMessageManipulation(test);
                 break;
         }
@@ -142,38 +158,25 @@ public class TestAdvancedCase {
         stopRemoteAgents();
     }
 
-    public void initController() {
+    public void initController(boolean switchWait) {
         if (!controllerm.isRunning()) {
-            log.info("Target controller: " + controllerm.getType() + " " + controllerm.getVersion());
+            log.info("Run target controller: " + controllerm.getType() + " " + controllerm.getVersion());
 
-            log.info("Target controller is starting..");
-            if (controllerm.createController()) {
-                log.info("Target controller setup is completed");
-            } else {
+            if (!controllerm.createController()) {
                 log.info("Target controller setup is failed");
-                log.info("Terminated the requested test case");
                 return;
             }
 
 			/* waiting for switches */
-            log.info("Listening to switches..");
-            controllerm.isConnectedSwitch(true);
-            log.info("All switches are connected");
+            log.info("Listen to switches..");
+            controllerm.isConnectedSwitch(switchWait);
+            log.info(cfg.getSwitchList().size() + " switch(es) connected");
 
-            if (controllerm.getType().contains("ONOS")) {
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            } else {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
     }
@@ -189,11 +192,8 @@ public class TestAdvancedCase {
      * 3.1.010 - Packet-In Flooding
      */
     public boolean testPacketInFlooding(TestCase test) {
-        log.info(test.getcasenum() + " - Packet-In Flooding - Test for controller protection against Packet-In Flooding");
+//        //log.info(test.getcasenum() + " - Packet-In Flooding - Test for controller protection against Packet-In Flooding");
 
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
         String before = generateFlow("ping");
 
         try {
@@ -218,7 +218,7 @@ public class TestAdvancedCase {
         channelm.write(test.getcasenum());
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(20000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -236,10 +236,6 @@ public class TestAdvancedCase {
 		/* step 4: decide if the attack is feasible */
         analyzer.checkResult(test, result);
 
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start) + "ms");
-
-        controllerm.killController();
         return true;
     }
 
@@ -247,38 +243,37 @@ public class TestAdvancedCase {
      * 3.1.020 - Control Message Drop
      */
     public boolean testControlMessageDrop(TestCase test) {
-        log.info(test.getcasenum() + " - Control Message Drop - Test for controller protection against application dropping control messages");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+//        //log.info(test.getcasenum() + " - Control Message Drop - Test for controller protection against application dropping control messages");
 
 		/* step 2: conduct the attack */
-        log.info("App-Agent starts");
         appm.write(test.getcasenum());
+        log.info("App-Agent set Packet-In msg drop [" + appm.read() + "]");
 
-		/* step 3: try communication */
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        /* step 3: try communication */
         log.info("Host-Agent sends packets to others");
         String flowResult = generateFlow("ping");
 
-        log.info("Agent-Manager retrieves result from Host-Agent");
+        log.info("Agent-Manager retrieves result from App Agent");
 
 		/* step 4: decide if the attack is feasible */
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
 
+        appm.write("getmsg");
         String appresult = appm.read();
-        log.info("Dropped packet: " + appresult);
+        log.info("Dropped Packet-In: " + appresult);
 
         result.setLatency(null, flowResult);
 
         analyzer.checkResult(test, result);
 
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
-
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
         return true;
     }
 
@@ -286,15 +281,17 @@ public class TestAdvancedCase {
      * 3.1.030 - Infinite Loop
      */
     public boolean testInfiniteLoop(TestCase test) {
-        log.info(test.getcasenum() + " - Infinite Loop - Test for controller protection against application creating infinite loop");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - Infinite Loop - Test for controller protection against application creating infinite loop");
 
 		/* step 2: conduct the attack */
         log.info("App-Agent starts");
         appm.write(test.getcasenum());
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
 		/* step 3: try communication */
         log.info("Host-Agent sends packets to others");
@@ -309,11 +306,7 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
-
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
         return true;
     }
 
@@ -321,11 +314,7 @@ public class TestAdvancedCase {
      * 3.1.040 - Internal Storage Abuse
      */
     public boolean testInternalStorageAbuse(TestCase test) {
-        log.info(test.getcasenum() + " - Internal Storage Abuse - Test for controller protection against application manipulating network information base");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - Internal Storage Abuse - Test for controller protection against application manipulating network information base");
 
 		/* step 2: try communication */
         log.info("HostAgent starts communication");
@@ -347,11 +336,7 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
-
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
 
         return true;
     }
@@ -360,11 +345,7 @@ public class TestAdvancedCase {
      * 3.1.050 - Switch Table Flooding
      */
     public boolean testSwitchTableFlooding(TestCase test) {
-        log.info(test.getcasenum() + " - Device Inventory Table Flooding - Test for controller protection against device inventory table flooding");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - Device Inventory Table Flooding - Test for controller protection against device inventory table flooding");
 
 		/* step 2: conduct the attack */
         log.info("Channel-Agent starts");
@@ -377,11 +358,7 @@ public class TestAdvancedCase {
 
         channelm.write("exit");
         controllerm.flushARPcache();
-        appm.closeSocket();
-        controllerm.killController();
-
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
+        //appm.closeSocket();
 
         return true;
     }
@@ -390,15 +367,17 @@ public class TestAdvancedCase {
      * 3.1.060 - Switch Identification Spoofing
      */
     public boolean testSwitchIdentificationSpoofing(TestCase test) {
-        log.info(test.getcasenum() + " - Switch Identification Spoofing - Test for switch protection against ID spoofing");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - Switch Identification Spoofing - Test for switch protection against ID spoofing");
 
 		/* step 2: conduct the attack */
         log.info("Channel-Agent starts");
         channelm.write(test.getcasenum());
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
 		/* step 3: try communication */
         log.info("Host-Agent sends packets to others");
@@ -413,11 +392,7 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
-
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
         return true;
     }
 
@@ -425,11 +400,7 @@ public class TestAdvancedCase {
      * ---- Malformed Control Message
      */
     public boolean testMalformedControlMessage(TestCase test) {
-        log.info(test.getcasenum() + " - Malformed Control Message");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - Malformed Control Message");
 
 		/* step 2: conduct the attack */
         log.info("ChannelAgent starts");
@@ -452,13 +423,10 @@ public class TestAdvancedCase {
         result.addType(ResultInfo.SWITCH_STATE);
 
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         channelm.write("exit");
         controllerm.flushARPcache();
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
         return true;
     }
 
@@ -466,18 +434,12 @@ public class TestAdvancedCase {
      * 3.1.070 - Flow Rule Modification
      */
     public boolean testFlowRuleModification(TestCase test) {
-        log.info(test.getcasenum() + " - Flow Rule Modification - Test for switch protection against application modifying flow rule");
+        //log.info(test.getcasenum() + " - Flow Rule Modification - Test for switch protection against application modifying flow rule");
 
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
-
+        generateFlow("ping");
         log.info("Host-Agent sends packets to others (before)");
-        /* step 2 : generate before flow (ping) */
 
-        String before = generateFlow("ping");
-
-		/* step 3 : replay attack */
+		/* step 2 : replay attack */
         log.info("App-Agent starts");
         appm.write(test.getcasenum());
 
@@ -486,21 +448,28 @@ public class TestAdvancedCase {
         log.info("Agent-Manager retrieves result from App-Agent");
         modified = appm.read();
 
-        log.info("Host-Agent sends packets to others (after)");
-        String after = generateFlow("ping");
+        /* step 3: try communication */
+        log.info("Host-Agent sends packets to others");
+        String resultFlow = generateFlow("ping");
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         ResultInfo result = new ResultInfo();
 
+        log.info("Agent-Manager retrieves result from App-Agent and Host-Agent");
 		/* step 4: decide if the attack is feasible */
+        result.addType(ResultInfo.COMMUNICATON);
         result.addType(ResultInfo.APPAGENT_REPLY);
+        result.setLatency(null, resultFlow);
         result.setResult(modified);
 
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
         return true;
     }
 
@@ -508,11 +477,7 @@ public class TestAdvancedCase {
      * 3.1.080 - Flow Table Clearance
      */
     public boolean testFlowTableClearance(TestCase test) {
-        log.info(test.getcasenum() + " - Flow Table Clearance - Test for controller protection against flow table flushing");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - Flow Table Clearance - Test for controller protection against flow table flushing");
 
         log.info("Host-Agent sends packets to others (before)");
 
@@ -533,11 +498,8 @@ public class TestAdvancedCase {
         result.setLatency(before, after);
 
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
         return true;
     }
 
@@ -550,11 +512,7 @@ public class TestAdvancedCase {
             return false;
         }
 
-        log.info(test.getcasenum() + " - Event Unsubscription - Test for controller protection against application unsubscribing neighbour application from events");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - Event Unsubscription - Test for controller protection against application unsubscribing neighbour application from events");
 
 		/* step 2: conduct the attack */
         log.info("App-Agent starts");
@@ -587,11 +545,7 @@ public class TestAdvancedCase {
         result.setLatency(null, resultFlow);
         analyzer.checkResult(test, result);
 
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
-
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
         return true;
     }
 
@@ -599,16 +553,8 @@ public class TestAdvancedCase {
      * 3.1.100 - Application Eviction
      */
     public boolean testApplicationEviction(TestCase test) {
-        if (controllerm.getType().equals("Floodlight")) {
-            System.out.println("\nIt is not possible to replay this attack in Floodlight [" + test.getcasenum() + "] ");
-            return false;
-        }
 
-        log.info(test.getcasenum() + " - Application Eviction - Test for controller protection against one application uninstalling another application");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - Application Eviction - Test for controller protection against one application uninstalling another application");
 
 		/* step 2: conduct the attack */
         log.info("App-Agent starts");
@@ -623,17 +569,17 @@ public class TestAdvancedCase {
 
         log.info("Removed Item: " + remove);
 
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
 		/* step 3: try communication */
         log.info("Host-Agent sends packets to others");
         String resultFlow = generateFlow("ping");
         log.info("Agent-Manager retrieves result from Host-Agent");
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
 		/* step 4: decide if the attack is feasible */
         ResultInfo result = new ResultInfo();
@@ -642,11 +588,12 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
+        if (controllerm.getType().equals("OpenDaylight") && controllerm.getVersion().equals("carbon")) {
+            appm.write("restore");
+            log.info("Restart evicted applications.. " + appm.read2());
+        }
 
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
         return true;
     }
 
@@ -654,11 +601,7 @@ public class TestAdvancedCase {
      * 3.1.110 - Memory Exhaustion
      */
     public boolean testMemoryExhaustion(TestCase test) {
-        log.info(test.getcasenum() + " - Memory Exhaustion - Test for controller protection against an application exhausting controller memory");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - Memory Exhaustion - Test for controller protection against an application exhausting controller memory");
 
 		/* step 2: conduct the attack */
         log.info("Host-Agent sends packets to others (before)");
@@ -690,11 +633,8 @@ public class TestAdvancedCase {
         result.setLatency(before, after);
 
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
         return true;
     }
 
@@ -702,11 +642,7 @@ public class TestAdvancedCase {
      * 3.1.120 - CPU Exhaustion
      */
     public boolean testCPUExhaustion(TestCase test) {
-        log.info(test.getcasenum() + " - CPU Exhaustion - Test for controller protection against an application exhausting controller CPU");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - CPU Exhaustion - Test for controller protection against an application exhausting controller CPU");
 
 		/* step 2: conduct the attack */
         log.info("Host-Agent sends packets to others (before)");
@@ -739,11 +675,8 @@ public class TestAdvancedCase {
         result.setLatency(before, after);
 
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
         return true;
     }
 
@@ -751,10 +684,8 @@ public class TestAdvancedCase {
      * 3.1.130 - System Variable Manipulation
      */
     public boolean testSystemVariableManipulation(TestCase test) {
-        log.info(test.getcasenum() + " - System Variable Manipulation - Test for controller protection against an application manipulating a system variable");
+        //log.info(test.getcasenum() + " - System Variable Manipulation - Test for controller protection against an application manipulating a system variable");
 
-		/* step 1: create controller */
-        initController();
         long start = System.currentTimeMillis();
 
 		/* step 2: conduct the attack */
@@ -776,8 +707,7 @@ public class TestAdvancedCase {
         long end = System.currentTimeMillis();
         log.info("Running Time: " + (end - start));
 
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
         return true;
     }
 
@@ -785,11 +715,7 @@ public class TestAdvancedCase {
      * 3.1.140 - System Command Execution
      */
     public boolean testSystemCommandExecution(TestCase test) {
-        log.info(test.getcasenum() + " - System Command Execution - Test for controller protection against an application accessing a system command");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - System Command Execution - Test for controller protection against an application accessing a system command");
 
 		/* step 2: conduct the attack */
         log.info("App-Agent starts");
@@ -802,16 +728,13 @@ public class TestAdvancedCase {
             e.printStackTrace();
         }
 
-        log.info("Agent-Manager checks the status of target controller");
+        log.info("Agent-Manager checks the status of handler controller");
 
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.CONTROLLER_STATE);
         if (analyzer.checkResult(test, result)) {
-            appm.closeSocket();
-            controllerm.killController();
+            //appm.closeSocket();
         }
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
         return true;
     }
 
@@ -824,16 +747,12 @@ public class TestAdvancedCase {
      * 3.1.160 - Link Fabrication ; incomplete
      */
     public boolean testLinkFabrication(TestCase test) {
-        log.info(test.getcasenum() + " - Link Fabrication - Test for controller protection against application creating fictitious link");
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - Link Fabrication - Test for controller protection against application creating fictitious link");
 
 		/* step 1: conduct the attack */
         log.info("Channel-Agent starts");
         channelm.write(test.getcasenum());
         channelm.read();
-
-		/* step 2: create controller */
-        initController();
 
         try {
             Thread.sleep(5000);
@@ -858,11 +777,7 @@ public class TestAdvancedCase {
 
         channelm.write("exit");
         controllerm.flushARPcache();
-        appm.closeSocket();
-        controllerm.killController();
-
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
+        //appm.closeSocket();
 
         return true;
     }
@@ -872,12 +787,8 @@ public class TestAdvancedCase {
      */
     public boolean testEvaseDrop(TestCase test) {
         controllerm.flushARPcache();
-        log.info(test.getcasenum() + " - Eavesdrop - Test for control channel protection against malicious host sniffing the control channel");
+        //log.info(test.getcasenum() + " - Eavesdrop - Test for control channel protection against malicious host sniffing the control channel");
         String resultChannel;
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
 
         try {
             Thread.sleep(10000);    // 30 seconds
@@ -918,13 +829,10 @@ public class TestAdvancedCase {
         result.addType(ResultInfo.CHANNELAGENT_REPLY);
         result.setResult(resultChannel);
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         channelm.write("exit");
         controllerm.flushARPcache();
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
         return true;
     }
 
@@ -933,11 +841,7 @@ public class TestAdvancedCase {
      */
     public boolean testManInTheMiddle(TestCase test) {
         controllerm.flushARPcache();
-        log.info(test.getcasenum() + " - Man-In-The-Middle attack - Test for control channel protection against MITM attack");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - Man-In-The-Middle attack - Test for control channel protection against MITM attack");
 
 		/* step 2: conduct the attack */
         log.info("Channel-Agent starts");
@@ -961,13 +865,10 @@ public class TestAdvancedCase {
         result.addType(ResultInfo.COMMUNICATON);
         result.setLatency(null, resultFlow);
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         channelm.write("exit");
         controllerm.flushARPcache();
-        // appm.closeSocket();
-        controllerm.killController();
+        // //appm.closeSocket();
         return true;
     }
 
@@ -975,11 +876,7 @@ public class TestAdvancedCase {
      * 3.1.190 - Flow Rule Flooding
      */
     public boolean testFlowRuleFlooding(TestCase test) {
-        log.info(test.getcasenum() + " - Flow Rule Flooding - Test for switch protection against flow rule flooding");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - Flow Rule Flooding - Test for switch protection against flow rule flooding");
 
         log.info("Host-Agent sends packets to others (before)");
         String before = generateFlow("compare");
@@ -1010,11 +907,8 @@ public class TestAdvancedCase {
         result.setLatency(before, after);
 
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
 
         return true;
     }
@@ -1023,11 +917,7 @@ public class TestAdvancedCase {
      * 3.1.200 - Switch Firmware Misuse
      */
     public boolean testSwitchFirmwareMisuse(TestCase test) {
-        log.info(test.getcasenum() + " - Switch Firmware Misuse - Test for switch protection against application installing degraded flow rules");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - Switch Firmware Misuse - Test for switch protection against application installing degraded flow rules");
 
         log.info("Host-Agent sends packets to others (before)");
         String before = generateFlow("compare");
@@ -1058,10 +948,8 @@ public class TestAdvancedCase {
         result.addType(ResultInfo.LATENCY_TIME);
         result.setLatency(before, after);
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
-        appm.closeSocket();
+        //appm.closeSocket();
         controllerm.killController();
 
         return true;
@@ -1071,11 +959,7 @@ public class TestAdvancedCase {
      * ---- Control Message Manipulation
      */
     public boolean testControlMessageManipulation(TestCase test) {
-        log.info(test.getcasenum() + " - Control Message Manipulation");
-
-		/* step 1: create controller */
-        initController();
-        long start = System.currentTimeMillis();
+        //log.info(test.getcasenum() + " - Control Message Manipulation");
 
 		/* step 2: conduct the attack */
         log.info("ChannelAgent starts");
@@ -1092,13 +976,10 @@ public class TestAdvancedCase {
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.SWITCH_STATE);
         analyzer.checkResult(test, result);
-        long end = System.currentTimeMillis();
-        log.info("Running Time: " + (end - start));
 
         channelm.write("exit");
         controllerm.flushARPcache();
-        appm.closeSocket();
-        controllerm.killController();
+        //appm.closeSocket();
         return true;
     }
 }

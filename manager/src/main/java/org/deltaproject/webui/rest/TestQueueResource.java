@@ -1,5 +1,6 @@
 package org.deltaproject.webui.rest;
 
+import org.deltaproject.manager.core.Configuration;
 import org.deltaproject.webui.TestCase;
 import org.deltaproject.webui.TestCaseDirectory;
 import org.deltaproject.webui.TestQueue;
@@ -17,7 +18,8 @@ import javax.ws.rs.core.Response;
 import java.util.Collection;
 
 /**
- * Created by changhoon on 7/7/16.
+ * Get queued test cases add test cases.
+ * Created by Changhoon on 7/7/16.
  */
 @Path("/json/testqueue")
 public class TestQueueResource {
@@ -30,7 +32,9 @@ public class TestQueueResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getTestQueue() {
         GenericEntity<Collection<TestCase>> queuelist =
-                new GenericEntity<Collection<TestCase>>(TestQueue.getInstance().getTestcases()){};
+                new GenericEntity<Collection<TestCase>>(TestQueue.getInstance().getTestcases()) {
+
+                };
 
         return Response.ok(queuelist).build();
     }
@@ -41,21 +45,49 @@ public class TestQueueResource {
     @Produces(MediaType.TEXT_PLAIN)
     public Response addTestCases(String indexes) {
 
+        String response = "";
         int count = 0;
         String[] indexList = indexes.split(",");
-        for (int i = 0; i < indexList.length; i ++) {
+        for (int i = 0; i < indexList.length; i++) {
             if (TestCaseDirectory.getDirectory().containsKey(indexList[i].trim())) {
                 TestCase testCase = new TestCase(indexList[i].trim());
                 testCase.setStatus(TestCase.Status.QUEUED);
+                testCase.setConfiguration(Configuration.copy());
                 TestQueue.getInstance().push(testCase);
+
+
+                response += testCase.getName() + "\n";
                 count++;
             }
         }
-        if (count > 0) {
-            log.info(count + " test case(s) queued.");
+
+        return Response.status(201).entity(response + "\n" + count + " test(s) has been queued.").build();
+    }
+
+    @POST
+    @Path("/stop")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response stopQueuedTestCases(String indexes) {
+
+        TestQueue testQueue = TestQueue.getInstance();
+
+        int count = 0;
+        String[] indexList = indexes.split(",");
+        for (int i = 0; i < indexList.length; i++) {
+            Integer testCaseIdx = Integer.parseInt(indexList[i].trim());
+            TestCase testCase = testQueue.get(testCaseIdx);
+
+            if (testCase.getStatus() == TestCase.Status.QUEUED) {
+                testQueue.remove(testCaseIdx);
+
+            } else if (testCase.getStatus() == TestCase.Status.RUNNING) {
+                testQueue.getRunningTestCase();
+            }
+
+            count++;
         }
 
-        return Response.status(201).
-                entity(count + " test(s) has been queued.").build();
+        return Response.status(201).entity(count + " test(s) has been removed.").build();
     }
 }

@@ -1,0 +1,49 @@
+#!/bin/bash
+onos_version=${1}
+
+# Prints usage help
+function usage {
+    echo "Usage: delta-run-onos <onos-version>" >&2
+    echo "* supported ONOS version: 1.6, 1.9" >&2
+    exit 1
+}
+
+# Configure environment variables
+export JAVA_HOME=/usr/lib/jvm/java-8-oracle
+export ONOS_APPS=drivers,openflow,proxyarp,mobility,fwd
+
+[ $# -lt 1 ] && usage
+if [ -z $DELTA_ROOT ]; then
+    echo "* Please setup DELTA bash_profile in your .bashrc"
+    exit 1
+fi
+
+case $onos_version in
+    1.6|1.6.0)
+        echo "Starting ONOS 1.6.0 on AppAgent..."
+        onos_version=1.6.0
+        ;;
+    1.9|1.9.0)
+        echo "Starting ONOS 1.9.0 on AppAgent..."
+        onos_version=1.9.0
+        ;;
+    *) usage;;
+esac
+
+# Check if ONOS exists on the AppAgent
+onos_directory=onos-$onos_version
+directory_check=$(ssh $DELTA_APP "[ -d $onos_directory ] && echo exists || echo does not exists")
+
+if [[ "$directory_check" =~ "not" ]]; then
+    echo "Please install ONOS via delta-setup-onos"
+    exit 1
+fi
+
+JDK_VERSION='java-8-oracle'
+# Run ONOS
+ssh $DELTA_APP "
+sudo update-java-alternatives --set $JDK_VERSION
+export JAVA_HOME=/usr/lib/jvm/java-8-oracle
+export ONOS_APPS=drivers,openflow,proxyarp,mobility,fwd
+$onos_directory/bin/onos-service clean
+"

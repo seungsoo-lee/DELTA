@@ -13,6 +13,9 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Get test cases into the web table.
+ */
 @Path("/json/testcases")
 public class TestCaseResource {
 
@@ -29,7 +32,9 @@ public class TestCaseResource {
         }
 
         GenericEntity<List<TestCase>> genlist;
-        genlist = new GenericEntity<List<TestCase>>(testcases){};
+        genlist = new GenericEntity<List<TestCase>>(testcases) {
+
+        };
 
 
         return Response.ok(genlist).build();

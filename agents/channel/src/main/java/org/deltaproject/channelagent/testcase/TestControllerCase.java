@@ -42,7 +42,8 @@ public class TestControllerCase {
     }
 
     public boolean startSW(int type) {
-        log.info("Start Dummy Switch");
+        log.info("[Channel Agent] Start Dummy Switch");
+
         ofSwitch = new DummySwitch();
         ofSwitch.setTestHandShakeType(type);
         ofSwitch.setOFFactory(targetOFVersion);
@@ -53,6 +54,7 @@ public class TestControllerCase {
         } catch (OFParseError ofParseError) {
             ofParseError.printStackTrace();
         }
+
         ofSwitch.start();
 
         if (type == DummySwitch.HANDSHAKE_DEFAULT) {
@@ -63,8 +65,9 @@ public class TestControllerCase {
                     e.printStackTrace();
                 }
             }
+            log.info("[Channel Agent] Handshake completed");
         }
-        log.info("OF Handshake completed");
+
         return true;
     }
 
@@ -72,17 +75,19 @@ public class TestControllerCase {
         if (ofSwitch != null)
             ofSwitch.interrupt();
 
-        log.info("Stop Dummny Switch");
+        log.info("[Channel Agent] Stop Dummny Switch");
     }
 
     public void stopTempSW() {
         if (temp != null)
             temp.interrupt();
 
-        log.info("Stop Sub Switch");
+        log.info("[Channel Agent] Stop Sub Switch");
     }
 
     public String testMalformedVersionNumber(String code) {
+        log.info("[Channel Agent] " + code + " - Malformed Version Number test");
+
         while (!isHandshaked()) {
             try {
                 Thread.sleep(500);
@@ -115,7 +120,6 @@ public class TestControllerCase {
             e.printStackTrace();
         }
 
-        // switch disconnection
         OFMessage response = ofSwitch.getResponse();
         if (response != null) {
             if (response.getType() == OFType.PACKET_OUT)
@@ -123,13 +127,15 @@ public class TestControllerCase {
             else
                 result += "Response msg : " + response.toString() + ", PASS";
         } else
-            result += "Response is null, FAIL";
+            result += "Response is NULL (expected msg is ERR), FAIL";
 
         stopSW();
         return result;
     }
 
     public String testCorruptedControlMsgType(String code) {
+        log.info("[Channel Agent] " + code + " - Corrupted Control Message Type test");
+
         while (!isHandshaked()) {
             try {
                 Thread.sleep(500);
@@ -138,7 +144,9 @@ public class TestControllerCase {
             }
         }
 
-        String result = "Send a packet-in message with unknown message message type\n";
+        String result = "Send a packet-in message with unknown message type";
+        log.info("[Channel Agent] " + result);
+        result = result + '\n';
 
         byte[] msg;
         if (targetOFVersion == 4) {
@@ -164,14 +172,34 @@ public class TestControllerCase {
         if (response != null) {
             result += "Response msg : " + response.toString() + ", PASS";
         } else
-            result += "Response is null, FAIL";
+            result += "Response is NULL (expected msg is ERR), FAIL";
 
         stopSW();
         return result;
     }
 
+    public String testHandShakeWithoutHello(String code) {
+        log.info("[Channel Agent] " + code + " - Handshake without Hello Message test");
+        startSW(DummySwitch.HANDSHAKE_NO_HELLO);
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if (this.ofSwitch.getHandshaked())
+            return "switchConnected";
+        else
+            return "switchNotConnected";
+    }
+
     public String testControlMsgBeforeHello(String code) {
-        String result = "Send a packet-in message before handshake\n";
+        log.info("[Channel Agent] " + code + " - Control Message before Hello Message (Main Connection) test");
+
+        String result = "Send a packet-in message before handshake";
+        log.info("[Channel Agent] " + result);
+        result = result + '\n';
 
         byte[] msg;
         if (targetOFVersion == 4) {
@@ -203,6 +231,8 @@ public class TestControllerCase {
     }
 
     public String testMultipleMainConnectionReq(String code) {
+        log.info("[Channel Agent] " + code + " - Multiple Main Connection Request test");
+
         while (!isHandshaked()) {
             try {
                 Thread.sleep(500);
@@ -227,7 +257,11 @@ public class TestControllerCase {
     }
 
     public String testUnFlaggedFlowRemoveMsgNotification(String code) throws InterruptedException {
-        String result = "Send a un-flagged flow remove msg\n";
+        log.info("[Channel Agent] " + code + " - no-flagged Flow Remove Message notification test");
+
+        String result = "Send a un-flagged flow remove msg";
+        log.info("[Channel Agent] " + result);
+        result = result + '\n';
 
         while (!isHandshaked()) {
             try {
@@ -249,12 +283,11 @@ public class TestControllerCase {
         OFFlowRemoved msg = fm.build();
         ofSwitch.sendMsg(msg, -1);
 
-        // switch disconnection
         OFMessage response = ofSwitch.getResponse();
         if (response != null) {
-            result += response.toString() + ", FAIL";
+            result += response.toString() + ", SUCCESS";
         } else
-            result += ("response is null, PASS");
+            result += ("response is null, FAIL");
 
         return result;
     }
@@ -268,7 +301,7 @@ public class TestControllerCase {
             Object value = pidField.get(proc);
             this.pid = (Integer) value;
 
-            log.info("TLS "+String.valueOf(pid));
+            log.info("TLS " + String.valueOf(pid));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -279,7 +312,7 @@ public class TestControllerCase {
     public void exitTopo() {
         log.info("Exit test topology - ");
         try {
-            Runtime.getRuntime().exec("sudo kill -9 "+this.pid);
+            Runtime.getRuntime().exec("sudo kill -9 " + this.pid);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -82,13 +82,16 @@ public class ResultAnalyzer {
                     break;
 
                 case ResultInfo.COMMUNICATON:
-                    if(result.getBeforeL() != null)
-                        isSuccess = checkCommunication(result.getBeforeL());
+                    boolean temp1 = false;
+                    boolean temp2 = false;
 
-                    if (isSuccess)
-                        break;
+                    if (result.getBeforeL() != null)
+                        temp1 = checkCommunication(result.getBeforeL());
 
-                    isSuccess = checkCommunication(result.getAfterL());
+                    if (result.getAfterL() != null)
+                        temp2 = checkCommunication(result.getAfterL());
+
+                    isSuccess = temp1 | temp2;
                     break;
 
                 case ResultInfo.APPAGENT_REPLY:
@@ -99,12 +102,6 @@ public class ResultAnalyzer {
                     isSuccess = checkTopoInfo(result.getResult());
                     break;
             }
-
-            if (isSuccess) {
-                test.setResult(FAIL);
-                log.info(test.getcasenum() + ", FAIL");
-                break;
-            }
         }
 
         if (!isSuccess) {
@@ -113,6 +110,7 @@ public class ResultAnalyzer {
             return true;
         } else {
             test.setResult(FAIL);
+            log.info(test.getcasenum() + ", FAIL");
             return false;
         }
     }
@@ -131,7 +129,7 @@ public class ResultAnalyzer {
 
     public boolean checkLatency(String before, String after) {
         if (before.contains("100%") || after.contains("100%")) {
-            return false;
+            return true;
         }
 
         int idx = before.indexOf("min");
@@ -153,7 +151,8 @@ public class ResultAnalyzer {
         int beforeInt = (int) (Double.parseDouble(before) * 1000);
         int afterInt = (int) (Double.parseDouble(after) * 1000);
 
-        log.info("Latency (us) before: " + beforeInt + " < After: " + afterInt);
+        log.info("Latency (ms) before: " + before + " < After: " + after);
+        log.info("Threshold (ms) : " + Double.parseDouble(before) * 2);
 
         if ((beforeInt * 2) < afterInt) {
             return true;

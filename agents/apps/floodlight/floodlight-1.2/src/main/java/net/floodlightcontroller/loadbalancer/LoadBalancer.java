@@ -187,7 +187,7 @@ public class LoadBalancer implements IFloodlightModule,
         if (eth.isBroadcast() || eth.isMulticast()) {
             // handle ARP for VIP
             if (pkt instanceof ARP) {
-                // retrieve arp to determine target IP address                                                       
+                // retrieve arp to determine handler IP address
                 ARP arpRequest = (ARP) eth.getPayload();
 
                 IPv4Address targetProtocolAddress = arpRequest.getTargetProtocolAddress();

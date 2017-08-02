@@ -61,19 +61,25 @@ public class AttackConductor {
         CaseInfo.updateControllerCase(infoControllerCase);
         CaseInfo.updateSwitchCase(infoSwitchCase);
 
-        testSwitchCase = new TestSwitchCase();
+        testSwitchCase = new TestSwitchCase(channelm);
         testControllerCase = new TestControllerCase(appm, hostm, channelm, controllerm);
         testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
 
         testFuzzing = new TestFuzzing(appm, hostm, channelm, controllerm);
         testState = new TestStateDiagram(appm);
+
+    }
+
+    public void refreshConfig(Configuration cfg) {
+        controllerm.setConfig(cfg);
+        testSwitchCase.setConfig(cfg);
     }
 
     public String showConfig() {
         return cfg.show();
     }
 
-    public void setSocket(Socket socket) throws IOException {
+    public void setSocket(Socket socket) throws Exception {
         dos = new DataOutputStream(socket.getOutputStream());
         dis = new DataInputStream(socket.getInputStream());
 
@@ -83,8 +89,8 @@ public class AttackConductor {
             appm.setAppSocket(socket, dos, dis);
             dos.writeUTF("OK");
             dos.flush();
-            log.info("AppAgent is connected");
-        } else if (agentType.contains("ActAgent")) {        /* for OpenDaylight */
+            log.info("App agent connected");
+        } else if (agentType.contains("ActAgent")) {        /* for OpenDaylightHandler */
             appm.setActSocket(socket, dos, dis);
         } else if (agentType.contains("ChannelAgent")) {
             channelm.setSocket(socket, dos, dis);
@@ -92,20 +98,21 @@ public class AttackConductor {
             dos.flush();
 
 			/* send configuration to channel agent */
-            String config = "config," + "version:" + cfg.getOFVer() + ",nic:" + cfg.getMitmNIC() + ",port:"
-                    + cfg.getOFPort() + ",controller_ip:" + cfg.getControllerIP() + ",switch_ip:" + cfg.getSwitchIP(0)
-                    + ",handler:dummy" + ",cbench:" + cfg.getCbenchRoot();
+            String config = "config," + "version:" + cfg.getOF_VERSION() + ",nic:" + cfg.getMITM_NIC() + ",port:"
+                    + cfg.getOF_PORT() + ",controller_ip:" + cfg.getCONTROLLER_IP() + ",switch_ip:" + cfg.getSwitchList().get(0)
+                    + ",handler:dummy" + ",cbench:" + cfg.getCBENCH_ROOT();
 
             channelm.write(config);
-            log.info("Channel agent is connected");
+            log.info("Channel agent connected");
         } else if (agentType.contains("HostAgent")) {
             hostm.setSocket(socket, dos, dis);
-            hostm.write("target:" + cfg.getTargetHost());
-            log.info("Host agent is connected");
+            hostm.write("target:" + cfg.getTARGET_HOST());
+            log.info("Host agent connected");
         }
     }
 
     public void executeTestCase(TestCase test) throws InterruptedException {
+        long start = System.currentTimeMillis();
         if (test.getcasenum().charAt(0) == '1') {
             testSwitchCase.replayKnownAttack(test);
         } else if (test.getcasenum().charAt(0) == '2') {
@@ -115,8 +122,9 @@ public class AttackConductor {
         } else if (test.getcasenum().charAt(0) == '0') {
             testFuzzing.testFuzzing(test);
         }
-
-        log.info(test.getName()+" is done\n");
+        long end = System.currentTimeMillis();
+        log.info("Running Time(s) : " + (end - start) / 1000.0);
+        log.info(test.getName() + " is done\n==============================================================================\n");
     }
 
     public void printAttackList() {
@@ -161,5 +169,21 @@ public class AttackConductor {
             return true;
         else
             return false;
+    }
+
+    public void setTestSwitchCase(TestSwitchCase testSwitchCase) {
+        this.testSwitchCase = testSwitchCase;
+    }
+
+    public HostAgentManager getHostm() {
+        return hostm;
+    }
+
+    public ChannelAgentManager getChannelm() {
+        return channelm;
+    }
+
+    public ControllerManager getControllerm() {
+        return controllerm;
     }
 }

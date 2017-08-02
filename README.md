@@ -1,3 +1,7 @@
+
+[![ONF Best Showcase](http://opensourcesdn.org/wp-content/uploads/2016/03/best-in-show-badge-2016-e1476475837838.jpg)](http://opensourcesdn.org/projects/project-delta-sdn-security-evaluation-framework/)
+[![ToolsWatch 2017 Arsenal](https://rawgithub.com/toolswatch/badges/master/arsenal/2017.svg)](https://www.blackhat.com/us-17/arsenal/schedule/#delta-sdn-security-evaluation-framework-7466)
+
 # DELTA: SDN SECURITY EVALUATION FRAMEWORK
 
 ## What is DELTA?
@@ -19,8 +23,8 @@ In order to build and run DELTA, the following are required:
   + JDK 1.7 and 1.8
 + Target Controller (for application agent)
   + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
-  + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6
-  + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3
+  + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6, 1.9
+  + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3, Carbon
 + [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (for channel agent)
 + [Mininet 2.1+](http://mininet.org/download/) (for host agent)
 + (in the case of All-In-One Single Machine) Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
@@ -120,23 +124,31 @@ AM_PORT=3366
 $ cd <DELTA>/tools/dev/app-agent-setup
 $ ./floodlight-1.2-scp
 ```
-> ONOS 1.6
+> ONOS 1.1
 ```
-$ cd <DELTA>/tools/dev/app-agent-setup
-$ ./onos-1.6.0-scp
-(on the controller machine) $ ./onos-1.6.0-setup
-(on the controller machine) $ sudo vi /etc/environment
-...
-export JAVA_HOME=/usr/lib/jvm/java-8-oracle 
-export ONOS_APPS=drivers,openflow,proxyarp,mobility,fwd
-...
+$ cd <DELTA>/tools/dev/app-agent-setup/onos
+$ ./onos-1.1.0-scp
+(on the controller machine) $ ./onos-1.1.0-setup
+```
+> ONOS 1.6 or 1.9
+```
+$ cd <DELTA>/tools/dev/app-agent-setup/onos
+$ ./delta-setup-onos <onos-version>
+* Supported ONOS version in the script: 1.6, 1.9 
 ```
 > OpenDaylight helium-sr3 (only JDK 1.7-supported)
 ```
 $ cd <DELTA>/tools/dev/app-agent-setup
 $ ./odl-helium-sr3-scp
-(on the controller machine) $ ./odl-helium-sr3-scp
+(on the controller machine) $ ./odl-helium-sr3-setup
 ```
+> OpenDaylight Carbon
+```
+$ cd <DELTA>/tools/dev/app-agent-setup
+$ ./odl-carbon-scp
+(on the controller machine) $ ./odl-carbon-setup
+```
+
 + The app-agent (on the controller machine) needs 'agent.cfg' file to connect to the agent-manager.
 ```
 MANAGER_IP=10.0.2.2
@@ -155,7 +167,8 @@ $ ./tools/dev/delta-setup/delta-agents-scp
 
 + STEP 2. Execute Agent-Manager first
 ```
-$ <DELTA>/bin/run-delta
+$ cd <DELTA>
+$ bin/run-delta tools/config/<configuration file> # e.g., manager_vm.cfg
 
  DELTA: A Penetration Testing Framework for Software-Defined Networks
 

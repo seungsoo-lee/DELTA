@@ -121,8 +121,8 @@ public class TestControllerCase {
     * controller with a different version.
     */
     public void testMalformedVersionNumber(TestCase test) {
-        String info = test.getcasenum() + " - Malformed Version Number - Test for controller protection against communication with mismatched OpenFlow versions";
-        log.info(info);
+//        String info = test.getcasenum() + " - Malformed Version Number - Test for controller protection against communication with mismatched OpenFlow versions";
+//        log.info(info);
 
         initController();
 
@@ -189,8 +189,7 @@ public class TestControllerCase {
         log.info(info);
 
         initController();
-        chm.write("startsw|nohello");
-        chm.read();
+        chm.write("2.1.030");
 
         log.info("Dummy switch dosen't send hello message");
 
@@ -202,11 +201,12 @@ public class TestControllerCase {
         }
 
         log.info("Check switch connections");
+        String result = chm.read();
         int cnt = cm.isConnectedSwitch(false);
 
-        if (cnt == 0) {
+        if (result.contains("switchNotConnected")) {
             test.setResult(PASS);
-            log.info("Switch disconnected, PASS");
+            log.info("Switch not connected, PASS");
         } else {
             test.setResult(FAIL);
             log.info("Switch connected, FAIL");
@@ -230,8 +230,16 @@ public class TestControllerCase {
         log.info("Dummy switch starts");
         chm.write("startsw|nohello");
 
-        if (chm.read().contains("switchok"))
+        if (chm.read().contains("switchok")) {
+            try {
+                Thread.sleep(DEFAULT_TIMEOUT);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
             chm.write(test.getcasenum());
+        }
 
         String response = chm.read();
 
@@ -306,7 +314,7 @@ public class TestControllerCase {
 
         Thread.sleep(5000);
         am.write(test.getcasenum());
-        log.info("App-agent sends " + am.read() + " with un-flagged removed");
+        log.info("App-agent sends msg " + am.read() + " with un-flagged removed");
 
         Thread.sleep(2000);
         chm.write(test.getcasenum());

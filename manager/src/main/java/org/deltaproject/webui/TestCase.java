@@ -1,43 +1,119 @@
 package org.deltaproject.webui;
 
-import org.deltaproject.manager.core.AttackConductor;
+import org.deltaproject.manager.core.Configuration;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Created by changhoon on 7/5/16.
+ * A queued test case listed on DELTA GUI.
+ * Created by Changhoon on 7/5/16.
  */
 public class TestCase {
 
+    /**
+     * Type of status for test cases.
+     */
     public enum Status {
+        /**
+         * Represents that the status is not determined.
+         */
         UNKNOWN,
+
+        /**
+         * Represents that the test case cannot be executed.
+         */
         UNAVAILABLE,
-        READY,
+
+        /**
+         * Represents that the test case is queued.
+         */
         QUEUED,
+
+        /**
+         * Represents that the test case is running.
+         */
         RUNNING,
+
+        /**
+         * Represents that the test case is completed.
+         */
         COMPLETE,
     }
 
+    /**
+     * Type of category for test cases.
+     */
     public enum Category {
+        /**
+         * Represents that the test case targets the control plane.
+         */
         CONTROL_PLANE_OF,
+
+        /**
+         * Represents that the test case targets the data plane.
+         */
         DATA_PLANE_OF,
+
+        /**
+         * Represents that the test case is a advanced threat.
+         */
         ADVANCED,
+
+        /**
+         * Represents that the test case leverages a fuzzing technique.
+         */
         FUZZING,
+
+        /**
+         * Represents that the case is not belong to any category.
+         */
         UNSPECIFIED,
     }
 
+    /**
+     * Type of SDN controllers.
+     */
     public enum ControllerType {
+        /**
+         * Represents that the controller type is ONOSHandler.
+         */
         ONOS,
+
+        /**
+         * Represents that the controller type is OpenDayLight.
+         */
         OPENDAYLIGHT,
+
+        /**
+         * Represents that the controller type is FloodLight.
+         */
         FLOODLIGHT,
+
+        /**
+         * Represents that the controller type is unspecified.
+         */
         UNSPECIFIED,
     }
 
+    /**
+     * Type of execution results.
+     */
     public enum TestResult {
+        /**
+         *
+         */
         UNKNOWN,
+
+        /**
+         *
+         */
         PASS,
+
+        /**
+         *
+         */
         FAIL,
     }
 
@@ -51,6 +127,7 @@ public class TestCase {
     private Status status;
     private Date time;
     private TestResult result;
+    private Configuration configuration;
 
     public TestCase(String casenum) {
         this.casenum = casenum;
@@ -150,6 +227,14 @@ public class TestCase {
 
     public TestResult getResult() {
         return result;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
     }
 
     @Override

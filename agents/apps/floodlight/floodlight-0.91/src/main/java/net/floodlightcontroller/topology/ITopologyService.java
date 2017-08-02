@@ -112,7 +112,7 @@ public interface ITopologyService extends IFloodlightService  {
     public Set<Short> getPortsWithLinks(long sw);
     public Set<Short> getPortsWithLinks(long sw, boolean tunnelEnabled);
 
-    /** Get broadcast ports on a target switch for a given attachmentpoint
+    /** Get broadcast ports on a handler switch for a given attachmentpoint
      * point port.
      */
     public Set<Short> getBroadcastPorts(long targetSw, long src, short srcPort);

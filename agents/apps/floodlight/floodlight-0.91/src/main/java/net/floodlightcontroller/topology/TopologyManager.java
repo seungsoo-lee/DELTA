@@ -455,7 +455,7 @@ public class TopologyManager implements
 
     ////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////
-    /** Get all the ports on the target switch (targetSw) on which a
+    /** Get all the ports on the handler switch (targetSw) on which a
      * broadcast packet must be sent from a host whose attachment point
      * is on switch port (src, srcPort).
      */
@@ -465,7 +465,7 @@ public class TopologyManager implements
         return getBroadcastPorts(targetSw, src, srcPort, true);
     }
 
-    /** Get all the ports on the target switch (targetSw) on which a
+    /** Get all the ports on the handler switch (targetSw) on which a
      * broadcast packet must be sent from a host whose attachment point
      * is on switch port (src, srcPort).
      */

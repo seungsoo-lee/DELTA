@@ -18,6 +18,8 @@ import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.OFFactories;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,6 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PktListener {
+    private static final Logger log = LoggerFactory.getLogger(PktListener.class);
+
     public static final int MINIMUM_LENGTH = 8;
 
     private static HashMap<String, String> ip_mac_list;
@@ -104,6 +108,7 @@ public class PktListener {
     }
 
     public void startListening() {
+        log.info("[Channel Agent] Start listening packets..");
         try {
             this.traffic_listener = new Listener(device, this.handler);
             this.traffic_listener.setFilter("port " + this.ofPort, true);
@@ -133,7 +138,7 @@ public class PktListener {
     }
 
     public void startARPSpoofing() {
-        System.out.println("[Channel-Agent] Start ARP Spoofing");
+        log.info("[Channel-Agent] Start ARP Spoofing");
 
         spoof = new ARPSpoof(device, ips_to_explore);
         spoof.setSender(this.traffic_sender);
@@ -148,7 +153,7 @@ public class PktListener {
     }
 
     public void stopARPSpoofing() {
-        System.out.println("[Channel-Agent] Stop ARP Spoofing");
+        log.info("[Channel-Agent] Stop ARP Spoofing");
         this.spoof.setARPspoof(false);
     }
 
@@ -305,8 +310,8 @@ public class PktListener {
                 byte[] body = addBodyData(tcppacl);
 
                 if (tcppacl.psh) {
-                    //body is complete
-                    //do something else...
+                    // body is complete
+                    // do something else...
                     p_temp.data = body;
 
                     ByteBuf newBuf = null;
@@ -356,14 +361,14 @@ public class PktListener {
                             }
                         }
                     } else if (typeOfAttacks == TestCase.CONTROLMESSAGEMANIPULATION) {
-                        System.out.println("\n[ATTACK] Control Message Manipulation");
+                        log.info("\n[ATTACK] Control Message Manipulation");
                     /* Modify a Packet Here */
                         if (this.dst_ip.equals(controllerIP)) {
                             (p.data)[2] = 0x77;
                             (p.data)[3] = 0x77;
                         }
                     } else if (typeOfAttacks == TestCase.MALFORMEDCONTROLMESSAGE) {
-                        System.out.println("\n[ATTACK] Malformed Control Message");
+                        log.info("\n[ATTACK] Malformed Control Message");
                     /* Modify a Packet Here */
                         if (this.dst_ip.equals(switchIP)) {
                             // if ( (p.data)[1] != 0x0a ) {
