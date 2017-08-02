@@ -1,3 +1,5 @@
+[![ToolsWatch 2017 Arsenal](https://rawgithub.com/toolswatch/badges/master/arsenal/2017.svg)](https://www.blackhat.com/us-17/arsenal/schedule/#delta-sdn-security-evaluation-framework-7466)
+
 # DELTA: SDN SECURITY EVALUATION FRAMEWORK
 
 ## What is DELTA?

@@ -279,18 +279,6 @@
         }, 1000);
 
     });
-
-    $.ajax({
-        url: '/text/getconfig',
-        dataType: 'text',
-        contentType: "text/plain",
-        async: false,
-        success: function (data) {
-            $('#configpane').val(data);
-            $('#configpane').scrollTop($('#configpane')[0].scrollHeight);
-        }
-    });
-
 </script>
 
 </body>

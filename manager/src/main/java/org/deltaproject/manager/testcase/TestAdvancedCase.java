@@ -32,7 +32,6 @@ public class TestAdvancedCase {
     }
 
     public void runRemoteAgents(boolean channel, boolean host) {
-        initController(true);
         log.info("Run controller/channel/host agents..");
 
         appm.setTargetController(controllerm.getType());
@@ -50,6 +49,8 @@ public class TestAdvancedCase {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        initController(true);
     }
 
     public void stopRemoteAgents() {
@@ -217,7 +218,7 @@ public class TestAdvancedCase {
         channelm.write(test.getcasenum());
 
         try {
-            Thread.sleep(15000);
+            Thread.sleep(20000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -450,6 +451,12 @@ public class TestAdvancedCase {
         /* step 3: try communication */
         log.info("Host-Agent sends packets to others");
         String resultFlow = generateFlow("ping");
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         ResultInfo result = new ResultInfo();
 

@@ -68,34 +68,35 @@
     </div>
 
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-xs-4">
             <div class="chart-wrapper">
                 <div class="chart-title">Configuration</div>
                 <div class="chart-stage">
                     <form class="form-horizontal" role="form">
                         <div class="form-group">
-                            <label for="targetController" class="col-md-5">Target Controller</label>
-                            <div class="col-md-7">
+                            <label for="targetController" class="col-xs-5">Target Controller</label>
+                            <div class="col-xs-7">
                                 <select class="selectpicker form-control" id="targetController" data-width="100%">
-                                    <option>ONOS</option>
+                                    <option selected>ONOS</option>
                                     <option>OpenDaylight</option>
-                                    <option selected>Floodlight</option>
+                                    <option>Floodlight</option>
                                 </select>
                             </div>
                         </div>
                         <!--</form>-->
                         <div class="form-group">
-                            <label for="targetVersion" class="col-md-5">Target Version</label>
-                            <div class="col-md-7">
+                            <label for="targetVersion" class="col-xs-5">Target Version</label>
+                            <div class="col-xs-7">
                                 <select class="selectpicker form-control" id="targetVersion" data-width="100%">
-                                    <option>0.91</option>
-                                    <option selected>1.2</option>
+                                    <option>1.1</option>
+                                    <option>1.6</option>
+                                    <option selected>1.9</option>
                                 </select>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="ofPort" class="col-md-5">OpenFlow Port</label>
-                            <div class="col-md-7">
+                            <label for="ofPort" class="col-xs-5">OpenFlow Port</label>
+                            <div class="col-xs-7">
                                 <select class="selectpicker form-control" id="ofPort" data-width="100%">
                                     <option selected>6633</option>
                                     <option>6653</option>
@@ -103,8 +104,8 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="ofVersion" class="col-md-5">OpenFlow Version</label>
-                            <div class="col-md-7">
+                            <label for="ofVersion" class="col-xs-5">OpenFlow Version</label>
+                            <div class="col-xs-7">
                                 <select class="selectpicker form-control" id="ofVersion" data-width="100%">
                                     <option selected>1.3</option>
                                     <option >1.0</option>
@@ -112,29 +113,29 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="ofPort" class="col-md-5">Controller IP</label>
-                            <div class="col-md-7">
-                                <!--<input type="text" class="form-control" placeholder="Controller IP" id="controllerIp"-->
-                                       <!--aria-describedby="basic-addon2" value="10.100.100.11">-->
+                            <label for="ofPort" class="col-xs-5">Controller IP</label>
+                            <div class="col-xs-7">
                                 <input type="text" class="form-control" placeholder="Controller IP" id="controllerIp"
-                                       aria-describedby="basic-addon2" value="192.168.4.4">
+                                       aria-describedby="basic-addon2" value="10.100.100.11">
+                                <!--<input type="text" class="form-control" placeholder="Controller IP" id="controllerIp"-->
+                                       <!--aria-describedby="basic-addon2" value="192.168.4.4">-->
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="ofPort" class="col-md-5">Switch IP</label>
-                            <div class="col-md-7">
-                                <!--<input type="text" class="form-control" placeholder="Switch IP" id="switchIp"-->
-                                       <!--aria-describedby="basic-addon2" value="10.100.100.13,10.100.100.13,10.100.100.13">-->
+                            <label for="ofPort" class="col-xs-5">Switch IP</label>
+                            <div class="col-xs-7">
                                 <input type="text" class="form-control" placeholder="Switch IP" id="switchIp"
-                                       aria-describedby="basic-addon2" value="192.168.4.11,192.168.4.12">
+                                       aria-describedby="basic-addon2" value="10.100.100.13,10.100.100.13,10.100.100.13">
+                                <!--<input type="text" class="form-control" placeholder="Switch IP" id="switchIp"-->
+                                       <!--aria-describedby="basic-addon2" value="192.168.4.11,192.168.4.12">-->
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="ofVersion" class="col-md-5">Topology Type</label>
-                            <div class="col-md-7">
+                            <label for="ofVersion" class="col-xs-5">Topology Type</label>
+                            <div class="col-xs-7">
                                 <select class="selectpicker form-control" id="topologyType" data-width="100%">
-                                    <option value="VM">VM (All-in-one)</option>
-                                    <option selected value="HW">Hardware</option>
+                                    <option selected value="VM">VM (All-in-one)</option>
+                                    <option value="HW">Hardware</option>
                                 </select>
                             </div>
                         </div>
@@ -143,7 +144,7 @@
             </div>
         </div>
 
-        <div class="col-md-8">
+        <div class="col-xs-8">
             <div class="chart-wrapper">
                 <div class="chart-title">
                     Agent Manager Log
@@ -165,7 +166,7 @@
     <div class="row">
         <div class="chart-wrapper">
             <div class="chart-title">
-                Test Cases
+                Test Cases Inventory
             </div>
             <div class="chart-stage">
                 <div id="test-list">
