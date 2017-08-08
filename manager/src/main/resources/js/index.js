@@ -186,7 +186,7 @@ $('#targetController').change(function() {
         $('#targetVersion').append('<option value="1.2">1.2</option>');
         $('#targetVersion').append('<option value="0.91">0.91</option>');
     } else if (targetController == 'Ryu') {
-        $('#targetVersion').append('<option value="4.0">4.0</option>');
+        $('#targetVersion').append('<option value="4.16">4.16</option>');
     }
     $("#targetVersion").selectpicker("refresh");
 });
