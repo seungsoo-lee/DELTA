@@ -1,4 +1,5 @@
 #!/bin/bash
 
-ssh $DELTA_APP "
-ryu-manager --verbose ryu.app.simple_switch_13"
+scp -r $DELTA_ROOT/agents/apps/ryu $DELTA_APP:~/
+ssh $DELTA_APP "ryu-manager --verbose ryu.app.simple_switch_13"
+ssh $DELTA_APP "ryu-manager ~/ryu/AMInterface.py"
