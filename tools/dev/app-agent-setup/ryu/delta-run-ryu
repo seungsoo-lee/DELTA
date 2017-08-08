@@ -1,0 +1,4 @@
+#!/bin/bash
+
+ssh $DELTA_APP "
+ryu-manager --verbose ryu.app.simple_switch_13"
