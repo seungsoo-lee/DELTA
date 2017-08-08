@@ -10,13 +10,16 @@ print 'connecting to %s port %s' % server_address
 sock.connect(server_address)
 
 try:
-    # Send data
+    # Send AppAgent Message
     message = 'AppAgent'
     m = '\x00' + '\x08' + message
     print "Client: " + message
     sock.send(m)
+
+    # Receive OK Message
     data = sock.recv(1024)
 
+    # Receive Code
     data = sock.recv(1024)
     if "3.1.020" in data:
         print "3.1.020"
@@ -39,9 +42,6 @@ try:
     elif "OK" in data:
         print "OK"
     else:
-        print "nothing"
-
-        #AppAgent.testFunction(data)
-        #print "Server: " + data
+        print data
 finally:
     sock.close()
