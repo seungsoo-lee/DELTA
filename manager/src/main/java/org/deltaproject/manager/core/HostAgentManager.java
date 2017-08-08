@@ -76,12 +76,25 @@ public class HostAgentManager extends Thread {
 
             // in the case of all-in-one setting
             if (cfg.getTopologyType().equals("VM")) {
-                cmdArray = new String[] {"ssh", cfg.getHOST_SSH(), "sudo", "python", topologyFile,
-                        cfg.getCONTROLLER_IP(), cfg.getOF_PORT(), cfg.getAM_IP(), cfg.getAM_PORT(), version};
+                switch (topologyFile) {
+                    case "test-fuzzing-topo.py":
+                    case "test-advanced-topo.py":
+                        cmdArray = new String[]{"ssh", cfg.getHOST_SSH(), "sudo", "python", topologyFile,
+                                cfg.getCONTROLLER_IP(), cfg.getOF_PORT(), cfg.getAM_IP(), cfg.getAM_PORT(), version};
+                        break;
+                    case "test-switch-topo.py":
+                        cmdArray = new String[]{"ssh", cfg.getHOST_SSH(), "sudo", "python", topologyFile,
+                                cfg.getDUMMY_CONT_IP(), cfg.getDUMMY_CONT_PORT(), version};
+                        break;
+                    case "test-controller-topo.py":
+                        cmdArray = new String[]{"ssh", cfg.getHOST_SSH(), "sudo", "python", topologyFile,
+                                cfg.getCONTROLLER_IP(), cfg.getOF_PORT()};
+                        break;
+                }
 
-            // in the case of hardware setting
+                // in the case of hardware setting
             } else if (cfg.getTopologyType().equals("HW")) {
-                cmdArray = new String[] {"ssh", cfg.getHOST_SSH(), "java", "-jar", "delta-agent-host-1.0-SNAPSHOT.jar", cfg.getAM_IP(),
+                cmdArray = new String[]{"ssh", cfg.getHOST_SSH(), "java", "-jar", "delta-agent-host-1.0-SNAPSHOT.jar", cfg.getAM_IP(),
                         cfg.getAM_PORT()};
             }
 
@@ -152,6 +165,11 @@ public class HostAgentManager extends Thread {
                 proc = Runtime.getRuntime().exec("sudo kill -9 " + this.procPID);
                 proc.waitFor();
                 procPID = -1;
+
+                if (cfg.getTopologyType().equals("VM")) {
+                    Runtime.getRuntime().exec("ssh " + cfg.getHOST_SSH() + " sudo mn -c");
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
