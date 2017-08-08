@@ -5,6 +5,7 @@ import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.commons.lang3.StringUtils;
 import org.deltaproject.manager.core.ChannelAgentManager;
 import org.deltaproject.manager.core.Configuration;
+import org.deltaproject.manager.core.HostAgentManager;
 import org.deltaproject.webui.TestCase;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
@@ -50,10 +51,12 @@ public class TestSwitchCase {
     private int procPID;
 
     private ChannelAgentManager chm;
+    private HostAgentManager hm;
 
-    public TestSwitchCase(ChannelAgentManager cm) {
+    public TestSwitchCase(ChannelAgentManager cm, HostAgentManager hm) {
         random = new Random();
-        chm = cm;
+        this.chm = cm;
+        this.hm = hm;
     }
 
     public void setConfig(Configuration cfg) {
@@ -71,26 +74,9 @@ public class TestSwitchCase {
         log.info("Run channel agent");
         chm.runAgent();
 
-        if (cfg.getTopologyType().equals("vm")) {
-            log.info("Run test mininet topology");
+        if (cfg.getTopologyType().equalsIgnoreCase("VM")) {
 
-            String mininet;
-
-            if (ofversion.equals("1.0"))
-                mininet = " sudo python test-switch-topo.py " + cfg.getAM_IP() + " " + cfg.getAM_PORT() + " OpenFlow10";
-            else
-                mininet = " sudo python test-switch-topo.py " + cfg.getAM_IP() + " " + cfg.getAM_PORT() + " OpenFlow13";
-
-            try {
-                proc = Runtime.getRuntime().exec("ssh " + cfg.getHOST_SSH() + mininet);
-
-                Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
-                pidField.setAccessible(true);
-                Object value = pidField.get(proc);
-                this.procPID = (Integer) value;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            hm.runAgent("test-switch-topo.py");
         }
 
         try {
@@ -102,24 +88,25 @@ public class TestSwitchCase {
 
     public void stopRemoteAgents() {
         chm.stopAgent();
+        hm.stopAgent();
 
-        if (cfg.getTopologyType().equals("vm")) {
-            if (procPID != -1)
-                try {
-                    proc = Runtime.getRuntime().exec("sudo kill -9 " + this.procPID);
-                    proc.waitFor();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            else
-                procPID = -1;
-
-            try {
-                Thread.sleep(1500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (cfg.getTopologyType().equals("VM")) {
+//            if (procPID != -1)
+//                try {
+//                    proc = Runtime.getRuntime().exec("sudo kill -9 " + this.procPID);
+//                    proc.waitFor();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            else
+//                procPID = -1;
+//
+//            try {
+//                Thread.sleep(1500);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     public void replayKnownAttack(TestCase test) throws InterruptedException {
