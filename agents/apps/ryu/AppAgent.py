@@ -2,37 +2,38 @@ from threading import Thread
 import AMInterface as ami
 from ryu.base import app_manager
 
-class AppAgent(app_manager.RyuApp):
+class App_Agent(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
-        super(AppAgent, self).__init__(*args, **kwargs)
+        super(App_Agent, self).__init__(*args, **kwargs)
         server_address = ami.setServerAddr()
         t = Thread(target=ami.connectServer, args=(server_address,))
         t.start()
         print "[App-Agent] Starting AppAgent on Ryu"
 
     # 3.1.020
-    def testControlMessageDrop():
+    def testControlMessageDrop(self):
         print "testControlMessageDrop"
 
     # 3.1.030
-    def testInfiniteLoops():
+    def testInfiniteLoops(self):
         print "testInfiniteLoops"
 
     # 3.1.040
-    def testInternalStorageAbuse():
+    def testInternalStorageAbuse(self):
         print "testInternalStorageAbuse"
 
     # 3.1.070
-    def testFlowRuleModification():
+    def testFlowRuleModification(self):
         print "testFlowRuleModification"
 
     # 3.1.080
-    def testFlowTableClearance():
+    def testFlowTableClearance(self):
         print "testFlowTableClearance"
 
     # 3.1.090
-    def testEventListenerUnsubscription():
+    def testEventListenerUnsubscription(self):
         print "testEventListenerUnsubscription"
+
     if __name__ == "__main__":
         server_address = ami.setServerAddr()
         print "[App-Agent] {0}".format(server_address)

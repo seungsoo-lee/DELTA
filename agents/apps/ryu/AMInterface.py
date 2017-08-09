@@ -46,24 +46,26 @@ def connectServer(server_address):
 
         # Receive Code
         data = sock.recv(1024)
+        appAgent = AppAgent.App_Agent()
+
         if "3.1.020" in data:
             print "3.1.020"
-            AppAgent.testControlMessageDrop()
+            appAgent.testControlMessageDrop()
         elif "3.1.030" in data:
             print "3.1.030"
-            AppAgent.testInfiniteLoops()
+            appAgent.testInfiniteLoops()
         elif "3.1.040" in data:
             print "3.1.040"
-            AppAgent.testInternalStorageAbuse()
+            appAgent.testInternalStorageAbuse()
         elif "3.1.070" in data:
             print "3.1.070"
-            AppAgent.testFlowRuleModification()
+            appAgent.testFlowRuleModification()
         elif "3.1.080" in data:
             print "3.1.080"
-            AppAgent.testFlowTableClearance()
+            appAgent.testFlowTableClearance()
         elif "3.1.090" in data:
             print "3.1.090"
-            AppAgent.testEventListenerUnsubscription()
+            appAgent.testEventListenerUnsubscription()
         elif "OK" in data:
             print "OK"
         else:
