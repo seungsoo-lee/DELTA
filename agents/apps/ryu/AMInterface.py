@@ -10,7 +10,7 @@ def setServerAddr():
     while True:
         line = f.readline()
         if not line: break
-        
+
         if "MANAGER_IP" in line:
            manager_ip = line.split("=")[1].rstrip()
         elif "MANAGER_PORT" in line:
@@ -25,7 +25,7 @@ def connectServer(server_address):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Connect the socket to the port where the server is listening
-    
+
     if not server_address:
         server_address = ('10.0.2.2', 3366)
 
