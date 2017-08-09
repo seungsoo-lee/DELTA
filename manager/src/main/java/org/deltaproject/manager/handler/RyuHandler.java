@@ -40,7 +40,7 @@ public class RyuHandler implements ControllerHandler {
         // TODO: Simple_Switch app needs to be loaded according to the OpenFlow Version.
         try {
             if (this.version.contains("4.16")) {
-                cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/ryu/delta-run-ryu"};
+                cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/ryu/delta-run-ryu", "1.3"};
             } else {
                 return false;
             }
