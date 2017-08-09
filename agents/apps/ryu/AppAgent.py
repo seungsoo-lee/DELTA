@@ -16,7 +16,14 @@ class App_Agent(app_manager.RyuApp):
 
     # 3.1.030
     def testInfiniteLoops(self):
-        print "testInfiniteLoops"
+        print "[ATTACK] Start Infinite Loop"
+        i = 0
+
+        while i < 32767:
+            i = i + 1
+
+            if i == 32766:
+                i = 0
 
     # 3.1.040
     def testInternalStorageAbuse(self):
