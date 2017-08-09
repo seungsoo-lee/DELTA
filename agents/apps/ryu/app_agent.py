@@ -1,10 +1,14 @@
 from threading import Thread
-import AMInterface as ami
 from ryu.base import app_manager
+import am_interface
 
-class App_Agent(app_manager.RyuApp):
+class AppAgent(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
-        super(App_Agent, self).__init__(*args, **kwargs)
+        from am_interface import AMInterface
+        super(AppAgent, self).__init__(*args, **kwargs)
+    
+        # Run AMInterface Thread    
+        ami = AMInterface(self)
         server_address = ami.setServerAddr()
         t = Thread(target=ami.connectServer, args=(server_address,))
         t.start()
@@ -41,8 +45,5 @@ class App_Agent(app_manager.RyuApp):
     def testEventListenerUnsubscription(self):
         print "testEventListenerUnsubscription"
 
-    if __name__ == "__main__":
-        server_address = ami.setServerAddr()
-        print "[App-Agent] {0}".format(server_address)
-        t = Thread(target=ami.connectServer, args=(server_address,))
-        t.start()
+if __name__ == "__main__":
+    a = AppAgent()
