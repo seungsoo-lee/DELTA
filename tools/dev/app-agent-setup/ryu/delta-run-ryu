@@ -1,5 +1,4 @@
 #!/bin/bash
 
 scp -r $DELTA_ROOT/agents/apps/ryu $DELTA_APP:~/
-ssh $DELTA_APP "ryu-manager --verbose ryu.app.simple_switch_13"
-ssh $DELTA_APP "ryu-manager ~/ryu/AMInterface.py"
+ssh $DELTA_APP "ryu-manager --verbose --observe-links ryu.app.simple_switch_13 ryu.topology ryu.app.gui_topology.gui_topology ryu/AppAgent.py"

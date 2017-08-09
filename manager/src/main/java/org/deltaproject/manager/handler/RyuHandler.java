@@ -37,12 +37,14 @@ public class RyuHandler implements ControllerHandler {
 
         String[] cmdArray = null;
 
+        // TODO: Simple_Switch app needs to be loaded according to the OpenFlow Version.
         try {
             if (this.version.contains("4.16")) {
                 cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/ryu/delta-run-ryu"};
             } else {
                 return false;
             }
+
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
             pb.redirectErrorStream(true);
             proc = pb.start();
@@ -54,11 +56,9 @@ public class RyuHandler implements ControllerHandler {
             Object value = pidField.get(proc);
             this.currentPID = (Integer) value;
 
-            Thread.sleep(10000);
+            Thread.sleep(5000);
 
-            /*
-                This part will add to check whether Ryu application is complete.
-            */
+            // TODO: This part will add to check whether Ryu application is complete.
 
             isRunning = true;
             log.info("Ryu is activated");
