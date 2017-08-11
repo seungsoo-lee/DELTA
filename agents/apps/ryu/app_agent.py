@@ -4,18 +4,21 @@ import am_interface
 from ryu.controller import ofp_event
 from ryu.controller.handler import CONFIG_DISPATCHER , MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
-from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
+from ryu.ofproto import ofproto_protocol
+from ryu.controller import dpset
+from ryu.ofproto import ofproto_v1_3
 
 class AppAgent(app_manager.RyuApp):
+    OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
     def __init__(self, *args, **kwargs):
         from am_interface import AMInterface
         super(AppAgent, self).__init__(*args, **kwargs)
-        global drop
-        drop = 0
-
+        self.drop = 0
+        self.modify = 0
+        self.msg = None
         # Run AMInterface Thread    
         ami = AMInterface(self)
         server_address = ami.setServerAddr()
@@ -26,9 +29,7 @@ class AppAgent(app_manager.RyuApp):
     # 3.1.020
     def testControlMessageDrop(self):
         print "[ATTACK] Start Control Message Drop"
-        global drop
-        drop = 1
-
+        self.drop = 1
 
     # 3.1.020 drop
     def callControlMessageDrop(self):
@@ -63,18 +64,17 @@ class AppAgent(app_manager.RyuApp):
     # 3.1.080
     def testFlowTableClearance(self):
         print "testFlowTableClearance"
+        self.modfiy = 1
 
     # 3.1.090
     def testEventListenerUnsubscription(self):
         print "testEventListenerUnsubscription"
 
     @set_ev_cls(ofp_event.EventOFPPacketIn , MAIN_DISPATCHER)
-    def switch_features_handler(self , ev):
-        global msg
-        global drop
-        msg = ev.msg
+    def packetIn_handler(self, ev):
+        self.msg = ev.msg
 
-        if drop:
+        if self.drop:
             self.callControlMessageDrop()
 
 if __name__ == "__main__":
