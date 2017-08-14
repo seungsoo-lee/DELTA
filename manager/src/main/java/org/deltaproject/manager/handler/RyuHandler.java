@@ -16,6 +16,7 @@ public class RyuHandler implements ControllerHandler {
     public String version = "";
     public String ryu = "";
     public String sshAddr = "";
+    public String of_version = "";
 
     private int currentPID = -1;
 
@@ -24,9 +25,10 @@ public class RyuHandler implements ControllerHandler {
 
     private Thread loggerThd;
 
-    public RyuHandler(String path, String v, String ssh) {
+    public RyuHandler(String path, String v, String ssh, String of_version) {
         this.version = v;
         this.sshAddr = ssh;
+        this.of_version = of_version;
     }
 
     @Override
@@ -40,7 +42,12 @@ public class RyuHandler implements ControllerHandler {
         // TODO: Simple_Switch app needs to be loaded according to the OpenFlow Version.
         try {
             if (this.version.contains("4.16")) {
-                cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/ryu/delta-run-ryu", "1.3"};
+                if (this.of_version.contains("1.0"))
+                    cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/ryu/delta-run-ryu", "1.0"};
+                else if (this.of_version.contains("1.3"))
+                    cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/ryu/delta-run-ryu", "1.3"};
+                else
+                    return false;
             } else {
                 return false;
             }

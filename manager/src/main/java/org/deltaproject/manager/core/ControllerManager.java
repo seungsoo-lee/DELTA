@@ -37,7 +37,7 @@ public class ControllerManager {
         ControllerHandler fl = new FloodlightHandler(cfg.getFLOODLIGHT_ROOT(), cfg.getTARGET_VERSION(), cfg.getCONTROLLER_SSH());
         ControllerHandler odl = new OpenDaylightHandler(cfg.getODL_ROOT(), cfg.getTARGET_VERSION(), cfg.getCONTROLLER_SSH());
         ControllerHandler onos = new ONOSHandler(cfg.getONOS_ROOT(), cfg.getTARGET_VERSION(), cfg.getCONTROLLER_SSH());
-        ControllerHandler ryu = new RyuHandler(cfg.getRYU_ROOT(), cfg.getTARGET_VERSION(), cfg.getCONTROLLER_SSH());
+        ControllerHandler ryu = new RyuHandler(cfg.getRYU_ROOT(), cfg.getTARGET_VERSION(), cfg.getCONTROLLER_SSH(), cfg.getOF_VERSION());
 
         targetList = new ArrayList<ControllerHandler>();
         targetList.add(fl);
