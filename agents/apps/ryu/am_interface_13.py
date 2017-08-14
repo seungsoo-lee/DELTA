@@ -3,7 +3,7 @@ from os.path import expanduser
 
 class AMInterface:
     def __init__(self, obj):
-        from app_agent import AppAgent
+        from app_agent_13 import AppAgent
         self.appAgent = obj
         print self.appAgent
 
@@ -26,7 +26,7 @@ class AMInterface:
 
 
     def connectServer(self, server_address):
-        from app_agent import AppAgent
+        from app_agent_13 import AppAgent
 
         print self.appAgent
 
