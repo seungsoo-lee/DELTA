@@ -9,6 +9,7 @@ from ryu.lib.packet import ethernet
 from ryu.ofproto import ofproto_protocol
 from ryu.controller import dpset
 from ryu.ofproto import ofproto_v1_3
+from ryu.lib import ofctl_v1_3
 
 class AppAgent(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
@@ -64,7 +65,17 @@ class AppAgent(app_manager.RyuApp):
     # 3.1.080
     def testFlowTableClearance(self):
         print "testFlowTableClearance"
-        self.modfiy = 1
+        ofctl_v1_3.delete_flow_entry(self.msg.datapath)
+
+    def flow_request(self):
+        for dp in self.dpset.dps.values():
+            match = dp.ofproto_parser.OFPMatch(
+                dp.ofproto.OFPFW_ALL, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0)
+            stats = dp.ofproto_parser.OFPFlowStatsRequest(
+                dp, 0, match, 0xff, dp.ofproto.OFPP_NONE)
+            dp.send_msg(stats)
+            print str(dp)
 
     # 3.1.090
     def testEventListenerUnsubscription(self):
@@ -76,6 +87,26 @@ class AppAgent(app_manager.RyuApp):
 
         if self.drop:
             self.callControlMessageDrop()
+
+    @set_ev_cls(ofp_event.EventOFPFlowStatsReply,
+                MAIN_DISPATCHER)
+    def stats_reply_handler(self, ev):
+        ofctl_v1_0.delete_flow_entry(ev.msg.datapath)
+        for stats in ev.msg.body:
+            actions = ofctl_v1_0.actions_to_str(stats.actions)
+            match = ofctl_v1_0.match_to_str(stats.match)
+            print {'dpid' : ev.msg.datapath.id,
+                   'priority': stats.priority,
+                   'cookie': stats.cookie,
+                   'idle_timeout': stats.idle_timeout,
+                   'hard_timeout': stats.hard_timeout,
+                   'actions': actions,
+                   'match': match,
+                   'byte_count': stats.byte_count,
+                   'duration_sec': stats.duration_sec,
+                   'duration_nsec': stats.duration_nsec,
+                   'packet_count': stats.packet_count,
+                   'table_id': stats.table_id}
 
 if __name__ == "__main__":
     a = AppAgent()
