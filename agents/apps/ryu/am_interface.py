@@ -9,7 +9,7 @@ class AMInterface:
         self.logger = logger
 
     def setServerAddr(self):
-        server_address = ('10.0.2.2', 3366) #default ip, port pair for vm
+        server_address = ('10.0.2.2', 3366) # default ip, port pair for vm
         home = expanduser("~")
         f = open(home + "/agent.cfg", "r")
 

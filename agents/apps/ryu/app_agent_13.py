@@ -36,6 +36,7 @@ class AppAgent13(app_manager.RyuApp):
         self.drop = 1
 
     # 3.1.020 drop
+    # TODO: any good idea to drop the packet-in?
     def callControlMessageDrop(self):
         pkt = packet.Packet(self.msg.data)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
@@ -58,6 +59,7 @@ class AppAgent13(app_manager.RyuApp):
                 i = 0
 
     # 3.1.040
+    # TODO:
     def testInternalStorageAbuse(self):
         self.logger.info("testInternalStorageAbuse")
 
@@ -95,6 +97,7 @@ class AppAgent13(app_manager.RyuApp):
             dp.send_msg(flow_mod)
 
     # 3.1.090
+    # TODO:
     def testEventListenerUnsubscription(self):
         self.logger.info("testEventListenerUnsubscription")
 
