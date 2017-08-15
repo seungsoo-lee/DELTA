@@ -1,6 +1,6 @@
 from threading import Thread
 from ryu.base import app_manager
-from am_interface_13 import AMInterface
+from am_interface import AMInterface
 from ryu.controller import ofp_event
 from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
@@ -9,21 +9,22 @@ from ryu.lib.packet import ethernet
 from ryu.controller import dpset
 from ryu.ofproto import ofproto_v1_3
 
-class AppAgent(app_manager.RyuApp):
+class AppAgent13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
     _CONTEXTS = {
         'dpset': dpset.DPSet
     }
 
     def __init__(self, *args, **kwargs):
-        super(AppAgent, self).__init__(*args, **kwargs)
+        super(AppAgent13, self).__init__(*args, **kwargs)
         self.dpset = kwargs['dpset']
         self.drop = 0
         self.modify = 0
         self.clear = 0
         self.msg = None
-        # Run AMInterface Thread    
-        ami = AMInterface(self)
+
+        # Run AMInterface Thread
+        ami = AMInterface(self, self.logger)
         server_address = ami.setServerAddr()
         t = Thread(target=ami.connectServer, args=(server_address,))
         t.start()
@@ -74,6 +75,10 @@ class AppAgent(app_manager.RyuApp):
                                                     instructions=inst,
                                                     command=dp.ofproto.OFPFC_MODIFY)
             dp.send_msg(flow_mod)
+            self.logger.info("[App-Agent] Sending a OF FlowMod message '%s' to switch '%s'" % (str(flow_mod), str(dp.id)))
+
+        result = "success|" + str(flow_mod)
+        return result
 
     # 3.1.080
     def testFlowTableClearance(self):
@@ -93,6 +98,24 @@ class AppAgent(app_manager.RyuApp):
     def testEventListenerUnsubscription(self):
         self.logger.info("testEventListenerUnsubscription")
 
+    # 3.1.110
+    def testMemoryExhaustion(self):
+        self.logger.info("[ATTACK] Memory Exhaustion")
+        array.array('B', itertools.repeat(0, sys.maxint))
+
+    # 3.1.120
+    def testCPUExhaustion(self):
+        self.logger.info("[ATTACK] CPU Exhaustion")
+        for i in range(0, 10000):
+            t = Thread(target=self.CPUThread)
+            t.start()
+
+    # dummy thread
+    def CPUThread(self):
+        x = 0
+        while True:
+            x = x + 1
+
     @set_ev_cls(ofp_event.EventOFPPacketIn , MAIN_DISPATCHER)
     def packetIn_handler(self, ev):
         self.msg = ev.msg
@@ -103,4 +126,4 @@ class AppAgent(app_manager.RyuApp):
             self.callFlowTableClearance()
 
 if __name__ == "__main__":
-    a = AppAgent()
+    a = AppAgent13()

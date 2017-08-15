@@ -70,13 +70,6 @@ public class RyuHandler implements ControllerHandler {
             isRunning = true;
             log.info("Ryu is activated");
 
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
             Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep ryu-manager");
             String tempS;
 
