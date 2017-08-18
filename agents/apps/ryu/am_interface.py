@@ -68,6 +68,10 @@ class AMInterface:
                 self.appAgent.testFlowTableClearance()
             elif "3.1.090" in data:
                 self.appAgent.testEventListenerUnsubscription()
+            elif "3.1.110" in data:
+                self.appAgent.testMemoryExhaustion()
+            elif "3.1.120" in data:
+                self.appAgent.testCPUExhaustion()
             else:
                 print "AgentManager: " + data
         except:
