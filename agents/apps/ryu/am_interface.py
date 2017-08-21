@@ -46,21 +46,26 @@ class AMInterface:
             message = 'AppAgent'
             m = '\x00' + '\x08' + message
             self.logger.info("[AMInterface] Handshaking with AgentManager...")
-            sock.send(m)
+            self.writeUTF(sock, message)
+            #sock.send(m)
 
             # Receive OK Message (4bytes)
-            data = sock.recv(4)
+            #data = sock.recv(4)
+            data = self.readUTF(sock)
             self.logger.info("[AMInterface] Received from AgentManager: " + data)
 
             # Receive Code
             data = sock.recv(1024)
-
-            if "3.1.020" in data:
+            if "3.1.010" in data:
+                print "AgentManager: Fail"
+            elif "3.1.020" in data:
                 self.appAgent.testControlMessageDrop()
             elif "3.1.030" in data:
                 self.appAgent.testInfiniteLoops()
             elif "3.1.040" in data:
                 self.appAgent.testInternalStorageAbuse()
+            elif "3.1.060" in data:
+                print "AgentManager: Pass"
             elif "3.1.070" in data:
                 result = self.appAgent.testFlowRuleModification()
                 self.writeUTF(sock, result)
@@ -68,6 +73,8 @@ class AMInterface:
                 self.appAgent.testFlowTableClearance()
             elif "3.1.090" in data:
                 self.appAgent.testEventListenerUnsubscription()
+            elif "3.1.100" in data:
+                print "AgentManager: Pass"
             elif "3.1.110" in data:
                 self.appAgent.testMemoryExhaustion()
             elif "3.1.120" in data:
@@ -78,7 +85,12 @@ class AMInterface:
             e = sys.exc_info()[0]
             self.logger.info("[AMInterface] error: " + str(e))
 
-    #write string as utf format
+    # read string of utf format
+    def readUTF(self, sock):
+        msg = sock.recv(1024)
+        return msg[2:]
+
+    # write string as utf format
     def writeUTF(self, sock, msg):
         size = len(msg)
         sock.send(struct.pack("!H", size))
