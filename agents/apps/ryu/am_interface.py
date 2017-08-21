@@ -2,6 +2,7 @@ import socket
 from os.path import expanduser
 import sys
 import struct
+import binascii
 
 class AMInterface:
     def __init__(self, obj, logger):
@@ -47,48 +48,50 @@ class AMInterface:
             m = '\x00' + '\x08' + message
             self.logger.info("[AMInterface] Handshaking with AgentManager...")
             self.writeUTF(sock, message)
-            #sock.send(m)
 
-            # Receive OK Message (4bytes)
-            #data = sock.recv(4)
+            # Receive OK Message
             data = self.readUTF(sock)
             self.logger.info("[AMInterface] Received from AgentManager: " + data)
 
             # Receive Code
-            data = sock.recv(1024)
-            if "3.1.010" in data:
-                print "AgentManager: Fail"
-            elif "3.1.020" in data:
-                self.appAgent.testControlMessageDrop()
-            elif "3.1.030" in data:
-                self.appAgent.testInfiniteLoops()
-            elif "3.1.040" in data:
-                self.appAgent.testInternalStorageAbuse()
-            elif "3.1.060" in data:
-                print "AgentManager: Pass"
-            elif "3.1.070" in data:
-                result = self.appAgent.testFlowRuleModification()
-                self.writeUTF(sock, result)
-            elif "3.1.080" in data:
-                self.appAgent.testFlowTableClearance()
-            elif "3.1.090" in data:
-                self.appAgent.testEventListenerUnsubscription()
-            elif "3.1.100" in data:
-                print "AgentManager: Pass"
-            elif "3.1.110" in data:
-                self.appAgent.testMemoryExhaustion()
-            elif "3.1.120" in data:
-                self.appAgent.testCPUExhaustion()
-            else:
-                print "AgentManager: " + data
+            while True:
+                data = self.readUTF(sock)
+                self.logger.info("AgentManager: " + data)
+                if "3.1.010" in data:
+                    print "AgentManager: Fail"
+                elif "3.1.020" in data:
+                    self.appAgent.testControlMessageDrop()
+                elif "3.1.030" in data:
+                    self.appAgent.testInfiniteLoops()
+                elif "3.1.040" in data:
+                    self.appAgent.testInternalStorageAbuse()
+                elif "3.1.060" in data:
+                    print "AgentManager: Pass"
+                elif "3.1.070" in data:
+                    result = self.appAgent.testFlowRuleModification()
+                    self.writeUTF(sock, result)
+                elif "3.1.080" in data:
+                    self.appAgent.testFlowTableClearance()
+                elif "3.1.80" in data:
+                    if "false" in data:
+                        self.appAgent.callFlowTableClearance()
+                elif "3.1.090" in data:
+                    self.appAgent.testEventListenerUnsubscription()
+                elif "3.1.100" in data:
+                    print "AgentManager: Pass"
+                elif "3.1.110" in data:
+                    self.appAgent.testMemoryExhaustion()
+                elif "3.1.120" in data:
+                    self.appAgent.testCPUExhaustion()
         except:
             e = sys.exc_info()[0]
             self.logger.info("[AMInterface] error: " + str(e))
 
     # read string of utf format
     def readUTF(self, sock):
-        msg = sock.recv(1024)
-        return msg[2:]
+        size = struct.unpack("!H", sock.recv(2))[0]
+        msg = sock.recv(size)
+        return msg
 
     # write string as utf format
     def writeUTF(self, sock, msg):

