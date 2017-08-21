@@ -83,6 +83,8 @@ class AMInterface:
                     self.appAgent.testMemoryExhaustion()
                 elif "3.1.120" in data:
                     self.appAgent.testCPUExhaustion()
+                elif "3.1.190" in data:
+                    self.appAgent.testFlowRuleFlooding()
         except:
             e = sys.exc_info()[0]
             self.logger.info("[AMInterface] error: " + str(e))

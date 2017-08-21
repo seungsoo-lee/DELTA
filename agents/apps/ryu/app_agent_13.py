@@ -131,6 +131,17 @@ class AppAgent13(app_manager.RyuApp):
         while True:
             x = x + 1
 
+    # 3.1.190
+    def testFlowRuleFlooding(self):
+        for dp in self.dpset.dps.values():
+            count = 10
+            while count < 66535:
+                match = dp.ofproto_parser.OFPMatch(eth_dst=count)
+                flow_mod = dp.ofproto_parser.OFPFlowMod(datapath=dp,
+                                                        match=match)
+                dp.send_msg(flow_mod)
+                count = count + 1
+
     @set_ev_cls(ofp_event.EventOFPPacketIn , MAIN_DISPATCHER)
     def packetIn_handler(self, ev):
         self.msg = ev.msg
