@@ -2,7 +2,6 @@ import socket
 from os.path import expanduser
 import sys
 import struct
-import binascii
 
 class AMInterface:
     def __init__(self, obj, logger):
@@ -57,16 +56,12 @@ class AMInterface:
             while True:
                 data = self.readUTF(sock)
                 self.logger.info("AgentManager: " + data)
-                if "3.1.010" in data:
-                    print "AgentManager: Fail"
-                elif "3.1.020" in data:
+                if "3.1.020" in data:
                     self.appAgent.testControlMessageDrop()
                 elif "3.1.030" in data:
                     self.appAgent.testInfiniteLoops()
                 elif "3.1.040" in data:
                     self.appAgent.testInternalStorageAbuse()
-                elif "3.1.060" in data:
-                    print "AgentManager: Pass"
                 elif "3.1.070" in data:
                     result = self.appAgent.testFlowRuleModification()
                     self.writeUTF(sock, result)
@@ -78,13 +73,20 @@ class AMInterface:
                 elif "3.1.090" in data:
                     self.appAgent.testEventListenerUnsubscription()
                 elif "3.1.100" in data:
-                    print "AgentManager: Pass"
+                    result = self.appAgent.testApplicationEviction()
+                    self.writeUTF(sock, result)
                 elif "3.1.110" in data:
                     self.appAgent.testMemoryExhaustion()
                 elif "3.1.120" in data:
                     self.appAgent.testCPUExhaustion()
+                elif "3.1.130" in data:
+                    self.appAgent.testSystemVariableManipulation()
+                elif "3.1.140" in data:
+                    self.appAgent.testSystemCommandExecution()
                 elif "3.1.190" in data:
                     self.appAgent.testFlowRuleFlooding()
+                elif "3.1.200" in data:
+                    self.appAgent.testSwitchFirmwareMisuse()
         except:
             e = sys.exc_info()[0]
             self.logger.info("[AMInterface] error: " + str(e))

