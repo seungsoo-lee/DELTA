@@ -57,11 +57,13 @@ class AMInterface:
                 data = self.readUTF(sock)
                 self.logger.info("AgentManager: " + data)
                 if "3.1.020" in data:
-                    self.appAgent.testControlMessageDrop()
+                    result = self.appAgent.testControlMessageDrop()
+                    self.writeUTF(sock, result)
                 elif "3.1.030" in data:
                     self.appAgent.testInfiniteLoops()
                 elif "3.1.040" in data:
-                    self.appAgent.testInternalStorageAbuse()
+                    result = self.appAgent.testInternalStorageAbuse()
+                    self.writeUTF(sock, result)
                 elif "3.1.070" in data:
                     result = self.appAgent.testFlowRuleModification()
                     self.writeUTF(sock, result)
@@ -71,7 +73,8 @@ class AMInterface:
                     if "false" in data:
                         self.appAgent.callFlowTableClearance()
                 elif "3.1.090" in data:
-                    self.appAgent.testEventListenerUnsubscription()
+                    result = self.appAgent.testEventListenerUnsubscription()
+                    self.writeUTF(sock, result)
                 elif "3.1.100" in data:
                     result = self.appAgent.testApplicationEviction()
                     self.writeUTF(sock, result)
@@ -87,6 +90,8 @@ class AMInterface:
                     self.appAgent.testFlowRuleFlooding()
                 elif "3.1.200" in data:
                     self.appAgent.testSwitchFirmwareMisuse()
+                else:
+                    self.logger.info("[AMInterface] How to process " + data)
         except:
             e = sys.exc_info()[0]
             self.logger.info("[AMInterface] error: " + str(e))

