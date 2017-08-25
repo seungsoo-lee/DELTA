@@ -6,21 +6,35 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
 import org.deltaproject.channelagent.utils.Utils;
 import org.deltaproject.channelagent.fuzzing.SeedPackets;
+import com.google.common.primitives.Longs;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
-import org.projectfloodlight.openflow.protocol.*;
+import org.projectfloodlight.openflow.protocol.OFBarrierReply;
+import org.projectfloodlight.openflow.protocol.OFControllerRole;
+import org.projectfloodlight.openflow.protocol.OFEchoReply;
+import org.projectfloodlight.openflow.protocol.OFFactories;
+import org.projectfloodlight.openflow.protocol.OFFactory;
+import org.projectfloodlight.openflow.protocol.OFFeaturesReply;
+import org.projectfloodlight.openflow.protocol.OFFlowAdd;
+import org.projectfloodlight.openflow.protocol.OFFlowMod;
+import org.projectfloodlight.openflow.protocol.OFFlowModCommand;
+import org.projectfloodlight.openflow.protocol.OFFlowRemoved;
+import org.projectfloodlight.openflow.protocol.OFHello;
+import org.projectfloodlight.openflow.protocol.OFMessage;
+import org.projectfloodlight.openflow.protocol.OFMessageReader;
+import org.projectfloodlight.openflow.protocol.OFPortStatus;
+import org.projectfloodlight.openflow.protocol.OFRoleReply;
+import org.projectfloodlight.openflow.protocol.OFStatsRequest;
+import org.projectfloodlight.openflow.protocol.OFType;
+import org.projectfloodlight.openflow.protocol.OFVersion;
 import org.projectfloodlight.openflow.protocol.errormsg.OFErrorMsgs;
 import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.OFAuxId;
 import org.projectfloodlight.openflow.types.U16;
-
-import com.google.common.primitives.Longs;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.buffer.Unpooled;
 import org.projectfloodlight.openflow.types.U64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +44,7 @@ public class DummySwitch extends Thread {
 
     public static final int HANDSHAKE_DEFAULT = 0;
     public static final int HANDSHAKE_NO_HELLO = 1;
+    public static final int NO_HANDSHAKE = 2;
 
     public static final int MINIMUM_LENGTH = 8;
 
@@ -52,7 +67,8 @@ public class DummySwitch extends Thread {
 
     private int testHandShakeType;
 
-    private long requestXid = 0xeeeeeeeel;
+    private static final long DEFAULT_XID = 0xeeeeeeeel;
+    private long requestXid;
     private boolean handshaked = false;
     private boolean synack = false;
 
@@ -241,7 +257,9 @@ public class DummySwitch extends Thread {
     /* OF HandShake */
     public void sendHello(long xid) throws OFParseError {
         if (testHandShakeType == DummySwitch.HANDSHAKE_NO_HELLO) {
-            // this.sendFeatureReply(requestXid);
+            this.sendFeatureReply(requestXid);
+            return;
+        } else if (testHandShakeType == DummySwitch.NO_HANDSHAKE) {
             return;
         }
 
@@ -292,6 +310,7 @@ public class DummySwitch extends Thread {
             switch (req.getStatsType()) {
                 case PORT_DESC:
                     msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_PORT_DESC);
+
                     break;
                 case DESC:
                     msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_DESC);
@@ -304,6 +323,7 @@ public class DummySwitch extends Thread {
                     break;
                 case FLOW:
                     msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_FLOW);
+
                     break;
                 /* case AGGREGATE:
                     break;

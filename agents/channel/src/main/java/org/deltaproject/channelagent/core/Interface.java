@@ -278,6 +278,8 @@ public class Interface extends Thread {
                 if (recv.contains("startsw")) {
                     if (recv.contains("nohello")) {
                         testController.startSW(DummySwitch.HANDSHAKE_NO_HELLO);
+                    } else if (recv.contains("nohandshake")) {
+                        testController.startSW(DummySwitch.NO_HANDSHAKE);
                     } else {
                         testController.startSW(DummySwitch.HANDSHAKE_DEFAULT);
                     }

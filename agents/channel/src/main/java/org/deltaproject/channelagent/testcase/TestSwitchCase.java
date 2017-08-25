@@ -397,7 +397,8 @@ public class TestSwitchCase {
         log.info("[Channel Agent] " + test + " - Malformed Version Number");
 
         String result = "";
-        OFPortMod request = defaultFactory.buildPortMod().setXid(r_xid).setPortNo(OFPort.of(1)).setConfig(1).build();
+        OFPortMod request = defaultFactory.buildPortMod().setXid(r_xid).setPortNo(OFPort.of(1))
+                .setConfig(new HashSet<>(Arrays.asList(OFPortConfig.NO_STP))).build();
         ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
         request.writeTo(buf);
 

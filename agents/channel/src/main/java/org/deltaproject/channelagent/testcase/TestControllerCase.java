@@ -72,8 +72,10 @@ public class TestControllerCase {
     }
 
     public void stopSW() {
-        if (ofSwitch != null)
+        if (ofSwitch != null) {
             ofSwitch.interrupt();
+            ofSwitch = null;
+        }
 
         log.info("[Channel Agent] Stop Dummny Switch");
     }
@@ -85,6 +87,7 @@ public class TestControllerCase {
         log.info("[Channel Agent] Stop Sub Switch");
     }
 
+    // 2.1.010
     public String testMalformedVersionNumber(String code) {
         log.info("[Channel Agent] " + code + " - Malformed Version Number test");
 
@@ -133,6 +136,7 @@ public class TestControllerCase {
         return result;
     }
 
+    // 2.1.020
     public String testCorruptedControlMsgType(String code) {
         log.info("[Channel Agent] " + code + " - Corrupted Control Message Type test");
 
@@ -178,9 +182,11 @@ public class TestControllerCase {
         return result;
     }
 
+    // 2.1.030
     public String testHandShakeWithoutHello(String code) {
         log.info("[Channel Agent] " + code + " - Handshake without Hello Message test");
-        startSW(DummySwitch.HANDSHAKE_NO_HELLO);
+
+//        startSW(DummySwitch.HANDSHAKE_NO_HELLO);
 
         try {
             Thread.sleep(5000);
@@ -194,12 +200,15 @@ public class TestControllerCase {
             return "switchNotConnected";
     }
 
-    public String testControlMsgBeforeHello(String code) {
+    // 2.1.040
+    public String testControlMsgBeforeHello(String code) throws Exception {
         log.info("[Channel Agent] " + code + " - Control Message before Hello Message (Main Connection) test");
 
         String result = "Send a packet-in message before handshake";
         log.info("[Channel Agent] " + result);
         result = result + '\n';
+
+//        startSW(DummySwitch.NO_HANDSHAKE);
 
         byte[] msg;
         if (targetOFVersion == 4) {
@@ -230,6 +239,7 @@ public class TestControllerCase {
         return result;
     }
 
+    //2.1.050
     public String testMultipleMainConnectionReq(String code) {
         log.info("[Channel Agent] " + code + " - Multiple Main Connection Request test");
 
@@ -256,10 +266,11 @@ public class TestControllerCase {
         return "Start another dummy switch";
     }
 
+    //2.1.060
     public String testUnFlaggedFlowRemoveMsgNotification(String code) throws InterruptedException {
         log.info("[Channel Agent] " + code + " - no-flagged Flow Remove Message notification test");
 
-        String result = "Send a un-flagged flow remove msg";
+        String result = "Send an un-flagged flow remove msg";
         log.info("[Channel Agent] " + result);
         result = result + '\n';
 
@@ -278,7 +289,7 @@ public class TestControllerCase {
         OFFlowRemoved.Builder fm = ofSwitch.getFactory().buildFlowRemoved();
         fm.setMatch(fa.getMatch());
         fm.setXid(this.requestXid);
-        fm.setReason((short) 1);
+        fm.setReason(OFFlowRemovedReason.HARD_TIMEOUT);
 
         OFFlowRemoved msg = fm.build();
         ofSwitch.sendMsg(msg, -1);
