@@ -189,7 +189,7 @@ public class TestControllerCase {
         log.info(info);
 
         initController();
-        chm.write("2.1.030");
+        chm.write("2.1.030|nohello");
 
         log.info("Dummy switch dosen't send hello message");
 
@@ -228,7 +228,7 @@ public class TestControllerCase {
         initController();
 
         log.info("Dummy switch starts");
-        chm.write("startsw|nohello");
+        chm.write("startsw|nohandshake");
 
         if (chm.read().contains("switchok")) {
             try {
@@ -300,7 +300,7 @@ public class TestControllerCase {
      * 2.1.060 - Un-flagged Flow Remove Message Notification
      * Check if the controller accepts a flow remove message notification without requesting the delete event.
      */
-    public void testUnFlaggedFlowRemoveMsgNotification(TestCase test) throws InterruptedException {
+    public void testUnFlaggedFlowRemoveMsgNotification(TestCase test) {
         String info = test.getcasenum() + " - Un-flagged Flow Remove Message Notification - Test for controller protection against unacknowledged manipulation of the network";
         log.info(info);
 
@@ -309,14 +309,19 @@ public class TestControllerCase {
         log.info("Dummy switch starts");
         chm.write("startsw");
 
-        if (!chm.read().contains("switchok"))
+        if (!chm.read().contains("switchok")) {
+            log.info("Dummy switch did not start");
             return;
+        }
 
-        Thread.sleep(5000);
         am.write(test.getcasenum());
         log.info("App-agent sends msg " + am.read() + " with un-flagged removed");
 
-        Thread.sleep(2000);
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         chm.write(test.getcasenum());
 
         String response = chm.read();

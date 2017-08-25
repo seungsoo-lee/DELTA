@@ -107,9 +107,9 @@ public class TestCaseDirectory {
                 new TestCase(CONTROL_PLANE_OF, "2.1.040", "Control Message before Hello Message (Main Connection)",
                         "Test for controller protection against control communication prior to completed connection " +
                                 "establishment"));
-        /*directory.put("2.1.050",
-                new TestCase(CONTROL_PLANE_OF, "2.1.050", "Multiple main connection request from same switch", "Test
-                for controller protection against multiple control requests"));*/
+        directory.put("2.1.050",
+                new TestCase(CONTROL_PLANE_OF, "2.1.050", "Multiple main connection request from same switch", "Test " +
+                        "for controller protection against multiple control requests"));
         directory.put("2.1.060",
                 new TestCase(CONTROL_PLANE_OF, "2.1.060", "no-flagged Flow Remove Message notification", "Test for " +
                         "controller protection against unacknowledged manipulation of the network"));
