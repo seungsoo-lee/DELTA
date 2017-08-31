@@ -57,6 +57,7 @@ class AppAgent13(app_manager.RyuApp):
     # TODO: N/A
     def testInternalStorageAbuse(self):
         self.logger.info("[ATTACK] Start Internal Storage Abuse")
+        del self.dpset.dps
         return "[AppAgent] N/A"
 
     # 3.1.070
@@ -157,9 +158,14 @@ class AppAgent13(app_manager.RyuApp):
                 count = count + 1
 
     # 3.1.200
-    # TODO: N/A
+    # TODO: X, Ryu process to install rules with MAC address
     def testSwitchFirmwareMisuse(self):
-        return
+        self.logger.info("[ATTACK] Switch Firmware Misuse")
+        return "[AppAgent] X"
+
+    # 2.1.060
+    def testUnFlaggedFlowRemoveMsgNotification(self):
+        return "PASS"
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def packetIn_handler(self, ev):
@@ -169,8 +175,6 @@ class AppAgent13(app_manager.RyuApp):
             self.callControlMessageDrop()
         if self.clear:
             self.callFlowTableClearance()
-        #if self.abuse:
-            #self.callInternalStorageAbuse()
 
 if __name__ == "__main__":
     a = AppAgent13()

@@ -89,7 +89,11 @@ class AMInterface:
                 elif "3.1.190" in data:
                     self.appAgent.testFlowRuleFlooding()
                 elif "3.1.200" in data:
-                    self.appAgent.testSwitchFirmwareMisuse()
+                    result = self.appAgent.testSwitchFirmwareMisuse()
+                    self.writeUTF(sock, result)
+                elif "2.1.060" in data:
+                    result = self.appAgent.testUnFlaggedFlowRemoveMsgNotification()
+                    self.writeUTF(result)
                 else:
                     self.logger.info("[AMInterface] How to process " + data)
         except:
