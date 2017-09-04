@@ -6,14 +6,13 @@ import sys
 import threading
 import signal
 
-conn_list = []
+conn_list = {}
 
 def writeUTF(sock, msg):
     size = len(msg)
     sock.send(struct.pack("!H", size) + msg)
 
 def socket_handler(s):
-    i=1
     while True:
         conn, addr = s.accept()
         print '[Agent-Manager Tester] Connected by', addr
@@ -21,25 +20,24 @@ def socket_handler(s):
         print '[Agent-Manager Tester] Received: ', data
         writeUTF(conn, "OK")
         if "ChannelAgent" in data:
-            conn_list.insert(0, conn)
+            conn_list['c'] = conn
             cfg = 'config,version:1.3,nic:lo,port:6633,controller_ip:127.0.0.1,switch_ip:127.0.0.1,handler:dummy,cbench:/home/vagrant/oflops/cbench/'
             writeUTF(conn, cfg)
         elif "AppAgent" in data:
-            conn_list.insert(1, conn)
+            conn_list['a'] = conn
             print "[Agent-Manager Tester] AppAgent connected" 
-
-        i = i + 1
 
 def input_handler():
     while True:
         cmd = raw_input("Enter Attack Code: \n")
         print "cmd : ", cmd
         cmd_arr = cmd.split(" ")
-        thd_num = int(cmd_arr[0])
+        thd_num = cmd_arr[0]
         cmd_num = cmd_arr[1]
-        print str(thd_num)
+        print thd_num
         print cmd_num
         conn = conn_list[thd_num]
+        print conn
         writeUTF(conn, cmd_num)
         data = conn.recv(1024).decode('utf-8')
         print '[AgentManger Tester] Received: ', data
@@ -55,8 +53,6 @@ if __name__ == "__main__":
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind((HOST, PORT))
     s.listen(1)
-    conn_list = []
-
     threads = []
 
     handler_thd = threading.Thread(target=socket_handler, args=(s,))

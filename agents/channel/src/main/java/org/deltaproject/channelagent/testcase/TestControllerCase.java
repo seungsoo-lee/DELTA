@@ -290,6 +290,9 @@ public class TestControllerCase {
         fm.setMatch(fa.getMatch());
         fm.setXid(this.requestXid);
         fm.setReason(OFFlowRemovedReason.HARD_TIMEOUT);
+        fm.setCookie(fa.getCookie());
+        fm.setTableId(fa.getTableId());
+        fm.setPriority(fa.getPriority());
 
         OFFlowRemoved msg = fm.build();
         ofSwitch.sendMsg(msg, -1);

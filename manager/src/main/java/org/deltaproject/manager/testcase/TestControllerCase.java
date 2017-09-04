@@ -314,7 +314,8 @@ public class TestControllerCase {
             return;
         }
 
-        am.write(test.getcasenum());
+        am.write(test.getcasenum() + "|install");
+        long flowId = Integer.parseInt(am.read().split("\\|")[1]);
         log.info("App-agent sends msg " + am.read() + " with un-flagged removed");
 
         try {
@@ -323,7 +324,6 @@ public class TestControllerCase {
             e.printStackTrace();
         }
         chm.write(test.getcasenum());
-
         String response = chm.read();
 
         if (response.equals("nothing")) {
@@ -332,6 +332,9 @@ public class TestControllerCase {
 
             return;
         }
+
+        am.write(test.getcasenum() + "|check|" + flowId);
+        log.info("App-agent sends msg " + am.read() + " with un-flagged removed");
 
         String[] split = StringUtils.split(response, "\n");
         log.info(split[0]);

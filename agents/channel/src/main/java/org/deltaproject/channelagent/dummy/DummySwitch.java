@@ -6,6 +6,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.deltaproject.channelagent.utils.Utils;
 import org.deltaproject.channelagent.fuzzing.SeedPackets;
 import com.google.common.primitives.Longs;
@@ -23,15 +27,21 @@ import org.projectfloodlight.openflow.protocol.OFFlowAdd;
 import org.projectfloodlight.openflow.protocol.OFFlowMod;
 import org.projectfloodlight.openflow.protocol.OFFlowModCommand;
 import org.projectfloodlight.openflow.protocol.OFFlowRemoved;
+import org.projectfloodlight.openflow.protocol.OFFlowStatsEntry;
+import org.projectfloodlight.openflow.protocol.OFFlowStatsReply;
 import org.projectfloodlight.openflow.protocol.OFHello;
+import org.projectfloodlight.openflow.protocol.OFInstructionType;
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFMessageReader;
+import org.projectfloodlight.openflow.protocol.OFMeterFeatures;
+import org.projectfloodlight.openflow.protocol.OFMeterFeaturesStatsReply;
 import org.projectfloodlight.openflow.protocol.OFPortStatus;
 import org.projectfloodlight.openflow.protocol.OFRoleReply;
 import org.projectfloodlight.openflow.protocol.OFStatsRequest;
 import org.projectfloodlight.openflow.protocol.OFType;
 import org.projectfloodlight.openflow.protocol.OFVersion;
 import org.projectfloodlight.openflow.protocol.errormsg.OFErrorMsgs;
+import org.projectfloodlight.openflow.protocol.instruction.OFInstruction;
 import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.OFAuxId;
 import org.projectfloodlight.openflow.types.U16;
@@ -73,6 +83,8 @@ public class DummySwitch extends Thread {
     private boolean synack = false;
 
     private OFFlowAdd backupFlowAdd;
+
+    private ConcurrentHashMap<OFFlowStatsEntry, OFFlowStatsEntry> flowTable = new ConcurrentHashMap<>();
 
     public DummySwitch() {
         res = null;
@@ -310,7 +322,6 @@ public class DummySwitch extends Thread {
             switch (req.getStatsType()) {
                 case PORT_DESC:
                     msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_PORT_DESC);
-
                     break;
                 case DESC:
                     msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_DESC);
@@ -322,9 +333,28 @@ public class DummySwitch extends Thread {
                     msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_PORT_STATS);
                     break;
                 case FLOW:
-                    msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_FLOW);
+//                    msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_FLOW);
 
-                    break;
+
+                    synchronized (this) {
+                        OFFlowStatsReply replyMsg = factory.buildFlowStatsReply()
+                                .setXid(input.getXid())
+                                .setEntries(new ArrayList<>(flowTable.values()))
+                                .build();
+                        sendMsg(replyMsg, -1);
+                    }
+
+                    return;
+                case METER_FEATURES:
+
+                    OFMeterFeaturesStatsReply replyMsg = factory
+                            .buildMeterFeaturesStatsReply()
+                            .setXid(input.getXid())
+                            .setFeatures(factory.buildMeterFeatures().build())
+                            .build();
+                    sendMsg(replyMsg, -1);
+                    return;
+//                    break;
                 /* case AGGREGATE:
                     break;
                 case TABLE:
@@ -341,8 +371,7 @@ public class DummySwitch extends Thread {
                     break;
                 case METER_CONFIG:
                     break;
-                case METER_FEATURES:
-                    break;
+
                 case TABLE_FEATURES:
                     msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_FLOW);
                     break;
@@ -454,11 +483,14 @@ public class DummySwitch extends Thread {
                     printError(message);
                 } else if (message.getType() == OFType.FLOW_MOD) {
                     OFFlowMod fm = (OFFlowMod) message;
+
+                    processFlowMod(fm);
+
                     if (fm.getCommand() == OFFlowModCommand.ADD) {
                         OFFlowAdd fa = (OFFlowAdd) fm;
                         if (fa.getPriority() == 555) {
                             backupFlowAdd = fa;
-                            log.info("[Channel Agent] catch unflagged msg");
+                            log.info("[Channel Agent] catch un-flagged msg {}", fa.toString());
                         }
                     }
                 } else if (message.getType() == OFType.ROLE_REQUEST) {
@@ -480,6 +512,29 @@ public class DummySwitch extends Thread {
 
         bb.clear();
         return true;
+    }
+
+    //add flow stats entries
+    public synchronized void processFlowMod(OFFlowMod msg) {
+
+        ArrayList<OFInstruction> newInst = new ArrayList<>();
+        List<OFInstruction> instructions = msg.getInstructions();
+        for (OFInstruction inst : instructions) {
+            if (inst.getType() == OFInstructionType.APPLY_ACTIONS) {
+                newInst.add(inst);
+            }
+        }
+
+        OFFlowStatsEntry ofFlowStatsEntry = factory.buildFlowStatsEntry()
+                .setInstructions(newInst)
+                .setCookie(msg.getCookie())
+                .setFlags(msg.getFlags())
+                .setPriority(msg.getPriority())
+                .setTableId(msg.getTableId())
+                .setMatch(msg.getMatch())
+                .build();
+
+        flowTable.put(ofFlowStatsEntry, ofFlowStatsEntry);
     }
 
     @Override
