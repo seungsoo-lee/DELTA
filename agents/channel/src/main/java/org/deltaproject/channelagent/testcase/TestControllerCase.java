@@ -132,7 +132,7 @@ public class TestControllerCase {
         } else
             result += "Response is NULL (expected msg is ERR), FAIL";
 
-        stopSW();
+//        stopSW();
         return result;
     }
 
@@ -186,7 +186,7 @@ public class TestControllerCase {
     public String testHandShakeWithoutHello(String code) {
         log.info("[Channel Agent] " + code + " - Handshake without Hello Message test");
 
-//        startSW(DummySwitch.HANDSHAKE_NO_HELLO);
+        startSW(DummySwitch.HANDSHAKE_NO_HELLO);
 
         try {
             Thread.sleep(5000);
@@ -235,7 +235,7 @@ public class TestControllerCase {
         } else
             result += "Response is ignored, PASS";
 
-        stopSW();
+//        stopSW();
         return result;
     }
 
@@ -306,6 +306,7 @@ public class TestControllerCase {
         return result;
     }
 
+    //2.1.070
     public String testTLSSupport(String code) {
         log.info("Test TLS Support");
         try {

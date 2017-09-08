@@ -448,6 +448,12 @@ public class DummySwitch extends Thread {
                 return false;
             }
 
+            // version check
+            if (version != factory.getVersion().getWireVersion()) {
+                log.info("[Channel Agent] Received OF Version {} not matched with the dummy switch", version);
+                return false;
+            }
+
             bb.readByte();
             int length = U16.f(bb.readShort());
             bb.readerIndex(offset);
@@ -495,6 +501,11 @@ public class DummySwitch extends Thread {
                     }
                 } else if (message.getType() == OFType.ROLE_REQUEST) {
                     sendRoleRes(xid);
+                } else if (message.getType() == OFType.ECHO_REQUEST) {
+                    OFEchoReply ofEchoReply = factory.buildEchoReply()
+                            .setXid(xid)
+                            .build();
+                    sendMsg(ofEchoReply, -1);
                 }
 
                 if (xid == this.requestXid) {

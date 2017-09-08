@@ -144,6 +144,7 @@ public class HostAgentManager extends Thread {
     public void stopAgent() {
         try {
             if (dos != null) {
+                dos.writeUTF("close");
                 dos.close();
                 dos = null;
             }

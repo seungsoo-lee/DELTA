@@ -298,6 +298,7 @@ public class Interface extends Thread {
                         String res = testController.testMultipleMainConnectionReq(recv);
                         dos.writeUTF(res);
                     } else if (recv.equalsIgnoreCase("2.1.060")) {
+                        pktListener.startListening();
                         String res = testController.testUnFlaggedFlowRemoveMsgNotification(recv);
                         dos.writeUTF(res);
                     } else if (recv.contains("2.1.070")) {
