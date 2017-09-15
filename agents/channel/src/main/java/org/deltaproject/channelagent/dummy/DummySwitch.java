@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,6 +19,7 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.OFBarrierReply;
+import org.projectfloodlight.openflow.protocol.OFCapabilities;
 import org.projectfloodlight.openflow.protocol.OFControllerRole;
 import org.projectfloodlight.openflow.protocol.OFEchoReply;
 import org.projectfloodlight.openflow.protocol.OFFactories;
@@ -295,6 +297,9 @@ public class DummySwitch extends Thread {
         frb.setAuxiliaryId(OFAuxId.of((short) 0));
         frb.setReserved((long) 0);
         frb.setXid(xid);
+        HashSet<OFCapabilities> ofCapabilities = new HashSet<OFCapabilities>();
+        ofCapabilities.add(OFCapabilities.FLOW_STATS);
+        frb.setCapabilities(ofCapabilities);
 
         sendMsg(frb.build(), -1);
     }

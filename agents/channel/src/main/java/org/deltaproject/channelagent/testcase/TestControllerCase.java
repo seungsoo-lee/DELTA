@@ -103,8 +103,10 @@ public class TestControllerCase {
 
         byte[] msg;
         if (targetOFVersion == 4) {
-            msg = Utils.hexStringToByteArray(DummyOF13.PACKET_IN);
+            msg = Utils.hexStringToByteArray(DummyOF13.PORT_STATUS);
+//            msg = Utils.hexStringToByteArray(DummyOF13.PACKET_IN);
             msg[0] = (byte) 0x01;
+
             result = "Send Packet-In msg with OF version 1.0\n";
         } else {
             msg = Utils.hexStringToByteArray(DummyOF10.PACKET_IN);
@@ -288,7 +290,7 @@ public class TestControllerCase {
 
         OFFlowRemoved.Builder fm = ofSwitch.getFactory().buildFlowRemoved();
         fm.setMatch(fa.getMatch());
-        fm.setXid(this.requestXid);
+        fm.setXid(fa.getXid());
         fm.setReason(OFFlowRemovedReason.HARD_TIMEOUT);
         fm.setCookie(fa.getCookie());
         fm.setTableId(fa.getTableId());

@@ -252,12 +252,8 @@ public class AppAgent {
 
             Boolean result = true;
 
-            Iterator<FlowRule> itr = flowRulesById.iterator();
-
-            while (itr.hasNext()) {
-                FlowRule next = itr.next();
-
-                if (next.id().value() == ruleId) {
+            for (FlowRule rule : flowRulesById) {
+                if (rule.id().value() == ruleId) {
                     result = false;
                 }
             }
