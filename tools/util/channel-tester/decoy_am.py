@@ -5,6 +5,7 @@ import struct
 import sys
 import threading
 import signal
+import urwid
 
 conn_list = {}
 
@@ -29,19 +30,21 @@ def socket_handler(s):
 
 def input_handler():
     while True:
-        cmd = raw_input("Enter Attack Code: \n")
-        print "cmd : ", cmd
-        cmd_arr = cmd.split(" ")
-        thd_num = cmd_arr[0]
-        cmd_num = cmd_arr[1]
-        print thd_num
-        print cmd_num
-        conn = conn_list[thd_num]
-        print conn
-        writeUTF(conn, cmd_num)
-        data = conn.recv(1024).decode('utf-8')
-        print '[AgentManger Tester] Received: ', data
-
+        try:
+            cmd = raw_input("Enter Attack Code: \n")
+            print "cmd : ", cmd
+            cmd_arr = cmd.split(" ")
+            thd_num = cmd_arr[0]
+            cmd_num = cmd_arr[1]
+            print thd_num
+            print cmd_num
+            conn = conn_list[thd_num]
+            print conn
+            writeUTF(conn, cmd_num)
+            data = conn.recv(1024).decode('utf-8')
+            print '[AgentManger Tester] Received: ', data
+        except Exception as e:
+            print '[ERROR] not avialable input\n'
 
 def has_live_threads(threads):
     return True in [t.isAlive() for t in threads]
