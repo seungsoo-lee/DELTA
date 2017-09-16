@@ -1,22 +1,11 @@
 package org.deltaproject.channelagent.dummy;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.deltaproject.channelagent.utils.Utils;
-import org.deltaproject.channelagent.fuzzing.SeedPackets;
 import com.google.common.primitives.Longs;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import org.deltaproject.channelagent.fuzzing.SeedPackets;
+import org.deltaproject.channelagent.utils.Utils;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.OFBarrierReply;
 import org.projectfloodlight.openflow.protocol.OFCapabilities;
@@ -35,21 +24,44 @@ import org.projectfloodlight.openflow.protocol.OFHello;
 import org.projectfloodlight.openflow.protocol.OFInstructionType;
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFMessageReader;
-import org.projectfloodlight.openflow.protocol.OFMeterFeatures;
 import org.projectfloodlight.openflow.protocol.OFMeterFeaturesStatsReply;
 import org.projectfloodlight.openflow.protocol.OFPortStatus;
 import org.projectfloodlight.openflow.protocol.OFRoleReply;
+import org.projectfloodlight.openflow.protocol.OFStatsReply;
 import org.projectfloodlight.openflow.protocol.OFStatsRequest;
+import org.projectfloodlight.openflow.protocol.OFTableConfig;
+import org.projectfloodlight.openflow.protocol.OFTableFeatureProp;
+import org.projectfloodlight.openflow.protocol.OFTableFeaturePropApplyActions;
+import org.projectfloodlight.openflow.protocol.OFTableFeaturePropInstructions;
+import org.projectfloodlight.openflow.protocol.OFTableFeatures;
+import org.projectfloodlight.openflow.protocol.OFTableFeaturesStatsReply;
 import org.projectfloodlight.openflow.protocol.OFType;
 import org.projectfloodlight.openflow.protocol.OFVersion;
+import org.projectfloodlight.openflow.protocol.actionid.OFActionId;
 import org.projectfloodlight.openflow.protocol.errormsg.OFErrorMsgs;
 import org.projectfloodlight.openflow.protocol.instruction.OFInstruction;
+import org.projectfloodlight.openflow.protocol.instructionid.OFInstructionId;
+import org.projectfloodlight.openflow.protocol.instructionid.OFInstructionIdApplyActions;
 import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.OFAuxId;
+import org.projectfloodlight.openflow.types.TableId;
 import org.projectfloodlight.openflow.types.U16;
 import org.projectfloodlight.openflow.types.U64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DummySwitch extends Thread {
     private static final Logger log = LoggerFactory.getLogger(DummySwitch.class);
@@ -57,7 +69,6 @@ public class DummySwitch extends Thread {
     public static final int HANDSHAKE_DEFAULT = 0;
     public static final int HANDSHAKE_NO_HELLO = 1;
     public static final int NO_HANDSHAKE = 2;
-
     public static final int MINIMUM_LENGTH = 8;
 
     private Socket socket;
@@ -70,13 +81,9 @@ public class DummySwitch extends Thread {
 
     /* for OF message */
     private OFFactory factory;
-
     private OFMessageReader<OFMessage> reader;
-
     private SeedPackets seedpkts;
-
     private OFMessage res;
-
     private int testHandShakeType;
 
     private static final long DEFAULT_XID = 0xeeeeeeeel;
@@ -85,7 +92,6 @@ public class DummySwitch extends Thread {
     private boolean synack = false;
 
     private OFFlowAdd backupFlowAdd;
-
     private ConcurrentHashMap<OFFlowStatsEntry, OFFlowStatsEntry> flowTable = new ConcurrentHashMap<>();
 
     public DummySwitch() {
@@ -321,6 +327,7 @@ public class DummySwitch extends Thread {
 
     public void sendStatReply(OFMessage input, long xid) {
         byte[] msg;
+        OFStatsReply replyMsg = null;
 
         if (factory.getVersion() == OFVersion.OF_13) {
             OFStatsRequest req = (OFStatsRequest) input;
@@ -338,28 +345,55 @@ public class DummySwitch extends Thread {
                     msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_PORT_STATS);
                     break;
                 case FLOW:
-//                    msg = Utils.hexStringToByteArray(DummyOF13.MULTIPART_FLOW);
-
-
                     synchronized (this) {
-                        OFFlowStatsReply replyMsg = factory.buildFlowStatsReply()
+                        replyMsg = factory.buildFlowStatsReply()
                                 .setXid(input.getXid())
                                 .setEntries(new ArrayList<>(flowTable.values()))
                                 .build();
                         sendMsg(replyMsg, -1);
                     }
-
                     return;
                 case METER_FEATURES:
-
-                    OFMeterFeaturesStatsReply replyMsg = factory
+                    replyMsg = factory
                             .buildMeterFeaturesStatsReply()
                             .setXid(input.getXid())
                             .setFeatures(factory.buildMeterFeatures().build())
                             .build();
                     sendMsg(replyMsg, -1);
                     return;
-//                    break;
+                case TABLE_FEATURES:
+
+                    List<OFInstructionId> ofInstructionIds = Arrays.asList(
+                            factory.instructionIds().applyActions(), factory.instructionIds().clearActions()
+                    );
+                    OFTableFeatureProp ofTableFeaturePropInstructions = factory.buildTableFeaturePropInstructions()
+                            .setInstructionIds(ofInstructionIds)
+                            .build();
+
+                    List<OFActionId> ofActionsIds = Arrays.asList(
+                            factory.actionIds().setField(), factory.actionIds().setNwTtl()
+                    );
+                    OFTableFeatureProp ofTableFeaturePropApplyActionsMiss = factory.buildTableFeaturePropApplyActionsMiss()
+                            .setActionIds(ofActionsIds)
+                            .build();
+
+                    OFTableFeatures ofTableFeatures = factory.buildTableFeatures()
+                            .setMetadataMatch(U64.NO_MASK)
+                            .setMetadataWrite(U64.NO_MASK)
+                            .setMaxEntries(1000000)
+                            .setTableId(TableId.ZERO)
+                            .setProperties(Arrays.asList(ofTableFeaturePropInstructions, ofTableFeaturePropApplyActionsMiss))
+                            .build();
+
+                    replyMsg = factory
+                            .buildTableFeaturesStatsReply()
+                            .setXid(input.getXid())
+                            .setEntries(Arrays.asList(factory.buildTableFeatures().build()))
+                            .setEntries(Arrays.asList(ofTableFeatures))
+                            .build();
+                    sendMsg(replyMsg, -1);
+
+                    return;
                 /* case AGGREGATE:
                     break;
                 case TABLE:
@@ -375,10 +409,6 @@ public class DummySwitch extends Thread {
                 case GROUP_FEATURES:
                     break;
                 case METER_CONFIG:
-                    break;
-
-                case TABLE_FEATURES:
-                    msg = Utils.hexStringToByteArray(DMDataOF13.MULTIPART_FLOW);
                     break;
                 case TABLE_DESC:
                     break;
@@ -399,7 +429,7 @@ public class DummySwitch extends Thread {
         sendRawMsg(msg);
     }
 
-    public void sendRoleRes(long xid) {
+    private void sendRoleRes(long xid) {
         OFRoleReply.Builder builder = factory.buildRoleReply();
         builder.setXid(xid);
         builder.setGenerationId(U64.of(0));
@@ -409,21 +439,21 @@ public class DummySwitch extends Thread {
         sendMsg(msg, -1);
     }
 
-    public void sendBarrierRes(long xid) {
+    private void sendBarrierRes(long xid) {
         OFBarrierReply.Builder builder = factory.buildBarrierReply();
         builder.setXid(xid);
         OFBarrierReply msg = builder.build();
         sendMsg(msg, 8);
     }
 
-    public void sendEchoReply(long xid) {
+    private void sendEchoReply(long xid) {
         OFEchoReply.Builder builder = factory.buildEchoReply();
         builder.setXid(xid);
         OFEchoReply msg = builder.build();
         sendMsg(msg, 8);
     }
 
-    public void sendExperimenter(long xid) {
+    private void sendExperimenter(long xid) {
         byte[] msg = DummyOF10.hexStringToByteArray(DummyOF10.experimenter);
         byte[] xidbytes = Longs.toByteArray(xid);
         System.arraycopy(xidbytes, 4, msg, 4, 4);
@@ -434,7 +464,7 @@ public class DummySwitch extends Thread {
         sendRawMsg(msg);
     }
 
-    public boolean parseOFMsg(byte[] recv, int len) throws OFParseError {
+    private boolean parseOFMsg(byte[] recv, int len) throws OFParseError {
         // for OpenFlow Message
         byte[] rawMsg = new byte[len];
         System.arraycopy(recv, 0, rawMsg, 0, len);
@@ -531,7 +561,7 @@ public class DummySwitch extends Thread {
     }
 
     //add flow stats entries
-    public synchronized void processFlowMod(OFFlowMod msg) {
+    private synchronized void processFlowMod(OFFlowMod msg) {
 
         ArrayList<OFInstruction> newInst = new ArrayList<>();
         List<OFInstruction> instructions = msg.getInstructions();

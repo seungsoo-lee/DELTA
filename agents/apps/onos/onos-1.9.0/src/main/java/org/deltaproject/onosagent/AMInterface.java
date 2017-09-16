@@ -176,7 +176,6 @@ public class AMInterface extends Thread {
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
         String recv = "";
 
         while (true) {
@@ -185,7 +184,6 @@ public class AMInterface extends Thread {
                 this.connectServer("AppAgent");
                 while (true) {
                     recv = dis.readUTF();
-                    // reads characters encoded with modified UTF-8
                     log.info("[App-Agent] Received " + recv);
                     if (recv.contains("umode")) {
                         findingUnkwonAttack(recv);
@@ -217,7 +215,7 @@ public class AMInterface extends Thread {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.error(e.toString());
             }
         }
     }
