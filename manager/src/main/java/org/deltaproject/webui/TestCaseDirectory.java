@@ -144,9 +144,9 @@ public class TestCaseDirectory {
         directory.put("3.1.040",
                 new TestCase(ADVANCED, "3.1.040", "Internal Storage Abuse", "Test for controller protection against " +
                         "application manipulating network information base"));
-        /* directory.put("3.1.050",
-                new TestCase(ADVANCED, "3.1.050", "Switch Table Flooding", "Test for switch protection against switch
-                 table flooding")); */
+        directory.put("3.1.050",
+                new TestCase(ADVANCED, "3.1.050", "Switch Table Flooding", "Test for switch protection against switch " +
+                        "table flooding"));
         directory.put("3.1.060",
                 new TestCase(ADVANCED, "3.1.060", "Switch ID spoofing", "Test for switch protection against ID " +
                         "spoofing"));

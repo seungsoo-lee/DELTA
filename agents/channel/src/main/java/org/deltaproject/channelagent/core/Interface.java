@@ -350,9 +350,7 @@ public class Interface extends Thread {
                         dos.writeUTF("success");
                     } else if (recv.equalsIgnoreCase("3.1.050")) { // Switch Table
                         // Flooding
-
-                        Thread.sleep(15000);
-
+                        testController.testSwitchTableFlooding();
                         dos.writeUTF("success");
                     } else if (recv.equalsIgnoreCase("3.1.060")) {
                         log.info("[Channel Agent] Switch Identification Spoofing Test");

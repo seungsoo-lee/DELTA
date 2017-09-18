@@ -50,6 +50,7 @@ import org.projectfloodlight.openflow.types.U64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.crypto.Data;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,15 +88,23 @@ public class DummySwitch extends Thread {
     private int testHandShakeType;
 
     private static final long DEFAULT_XID = 0xeeeeeeeel;
+    private static final DatapathId DEFAULT_DPID = DatapathId.of((long) 1);
     private long requestXid;
     private boolean handshaked = false;
     private boolean synack = false;
+    private DatapathId dpid;
 
     private OFFlowAdd backupFlowAdd;
     private ConcurrentHashMap<OFFlowStatsEntry, OFFlowStatsEntry> flowTable = new ConcurrentHashMap<>();
 
     public DummySwitch() {
-        res = null;
+        this.res = null;
+        this.dpid = DEFAULT_DPID;
+    }
+
+    public DummySwitch(DatapathId dpid) {
+        this.res = null;
+        this.dpid = dpid;
     }
 
     public void setTestHandShakeType(int type) {
@@ -275,29 +284,34 @@ public class DummySwitch extends Thread {
 
 
     /* OF HandShake */
-    public void sendHello(long xid) throws OFParseError {
-        if (testHandShakeType == DummySwitch.HANDSHAKE_NO_HELLO) {
-            this.sendFeatureReply(requestXid);
-            return;
-        } else if (testHandShakeType == DummySwitch.NO_HANDSHAKE) {
-            return;
+    public void sendHello(long xid){
+
+        try {
+            if (testHandShakeType == DummySwitch.HANDSHAKE_NO_HELLO) {
+                this.sendFeatureReply(requestXid);
+                return;
+            } else if (testHandShakeType == DummySwitch.NO_HANDSHAKE) {
+                return;
+            }
+
+            if (factory.getVersion() == OFVersion.OF_13) {
+                byte[] msg = Utils.hexStringToByteArray(DummyOF13.HELLO);
+                sendRawMsg(msg);
+                return;
+            }
+
+            OFHello.Builder builder = factory.buildHello();
+            builder.setXid(0xb0);
+
+            sendMsg(builder.build(), -1);
+        } catch (OFParseError e) {
+            log.error(e.toString());
         }
-
-        if (factory.getVersion() == OFVersion.OF_13) {
-            byte[] msg = Utils.hexStringToByteArray(DummyOF13.HELLO);
-            sendRawMsg(msg);
-            return;
-        }
-
-        OFHello.Builder builder = factory.buildHello();
-        builder.setXid(0xb0);
-
-        sendMsg(builder.build(), -1);
     }
 
     public void sendFeatureReply(long xid) throws OFParseError {
         OFFeaturesReply.Builder frb = factory.buildFeaturesReply();
-        frb.setDatapathId(DatapathId.of((long) 1));
+        frb.setDatapathId(this.dpid);
         frb.setNBuffers((long) 256);
         frb.setNTables((short) 254);
         frb.setAuxiliaryId(OFAuxId.of((short) 0));

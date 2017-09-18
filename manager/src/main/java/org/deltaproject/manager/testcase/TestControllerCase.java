@@ -227,19 +227,7 @@ public class TestControllerCase {
 
         initController();
 
-        log.info("Dummy switch starts");
-        chm.write("startsw|nohandshake");
-
-        if (chm.read().contains("switchok")) {
-            try {
-                Thread.sleep(DEFAULT_TIMEOUT);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            chm.write(test.getcasenum());
-        }
+        chm.write(test.getcasenum());
 
         String response = chm.read();
 

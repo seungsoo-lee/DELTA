@@ -85,7 +85,7 @@ public class TestAdvancedCase {
                 testInternalStorageAbuse(test);
                 break;
             case "3.1.050":
-                // testSwitchTableFlooding(test);
+                 testSwitchTableFlooding(test);
                 return;
             case "3.1.060":
                 runRemoteAgents(true, true);
@@ -345,7 +345,7 @@ public class TestAdvancedCase {
      * 3.1.050 - Switch Table Flooding
      */
     public boolean testSwitchTableFlooding(TestCase test) {
-        //log.info(test.getcasenum() + " - Device Inventory Table Flooding - Test for controller protection against device inventory table flooding");
+        log.info(test.getcasenum() + " - Device Inventory Table Flooding - Test for controller protection against device inventory table flooding");
 
 		/* step 2: conduct the attack */
         log.info("Channel-Agent starts");

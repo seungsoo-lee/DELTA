@@ -7,6 +7,7 @@ import org.deltaproject.channelagent.dummy.DummyOF13;
 import org.deltaproject.channelagent.dummy.DummySwitch;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.*;
+import org.projectfloodlight.openflow.types.DatapathId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +49,7 @@ public class TestControllerCase {
         ofSwitch.setTestHandShakeType(type);
         ofSwitch.setOFFactory(targetOFVersion);
         ofSwitch.connectTargetController(targetIP, targetPORT);
-
-        try {
-            ofSwitch.sendHello(0);
-        } catch (OFParseError ofParseError) {
-            ofParseError.printStackTrace();
-        }
-
+        ofSwitch.sendHello(0);
         ofSwitch.start();
 
         if (type == DummySwitch.HANDSHAKE_DEFAULT) {
@@ -210,7 +205,7 @@ public class TestControllerCase {
         log.info("[Channel Agent] " + result);
         result = result + '\n';
 
-//        startSW(DummySwitch.NO_HANDSHAKE);
+        startSW(DummySwitch.NO_HANDSHAKE);
 
         byte[] msg;
         if (targetOFVersion == 4) {
@@ -258,11 +253,7 @@ public class TestControllerCase {
         temp.setTestHandShakeType(DummySwitch.HANDSHAKE_DEFAULT);
         temp.setOFFactory(targetOFVersion);
         temp.connectTargetController(targetIP, targetPORT);
-        try {
-            temp.sendHello(0);
-        } catch (OFParseError ofParseError) {
-            ofParseError.printStackTrace();
-        }
+        temp.sendHello(0);
         temp.start();
 
         return "Start another dummy switch";
@@ -310,7 +301,7 @@ public class TestControllerCase {
 
     //2.1.070
     public String testTLSSupport(String code) {
-        log.info("Test TLS Support");
+        log.info("[Channel Agent] " + code + " - Test TLS Support");
         try {
             proc = Runtime.getRuntime().exec("python $HOME/test-controller-topo.py " + targetIP + " " + targetPORT);
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
@@ -332,6 +323,28 @@ public class TestControllerCase {
             Runtime.getRuntime().exec("sudo kill -9 " + this.pid);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    //3.1.050
+    public void testSwitchTableFlooding() {
+
+        for (int i=1; i < Integer.MAX_VALUE ; i++) {
+            DummySwitch dummySwitch = new DummySwitch(DatapathId.of(i));
+            dummySwitch.setTestHandShakeType(DummySwitch.HANDSHAKE_DEFAULT);
+            dummySwitch.setOFFactory(targetOFVersion);
+            dummySwitch.connectTargetController(targetIP, targetPORT);
+            dummySwitch.sendHello(requestXid);
+            dummySwitch.start();
+
+            while (!dummySwitch.getHandshaked()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    log.error(e.toString());
+                }
+            }
+            dummySwitch.interrupt();
         }
     }
 }
