@@ -1,5 +1,7 @@
 package org.deltaproject.channelagent.testcase;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.deltaproject.channelagent.dummy.DummyController;
@@ -13,6 +15,7 @@ import org.projectfloodlight.openflow.protocol.instruction.OFInstructionApplyAct
 import org.projectfloodlight.openflow.protocol.instruction.OFInstructionGotoTable;
 import org.projectfloodlight.openflow.protocol.match.Match;
 import org.projectfloodlight.openflow.protocol.match.MatchField;
+import org.projectfloodlight.openflow.protocol.meterband.OFMeterBand;
 import org.projectfloodlight.openflow.types.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -232,11 +235,17 @@ public class TestSwitchCase {
 
         String result = "";
 
-        OFMeterMod.Builder mmb = defaultFactory.buildMeterMod();
-        mmb.setXid(this.r_xid);
-        mmb.setMeterId(0xFFFFFFFFl);
+        OFMeterBand ofMeterBand = defaultFactory.meterBands().buildDrop().build();
 
-        OFMeterMod request = mmb.build();
+        OFMeterMod request = defaultFactory.buildMeterMod()
+                .setXid(this.r_xid)
+//                .setMeterId(0xFFFFFFFFl)
+                .setMeterId(0x1)
+                .setCommand(OFMeterModCommand.ADD)
+                .setFlags(Sets.newHashSet(OFMeterFlags.KBPS))
+                .setMeters(Arrays.asList(ofMeterBand))
+                .build();
+
 
         log.info("[Channel Agent] Send msg: " + request.toString());
         dummyController.sendMsg(request, -1);
@@ -587,7 +596,10 @@ public class TestSwitchCase {
      * 1.1.120 - Disabled Table Features Request (>=OF 1.3)
      */
     public String testDisabledTableFeatureRequest(String test) throws InterruptedException {
+
         log.info("[Channel Agent] " + test + " - Disabled Table Features Request");
+
+
 
         OFTableFeaturesStatsRequest.Builder table = defaultFactory.buildTableFeaturesStatsRequest();
         table.setXid(r_xid);
@@ -597,7 +609,25 @@ public class TestSwitchCase {
 
         Thread.sleep(2000);
 
-        OFMessage response = dummyController.getResponse();
+        ArrayList<OFTableFeaturePropType> receivedList = new ArrayList();
+
+        OFTableFeaturesStatsReply response = (OFTableFeaturesStatsReply) dummyController.getResponse();
+        OFTableFeatures ofTableFeatures = response.getEntries().get(0);
+        for (OFTableFeatureProp oFTableFeatureProp : ofTableFeatures.getProperties()) {
+            int type = oFTableFeatureProp.getType();
+            OFTableFeaturePropType ofTableFeaturePropType = OFTableFeaturePropType.values()[type];
+            receivedList.add(ofTableFeaturePropType);
+        }
+
+        OFTableFeaturePropType seletedType = null;
+        List<OFTableFeaturePropType> originalList = Arrays.asList(OFTableFeaturePropType.values());
+        for (OFTableFeaturePropType type : originalList) {
+            if (!receivedList.contains(type)) {
+                seletedType = type;
+                break;
+            }
+        }
+
         log.info("[Channel Agent] Send msg :" + request.toString());
 
         String result = "";

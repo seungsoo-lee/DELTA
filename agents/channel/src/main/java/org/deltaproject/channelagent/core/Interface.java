@@ -421,7 +421,7 @@ public class Interface extends Thread {
                 log.error("[Channel-Agent] Agent Manager is not listening");
             } catch (Exception e) {
                 // if any error occurs
-                log.error(e.toString());
+                log.error(String.valueOf(e));
             } finally {
 
                 try {
