@@ -119,8 +119,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
-
         return result;
     }
 
@@ -177,8 +175,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
-
         return result;
     }
 
@@ -225,8 +221,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
-
         return result;
     }
 
@@ -257,8 +251,6 @@ public class TestSwitchCase {
         } else {
             result += "\nnull";
         }
-
-        stopDummyController();
 
         return result;
     }
@@ -317,8 +309,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
-
         return result;
     }
 
@@ -361,8 +351,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
-
         return result;
     }
 
@@ -386,7 +374,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
         return result;
     }
 
@@ -428,7 +415,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
         return result;
     }
 
@@ -486,7 +472,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
         return result;
     }
 
@@ -537,7 +522,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
         return result;
     }
 
@@ -596,7 +580,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
         return result;
     }
 
@@ -625,7 +608,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
         return result;
     }
 
@@ -648,7 +630,6 @@ public class TestSwitchCase {
             result = "Handshake is completed";
         }
 
-        stopDummyController();
         return result;
     }
 
@@ -679,7 +660,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
         return result;
     }
 
@@ -709,7 +689,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
         return result;
     }
 
@@ -760,7 +739,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
         return result;
     }
 
@@ -813,7 +791,6 @@ public class TestSwitchCase {
             result += "\nnull";
         }
 
-        stopDummyController();
         return result;
     }
 }
