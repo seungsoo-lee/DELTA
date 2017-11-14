@@ -76,7 +76,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
 
     @Override
     public void close() {
-        LOG.info("[DELTA] close() passing");
+        LOG.info("[App-Agent] close() passing");
         if (appAgent != null) {
             appAgent.stop();
         }
@@ -99,13 +99,13 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
      * 3.1.090: Event Listener Unsubscription
      */
     public String testEventListenerUnsubscription(String target) {
-        LOG.info("[DELTA] Event Listener Unsubscription attack");
+        LOG.info("[App-Agent] Event Listener Unsubscription attack");
 
         Bundle[] blist = getBundleContext().getBundles();
         boolean isUnreg = false;
 
         if (blist == null) {
-            LOG.info("[DELTA] bundle list is NULL");
+            LOG.info("[App-Agent] bundle list is NULL");
             return "null";
         }
 
@@ -115,7 +115,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
             if (serviceReferences != null) {
                 for (ServiceReference sr : serviceReferences) {
                     if (sr.toString().contains(target)) {
-                        LOG.info("[DELTA] unget service " + b.getSymbolicName() + ":" + sr.toString());
+                        LOG.info("[App-Agent] unget service " + b.getSymbolicName() + ":" + sr.toString());
                         if (b.getBundleContext().ungetService(sr)) {
                             isUnreg = true;
                         }
@@ -134,19 +134,42 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
      * 3.1.100: Application Eviction
      */
     public String testApplicationEviction(String target) {
-        LOG.info("[DELTA] Application Eviction attack");
+        if (target.contains("restore")) {
+            Bundle[] blist = getBundleContext().getBundles();
+            boolean restart = false;
+
+            if (blist == null) {
+                System.out.println("DELTA bundle list is NULL");
+                return "null";
+            }
+
+            for (Bundle b : blist) {
+                if (b.getSymbolicName().contains("l2switch")) {
+
+                    try {
+                        b.start();
+                    } catch (BundleException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+            return "OK";
+        }
+
+        System.out.println("[App-Agent] Application Eviction attack");
 
         Bundle[] blist = getBundleContext().getBundles();
         boolean isStopped = false;
 
         if (blist == null) {
-            LOG.info("DELTA blist is NULL");
+            System.out.println("DELTA bundle list is NULL");
             return "null";
         }
 
         for (Bundle b : blist) {
             if (b.getSymbolicName().contains(target)) {
-                LOG.info("[DELTA] stop - " + b.getSymbolicName());
+                System.out.println("[App-Agent] Stop - " + b.getSymbolicName());
 
                 try {
                     b.stop();

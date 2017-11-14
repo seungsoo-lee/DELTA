@@ -61,20 +61,42 @@ public class HostAgentManager extends Thread {
         return "false";
     }
 
-    public boolean runAgent() {
-        String amAddr = cfg.getAMIP() + " " + cfg.getAMPort();
-        String controllerAddr = cfg.getControllerIP() + " " + cfg.getOFPort();
+    public boolean runAgent(String topologyFile) {
         String version;
 
-        if (cfg.getOFVer().equals("1.0")) {
+        if (cfg.getOF_VERSION().equals("1.0")) {
             version = "OpenFlow10";
         } else {
             version = "OpenFlow13";
         }
 
         try {
-            String[] cmdArray = {"ssh", cfg.getHostSSH(), "sudo", "python", "test-advanced-topo.py",
-                    cfg.getControllerIP(), cfg.getOFPort(), cfg.getAMIP(), cfg.getAMPort(), version};
+
+            String[] cmdArray = null;
+
+            // in the case of all-in-one setting
+            if (cfg.getTopologyType().equals("VM")) {
+                switch (topologyFile) {
+                    case "test-fuzzing-topo.py":
+                    case "test-advanced-topo.py":
+                        cmdArray = new String[]{"ssh", cfg.getHOST_SSH(), "sudo", "python", topologyFile,
+                                cfg.getCONTROLLER_IP(), cfg.getOF_PORT(), cfg.getAM_IP(), cfg.getAM_PORT(), version};
+                        break;
+                    case "test-switch-topo.py":
+                        cmdArray = new String[]{"ssh", cfg.getHOST_SSH(), "sudo", "python", topologyFile,
+                                cfg.getDUMMY_CONT_IP(), cfg.getDUMMY_CONT_PORT(), version};
+                        break;
+                    case "test-controller-topo.py":
+                        cmdArray = new String[]{"ssh", cfg.getHOST_SSH(), "sudo", "python", topologyFile,
+                                cfg.getCONTROLLER_IP(), cfg.getOF_PORT()};
+                        break;
+                }
+
+                // in the case of hardware setting
+            } else if (cfg.getTopologyType().equals("HW")) {
+                cmdArray = new String[]{"ssh", cfg.getHOST_SSH(), "java", "-jar", "delta-agent-host-1.0-SNAPSHOT.jar", cfg.getAM_IP(),
+                        cfg.getAM_PORT()};
+            }
 
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
             pb.redirectErrorStream(true);
@@ -95,33 +117,34 @@ public class HostAgentManager extends Thread {
         return true;
     }
 
-    public boolean runFuzzingTopo() {
-        String amAddr = cfg.getAMIP() + " " + cfg.getAMPort();
-        String controllerAddr = cfg.getControllerIP() + " " + cfg.getOFPort();
-        String version;
-
-        if (cfg.getOFVer().equals("1.0")) {
-            version = "OpenFlow10";
-        } else {
-            version = "OpenFlow13";
-        }
-
-        try {
-            proc = Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + " sudo python test-fuzzing-topo.py " + controllerAddr + " " + amAddr + " " + version);
-            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
-            pidField.setAccessible(true);
-            Object value = pidField.get(proc);
-            this.procPID = (Integer) value;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return true;
-    }
+//    public boolean runFuzzingTopo() {
+//        String amAddr = cfg.getAMIP() + " " + cfg.getAMPort();
+//        String controllerAddr = cfg.getControllerIP() + " " + cfg.getOFPort();
+//        String version;
+//
+//        if (cfg.getOFVer().equals("1.0")) {
+//            version = "OpenFlow10";
+//        } else {
+//            version = "OpenFlow13";
+//        }
+//
+//        try {
+//            proc = Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + " sudo python test-fuzzing-topo.py " + controllerAddr + " " + amAddr + " " + version);
+//            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
+//            pidField.setAccessible(true);
+//            Object value = pidField.get(proc);
+//            this.procPID = (Integer) value;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        return true;
+//    }
 
     public void stopAgent() {
         try {
             if (dos != null) {
+                dos.writeUTF("close");
                 dos.close();
                 dos = null;
             }
@@ -139,10 +162,11 @@ public class HostAgentManager extends Thread {
 
         if (procPID != -1)
             try {
-                Runtime.getRuntime().exec("ssh " + cfg.getHostSSH() + " sudo arp -d " + cfg.getControllerIP());
-                proc = Runtime.getRuntime().exec("sudo kill -9 " + this.procPID);
-                proc.waitFor();
-                procPID = -1;
+
+                if (cfg.getTopologyType().equals("VM")) {
+                    Runtime.getRuntime().exec("ssh " + cfg.getHOST_SSH() + " sudo mn -c");
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

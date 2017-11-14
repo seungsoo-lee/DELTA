@@ -1,8 +1,8 @@
-package org.deltaproject.manager.target;
+package org.deltaproject.manager.handler;
 
 import java.io.BufferedReader;
 
-public interface TargetController {
+public interface ControllerHandler {
     boolean createController();
 
     Process getProc();

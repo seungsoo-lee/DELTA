@@ -1,13 +1,15 @@
-package org.deltaproject.manager.target;
+package org.deltaproject.manager.handler;
 
 import org.apache.commons.lang3.StringUtils;
-import org.deltaproject.manager.core.Configuration;
+import org.deltaproject.manager.utils.AgentLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Field;
 
-public class Floodlight implements TargetController {
-    private Process process = null;
+public class FloodlightHandler implements ControllerHandler {
+    private Process proc = null;
     private boolean isRunning = false;
 
     public String version = "";
@@ -18,8 +20,11 @@ public class Floodlight implements TargetController {
 
     private BufferedWriter stdIn;
     private BufferedReader stdOut;
+    private Thread loggerThd;
 
-    public Floodlight(String controllerPath, String version, String ssh) {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    public FloodlightHandler(String controllerPath, String version, String ssh) {
         this.controllerPath = controllerPath;
         this.version = version;
         this.sshAddr = ssh;
@@ -29,20 +34,26 @@ public class Floodlight implements TargetController {
         isRunning = false;
 
         String str;
-        String name;
+        String[] cmdArray = null;
 
         try {
-            if (version.equals("1.2")) {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo java -jar floodlight-1.2.jar -cf ./floodlightdefault.properties");
-                name = "floodlight-1.2.jar";
-            } else {
-                process = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo java -jar floodlight-0.91.jar");
-                name = "floodlight-0.91.jar";
+            if(!version.equals("1.2") && !version.equals("0.91")) {
+                log.error("Unavailable Floodlight version.. Exit..");
+                return false;
             }
+
+            cmdArray = new String[]{System.getenv("DELTA_ROOT") +
+                    "/tools/dev/app-agent-setup/floodlight/delta-run-floodlight", version};
+
+            ProcessBuilder pb = new ProcessBuilder(cmdArray);
+            pb.redirectErrorStream(true);
+            proc = pb.start();
+            loggerThd = new Thread(AgentLogger.getLoggerThreadInstance(proc, AgentLogger.APP_AGENT));
+            loggerThd.start();
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
-            Object value = pidField.get(process);
+            Object value = pidField.get(proc);
 
             this.currentPID = (Integer) value;
 
@@ -53,34 +64,22 @@ public class Floodlight implements TargetController {
                 e.printStackTrace();
             }
 
-            stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            stdIn = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            stdIn = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
+//            stdOut = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
-
-            while ((str = stdOut.readLine()) != null) {
-                // System.out.println(str);
-                if (str.contains("Starting DebugServer on :6655")) {
-                    isRunning = true;
-                    break;
-                }
+            String line = null;
+            do {
+//                line = stdOut.readLine();
+                line = AgentLogger.getTemp();
+                Thread.sleep(500);
             }
-
-            Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep java");
-            String tempS;
-
-            BufferedReader stdOut2 = new BufferedReader(new InputStreamReader(temp.getInputStream()));
-
-            while ((tempS = stdOut2.readLine()) != null && !tempS.isEmpty()) {
-                if (tempS.contains(name)) {
-                    String[] list = StringUtils.split(tempS);
-
-                    currentPID = Integer.parseInt(list[1]);
-                }
-            }
+            while (!line.contains("Starting DebugServer on :6655"));
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        AgentLogger.setTemp("");
 
         return true;
     }
@@ -88,7 +87,7 @@ public class Floodlight implements TargetController {
     public void killController() {
         Process pc = null;
         try {
-            pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo kill -9 " + this.currentPID);
+            pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo killall java");
             pc.getErrorStream().close();
             pc.getInputStream().close();
             pc.getOutputStream().close();
@@ -105,7 +104,7 @@ public class Floodlight implements TargetController {
     }
 
     public Process getProc() {
-        return this.process;
+        return this.proc;
     }
 
 
@@ -144,7 +143,6 @@ public class Floodlight implements TargetController {
 
     @Override
     public BufferedReader getStdOut() {
-        // TODO Auto-generated method stub
-        return this.stdOut;
+        return null;
     }
 }

@@ -7,6 +7,7 @@ import jpcap.packet.EthernetPacket;
 import jpcap.packet.IPPacket;
 import jpcap.packet.Packet;
 import jpcap.packet.TCPPacket;
+import org.deltaproject.channelagent.core.Interface;
 import org.deltaproject.channelagent.utils.Utils;
 import org.deltaproject.channelagent.dummy.DummySwitch;
 import org.deltaproject.channelagent.networknode.NetworkNode;
@@ -19,12 +20,16 @@ import org.projectfloodlight.openflow.protocol.match.Match;
 import org.projectfloodlight.openflow.protocol.match.MatchField;
 import org.projectfloodlight.openflow.types.OFPort;
 import org.projectfloodlight.openflow.types.U16;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class TestAdvancedCase {
+    private static final Logger log = LoggerFactory.getLogger(TestAdvancedCase.class);
+
     static final int MINIMUM_LENGTH = 8;
 
     private OFFactory factory;
@@ -59,7 +64,7 @@ public class TestAdvancedCase {
                 e.printStackTrace();
             }
 
-            System.out.println("[Channel-Agent] Switch Spoofing " + i);
+            log.info("[Channel-Agent] Switch Spoofing " + i);
             DummySwitch dummysw = new DummySwitch();
             dummysw.connectTargetController(controllerIP, ofPort);
             dummysw.setOFFactory(OFVersion);
@@ -109,7 +114,7 @@ public class TestAdvancedCase {
 
             if (version != this.ofversion) {
                 // segmented TCP pkt
-                // System.out.println("OFVersion Missing " + offset + ":" + totalLen);
+                // log.info("OFVersion Missing " + offset + ":" + totalLen);
                 return null;
             }
 
@@ -223,7 +228,7 @@ public class TestAdvancedCase {
 
             if (version != this.ofversion) {
                 // segmented TCP pkt
-                // System.out.println("OFVersion Missing " + offset + ":" + totalLen);
+                // log.info("OFVersion Missing " + offset + ":" + totalLen);
                 return false;
             }
 
@@ -242,10 +247,10 @@ public class TestAdvancedCase {
 
                     if ((data)[12] == -120 && (data)[13] == -52) {
                         /*
-                         * System.out.println("[Channel-Agent] Get PACKET_OUT");
-						 * System.out.println("[Channel-Agent] Length: " +
+                         * log.info("[Channel-Agent] Get PACKET_OUT");
+						 * log.info("[Channel-Agent] Length: " +
 						 * data.length);
-						 * System.out.println(Utils.byteArrayToHexString(data));
+						 * log.info(Utils.byteArrayToHexString(data));
 						 */
 
                         String dpid = Utils.decalculate_mac(Arrays.copyOfRange(data, 17, 23));
@@ -266,11 +271,11 @@ public class TestAdvancedCase {
 
                     // if type code is 0x0800 (IP) -> HOST
                     if ((data)[12] == 0x08 && (data)[13] == 0x00) {
-                        // System.out.println("[Channel-Agent] Get PACKET_IN : "
+                        // log.info("[Channel-Agent] Get PACKET_IN : "
                         // + fi.getInPort().toString());
-                        // System.out.println("[Channel-Agent] Length: " +
+                        // log.info("[Channel-Agent] Length: " +
                         // data.length);
-                        // System.out.println(Utils.byteArrayToHexString(data));
+                        // log.info(Utils.byteArrayToHexString(data));
 
                         int inport = 0;
                         if (version == 1)
@@ -326,7 +331,6 @@ public class TestAdvancedCase {
     }
 
     public ByteBuf testMITM(Packet p_temp) throws OFParseError {
-
         ByteBuf bb = getByteBuf(p_temp);
         int totalLen = bb.readableBytes();
         int offset = bb.readerIndex();
@@ -346,7 +350,7 @@ public class TestAdvancedCase {
 
             if (version != this.ofversion) {
                 // segmented TCP pkt
-                // System.out.println("OFVersion Missing " + version + " : " + offset + "-" + totalLen);
+                 log.info("[Channel Agent] OFVersion Missing " + version + " : " + offset + "-" + totalLen);
                 return null;
             }
 
@@ -355,7 +359,6 @@ public class TestAdvancedCase {
 
             try {
                 OFMessage message = reader.readFrom(bb);
-                System.out.println("OFMsg " + message.toString());
 
                 if (message == null)
                     return null;
@@ -382,13 +385,16 @@ public class TestAdvancedCase {
                         if (buf == null)
                             buf = PooledByteBufAllocator.DEFAULT.directBuffer(totalLen);
 
+                        log.info("[Channel Agent] before FlowMod(ADD) " + fa.toString()
+                                + " --> after FlowMod(Delete) " + newfm.toString());
+
                         newfm.writeTo(buf);
                     }
 
                 } else if (message.getType() == OFType.PACKET_OUT) {
                     OFPacketOut pktout = (OFPacketOut) message;
 
-                    if (pktout.getInPort().toString().equals("any")) {
+                    if (pktout.getInPort() == OFPort.ANY) {
                         return null;
                     }
 
@@ -398,29 +404,40 @@ public class TestAdvancedCase {
                     b.setBufferId(pktout.getBufferId());
                     b.setData(pktout.getData());
 
-                    OFPort outPort = ((OFActionOutput) (pktout.getActions()).get(0)).getPort();
+                    List<OFAction> beforeActions = pktout.getActions();
+                    List<OFAction> afterActions = new ArrayList<OFAction>();
 
-                    if (outPort.toString().equals("flood"))
-                        return null;
+                    int outNum = -1;
+                    for (OFAction action : beforeActions) {
+                        OFActionOutput actionOutput = (OFActionOutput) action;
+                        OFPort outPort = actionOutput.getPort();
 
-                    // System.out.println("before " + pktout.toString());
+                        if (outPort == OFPort.FLOOD) {
+                            return null;
+                        } else if (outPort == OFPort.LOCAL) {
+                            OFActionOutput.Builder aob = factory.actions().buildOutput();
+                            aob.setPort(OFPort.LOCAL);
+                            aob.setMaxLen(Integer.MAX_VALUE);
+                            afterActions.add(aob.build());
+                        } else {
+                            OFActionOutput.Builder aob = factory.actions().buildOutput();
+                            outNum = outPort.getPortNumber();
+                            aob.setPort(OFPort.of(outPort.getPortNumber() + 1));
+                            aob.setMaxLen(Integer.MAX_VALUE);
+                            afterActions.add(aob.build());
+                        }
+                    }
 
-                    int outNum = ((OFActionOutput) (pktout.getActions()).get(0)).getPort().getPortNumber();
-
-                    List<OFAction> actions = new ArrayList<OFAction>();
-                    OFActionOutput.Builder aob = factory.actions().buildOutput();
-                    aob.setPort(OFPort.of((outNum + 1)));
-                    aob.setMaxLen(Integer.MAX_VALUE);
-                    actions.add(aob.build());
-                    b.setActions(actions);
-
+                    b.setActions(afterActions);
                     newoutput = b.build();
 
                     if (buf == null)
                         buf = PooledByteBufAllocator.DEFAULT.directBuffer(totalLen);
 
+                    log.info("[Channel Agent] before PacketOut Port " + outNum
+                            + " --> after PacketOut " + (outNum + 1));
+
                     newoutput.writeTo(buf);
-                    // System.out.println("after " + newoutput.toString());
                 }
             } catch (Exception e) {
                 // TODO Auto-generated catch block

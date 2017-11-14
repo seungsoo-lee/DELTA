@@ -1,12 +1,17 @@
 package org.deltaproject.channelagent.pkthandler;
 
 import jpcap.NetworkInterface;
+import org.deltaproject.channelagent.core.Interface;
 import org.deltaproject.channelagent.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ARPSpoof extends Thread {
+    private static final Logger log = LoggerFactory.getLogger(ARPSpoof.class);
+
     private static HashMap<String, String> ip_mac_list;
     private static ArrayList<String> ips_to_explore;
 
@@ -40,8 +45,8 @@ public class ARPSpoof extends Thread {
     }
 
     public void run() {
-        System.out.println("[Channel-Agent] Victim A, ip: " + victimAip + ", mac: " + ip_mac_list.get(victimAip));
-        System.out.println("[Channel-Agent] Victim B, ip: " + victimBip + ", mac: " + ip_mac_list.get(victimBip));
+        log.info("[Channel-Agent] Victim A, ip: " + victimAip + ", mac: " + ip_mac_list.get(victimAip));
+        log.info("[Channel-Agent] Victim B, ip: " + victimBip + ", mac: " + ip_mac_list.get(victimBip));
 
         ARPPkt fakeA = new ARPPkt(null);
         ARPPkt fakeB = new ARPPkt(null);

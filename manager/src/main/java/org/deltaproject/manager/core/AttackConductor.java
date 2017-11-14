@@ -61,51 +61,58 @@ public class AttackConductor {
         CaseInfo.updateControllerCase(infoControllerCase);
         CaseInfo.updateSwitchCase(infoSwitchCase);
 
-//        testSwitchCase = new TestSwitchCase();
+        testSwitchCase = new TestSwitchCase(channelm, hostm);
         testControllerCase = new TestControllerCase(appm, hostm, channelm, controllerm);
         testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
 
         testFuzzing = new TestFuzzing(appm, hostm, channelm, controllerm);
         testState = new TestStateDiagram(appm);
+
     }
 
-    public ChannelAgentManager getChannelManger() {
-        return channelm;
+    public void refreshConfig(Configuration cfg) {
+        controllerm.setConfig(cfg);
+        testSwitchCase.setConfig(cfg);
     }
 
     public String showConfig() {
         return cfg.show();
     }
 
-    public void setSocket(Socket socket) throws IOException {
-        dos = new DataOutputStream(socket.getOutputStream());
-        dis = new DataInputStream(socket.getInputStream());
+    public void setSocket(Socket socket) {
 
-        agentType = dis.readUTF();
+        try {
+            dos = new DataOutputStream(socket.getOutputStream());
+            dis = new DataInputStream(socket.getInputStream());
 
-        if (agentType.contains("AppAgent")) {
-            appm.setAppSocket(socket, dos, dis);
-            dos.writeUTF("OK");
-            dos.flush();
-            log.info("AppAgent is connected");
-        } else if (agentType.contains("ActAgent")) {        /* for OpenDaylight */
-            appm.setActSocket(socket, dos, dis);
-        } else if (agentType.contains("ChannelAgent")) {
-            channelm.setSocket(socket, dos, dis);
-            dos.writeUTF("OK");
-            dos.flush();
+            agentType = dis.readUTF();
+
+            if (agentType.contains("AppAgent")) {
+                appm.setAppSocket(socket, dos, dis);
+                dos.writeUTF("OK");
+                dos.flush();
+                log.info("App agent connected");
+            } else if (agentType.contains("ActAgent")) {        /* for OpenDaylightHandler */
+                appm.setActSocket(socket, dos, dis);
+            } else if (agentType.contains("ChannelAgent")) {
+                channelm.setSocket(socket, dos, dis);
+                dos.writeUTF("OK");
+                dos.flush();
 
 			/* send configuration to channel agent */
-            String config = "config," + "version:" + cfg.getOFVer() + ",nic:" + cfg.getMitmNIC() + ",port:"
-                    + cfg.getOFPort() + ",controller_ip:" + cfg.getControllerIP() + ",switch_ip:" + cfg.getSwitchIP(0)
-                    + ",handler:dummy" + ",cbench:" + cfg.getCbenchRoot();
+                String config = "config," + "version:" + cfg.getOF_VERSION() + ",nic:" + cfg.getMITM_NIC() + ",port:"
+                        + cfg.getOF_PORT() + ",controller_ip:" + cfg.getCONTROLLER_IP() + ",switch_ip:" + cfg.getSwitchList().get(0)
+                        + ",handler:dummy" + ",cbench:" + cfg.getCBENCH_ROOT();
 
-            channelm.write(config);
-            log.info("Channel agent is connected");
-        } else if (agentType.contains("HostAgent")) {
-            hostm.setSocket(socket, dos, dis);
-            hostm.write("target:" + cfg.getTargetHost());
-            log.info("Host agent is connected");
+                channelm.write(config);
+                log.info("Channel agent connected");
+            } else if (agentType.contains("HostAgent")) {
+                hostm.setSocket(socket, dos, dis);
+                hostm.write("target:" + cfg.getTARGET_HOST());
+                log.info("Host agent connected");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -122,7 +129,7 @@ public class AttackConductor {
         }
         long end = System.currentTimeMillis();
         log.info("Running Time(s) : " + (end - start) / 1000.0);
-        log.info(test.getName() + " is done\n");
+        log.info(test.getName() + " is done\n==============================================================================\n");
     }
 
     public void printAttackList() {
@@ -171,5 +178,17 @@ public class AttackConductor {
 
     public void setTestSwitchCase(TestSwitchCase testSwitchCase) {
         this.testSwitchCase = testSwitchCase;
+    }
+
+    public HostAgentManager getHostm() {
+        return hostm;
+    }
+
+    public ChannelAgentManager getChannelm() {
+        return channelm;
+    }
+
+    public ControllerManager getControllerm() {
+        return controllerm;
     }
 }

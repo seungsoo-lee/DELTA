@@ -1,4 +1,4 @@
-package org.deltaproject.manager.target;
+package org.deltaproject.manager.handler;
 
 import org.apache.commons.lang3.StringUtils;
 import org.deltaproject.manager.utils.AgentLogger;
@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.lang.reflect.Field;
 
-public class ONOS implements TargetController {
+public class ONOSHandler implements ControllerHandler {
     private Process proc = null;
-    private static final Logger log = LoggerFactory.getLogger(ONOS.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(ONOSHandler.class.getName());
     private boolean isRunning = false;
 
     public String version = "";
@@ -26,7 +26,7 @@ public class ONOS implements TargetController {
 
     private Thread loggerThd;
 
-    public ONOS(String path, String v, String ssh) {
+    public ONOSHandler(String path, String v, String ssh) {
         this.version = v;
         this.sshAddr = ssh;
 
@@ -46,11 +46,11 @@ public class ONOS implements TargetController {
 
         try {
             if (this.version.contains("1.1")) {
-                cmdArray = new String[] {"ssh", sshAddr, onos1_1, "clean"};
+                cmdArray = new String[]{"ssh", sshAddr, onos1_1, "clean"};
             } else if (this.version.contains("1.6")) {
-                cmdArray = new String[] {System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.6"};
+                cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.6"};
             } else if (this.version.contains("1.9")) {
-                cmdArray = new String[] {System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.9"};
+                cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.9"};
             }
 
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
@@ -65,28 +65,24 @@ public class ONOS implements TargetController {
             this.currentPID = (Integer) value;
 
             stdIn = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
+//            stdOut = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
             Thread.sleep(10000);
 
+            log.info("Waiting for ONOS launch..");
+            String line = null;
             do {
-                str = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
+//                line = stdOut.readLine();
+                line = AgentLogger.getTemp();
+                Thread.sleep(500);
             }
-            while (!str.contains("Welcome"));
+            while (!line.contains("Welcome"));
+
+
+            stdIn.write("log:tail");
 
             isRunning = true;
             log.info("ONOS is activated");
-
-//            else {
-//                log.info("Failed to start ONOS");
-//                return false;
-//            }
-
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
 
             Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep karaf");
             String tempS;
@@ -106,41 +102,28 @@ public class ONOS implements TargetController {
             e.printStackTrace();
         }
 
+        AgentLogger.setTemp("");
+
         return true;
     }
 
     public void killController() {
+        Process pc = null;
         try {
-            if (stdIn != null) {
-                stdIn.write("system:shutdown -f\n");
-                stdIn.flush();
-                stdIn.close();
-            }
-
-            if (stdOut != null) {
-                stdOut.close();
-            }
-
-            if (this.currentPID != -1) {
-                Process pc = null;
-                try {
-                    pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo kill -9 " + this.currentPID);
-                    pc.getErrorStream().close();
-                    pc.getInputStream().close();
-                    pc.getOutputStream().close();
-                    pc.waitFor();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
+            pc = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo killall java");
+            pc.getErrorStream().close();
+            pc.getInputStream().close();
+            pc.getOutputStream().close();
+            pc.waitFor();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
+
+        this.currentPID = -1;
     }
 
 
@@ -148,7 +131,7 @@ public class ONOS implements TargetController {
         return this.proc;
     }
 
-    /* ONOS, AppAgent is automatically installed when the controller starts */
+    /* ONOSHandler, AppAgent is automatically installed when the controller starts */
     public boolean installAppAgent() {
 
         return true;

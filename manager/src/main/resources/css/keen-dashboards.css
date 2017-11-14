@@ -99,7 +99,7 @@ body.application .return-link:hover,
 
 .fill {
   height: 290px;
-  width: 100%;
+  width: 98%;
   overflow-y: scroll;
   resize: none;
 }
@@ -111,4 +111,8 @@ textarea {
   padding: .5em;
   font-family: "Consolas", "Ubuntu Mono", "Monaco", monospace;
   color: white;
+}
+
+.index_amlog {
+  height: 338px;
 }

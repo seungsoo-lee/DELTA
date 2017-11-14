@@ -41,7 +41,7 @@ public class Activator extends DependencyActivatorBase{
 //		for (int i = 0; i < blist.length; i++) {
 //			Bundle bd = blist[i];
 //			String bdName = bd.getSymbolicName();
-//			if (bdName.contains(target)) {
+//			if (bdName.contains(handler)) {
 //				System.out.println(bd.getBundleId() + ":" + bdName);
 //				
 //				removed = bdName;

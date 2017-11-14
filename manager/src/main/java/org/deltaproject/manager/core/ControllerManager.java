@@ -1,9 +1,6 @@
 package org.deltaproject.manager.core;
 
-import org.deltaproject.manager.target.Floodlight;
-import org.deltaproject.manager.target.ONOS;
-import org.deltaproject.manager.target.OpenDaylight;
-import org.deltaproject.manager.target.TargetController;
+import org.deltaproject.manager.handler.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,43 +19,44 @@ public class ControllerManager {
 
     private int cbenchPID = -1;
 
-    private ArrayList<TargetController> targetList;
+    private ArrayList<ControllerHandler> targetList;
     private ArrayList<String> switchList;
     private ArrayList<String> connectedSwitches;
 
     private Process processCbench;
 
-    private Configuration cfg = Configuration.getInstance();
+    private Configuration cfg;
     private static final Logger log = LoggerFactory.getLogger(ControllerManager.class.getName());
 
 
     public ControllerManager() {
-        targetList = new ArrayList<TargetController>();
-        switchList = new ArrayList<String>();
-
-//        setConfig();
-        connectedSwitches = new ArrayList<String>();
-        sshAddr = cfg.getAppSSH();
     }
 
-    public void setConfig() {
-        TargetController fl = new Floodlight(cfg.getFloodlightRoot(), cfg.getTargetVer(), cfg.getAppSSH());
-        TargetController odl = new OpenDaylight(cfg.getODLRoot(), cfg.getTargetVer(), cfg.getAppSSH());
-        TargetController onos = new ONOS(cfg.getONOSRoot(), cfg.getTargetVer(), cfg.getAppSSH());
+    public void setConfig(Configuration cfg) {
+        this.cfg = cfg;
+        ControllerHandler fl = new FloodlightHandler(cfg.getFLOODLIGHT_ROOT(), cfg.getTARGET_VERSION(), cfg.getCONTROLLER_SSH());
+        ControllerHandler odl = new OpenDaylightHandler(cfg.getODL_ROOT(), cfg.getTARGET_VERSION(), cfg.getCONTROLLER_SSH());
+        ControllerHandler onos = new ONOSHandler(cfg.getONOS_ROOT(), cfg.getTARGET_VERSION(), cfg.getCONTROLLER_SSH());
+        ControllerHandler ryu = new RyuHandler(cfg.getRYU_ROOT(), cfg.getTARGET_VERSION(), cfg.getCONTROLLER_SSH(), cfg.getOF_VERSION());
 
+        targetList = new ArrayList<ControllerHandler>();
         targetList.add(fl);
         targetList.add(odl);
         targetList.add(onos);
+        targetList.add(ryu);
+        switchList = new ArrayList<String>();
 
-        cbechPath = cfg.getCbenchRoot();
-        targetController = cfg.getTargetController();
-        targetVersion = "v" + cfg.getTargetVer();
-        ofPort = cfg.getOFPort();
+        connectedSwitches = new ArrayList<String>();
+        sshAddr = cfg.getCONTROLLER_SSH();
+        cbechPath = cfg.getCBENCH_ROOT();
+        targetController = cfg.getTARGET_CONTROLLER();
+        targetVersion = cfg.getTARGET_VERSION();
+        ofPort = cfg.getOF_PORT();
         switchList = cfg.getSwitchList();
     }
 
     public BufferedReader getStdOut() {
-        for (TargetController tc : targetList) {
+        for (ControllerHandler tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
                 return tc.getStdOut();
             }
@@ -69,8 +67,7 @@ public class ControllerManager {
 
     public boolean createController() {
         boolean result;
-        setConfig();
-        for (TargetController tc : targetList) {
+        for (ControllerHandler tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
                 result = tc.createController();
 
@@ -81,15 +78,15 @@ public class ControllerManager {
     }
 
     public boolean killController() {
-        String switchIP = cfg.getHostSSH().substring(cfg.getHostSSH().indexOf('@') + 1);
+        String switchIP = cfg.getHOST_SSH().substring(cfg.getHOST_SSH().indexOf('@') + 1);
 
         try {
-            Runtime.getRuntime().exec("ssh " + cfg.getAppSSH() + " sudo arp -d " + switchIP);
+            Runtime.getRuntime().exec("ssh " + cfg.getCONTROLLER_SSH() + " sudo arp -d " + switchIP);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        for (TargetController tc : targetList) {
+        for (ControllerHandler tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
                 tc.killController();
                 return true;
@@ -111,7 +108,7 @@ public class ControllerManager {
 
         result += "Target Controller: ";
 
-        for (TargetController tc : targetList) {
+        for (ControllerHandler tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
                 result += tc.getType() + " - " + tc.getVersion();
             }
@@ -119,7 +116,7 @@ public class ControllerManager {
 
         result += "\nTarget Path: ";
 
-        for (TargetController tc : targetList) {
+        for (ControllerHandler tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
                 result += tc.getPath();
             }
@@ -145,7 +142,7 @@ public class ControllerManager {
     public boolean isRunning() {
         int controllerPID = -1;
 
-        for (TargetController tc : targetList) {
+        for (ControllerHandler tc : targetList) {
             if (tc.getType().equals(this.targetController)) {
                 controllerPID = tc.getPID();
             }
@@ -175,7 +172,7 @@ public class ControllerManager {
 
     public boolean executeCbench() {
         try {
-            processCbench = Runtime.getRuntime().exec(cbechPath + "cbench -c " + cfg.getControllerIP() + "  -p "
+            processCbench = Runtime.getRuntime().exec(cbechPath + "cbench -c " + cfg.getCONTROLLER_IP() + "  -p "
                     + ofPort + " -m 10000 -l 10 -s 16 -M 1000 -t");
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
@@ -260,7 +257,7 @@ public class ControllerManager {
             try {
                 cnt = 0;
                 String cmd = "";
-                temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo netstat -ap | grep " + ofPort);
+                temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo netstat -ap | grep " + "66[3,5]3");
 
                 BufferedReader stdOut = new BufferedReader(new InputStreamReader(temp.getInputStream()));
 

@@ -16,7 +16,7 @@ public class AppAgentManager {
     private DataOutputStream dos;
     private DataInputStream dis;
 
-    /* Activator for OpenDaylight */
+    /* Activator for OpenDaylightHandler */
     private Socket actSocket;
     private DataOutputStream dos2;
     private DataInputStream dis2;
@@ -25,27 +25,27 @@ public class AppAgentManager {
 
     private Configuration cfg = Configuration.getInstance();
 
-    private static final Logger log = LoggerFactory.getLogger(AgentManager.class);
+    private static final Logger log = LoggerFactory.getLogger(AppAgentManager.class);
 
     public AppAgentManager() {
-        this.targetController = cfg.getTargetController();
+        this.targetController = cfg.getTARGET_CONTROLLER();
     }
 
     public void closeSocket() {
-        if (actSocket != null)
+        if (actSocket.isConnected())
             try {
                 actSocket.close();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                // e.printStackTrace();
             }
 
-        if (appSocket != null)
+        if (appSocket.isConnected())
             try {
                 appSocket.close();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                // e.printStackTrace();
             }
     }
 
@@ -71,7 +71,7 @@ public class AppAgentManager {
 
     public boolean write(String code) {
         if (targetController.contains("OpenDaylight")) {
-            if (code.contains("3.1.090") || code.contains("3.1.100")) {
+            if (code.contains("3.1.090") || code.contains("3.1.100") || code.contains("restore")) {
                 try {
                     dos2.writeUTF(code);
                     dos2.flush();
@@ -106,7 +106,6 @@ public class AppAgentManager {
 
     public String read() {
         String result = "";
-
         try {
             result = dis.readUTF();
         } catch (EOFException e) {
@@ -115,6 +114,21 @@ public class AppAgentManager {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
+//        try {
+//            if (dis.available() > 0) {
+//                try {
+//                    result = dis.readUTF();
+//                } catch (EOFException e) {
+//                    log.info("Connection for AppAgent is terminated");
+//                } catch (IOException e) {
+//                    // TODO Auto-generated catch block
+//                    e.printStackTrace();
+//                }
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         return result;
     }
 
@@ -127,5 +141,9 @@ public class AppAgentManager {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public void setTargetController(String targetController) {
+        this.targetController = targetController;
     }
 }

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class PktHandler {
-	private AMInterface cm;
+	private Interface cm;
 	private Process process;
 
 	private BufferedWriter stdIn;

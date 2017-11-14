@@ -7,6 +7,7 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.*;
+import org.projectfloodlight.openflow.types.OFHelloElement;
 import org.projectfloodlight.openflow.types.U16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -36,7 +39,7 @@ public class DummyController extends Thread {
     private InputStream in;
     private OutputStream out;
 
-    /* for target controller */
+    /* for handler controller */
     private int port = 0;
 
     /* for OF message */
@@ -227,12 +230,13 @@ public class DummyController extends Thread {
     }
 
     public void listeningSwitch() {
-        log.info("Listening switches on " + this.port);
+        log.info("[Channel Agent] Listening switches on " + this.port);
+
         try {
             serverSock = new ServerSocket(port);
             serverSock.setReuseAddress(true);
             Socket temp = serverSock.accept();
-            log.info("Switch connected from  " + temp.toString());
+            log.info("[Channel Agent] Switch connected from  " + temp.toString());
             setTargetSock(temp);
         } catch (IOException e) {
             e.printStackTrace();
@@ -308,25 +312,48 @@ public class DummyController extends Thread {
             sendFeatureReq(startXid - (cntXid++));
             return;
         } else if (handShakeType == HANDSHAKE_INCOMPATIBLE_HELLO) {
-            byte[] rawPkt = new byte[8];
-            rawPkt[0] = (byte) 0xee;    // unsupported version
-            rawPkt[1] = 0x00;           // hello
-            rawPkt[2] = 0x00;
-            rawPkt[3] = 0x08;
+            if(version == OFVersion.OF_10) {
+                byte[] rawPkt = new byte[8];
+                rawPkt[0] = (byte) 0xee;    // unsupported version
+                rawPkt[1] = 0x00;           // hello
+                rawPkt[2] = 0x00;
+                rawPkt[3] = 0x08;
 
-            rawPkt[4] = (byte) 0xee;
-            rawPkt[5] = (byte) 0xee;
-            rawPkt[6] = (byte) 0xee;
-            rawPkt[7] = (byte) 0xee;
+                rawPkt[4] = (byte) 0xee;
+                rawPkt[5] = (byte) 0xee;
+                rawPkt[6] = (byte) 0xee;
+                rawPkt[7] = (byte) 0xee;
 
-            log.info("Send msg: OF_HELLO with unsupported version -> 0xee");
-            this.sendRawMsg(rawPkt);
+                log.info("[Channel Agent] Send msg: OF_HELLO with unsupported version -> 0xee");
+                this.sendRawMsg(rawPkt);
+            } else if (version == OFVersion.OF_13) {
+                byte[] rawPkt = new byte[16];
+                rawPkt[0] = (byte) 0xee;    // unsupported version
+                rawPkt[1] = 0x00;           // hello
+                rawPkt[2] = 0x00;
+                rawPkt[3] = 0x08;
+
+                rawPkt[4] = (byte) 0xee;
+                rawPkt[5] = (byte) 0xee;
+                rawPkt[6] = (byte) 0xee;
+                rawPkt[7] = (byte) 0xee;
+
+                log.info("[Channel Agent] Send msg: OF_HELLO with unsupported version. -> 0xee");
+                this.sendRawMsg(rawPkt);
+            }
             return;
         } else if (handShakeType == NO_HANDSHAKE)
             return;
 
         OFHello.Builder fab = factory.buildHello();
         fab.setXid(xid);
+
+        if (version != OFVersion.OF_10) {
+            OFHelloElem.Builder heb = factory.buildHelloElemVersionbitmap();
+            List<OFHelloElem> list = new ArrayList<OFHelloElem>();
+            list.add(heb.build());
+            fab.setElements(list);
+        }
 
         OFHello hello = fab.build();
         sendMsg(hello, MINIMUM_LENGTH);
@@ -373,6 +400,7 @@ public class DummyController extends Thread {
                     // sendExperimenter(startXid - (cntXid++));
 
                     handshaked = true;
+                    log.info("[Channel Agent] recieve STATS_REPLY");
                 } else if (message.getType() == OFType.ECHO_REQUEST) {
                     sendEchoReply(xid);
                 } else if (message.getType() == OFType.ERROR) {

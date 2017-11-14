@@ -168,7 +168,7 @@ public interface ITopologyService extends IFloodlightService  {
 			boolean tunnelEnabled);
 
 	/** 
-	 * Get broadcast ports on a target switch for a given attachment point
+	 * Get broadcast ports on a handler switch for a given attachment point
 	 * point port.
 	 * @param targetSw
 	 * @param src
@@ -178,7 +178,7 @@ public interface ITopologyService extends IFloodlightService  {
 	public Set<OFPort> getBroadcastPorts(DatapathId targetSw, DatapathId src, OFPort srcPort);
 
 	/** 
-	 * Get broadcast ports on a target switch for a given attachment point
+	 * Get broadcast ports on a handler switch for a given attachment point
 	 * point port.
 	 * @param targetSw
 	 * @param src
