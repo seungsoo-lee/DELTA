@@ -25,7 +25,7 @@ In order to build and run DELTA, the following are required:
   + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
   + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6, 1.9
   + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3, Carbon
-  + [Ryu](https://github.com/osrg/ryu): 4.16 (now under developing)
+  + [Ryu](https://github.com/osrg/ryu): 4.16 
 + [Cbench](http://kkpradeeban.blogspot.kr/2014/10/installing-cbench-on-ubuntu-1404-lts.html) (for channel agent)
 + [Mininet 2.1+](http://mininet.org/download/) (for host agent)
 + (in the case of All-In-One Single Machine) Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
@@ -152,7 +152,7 @@ $ ./odl-carbon-scp
 > Ryu 4.16
 ```
 $ cd <DELTA>/tools/dev/app-agent-setup/ryu
-$ cd ./delta-setup-ryu
+$ ./delta-setup-ryu
 ```
 + The app-agent (on the controller machine) needs 'agent.cfg' file to connect to the agent-manager.
 ```
