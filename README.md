@@ -149,7 +149,11 @@ $ cd <DELTA>/tools/dev/app-agent-setup
 $ ./odl-carbon-scp
 (on the controller machine) $ ./odl-carbon-setup
 ```
-
+> Ryu 4.16
+```
+$ cd <DELTA>/tools/dev/app-agent-setup/ryu
+$ cd ./delta-setup-ryu
+```
 + The app-agent (on the controller machine) needs 'agent.cfg' file to connect to the agent-manager.
 ```
 MANAGER_IP=10.0.2.2
