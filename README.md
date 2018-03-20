@@ -1,5 +1,5 @@
 
-[![ONF Best Showcase](http://opensourcesdn.org/wp-content/uploads/2016/03/best-in-show-badge-2016-e1476475837838.jpg)](http://opensourcesdn.org/projects/project-delta-sdn-security-evaluation-framework/)
+[![ONF Best Showcase](/images/onf_best_showcase.jpg)](https://www.opennetworking.org/news-and-events/sdn-solutions-showcase/sdn-solutions-showcase-2016/)
 [![ToolsWatch 2017 Arsenal](https://rawgithub.com/toolswatch/badges/master/arsenal/2017.svg)](https://www.blackhat.com/us-17/arsenal/schedule/#delta-sdn-security-evaluation-framework-7466)
 
 # DELTA: SDN SECURITY EVALUATION FRAMEWORK
@@ -25,7 +25,8 @@ In order to build and run DELTA, the following are required:
   + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
   + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6, 1.9
   + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3, Carbon
-+ [Cbench](https://floodlight.atlassian.net/wiki/display/floodlightcontroller/Cbench) (for channel agent)
+  + [Ryu](https://github.com/osrg/ryu): 4.16 
++ [Cbench](http://kkpradeeban.blogspot.kr/2014/10/installing-cbench-on-ubuntu-1404-lts.html) (for channel agent)
 + [Mininet 2.1+](http://mininet.org/download/) (for host agent)
 + (in the case of All-In-One Single Machine) Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
   + VM-1: Target controller + Application agent
@@ -148,7 +149,11 @@ $ cd <DELTA>/tools/dev/app-agent-setup
 $ ./odl-carbon-scp
 (on the controller machine) $ ./odl-carbon-setup
 ```
-
+> Ryu 4.16
+```
+$ cd <DELTA>/tools/dev/app-agent-setup/ryu
+$ ./delta-setup-ryu
+```
 + The app-agent (on the controller machine) needs 'agent.cfg' file to connect to the agent-manager.
 ```
 MANAGER_IP=10.0.2.2
@@ -188,6 +193,7 @@ Command>_
 ## Main Contributors
 + Seungsoo Lee (KAIST)
 + Jinwoo Kim (KAIST)
++ Seungwon Woo (KAIST)
 + Changhoon Yoon (KAIST)
 + Sandra Scott-Hayward (Queen's University Belfast)
 + Seungwon Shin (KAIST)
@@ -199,4 +205,4 @@ Command>_
 + ![collabo](images/delta_collabo.png)
 
 ## Questions?
-Send questions or feedback to: lss365@kaist.ac.kr or jinwoo.kim@kaist.ac.kr 
+Send questions or feedback to: lss365@kaist.ac.kr, jinwoo.kim@kaist.ac.kr or seungwonwoo@kaist.ac.kr

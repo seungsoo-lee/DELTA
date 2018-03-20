@@ -69,6 +69,7 @@ public class ONOSHandler implements ControllerHandler {
 
             Thread.sleep(10000);
 
+            log.info("Waiting for ONOS launch..");
             String line = null;
             do {
 //                line = stdOut.readLine();
@@ -77,20 +78,11 @@ public class ONOSHandler implements ControllerHandler {
             }
             while (!line.contains("Welcome"));
 
+
+            stdIn.write("log:tail");
+
             isRunning = true;
             log.info("ONOS is activated");
-
-//            else {
-//                log.info("Failed to start ONOSHandler");
-//                return false;
-//            }
-
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
 
             Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep karaf");
             String tempS;
