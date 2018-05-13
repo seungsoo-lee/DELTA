@@ -4,9 +4,8 @@ import os
 from mininet.cli import CLI
 from mininet.net import Mininet
 from mininet.topo import Topo
-from mininet.node import OVSSwitch, Controller, RemoteController
+from mininet.node import Node, OVSSwitch, Controller, RemoteController
 from mininet.log import setLogLevel, info, debug
-
 
 def DeltaNetwork():
     # Make topology
@@ -17,7 +16,7 @@ def DeltaNetwork():
     s0 = net.addSwitch('s0', dpid='00:00:00:00:00:01', protocols=proto)
     s1 = net.addSwitch('s1', dpid='00:00:00:00:00:02', protocols=proto)
     s2 = net.addSwitch('s2', dpid='00:00:00:00:00:03', protocols=proto)
-    s3 = net.addSwitch('s3')  # for connection with DELTA
+    s3 = net.addSwitch('s3', dpid='00:00:00:00:00:04', protocols=proto)  # for connection with DELTA
 
     # Add hosts
     h1 = net.addHost('h1', ip='10.0.0.1/24', mac='00:00:00:00:00:11')
@@ -29,19 +28,24 @@ def DeltaNetwork():
     net.addLink(s0, s1)
     net.addLink(s1, s2)
 
-    net.addLink(s3, h1, intfName2='eth0')
+    net.addLink(s3, h1, intfName2='host-eth')
 
-    #       net.build()
+    root = Node('root', inNamespace=False)
+    intf = net.addLink(root, s3).intf1
+    root.setIP('10.0.1.1', intf=intf)
+
+    # net.build()
     net.start()
 
-    # Add hardware interface to switch1
-    s3.attach('eth0')
+    root.cmd('route add -net 10.0.1.0/24 dev ' + str(intf))
+    h1.cmd("ifconfig host-eth 10.0.1.2/24 netmask 255.255.255.0")
+    h1.cmd('route add -net 10.0.3.0/24 dev host-eth')
+    h1.cmd('route add -net 10.0.3.0/24 gw 10.0.3.90 dev host-eth')
 
     # Set ip
-    os.system("sudo ovs-ofctl add-flow s3 in_port=1,actions=output:2")
-    os.system("sudo ovs-ofctl add-flow s3 in_port=2,actions=output:1")
+    os.system("sudo ovs-ofctl -O OpenFlow13 add-flow s3 in_port=1,actions=output:2")
+    os.system("sudo ovs-ofctl -O OpenFlow13 add-flow s3 in_port=2,actions=output:1")
 
-    h1.cmd("ifconfig eth0 10.0.2.10/24 netmask 255.255.255.0")
     # h1.cmd("dhclient eth0")
 
     # connect a controller
