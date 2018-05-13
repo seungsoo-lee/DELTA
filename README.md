@@ -30,7 +30,7 @@ In order to build and run DELTA, the following are required:
 + (in the case of All-In-One Single Machine) Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
   + Container-1: Target controller + Application agent
   + Container-2: Channel agent
-  + Containerr-3: Host agent
+  + Container-3: Host agent
 
 ## Installing DELTA
 DELTA installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the agents. DELTA can support an All-In-One Single Machine environment via virtual machines as well as a real hardware SDN environment.
@@ -79,6 +79,9 @@ $ exit
 
 $ ./<DELTA>/tools/dev/lxc-setup/lxc-setup
 ```
+
++ In the case of all-in-one single machine, the test environment is automatically setup as below:
+![Env1](images/delta_env.png)
 
 ## Configuring your own experiments
 + Execute sudo without the password
