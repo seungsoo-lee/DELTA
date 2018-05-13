@@ -1,6 +1,5 @@
-
-[![ONF Best Showcase](/images/onf_best_showcase.jpg)](https://www.opennetworking.org/news-and-events/sdn-solutions-showcase/sdn-solutions-showcase-2016/)
 [![ToolsWatch 2017 Arsenal](http://www.toolswatch.org/wp-content/uploads/2016/12/bharsenal.png)](https://www.blackhat.com/us-17/arsenal/schedule/#delta-sdn-security-evaluation-framework-7466)
+[![ONF Best Showcase](/images/onf_best_showcase.jpg)](https://www.opennetworking.org/news-and-events/sdn-solutions-showcase/sdn-solutions-showcase-2016/)
 
 # DELTA: SDN SECURITY EVALUATION FRAMEWORK
 
@@ -27,11 +26,11 @@ In order to build and run DELTA, the following are required:
   + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3, Carbon
   + [Ryu](https://github.com/osrg/ryu): 4.16 
 + [Cbench](http://kkpradeeban.blogspot.kr/2014/10/installing-cbench-on-ubuntu-1404-lts.html) (for channel agent)
-+ [Mininet 2.1+](http://mininet.org/download/) (for host agent)
++ [Mininet 2.2](http://mininet.org/download/) (for host agent)
 + (in the case of All-In-One Single Machine) Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
-  + VM-1: Target controller + Application agent
-  + VM-2: Channel agent
-  + VM-3: Host agent
+  + Container-1: Target controller + Application agent
+  + Container-2: Channel agent
+  + Containerr-3: Host agent
 
 ## Installing DELTA
 DELTA installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the agents. DELTA can support an All-In-One Single Machine environment via virtual machines as well as a real hardware SDN environment.
@@ -57,21 +56,29 @@ $ source ./tools/dev/delta-setup/bash_profile
 $ mvn clean install
 ```
 
-+ STEP 4-a. (All-In-One Single Machine) Install three virtual machines using vagrant system
++ STEP 4. (All-In-One Single Machine) Install three containers using lxc
 
 ```
-$ cd <DELTA>/tools/dev/delta-setup/
-$ ./delta-setup-vms-ubuntu
-$ cd vagrant/
-$ vagrant up
+$ cd ~
+$ ./<DELTA>/tools/dev/lxc-setup/lxc-create
+
+$ sudo lxc-ls --fancy
+(Check ip address of agent-controller)
+
+$ export DELTA=APP=ubuntu@[agent-controller ipaddr]
+$ ssh-keygen -t rsa
+(Press Enter)
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_APP
+(ID: ubuntu, PW: ubuntu)
+
+$ ssh $DELTA_APP
+$ sudo visudo
+In the bottom of the file, type the follow:
+ubuntu ALL=(ALL) NOPASSWD: ALL
+$ exit
+
+$ ./<DELTA>/tools/dev/lxc-setup/lxc-setup
 ```
-
-+ STEP 4-b. (All-In-One Single Machine) Add NAT to VM3 (mininet)
-![NAT](images/delta_natenv.png)
-
-+ In the case of all-in-one single machine, the test environment is automatically setup as below:
-![Env1](images/delta_env.png)
-
 
 ## Configuring your own experiments
 + Execute sudo without the password
@@ -83,17 +90,18 @@ username ALL=(ALL) NOPASSWD: ALL
 + Configure passwd-less ssh login for the agents
 
 ```
+$ sudo lxc-ls --fancy
+(Check ip addresses)
 $ vi <DELTA>/tools/dev/delta-setup/bash_profile
-(by default, the addresses are set as vms)
-export DELTA_APP=vagrant@10.100.100.11
-export DELTA_CHANNEL=vagrant@10.100.100.12
-export DELTA_HOST=vagrant@10.100.100.13
+(by default, the addresses are set as containers)
+export DELTA_APP=ubuntu@[agent-controller ipAddr]
+export DELTA_CHANNEL=ubuntu@[agent-channel ipAddr]
+export DELTA_HOST=ubuntu@[agent-host ipAddr]
 $ source <DELTA>/tools/dev/delta-setup/bash_profile
 
 $ cd ~
 $ ssh-keygen -t rsa
 (Press enter)
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_APP
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CHANNEL
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_HOST
 
@@ -102,9 +110,9 @@ Check if you can access the VMs without having to enter the password.
 
 + The agent-manager automatically reads a configuration file and sets up the test environment based on the file. DELTA/tools/config/manager.cfg contains the All-In-One Single Machine configuration by default. If you want to test a real SDN environment, you should specify your own configuration file.
 ```
-CONTROLLER_SSH=vagrant@10.100.100.11
-CHANNEL_SSH=vagrant@10.100.100.12
-HOST_SSH=vagrant@10.100.100.13
+CONTROLLER_SSH=ubuntu@[agent-controller ipAddr]
+CHANNEL_SSH=ubuntu@[agent-channel ipAddr]
+HOST_SSH=ubuntu@[agent-host ipAddr]
 TARGET_HOST=10.0.0.2
 ONOS_ROOT=/home/vagrant/onos-1.6.0
 CBENCH_ROOT=/home/vagrant/oflops/cbench/
@@ -113,11 +121,11 @@ TARGET_VERSION=0.91
 OF_PORT=6633
 OF_VER=1.3
 MITM_NIC=eth1
-CONTROLLER_IP=10.100.100.11
-SWITCH_IP=10.100.100.13,10.100.100.13,10.100.100.13
-DUMMY_CONT_IP=10.0.2.2
+CONTROLLER_IP=[agent-controller ipAddr]
+SWITCH_IP=[agent-host ipAddr],[agent-host ipAddr],[agent-host ipAddr]
+DUMMY_CONT_IP=10.0.3.1
 DUMMY_CONT_PORT=6633
-AM_IP=10.0.2.2
+AM_IP=10.0.3.1
 AM_PORT=3366
 ```
 > Floodlight 1.2
@@ -156,7 +164,7 @@ $ ./delta-setup-ryu
 ```
 + The app-agent (on the controller machine) needs 'agent.cfg' file to connect to the agent-manager.
 ```
-MANAGER_IP=10.0.2.2
+MANAGER_IP=10.0.3.1
 MANAGER_PORT=3366
 ```
 
