@@ -1,0 +1,33 @@
+#!/bin/bash
+
+ssh $DELTA_APP "
+    sudo apt-get update
+    sudo apt-get upgrade -y
+    sudo apt-get install -y python-dev python-pip
+    sudo apt-get install -y git
+    sudo apt-get install -y wget
+    sudo apt-get install unzip
+
+    echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
+    echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
+
+    sudo apt-get install software-properties-common -y
+    sudo add-apt-repository ppa:webupd8team/java -y
+    sudo apt-get update
+    sudo apt-get install oracle-java8-installer oracle-java8-set-default -y
+
+    sudo dpkg-reconfigure wireshark-common
+    sudo usermod -a -G wireshark ubuntu
+    git clone https://github.com/mininet/mininet
+    cd mininet
+    git checkout -b 2.2.2 2.2.2
+    util/install.sh -a
+"
+
+sudo lxc-stop -n agent-controller
+sudo lxc-copy -n agent-controller -N agent-channel
+sudo lxc-copy -n agent-controller -N agent-host
+
+sudo lxc-start -n agent-controller -d
+sudo lxc-start -n agent-channel -d
+sudo lxc-start -n agent-host -d

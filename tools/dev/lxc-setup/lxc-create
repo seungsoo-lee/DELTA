@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sudo lxc-create -n agent-controller -t ubuntu
+sudo lxc-start -n agent-controller -d
