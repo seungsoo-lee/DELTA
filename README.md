@@ -1,6 +1,6 @@
 
 [![ONF Best Showcase](/images/onf_best_showcase.jpg)](https://www.opennetworking.org/news-and-events/sdn-solutions-showcase/sdn-solutions-showcase-2016/)
-[![ToolsWatch 2017 Arsenal](https://rawgithub.com/toolswatch/badges/master/arsenal/2017.svg)](https://www.blackhat.com/us-17/arsenal/schedule/#delta-sdn-security-evaluation-framework-7466)
+[![ToolsWatch 2017 Arsenal](http://www.toolswatch.org/wp-content/uploads/2016/12/bharsenal.png)](https://www.blackhat.com/us-17/arsenal/schedule/#delta-sdn-security-evaluation-framework-7466)
 
 # DELTA: SDN SECURITY EVALUATION FRAMEWORK
 
