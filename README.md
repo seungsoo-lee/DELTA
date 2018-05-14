@@ -18,7 +18,7 @@ In order to build and run DELTA, the following are required:
 + An agent manager based on Ubuntu 14.04 LTS 64 bit
   + Ant build system
   + Maven v3.3.9
-  + Vagrant
+  + LXC 2.0
   + JDK 1.7 and 1.8
 + Target Controller (for application agent)
   + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
@@ -27,13 +27,13 @@ In order to build and run DELTA, the following are required:
   + [Ryu](https://github.com/osrg/ryu): 4.16 
 + [Cbench](http://kkpradeeban.blogspot.kr/2014/10/installing-cbench-on-ubuntu-1404-lts.html) (for channel agent)
 + [Mininet 2.2](http://mininet.org/download/) (for host agent)
-+ (in the case of All-In-One Single Machine) Three virtual machines based on Ubuntu 14.04 LTS 64 bit.
++ (in the case of All-In-One Single Machine) Three lxc containers based on Ubuntu 16.04 LTS 64 bit.
   + Container-1: Target controller + Application agent
   + Container-2: Channel agent
   + Container-3: Host agent
 
 ## Installing DELTA
-DELTA installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the agents. DELTA can support an All-In-One Single Machine environment via virtual machines as well as a real hardware SDN environment.
+DELTA installation depends on maven and ant build system. The mvn command is used to install the agent-manager and the agents. DELTA can support an All-In-One Single Machine environment via containers as well as a real hardware SDN environment.
 
 + STEP 1. Get the source code of DELTA on the agent manager machine
 
@@ -56,7 +56,7 @@ $ source ./tools/dev/delta-setup/bash_profile
 $ mvn clean install
 ```
 
-+ STEP 4. (All-In-One Single Machine) Install three containers using lxc
++ STEP 3. (All-In-One Single Machine) Install three containers using lxc
 
 ```
 $ cd ~
@@ -65,7 +65,7 @@ $ ./<DELTA>/tools/dev/lxc-setup/lxc-create
 $ sudo lxc-ls --fancy
 (Check ip address of agent-controller)
 
-$ export DELTA=APP=ubuntu@[agent-controller ipaddr]
+$ export DELTA_APP=ubuntu@[agent-controller ipaddr]
 $ ssh-keygen -t rsa
 (Press Enter)
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_APP
@@ -93,6 +93,7 @@ username ALL=(ALL) NOPASSWD: ALL
 + Configure passwd-less ssh login for the agents
 
 ```
+cd ~
 $ sudo lxc-ls --fancy
 (Check ip addresses)
 $ vi <DELTA>/tools/dev/delta-setup/bash_profile
@@ -102,13 +103,10 @@ export DELTA_CHANNEL=ubuntu@[agent-channel ipAddr]
 export DELTA_HOST=ubuntu@[agent-host ipAddr]
 $ source <DELTA>/tools/dev/delta-setup/bash_profile
 
-$ cd ~
-$ ssh-keygen -t rsa
-(Press enter)
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CHANNEL
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_HOST
 
-Check if you can access the VMs without having to enter the password.
+Check if you can access the Containers without having to enter the password.
 ```
 
 + The agent-manager automatically reads a configuration file and sets up the test environment based on the file. DELTA/tools/config/manager.cfg contains the All-In-One Single Machine configuration by default. If you want to test a real SDN environment, you should specify your own configuration file.
@@ -171,13 +169,25 @@ MANAGER_IP=10.0.3.1
 MANAGER_PORT=3366
 ```
 
++ STEP 4. Install DELTA using maven build
+
+```
+$ cd <DELTA>
+$ source ./tools/dev/delta-setup/bash_profile
+$ mvn clean install
+```
+
+
 ## Running DELTA
-+ STEP 1. Distribute the executable files to VMs
++ STEP 1. Distribute the executable files to Containers
 
 ```
 $ cd <DELTA>
 $ source ./tools/dev/delta-setup/bash_profile
 $ ./tools/dev/delta-setup/delta-agents-scp
+
+(In case of lxc)
+$ sudo route add -net 10.0.1.0/24 gw 10.0.1.1 dev lxcbr0
 ```
 
 
