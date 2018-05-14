@@ -37,10 +37,13 @@ def DeltaNetwork():
     # net.build()
     net.start()
 
+    f = os.popen('ifconfig eth0 | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1')
+    ip = f.read()[:-1]
+
     root.cmd('route add -net 10.0.1.0/24 dev ' + str(intf))
     h1.cmd("ifconfig host-eth 10.0.1.2/24 netmask 255.255.255.0")
     h1.cmd('route add -net 10.0.3.0/24 dev host-eth')
-    h1.cmd('route add -net 10.0.3.0/24 gw 10.0.3.90 dev host-eth')
+    h1.cmd('route add -net 10.0.3.0/24 gw ' + str(ip) + ' dev host-eth')
 
     # Set ip
     os.system("sudo ovs-ofctl -O OpenFlow13 add-flow s3 in_port=1,actions=output:2")
