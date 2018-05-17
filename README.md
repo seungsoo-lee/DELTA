@@ -48,18 +48,19 @@ $ cd <DELTA>/tools/dev/delta-setup/
 $ ./delta-setup-devenv-ubuntu
 ```
 
-+ STEP 3. (All-In-One Single Machine) Install three containers using lxc
++ STEP 2-1. (All-In-One Single Machine) Install three containers using lxc
 
 ```
+$ source ./<DELTA>/tools/dev/delta-setup/bash_profile
 $ cd <DELTA>/tools/dev/lxc-setup
 $ ./lxc-create
 
-Edit /etc/default/lxc-net
+$ sudo vi /etc/default/lxc-net
 Uncomment "LXC_DHCP_CONFILE=/etc/lxc/dnsmasq.conf"
 $ sudo service lxc-net restart
 $ sudo lxc-start -n agent-controller -d
 
-$ export DELTA_APP=ubuntu@10.0.3.11
+$ cd ~
 $ ssh-keygen -t rsa
 (Press Enter)
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_APP
@@ -72,6 +73,9 @@ ubuntu ALL=(ALL) NOPASSWD: ALL
 $ exit
 
 $ ./<DELTA>/tools/dev/lxc-setup/lxc-setup
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CHANNEL
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_HOST
+
 ```
 
 + In the case of all-in-one single machine, the test environment is automatically setup as below:
@@ -87,16 +91,14 @@ username ALL=(ALL) NOPASSWD: ALL
 + Configure passwd-less ssh login for the agents
 
 ```
-cd ~
-$ sudo lxc-ls --fancy
-(Check ip addresses)
 $ vi <DELTA>/tools/dev/delta-setup/bash_profile
 (by default, the addresses are set as containers)
-export DELTA_APP=ubuntu@10.0.3.11
-export DELTA_CHANNEL=ubuntu@10.0.3.12
-export DELTA_HOST=ubuntu@10.0.3.13
+export DELTA_APP=[account-id]@[agent-controller ipAddr]
+export DELTA_CHANNEL=[account-id]@[agent-channel ipAddr]
+export DELTA_HOST=[account-id]@[agent-channel ipAddr]
 $ source <DELTA>/tools/dev/delta-setup/bash_profile
 
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_APP
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CHANNEL
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_HOST
 
@@ -105,9 +107,9 @@ Check if you can access the Containers without having to enter the password.
 
 + The agent-manager automatically reads a configuration file and sets up the test environment based on the file. DELTA/tools/config/manager.cfg contains the All-In-One Single Machine configuration by default. If you want to test a real SDN environment, you should specify your own configuration file.
 ```
-CONTROLLER_SSH=ubuntu@[agent-controller ipAddr]
-CHANNEL_SSH=ubuntu@[agent-channel ipAddr]
-HOST_SSH=ubuntu@[agent-host ipAddr]
+CONTROLLER_SSH=[account-id]@[agent-controller ipAddr]
+CHANNEL_SSH=[account-id]@[agent-channel ipAddr]
+HOST_SSH=[account-id]@[agent-host ipAddr]
 TARGET_HOST=10.0.0.2
 ONOS_ROOT=/home/vagrant/onos-1.6.0
 CBENCH_ROOT=/home/vagrant/oflops/cbench/
@@ -159,11 +161,11 @@ $ ./delta-setup-ryu
 ```
 + The app-agent (on the controller container) needs 'agent.cfg' file to connect to the agent-manager.
 ```
-MANAGER_IP=10.0.3.1
+MANAGER_IP=[agent-manager ipAddr]
 MANAGER_PORT=3366
 ```
 
-+ STEP 4. Install DELTA using maven build
++ STEP 3. Install DELTA using maven build
 
 ```
 $ cd <DELTA>
