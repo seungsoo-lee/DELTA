@@ -69,7 +69,7 @@ public class TestStateDiagram {
                     if (socket != null)
                         socket.close();
 
-                    socket = new Socket("10.100.100.11", 6633);
+                    socket = new Socket("10.0.3.11", 6633);
                     socket.setSoTimeout(2000);
                     socket.setReuseAddress(true);
 
@@ -95,7 +95,7 @@ public class TestStateDiagram {
 
                 if (err) {
                     try {
-                        Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo pkill java");
+                        Runtime.getRuntime().exec("ssh ubuntu@10.0.3.11 sudo pkill java");
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException e) {
@@ -103,7 +103,7 @@ public class TestStateDiagram {
                             continue;
                         }
 
-                        Process process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 java -jar floodlight-0.91.jar");
+                        Process process = Runtime.getRuntime().exec("ssh ubuntu@10.0.3.11 java -jar floodlight-0.91.jar");
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException e) {
@@ -130,7 +130,7 @@ public class TestStateDiagram {
 
 //            while (true) {
 //                try {
-//                    Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo pkill java");
+//                    Runtime.getRuntime().exec("ssh ubuntu@10.0.3.11 sudo pkill java");
 //
 //                    try {
 //                        Thread.sleep(500);
@@ -139,7 +139,8 @@ public class TestStateDiagram {
 //                        continue;
 //                    }
 //
-//                    Process process = Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 java -jar floodlight-0.91.jar");
+//                    Process process = Runtime.getRuntime().exec("ssh ubuntu@10.0.3.11 java -jar floodlight-0.91.jar");
+
 //
 //                    try {
 //                        Thread.sleep(500);
@@ -568,7 +569,7 @@ public class TestStateDiagram {
             w.close();
 
             System.out.println("———————————————————————————");
-            Runtime.getRuntime().exec("ssh vagrant@10.100.100.11 sudo pkill java");
+            Runtime.getRuntime().exec("ssh ubuntu@10.0.3.11 sudo pkill java");
         } catch (IOException e) {
             e.printStackTrace();
         }

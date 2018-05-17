@@ -48,24 +48,18 @@ $ cd <DELTA>/tools/dev/delta-setup/
 $ ./delta-setup-devenv-ubuntu
 ```
 
-+ STEP 3. Install DELTA using maven build
-
-```
-$ cd <DELTA>
-$ source ./tools/dev/delta-setup/bash_profile
-$ mvn clean install
-```
-
 + STEP 3. (All-In-One Single Machine) Install three containers using lxc
 
 ```
-$ cd ~
-$ ./<DELTA>/tools/dev/lxc-setup/lxc-create
+$ cd <DELTA>/tools/dev/lxc-setup
+$ ./lxc-create
 
-$ sudo lxc-ls --fancy
-(Check ip address of agent-controller)
+Edit /etc/default/lxc-net
+Uncomment "LXC_DHCP_CONFILE=/etc/lxc/dnsmasq.conf"
+$ sudo service lxc-net restart
+$ sudo lxc-start -n agent-controller -d
 
-$ export DELTA_APP=ubuntu@[agent-controller ipaddr]
+$ export DELTA_APP=ubuntu@10.0.3.11
 $ ssh-keygen -t rsa
 (Press Enter)
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_APP
@@ -98,9 +92,9 @@ $ sudo lxc-ls --fancy
 (Check ip addresses)
 $ vi <DELTA>/tools/dev/delta-setup/bash_profile
 (by default, the addresses are set as containers)
-export DELTA_APP=ubuntu@[agent-controller ipAddr]
-export DELTA_CHANNEL=ubuntu@[agent-channel ipAddr]
-export DELTA_HOST=ubuntu@[agent-host ipAddr]
+export DELTA_APP=ubuntu@10.0.3.11
+export DELTA_CHANNEL=ubuntu@10.0.3.12
+export DELTA_HOST=ubuntu@10.0.3.13
 $ source <DELTA>/tools/dev/delta-setup/bash_profile
 
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CHANNEL
@@ -124,9 +118,9 @@ OF_VER=1.3
 MITM_NIC=eth1
 CONTROLLER_IP=[agent-controller ipAddr]
 SWITCH_IP=[agent-host ipAddr],[agent-host ipAddr],[agent-host ipAddr]
-DUMMY_CONT_IP=10.0.3.1
+DUMMY_CONT_IP=[agent-manager ipAddr]
 DUMMY_CONT_PORT=6633
-AM_IP=10.0.3.1
+AM_IP=[agent-manager ipAddr]
 AM_PORT=3366
 ```
 > Floodlight 1.2
@@ -163,7 +157,7 @@ $ ./odl-carbon-scp
 $ cd <DELTA>/tools/dev/app-agent-setup/ryu
 $ ./delta-setup-ryu
 ```
-+ The app-agent (on the controller machine) needs 'agent.cfg' file to connect to the agent-manager.
++ The app-agent (on the controller container) needs 'agent.cfg' file to connect to the agent-manager.
 ```
 MANAGER_IP=10.0.3.1
 MANAGER_PORT=3366
