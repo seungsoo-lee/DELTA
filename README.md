@@ -181,9 +181,6 @@ $ mvn clean install
 $ cd <DELTA>
 $ source ./tools/dev/delta-setup/bash_profile
 $ ./tools/dev/delta-setup/delta-agents-scp
-
-(In case of lxc)
-$ sudo route add -net 10.0.1.0/24 gw 10.0.1.1 dev lxcbr0
 ```
 
 

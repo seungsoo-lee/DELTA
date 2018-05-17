@@ -1,4 +1,12 @@
 #!/bin/bash
+CR="\e[92m[DELTA] "
+NOCR="\e[0m"
 
+echo -e $CR"Install lxc"$NOCR
+sudo apt-get install -y lxc
+
+echo -e $CR"Set Default IP Address"$NOCR
+sudo cp dnsmasq.conf /etc/lxc/dnsmasq.conf
+
+echo -e $CR"Create Agent-Controller"$NOCR
 sudo lxc-create -n agent-controller -t ubuntu
-sudo lxc-start -n agent-controller -d

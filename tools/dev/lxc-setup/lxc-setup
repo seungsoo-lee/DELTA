@@ -1,6 +1,9 @@
 #!/bin/bash
+CR="\e[92m[DELTA] "
+NOCR="\e[0m"
 
-echo "Start lxc-setup"
+echo -e $CR"Install dependencies"$NOCR
+
 ssh $DELTA_APP "
     sudo apt-get update
     sudo apt-get upgrade -y
@@ -23,17 +26,28 @@ ssh $DELTA_APP "
     git checkout -b 2.2.1 2.2.1
 "
 
+echo -e $CR"Install mininet"$NOCR
 scp $HOME/DELTA/tools/dev/lxc-setup/install.sh $DELTA_APP:/home/ubuntu/mininet/util/install.sh
 ssh $DELTA_APP "
     mininet/util/install.sh -a
 "
 
-echo "Copy agent-controller"
+echo -e $CR"Stop Agent-Controller"$NOCR
 sudo lxc-stop -n agent-controller
+
+echo -e $CR"Copy Agent-Controller and Create Agent-Channel"$NOCR
 sudo lxc-copy -n agent-controller -N agent-channel
+
+echo -e $CR"Copy Agent-Controller and Create Agent-Host"$NOCR
 sudo lxc-copy -n agent-controller -N agent-host
 
-echo "Create agent-channel and agent-host"
+echo -e $CR"Start Agent-Controller"$NOCR
 sudo lxc-start -n agent-controller -d
+
+echo -e $CR"Start Agent-Channel"$NOCR
 sudo lxc-start -n agent-channel -d
+
+echo -e $CR"Start Agent-Host"$NOCR
 sudo lxc-start -n agent-host -d
+
+sudo route add -net 10.0.1.0/24 gw 10.0.3.13 dev lxcbr0
