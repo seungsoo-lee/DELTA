@@ -119,16 +119,12 @@ public class AttackConductor {
     public void executeTestCase(TestCase test) throws InterruptedException {
         long start = System.currentTimeMillis();
         if (test.getcasenum().charAt(0) == '1') {
-	    test.getConfiguration().setTOPOLOGY_TYPE("test-switch-topo.py");
             testSwitchCase.replayKnownAttack(test);
         } else if (test.getcasenum().charAt(0) == '2') {
-	    test.getConfiguration().setTOPOLOGY_TYPE("test-controller-topo.py");
             testControllerCase.replayKnownAttack(test);
         } else if (test.getcasenum().charAt(0) == '3') {
-	    test.getConfiguration().setTOPOLOGY_TYPE("test-advanced-topo.py");
             testAdvancedCase.replayKnownAttack(test);
         } else if (test.getcasenum().charAt(0) == '0') {
-	    test.getConfiguration().setTOPOLOGY_TYPE("test-fuzzing-topo.py");
             testFuzzing.testFuzzing(test);
         }
         long end = System.currentTimeMillis();

@@ -224,6 +224,9 @@ public class Configuration {
 
                 if (temp.contains("AM_PORT"))
                     this.AM_PORT = temp.substring(temp.indexOf("=") + 1);
+
+                if (temp.contains("TOPOLOGY_TYPE"))
+                    this.TOPOLOGY_TYPE = temp.substring(temp.indexOf("=") + 1);
             }
 
         } catch (FileNotFoundException e) {

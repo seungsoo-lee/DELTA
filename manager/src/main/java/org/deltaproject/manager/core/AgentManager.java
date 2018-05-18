@@ -92,9 +92,14 @@ public class AgentManager extends Thread {
             } else if (conductor.isPossibleAttack(input) && TestCaseDirectory.getDirectory().containsKey(input.trim())) {
 		TestCase testCase = TestCaseDirectory.getDirectory().get(input);
 		testCase.setConfiguration(this.configuration);
+		System.out.println("\nStart attack!");
+		System.out.println("You can see the detail in WebUI or Log file");
+
+		conductor.refreshConfig(testCase.getConfiguration());
 		conductor.executeTestCase(testCase);
-		System.out.println("Start attack");
-		System.out.println("You can see the result in WebUI or Log");
+		System.out.print("\nTest Result: ");
+		System.out.println(testCase.getResult());
+		System.out.println("If the result is 'FAIL', it is vulnerable to the attack.");
             } else {
                 System.out.println("Attack Code [" + input + "] is not available");
                 return false;
