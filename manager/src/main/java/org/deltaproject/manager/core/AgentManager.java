@@ -25,6 +25,7 @@ public class AgentManager extends Thread {
     private BufferedReader sc;
     private WebUI webUI = new WebUI();
     private TestCaseExecutor testCaseExecutor;
+    private Configuration configuration;
 
     private Socket temp;
 
@@ -35,6 +36,8 @@ public class AgentManager extends Thread {
         testCaseExecutor.start();
         webUI.activate();
         Runtime.getRuntime().addShutdownHook(AgentLogger.getShutdownInstance());
+	configuration = new Configuration();
+	configuration.initialize(path);
     }
 
     public void showMenu() throws IOException {
@@ -87,10 +90,11 @@ public class AgentManager extends Thread {
             if (input.equalsIgnoreCase("A")) {
                 // conductor.replayAllKnownAttacks();
             } else if (conductor.isPossibleAttack(input) && TestCaseDirectory.getDirectory().containsKey(input.trim())) {
-                // conductor.replayKnownAttack(input);
-                TestCase testCase = new TestCase(input.trim());
-                testCase.setStatus(TestCase.Status.QUEUED);
-                TestQueue.getInstance().push(testCase);
+		TestCase testCase = TestCaseDirectory.getDirectory().get(input);
+		testCase.setConfiguration(this.configuration);
+		conductor.executeTestCase(testCase);
+		System.out.println("Start attack");
+		System.out.println("You can see the result in WebUI or Log");
             } else {
                 System.out.println("Attack Code [" + input + "] is not available");
                 return false;
