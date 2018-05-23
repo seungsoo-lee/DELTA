@@ -167,6 +167,10 @@ public class HostAgentManager extends Thread {
                     Runtime.getRuntime().exec("ssh " + cfg.getHOST_SSH() + " sudo mn -c");
                 }
 
+                proc = Runtime.getRuntime().exec("sudo kill -9 " + this.procPID);
+                proc.waitFor();
+                procPID = -1;
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
