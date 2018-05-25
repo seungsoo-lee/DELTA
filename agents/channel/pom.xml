@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <parent>
         <artifactId>delta-agents</artifactId>
         <groupId>org.deltaproject</groupId>
@@ -176,15 +178,9 @@
             <artifactId>automata-jung-visualizer</artifactId>
             <scope>runtime</scope>
         </dependency>
-
     </dependencies>
 
     <repositories>
-        <repository>
-            <id>delta-lib-repo</id>
-            <url>file://${project.basedir}/libs</url>
-        </repository>
-
         <repository>
             <id>sonatype-nexus-snapshots</id>
             <name>Sonatype Nexus Snapshots</name>

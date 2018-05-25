@@ -1,7 +1,6 @@
 package org.deltaproject.manager.core;
 
 import org.deltaproject.manager.fuzzing.TestFuzzing;
-import org.deltaproject.manager.fuzzing.TestStateDiagram;
 import org.deltaproject.manager.testcase.TestAdvancedCase;
 import org.deltaproject.manager.testcase.TestControllerCase;
 import org.deltaproject.manager.testcase.CaseInfo;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,7 +38,6 @@ public class AttackConductor {
     private TestControllerCase testControllerCase;
 
     private TestFuzzing testFuzzing;
-    private TestStateDiagram testState;
 
     private String agentType;
 
@@ -66,8 +63,6 @@ public class AttackConductor {
         testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
 
         testFuzzing = new TestFuzzing(appm, hostm, channelm, controllerm);
-        testState = new TestStateDiagram(appm);
-
     }
 
     public void refreshConfig(Configuration cfg) {
