@@ -1,5 +1,6 @@
-[![ToolsWatch 2017 Arsenal](http://www.toolswatch.org/wp-content/uploads/2016/12/bharsenal.png)](https://www.blackhat.com/us-17/arsenal/schedule/#delta-sdn-security-evaluation-framework-7466)
 [![ONF Best Showcase](/images/onf_best_showcase.jpg)](https://www.opennetworking.org/news-and-events/sdn-solutions-showcase/sdn-solutions-showcase-2016/)
+[![Black Hat Arsenal1](https://github.com/toolswatch/badges/blob/master/arsenal/usa/2017.svg)](https://www.blackhat.com/us-17/arsenal/schedule/#delta-sdn-security-evaluation-framework-7466)
+[![Black Hat Arsenal2](https://github.com/toolswatch/badges/blob/master/arsenal/usa/2018.svg)](https://www.blackhat.com/us-18/arsenal/schedule/index.html#delta-sdn-security-evaluation-framework-10588)
 
 # DELTA: SDN SECURITY EVALUATION FRAMEWORK
 
@@ -82,30 +83,7 @@ $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_DP
 ![Env1](images/delta_env.png)
 
 ## Configuring your own experiments
-+ Execute sudo without the password
-```
-$ sudo visudo
-In the bottom of the file, type the follow:
-username ALL=(ALL) NOPASSWD: ALL
-```
-+ Configure passwd-less ssh login for the agents
-
-```
-$ vi <DELTA>/tools/dev/delta-setup/bash_profile
-(by default, the addresses are set as containers)
-export DELTA_APP=[account-id]@[agent-controller ipAddr]
-export DELTA_CHANNEL=[account-id]@[agent-channel ipAddr]
-export DELTA_HOST=[account-id]@[agent-channel ipAddr]
-$ source <DELTA>/tools/dev/delta-setup/bash_profile
-
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_APP
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CHANNEL
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_HOST
-
-Check if you can access the Containers without having to enter the password.
-```
-
-+ The agent-manager automatically reads a configuration file and sets up the test environment based on the file. DELTA/tools/config/manager.cfg contains the All-In-One Single Machine configuration by default. If you want to test a real SDN environment, you should specify your own configuration file.
++ The agent-manager automatically reads a configuration file and sets up the test environment based on the file. [<DELTA>/tools/config/manager_default.cfg] contains the All-In-One Single Machine configuration by default.
 ```
 CONTROLLER_SSH=[account-id]@[agent-controller ipAddr]
 CHANNEL_SSH=[account-id]@[agent-channel ipAddr]
