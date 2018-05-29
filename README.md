@@ -15,11 +15,11 @@ DELTA is a penetration testing framework that regenerates known attack scenarios
 
 ## Prerequisites
 In order to build and run DELTA, the following are required:
-+ An agent manager based on Ubuntu 14.04 LTS 64 bit
++ An agent manager based on Ubuntu 16.04 LTS 64 bit
   + Ant build system
   + Maven v3.3.9
   + LXC 2.0
-  + JDK 1.7 and 1.8
+  + JDK 1.8
 + Target Controller (for application agent)
   + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
   + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6, 1.9
@@ -48,7 +48,7 @@ $ cd <DELTA>/tools/dev/delta-setup/
 $ ./delta-setup-devenv-ubuntu
 ```
 
-+ STEP 2-1. (All-In-One Single Machine) Install three containers using lxc
++ STEP 3. Install three containers using lxc
 
 ```
 $ source ./<DELTA>/tools/dev/delta-setup/bash_profile
@@ -58,23 +58,23 @@ $ ./lxc-create
 $ sudo vi /etc/default/lxc-net
 Uncomment "LXC_DHCP_CONFILE=/etc/lxc/dnsmasq.conf"
 $ sudo service lxc-net restart
-$ sudo lxc-start -n agent-controller -d
+$ sudo lxc-start -n container-cp -d
 
 $ cd ~
 $ ssh-keygen -t rsa
 (Press Enter)
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_APP
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CP
 (ID: ubuntu, PW: ubuntu)
 
-$ ssh $DELTA_APP
-$ sudo visudo
+$ ssh $DELTA_CP
+(DELTA_CP) $ sudo visudo
 In the bottom of the file, type the follow:
 ubuntu ALL=(ALL) NOPASSWD: ALL
-$ exit
+(DELTA_CP) $ exit
 
 $ ./<DELTA>/tools/dev/lxc-setup/lxc-setup
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CHANNEL
-$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_HOST
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CH
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_DP
 
 ```
 
