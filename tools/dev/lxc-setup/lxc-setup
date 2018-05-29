@@ -4,7 +4,7 @@ NOCR="\e[0m"
 
 echo -e $CR"Install dependencies"$NOCR
 
-ssh $DELTA_APP "
+ssh $DELTA_CP "
     sudo apt-get update
     sudo apt-get upgrade -y
     sudo apt-get install -y python-dev python-pip
@@ -27,8 +27,8 @@ ssh $DELTA_APP "
 "
 
 echo -e $CR"Install mininet"$NOCR
-scp $HOME/DELTA/tools/dev/lxc-setup/install.sh $DELTA_APP:/home/ubuntu/mininet/util/install.sh
-ssh $DELTA_APP "
+scp $HOME/DELTA/tools/dev/lxc-setup/install.sh $DELTA_CP:/home/ubuntu/mininet/util/install.sh
+ssh $DELTA_CP "
     mininet/util/install.sh -a
 "
 
