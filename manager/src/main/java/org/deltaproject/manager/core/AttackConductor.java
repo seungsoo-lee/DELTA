@@ -53,7 +53,7 @@ public class AttackConductor {
         this.hostm = new HostAgentManager();
         this.channelm = new ChannelAgentManager();
 
-		/* Update Test Cases */
+        /* Update Test Cases */
         CaseInfo.updateAdvancedCase(infoAdvancedCase);
         CaseInfo.updateControllerCase(infoControllerCase);
         CaseInfo.updateSwitchCase(infoSwitchCase);
@@ -87,21 +87,33 @@ public class AttackConductor {
                 dos.writeUTF("OK");
                 dos.flush();
                 log.info("App agent connected");
-            } else if (agentType.contains("ActAgent")) {        /* for OpenDaylightHandler */
+            }
+
+            /* ActAgent for OpenDaylight Handler */
+            if (agentType.contains("ActAgent")) {
                 appm.setActSocket(socket, dos, dis);
-            } else if (agentType.contains("ChannelAgent")) {
+            }
+
+            if (agentType.contains("ChannelAgent")) {
                 channelm.setSocket(socket, dos, dis);
                 dos.writeUTF("OK");
                 dos.flush();
 
-			/* send configuration to channel agent */
-                String config = "config," + "version:" + cfg.getOF_VERSION() + ",nic:" + cfg.getMITM_NIC() + ",port:"
-                        + cfg.getOF_PORT() + ",controller_ip:" + cfg.getCONTROLLER_IP() + ",switch_ip:" + cfg.getSwitchList().get(0)
-                        + ",handler:dummy" + ",cbench:" + cfg.getCBENCH_ROOT();
+                /* send configuration to channel agent */
+                String config = "config,"
+                        + "version:" + cfg.getOF_VERSION()
+                        + ",nic:" + cfg.getMITM_NIC()
+                        + ",port:" + cfg.getOF_PORT()
+                        + ",controller_ip:" + cfg.getCONTROLLER_IP()
+                        + ",switch_ip:" + cfg.getSwitchList().get(0)
+                        + ",handler:dummy"
+                        + ",cbench:" + cfg.getCBENCH_ROOT();
 
                 channelm.write(config);
                 log.info("Channel agent connected");
-            } else if (agentType.contains("HostAgent")) {
+            }
+
+            if (agentType.contains("HostAgent")) {
                 hostm.setSocket(socket, dos, dis);
                 hostm.write("target:" + cfg.getTARGET_HOST());
                 log.info("Host agent connected");

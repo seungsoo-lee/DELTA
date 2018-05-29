@@ -1,13 +1,11 @@
 package org.deltaproject.channelagent.utils;
 
-import jpcap.NetworkInterface;
-import jpcap.NetworkInterfaceAddress;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Inet4Address;
+import java.net.NetworkInterface;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
@@ -399,36 +397,36 @@ public class Utils {
      */
     public static int bytesIndexOf(byte[] largeArray, byte[] subArray) {
 
-		/* If any of the arrays is empty then not found */
+        /* If any of the arrays is empty then not found */
         if (largeArray.length == 0 || subArray.length == 0) {
             return -1;
         }
 
-		/* If subarray is larger than large array then not found */
+        /* If subarray is larger than large array then not found */
         if (subArray.length > largeArray.length) {
             return -1;
         }
 
         for (int i = 0; i < largeArray.length; i++) {
             /*
-			 * Check if the next element of large array is the same as the first
-			 * element of subarray
-			 */
+             * Check if the next element of large array is the same as the first
+             * element of subarray
+             */
             if (largeArray[i] == subArray[0]) {
 
                 boolean subArrayFound = true;
                 for (int j = 0; j < subArray.length; j++) {
-					/*
-					 * If outside of large array or elements not equal then
-					 * leave the loop
-					 */
+                    /*
+                     * If outside of large array or elements not equal then
+                     * leave the loop
+                     */
                     if (largeArray.length <= i + j || subArray[j] != largeArray[i + j]) {
                         subArrayFound = false;
                         break;
                     }
                 }
 
-				/* Sub array found - return its index */
+                /* Sub array found - return its index */
                 if (subArrayFound) {
                     return i;
                 }
@@ -436,7 +434,7 @@ public class Utils {
             }
         }
 
-		/* Return default value */
+        /* Return default value */
         return -1;
     }
 
@@ -449,16 +447,16 @@ public class Utils {
         return ret;
     }
 
-    public static NetworkInterfaceAddress __get_inet4(NetworkInterface device) throws NullPointerException {
-        if (device == null)
-            throw new NullPointerException("No device has been given! potato");
-
-        for (NetworkInterfaceAddress addr : device.addresses)
-            if (addr.address instanceof Inet4Address)
-                return addr;
-
-        return null;
-    }
+//    public static NetworkInterfaceAddress __get_inet4(NetworkInterface device) throws NullPointerException {
+//        if (device == null)
+//            throw new NullPointerException("No device has been given! potato");
+//
+//        for (NetworkInterfaceAddress addr : device.addresses)
+//            if (addr.address instanceof Inet4Address)
+//                return addr;
+//
+//        return null;
+//    }
 
 //    public static String bytesToHex(byte[] bytes) {
 //        char[] hexArray = "0123456789ABCDEF".toCharArray();

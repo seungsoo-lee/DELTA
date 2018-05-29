@@ -17,6 +17,4 @@
         <module>channel</module>
         <module>host</module>
     </modules>
-
-
 </project>

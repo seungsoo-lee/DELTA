@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 CR="\e[92m[DELTA] "
 NOCR="\e[0m"
 

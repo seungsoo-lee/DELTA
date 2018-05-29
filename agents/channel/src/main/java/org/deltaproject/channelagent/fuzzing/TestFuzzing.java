@@ -2,9 +2,9 @@ package org.deltaproject.channelagent.fuzzing;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import jpcap.packet.Packet;
 import org.deltaproject.channelagent.dummy.DummySwitch;
 import org.deltaproject.channelagent.utils.Utils;
+import org.pcap4j.packet.Packet;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.types.U16;
@@ -45,10 +45,7 @@ public class TestFuzzing {
 
     public ByteBuf getByteBuf(Packet p_temp) {
         // for OpenFlow Message
-        byte[] rawMsg = new byte[p_temp.data.length];
-        System.arraycopy(p_temp.data, 0, rawMsg, 0, p_temp.data.length);
-        // ByteBuf byteMsg = Unpooled.copiedBuffer(rawMsg);
-
+        byte[] rawMsg = p_temp.getRawData();
         return Unpooled.wrappedBuffer(rawMsg);
     }
 

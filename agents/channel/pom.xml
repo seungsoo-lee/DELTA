@@ -16,7 +16,6 @@
     <packaging>jar</packaging>
 
     <properties>
-        <!-- The version of LearnLib to use -->
         <learnlib.version>0.12.0</learnlib.version>
     </properties>
 
@@ -54,20 +53,6 @@
         </plugins>
     </build>
 
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>de.learnlib</groupId>
-                <artifactId>learnlib-parent</artifactId>
-                <version>${learnlib.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -93,12 +78,6 @@
             <version>13.0.1</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.projectfloodlight</groupId>-->
-            <!--<artifactId>openflowj</artifactId>-->
-            <!--<version>2.0.0-SNAPSHOT</version>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.onosproject</groupId>
             <artifactId>openflowj</artifactId>
@@ -106,77 +85,15 @@
         </dependency>
 
         <dependency>
-            <groupId>jpcap</groupId>
-            <artifactId>jpcap</artifactId>
-            <version>0.7</version>
+            <groupId>org.pcap4j</groupId>
+            <artifactId>pcap4j-core</artifactId>
+            <version>1.7.3</version>
         </dependency>
 
-        <!-- Basic LearnLib functionalities -->
         <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-counterexamples</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-basic-eqtests</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-simulator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-drivers-basic</artifactId>
-        </dependency>
-
-        <!-- A cache filter eliminates duplicate queries -->
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-cache</artifactId>
-        </dependency>
-
-        <!-- Dependencies for commonly used learning algorithms -->
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-lstar-generic</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-ttt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-dhc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-discrimination-tree</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-kearns-vazirani</artifactId>
-        </dependency>
-
-        <!-- Example automata that ship with LearnLib -->
-        <dependency>
-            <groupId>de.learnlib.testsupport</groupId>
-            <artifactId>learnlib-learning-examples</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- For visualization purposes -->
-        <dependency>
-            <groupId>net.automatalib</groupId>
-            <artifactId>automata-commons-dotutil</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.automatalib</groupId>
-            <artifactId>automata-jung-visualizer</artifactId>
-            <scope>runtime</scope>
+            <groupId>org.pcap4j</groupId>
+            <artifactId>pcap4j-packetfactory-static</artifactId>
+            <version>1.7.3</version>
         </dependency>
     </dependencies>
 
@@ -197,5 +114,4 @@
             <url>http://clojars.org/repo</url>
         </repository>
     </repositories>
-
 </project>

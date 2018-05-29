@@ -3,15 +3,13 @@ package org.deltaproject.channelagent.testcase;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
-import jpcap.packet.EthernetPacket;
-import jpcap.packet.IPPacket;
-import jpcap.packet.Packet;
-import jpcap.packet.TCPPacket;
-import org.deltaproject.channelagent.core.Interface;
 import org.deltaproject.channelagent.utils.Utils;
 import org.deltaproject.channelagent.dummy.DummySwitch;
 import org.deltaproject.channelagent.networknode.NetworkNode;
 import org.deltaproject.channelagent.networknode.TopoInfo;
+import org.pcap4j.packet.*;
+import org.pcap4j.packet.namednumber.EtherType;
+import org.pcap4j.packet.namednumber.IpNumber;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
@@ -45,10 +43,7 @@ public class TestAdvancedCase {
     }
 
     public ByteBuf getByteBuf(Packet p_temp) {
-        // for OpenFlow Message
-        byte[] rawMsg = new byte[p_temp.data.length];
-        System.arraycopy(p_temp.data, 0, rawMsg, 0, p_temp.data.length);
-        // ByteBuf byteMsg = Unpooled.copiedBuffer(rawMsg);
+        byte[] rawMsg = p_temp.getRawData();
 
         return Unpooled.wrappedBuffer(rawMsg);
     }
@@ -82,28 +77,6 @@ public class TestAdvancedCase {
 
         int totalLen = bb.readableBytes();
         int offset = bb.readerIndex();
-
-        EthernetPacket p_eth = (EthernetPacket) p_temp.datalink;
-        String src_mac = Utils.decalculate_mac(p_eth.src_mac);
-        String dst_mac = Utils.decalculate_mac(p_eth.dst_mac);
-
-        String src_ip = "";
-        String dst_ip = "";
-
-        int src_port = 0;
-        int dst_port = 0;
-
-        IPPacket p = ((IPPacket) p_temp);
-
-        if (p instanceof TCPPacket) {
-            TCPPacket tcp = ((TCPPacket) p);
-
-            src_ip = p.src_ip.toString().split("/")[1];
-            dst_ip = p.dst_ip.toString().split("/")[1];
-
-            src_port = tcp.src_port;
-            dst_port = tcp.dst_port;
-        }
 
         while (offset < totalLen) {
             bb.readerIndex(offset);
@@ -148,7 +121,7 @@ public class TestAdvancedCase {
                         b.setTotalLen(fi.getTotalLen());
                         b.setInPort(fi.getInPort());
 
-						/* for 1.3 later */
+                        /* for 1.3 later */
                         // b.setMatch(fi.getMatch());
                         // b.setCookie(fi.getCookie());
                         // b.setTableId(fi.getTableId());
@@ -196,10 +169,20 @@ public class TestAdvancedCase {
 
         int totalLen = bb.readableBytes();
         int offset = bb.readerIndex();
+        EthernetPacket p_eth = null;
+        EthernetPacket.EthernetHeader p_eth_h = null;
+        IpV4Packet ipv4Packet = null;
+        TcpPacket tcpPacket = null;
 
-        EthernetPacket p_eth = (EthernetPacket) p_temp.datalink;
-        String src_mac = Utils.decalculate_mac(p_eth.src_mac);
-        String dst_mac = Utils.decalculate_mac(p_eth.dst_mac);
+        try {
+            p_eth = EthernetPacket.newPacket(p_temp.getRawData(), 0, p_temp.length());
+            p_eth_h = p_eth.getHeader();
+        } catch (IllegalRawDataException e) {
+            e.printStackTrace();
+        }
+
+        String src_mac = Utils.decalculate_mac(p_eth_h.getSrcAddr().getAddress());
+        String dst_mac = Utils.decalculate_mac(p_eth_h.getDstAddr().getAddress());
 
         String src_ip = "";
         String dst_ip = "";
@@ -207,17 +190,19 @@ public class TestAdvancedCase {
         int src_port = 0;
         int dst_port = 0;
 
-        IPPacket p = ((IPPacket) p_temp);
+        EtherType type = p_eth_h.getType();
 
-        if (p instanceof TCPPacket) {
-            TCPPacket tcp = ((TCPPacket) p);
-
-            src_ip = p.src_ip.toString().split("/")[1];
-            dst_ip = p.dst_ip.toString().split("/")[1];
-
-            src_port = tcp.src_port;
-            dst_port = tcp.dst_port;
+        if (type == EtherType.IPV4) {
+            ipv4Packet = p_temp.get(IpV4Packet.class);
+            if (ipv4Packet.getHeader().getProtocol() == IpNumber.TCP)
+                tcpPacket = p_temp.get(TcpPacket.class);
         }
+
+        src_ip = ipv4Packet.getHeader().getSrcAddr().getHostAddress();
+        dst_ip = ipv4Packet.getHeader().getDstAddr().getHostAddress();
+
+        src_port = tcpPacket.getHeader().getSrcPort().valueAsInt();
+        dst_port = tcpPacket.getHeader().getDstPort().valueAsInt();
 
         while (offset < totalLen) {
             bb.readerIndex(offset);
@@ -248,10 +233,10 @@ public class TestAdvancedCase {
                     if ((data)[12] == -120 && (data)[13] == -52) {
                         /*
                          * log.info("[Channel-Agent] Get PACKET_OUT");
-						 * log.info("[Channel-Agent] Length: " +
-						 * data.length);
-						 * log.info(Utils.byteArrayToHexString(data));
-						 */
+                         * log.info("[Channel-Agent] Length: " +
+                         * data.length);
+                         * log.info(Utils.byteArrayToHexString(data));
+                         */
 
                         String dpid = Utils.decalculate_mac(Arrays.copyOfRange(data, 17, 23));
                         OFActionOutput out = (OFActionOutput) (fo.getActions().get(0));
@@ -350,7 +335,7 @@ public class TestAdvancedCase {
 
             if (version != this.ofversion) {
                 // segmented TCP pkt
-                 log.info("[Channel Agent] OFVersion Missing " + version + " : " + offset + "-" + totalLen);
+                log.info("[Channel Agent] OFVersion Missing " + version + " : " + offset + "-" + totalLen);
                 return null;
             }
 
