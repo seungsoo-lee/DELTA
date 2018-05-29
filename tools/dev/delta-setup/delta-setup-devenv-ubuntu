@@ -3,7 +3,7 @@
 # Script to install DELTA dependencies on Ubuntu 14.04
 #
 
-# install jdk 1.7, 1.8
+# install oracle-jdk 1.8
 echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
 echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
 
