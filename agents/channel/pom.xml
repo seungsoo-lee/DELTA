@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <parent>
         <artifactId>delta-agents</artifactId>
         <groupId>org.deltaproject</groupId>
@@ -14,7 +16,6 @@
     <packaging>jar</packaging>
 
     <properties>
-        <!-- The version of LearnLib to use -->
         <learnlib.version>0.12.0</learnlib.version>
     </properties>
 
@@ -52,20 +53,6 @@
         </plugins>
     </build>
 
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>de.learnlib</groupId>
-                <artifactId>learnlib-parent</artifactId>
-                <version>${learnlib.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -91,12 +78,6 @@
             <version>13.0.1</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.projectfloodlight</groupId>-->
-            <!--<artifactId>openflowj</artifactId>-->
-            <!--<version>2.0.0-SNAPSHOT</version>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.onosproject</groupId>
             <artifactId>openflowj</artifactId>
@@ -104,87 +85,19 @@
         </dependency>
 
         <dependency>
-            <groupId>jpcap</groupId>
-            <artifactId>jpcap</artifactId>
-            <version>0.7</version>
+            <groupId>org.pcap4j</groupId>
+            <artifactId>pcap4j-core</artifactId>
+            <version>1.7.3</version>
         </dependency>
 
-        <!-- Basic LearnLib functionalities -->
         <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-core</artifactId>
+            <groupId>org.pcap4j</groupId>
+            <artifactId>pcap4j-packetfactory-static</artifactId>
+            <version>1.7.3</version>
         </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-counterexamples</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-basic-eqtests</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-simulator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-drivers-basic</artifactId>
-        </dependency>
-
-        <!-- A cache filter eliminates duplicate queries -->
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-cache</artifactId>
-        </dependency>
-
-        <!-- Dependencies for commonly used learning algorithms -->
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-lstar-generic</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-ttt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-dhc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-discrimination-tree</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-kearns-vazirani</artifactId>
-        </dependency>
-
-        <!-- Example automata that ship with LearnLib -->
-        <dependency>
-            <groupId>de.learnlib.testsupport</groupId>
-            <artifactId>learnlib-learning-examples</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- For visualization purposes -->
-        <dependency>
-            <groupId>net.automatalib</groupId>
-            <artifactId>automata-commons-dotutil</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.automatalib</groupId>
-            <artifactId>automata-jung-visualizer</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
     </dependencies>
 
     <repositories>
-        <repository>
-            <id>delta-lib-repo</id>
-            <url>file://${project.basedir}/libs</url>
-        </repository>
-
         <repository>
             <id>sonatype-nexus-snapshots</id>
             <name>Sonatype Nexus Snapshots</name>
@@ -201,5 +114,4 @@
             <url>http://clojars.org/repo</url>
         </repository>
     </repositories>
-
 </project>

@@ -1,6 +1,6 @@
 package org.deltaproject.channelagent.fuzzing;
 
-import org.deltaproject.channelagent.pkthandler.PktListener;
+import org.deltaproject.channelagent.pkthandler.PktHandler;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFMessage;
@@ -11,9 +11,7 @@ import org.projectfloodlight.openflow.types.U16;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.HashMap;
 
 public class SeedPackets {
@@ -103,9 +101,9 @@ public class SeedPackets {
 			int length = U16.f(bb.readShort());
 			bb.readerIndex(offset);
 
-			if (length < PktListener.MINIMUM_LENGTH)
+			if (length < PktHandler.MINIMUM_LENGTH)
 				throw new OFParseError(
-						"Wrong length: Expected to be >= " + PktListener.MINIMUM_LENGTH + ", was: " + length);
+						"Wrong length: Expected to be >= " + PktHandler.MINIMUM_LENGTH + ", was: " + length);
 
 			try {
 				OFMessage message = reader.readFrom(bb);

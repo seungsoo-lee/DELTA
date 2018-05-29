@@ -91,6 +91,8 @@ public class TestCase {
          */
         FLOODLIGHT,
 
+	RYU,
+
         /**
          * Represents that the controller type is unspecified.
          */

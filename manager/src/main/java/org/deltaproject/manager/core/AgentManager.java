@@ -25,6 +25,7 @@ public class AgentManager extends Thread {
     private BufferedReader sc;
     private WebUI webUI = new WebUI();
     private TestCaseExecutor testCaseExecutor;
+    private Configuration configuration;
 
     private Socket temp;
 
@@ -34,7 +35,11 @@ public class AgentManager extends Thread {
         testCaseExecutor = new TestCaseExecutor(conductor);
         testCaseExecutor.start();
         webUI.activate();
+
         Runtime.getRuntime().addShutdownHook(AgentLogger.getShutdownInstance());
+
+        configuration = new Configuration();
+        configuration.initialize(path);
     }
 
     public void showMenu() throws IOException {
@@ -87,10 +92,16 @@ public class AgentManager extends Thread {
             if (input.equalsIgnoreCase("A")) {
                 // conductor.replayAllKnownAttacks();
             } else if (conductor.isPossibleAttack(input) && TestCaseDirectory.getDirectory().containsKey(input.trim())) {
-                // conductor.replayKnownAttack(input);
-                TestCase testCase = new TestCase(input.trim());
-                testCase.setStatus(TestCase.Status.QUEUED);
-                TestQueue.getInstance().push(testCase);
+                TestCase testCase = TestCaseDirectory.getDirectory().get(input);
+                testCase.setConfiguration(this.configuration);
+                System.out.println("\nStart attack!");
+                System.out.println("You can see the detail in WebUI or Log file");
+
+                conductor.refreshConfig(testCase.getConfiguration());
+                conductor.executeTestCase(testCase);
+                System.out.print("\nTest Result: ");
+                System.out.println(testCase.getResult());
+                System.out.println("If the result is 'FAIL', it is vulnerable to the attack.");
             } else {
                 System.out.println("Attack Code [" + input + "] is not available");
                 return false;
@@ -105,6 +116,7 @@ public class AgentManager extends Thread {
             System.out.print("\nSelect handler control message> ");
             input = sc.readLine();
         }
+
         return true;
     }
 

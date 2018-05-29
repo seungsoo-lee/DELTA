@@ -162,41 +162,41 @@ public class Configuration {
                     WEB += temp + "\n";
                 }
 
-//                if (temp.contains("TARGET_CONTROLLER")) {
-//                    this.TARGET_CONTROLLER = temp
-//                            .substring(temp.indexOf("=") + 1);
-//
-//                    WEB += temp + "\n";
-//                }
+                if (temp.contains("TARGET_CONTROLLER")) {
+                    this.TARGET_CONTROLLER = temp
+                            .substring(temp.indexOf("=") + 1);
 
-//                if (temp.contains("TARGET_VERSION")) {
-//                    this.TARGET_VERSION = temp.substring(temp.indexOf("=") + 1);
-//
-//                    WEB += temp + "\n";
-//                }
+                    WEB += temp + "\n";
+                }
 
-//                if (temp.contains("OF_PORT")) {
-//                    this.OF_PORT = temp.substring(temp.indexOf("=") + 1);
-//
-//                    WEB += temp + "\n";
-//                }
+                if (temp.contains("TARGET_VERSION")) {
+                    this.TARGET_VERSION = temp.substring(temp.indexOf("=") + 1);
 
-//                if (temp.contains("OF_VER")) {
-//                    this.OF_VERSION = temp.substring(temp.indexOf("=") + 1);
-//
-//                    WEB += temp + "\n";
-//                }
+                    WEB += temp + "\n";
+                }
 
-//                if (temp.contains("SWITCH_IP")) {
-//                    String switchlist = temp.substring(temp.indexOf("=") + 1);
-//                    StringTokenizer st = new StringTokenizer(switchlist, ",");
-//
-//                    while (st.hasMoreTokens()) {
-//                        this.switchList.add(st.nextToken());
-//                    }
-//
-//                    WEB += temp + "\n";
-//                }
+                if (temp.contains("OF_PORT")) {
+                    this.OF_PORT = temp.substring(temp.indexOf("=") + 1);
+
+                    WEB += temp + "\n";
+                }
+
+                if (temp.contains("OF_VER")) {
+                    this.OF_VERSION = temp.substring(temp.indexOf("=") + 1);
+
+                    WEB += temp + "\n";
+                }
+
+                if (temp.contains("SWITCH_IP")) {
+                    String switchlist = temp.substring(temp.indexOf("=") + 1);
+                    StringTokenizer st = new StringTokenizer(switchlist, ",");
+
+                    while (st.hasMoreTokens()) {
+                        this.switchList.add(st.nextToken());
+                    }
+
+                    WEB += temp + "\n";
+                }
 
                 if (temp.contains("MITM_NIC"))
                     this.MITM_NIC = temp.substring(temp.indexOf("=") + 1);
@@ -224,6 +224,9 @@ public class Configuration {
 
                 if (temp.contains("AM_PORT"))
                     this.AM_PORT = temp.substring(temp.indexOf("=") + 1);
+
+                if (temp.contains("TOPOLOGY_TYPE"))
+                    this.TOPOLOGY_TYPE = temp.substring(temp.indexOf("=") + 1);
             }
 
         } catch (FileNotFoundException e) {

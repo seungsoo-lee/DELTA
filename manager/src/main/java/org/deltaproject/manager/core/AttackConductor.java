@@ -1,7 +1,6 @@
 package org.deltaproject.manager.core;
 
 import org.deltaproject.manager.fuzzing.TestFuzzing;
-import org.deltaproject.manager.fuzzing.TestStateDiagram;
 import org.deltaproject.manager.testcase.TestAdvancedCase;
 import org.deltaproject.manager.testcase.TestControllerCase;
 import org.deltaproject.manager.testcase.CaseInfo;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,7 +38,6 @@ public class AttackConductor {
     private TestControllerCase testControllerCase;
 
     private TestFuzzing testFuzzing;
-    private TestStateDiagram testState;
 
     private String agentType;
 
@@ -56,7 +53,7 @@ public class AttackConductor {
         this.hostm = new HostAgentManager();
         this.channelm = new ChannelAgentManager();
 
-		/* Update Test Cases */
+        /* Update Test Cases */
         CaseInfo.updateAdvancedCase(infoAdvancedCase);
         CaseInfo.updateControllerCase(infoControllerCase);
         CaseInfo.updateSwitchCase(infoSwitchCase);
@@ -66,8 +63,6 @@ public class AttackConductor {
         testAdvancedCase = new TestAdvancedCase(appm, hostm, channelm, controllerm);
 
         testFuzzing = new TestFuzzing(appm, hostm, channelm, controllerm);
-        testState = new TestStateDiagram(appm);
-
     }
 
     public void refreshConfig(Configuration cfg) {
@@ -92,21 +87,33 @@ public class AttackConductor {
                 dos.writeUTF("OK");
                 dos.flush();
                 log.info("App agent connected");
-            } else if (agentType.contains("ActAgent")) {        /* for OpenDaylightHandler */
+            }
+
+            /* ActAgent for OpenDaylight Handler */
+            if (agentType.contains("ActAgent")) {
                 appm.setActSocket(socket, dos, dis);
-            } else if (agentType.contains("ChannelAgent")) {
+            }
+
+            if (agentType.contains("ChannelAgent")) {
                 channelm.setSocket(socket, dos, dis);
                 dos.writeUTF("OK");
                 dos.flush();
 
-			/* send configuration to channel agent */
-                String config = "config," + "version:" + cfg.getOF_VERSION() + ",nic:" + cfg.getMITM_NIC() + ",port:"
-                        + cfg.getOF_PORT() + ",controller_ip:" + cfg.getCONTROLLER_IP() + ",switch_ip:" + cfg.getSwitchList().get(0)
-                        + ",handler:dummy" + ",cbench:" + cfg.getCBENCH_ROOT();
+                /* send configuration to channel agent */
+                String config = "config,"
+                        + "version:" + cfg.getOF_VERSION()
+                        + ",nic:" + cfg.getMITM_NIC()
+                        + ",port:" + cfg.getOF_PORT()
+                        + ",controller_ip:" + cfg.getCONTROLLER_IP()
+                        + ",switch_ip:" + cfg.getSwitchList().get(0)
+                        + ",handler:dummy"
+                        + ",cbench:" + cfg.getCBENCH_ROOT();
 
                 channelm.write(config);
                 log.info("Channel agent connected");
-            } else if (agentType.contains("HostAgent")) {
+            }
+
+            if (agentType.contains("HostAgent")) {
                 hostm.setSocket(socket, dos, dis);
                 hostm.write("target:" + cfg.getTARGET_HOST());
                 log.info("Host agent connected");

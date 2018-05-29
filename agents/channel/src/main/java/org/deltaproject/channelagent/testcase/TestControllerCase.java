@@ -99,7 +99,6 @@ public class TestControllerCase {
         byte[] msg;
         if (targetOFVersion == 4) {
             msg = Utils.hexStringToByteArray(DummyOF13.PORT_STATUS);
-//            msg = Utils.hexStringToByteArray(DummyOF13.PACKET_IN);
             msg[0] = (byte) 0x01;
 
             result = "Send Packet-In msg with OF version 1.0\n";
@@ -232,7 +231,6 @@ public class TestControllerCase {
         } else
             result += "Response is ignored, PASS";
 
-//        stopSW();
         return result;
     }
 
