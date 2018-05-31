@@ -1,5 +1,9 @@
 package org.deltaproject.channelagent.core;
 
+import org.pcap4j.util.MacAddress;
+
+import java.util.HashMap;
+
 public class Configuration {
     private static final Configuration instance = new Configuration();
 
@@ -16,6 +20,15 @@ public class Configuration {
     private byte ofVersion;
     private String ofPort;
 
+    private HashMap<String, MacAddress> IpToMac = new HashMap<>();
+
+    public void setIpToMac(String ip, MacAddress mac) {
+        IpToMac.put(ip, mac);
+    }
+
+    public HashMap<String, MacAddress> getIpToMacList() {
+        return IpToMac;
+    }
 
     public void setControllerIp(String val) {
         controllerIp = val;

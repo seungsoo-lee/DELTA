@@ -80,7 +80,6 @@ public class PktHandler {
 
                 // update = already + new
                 tcpBodyData = new byte[a.length + b.length];
-
                 System.arraycopy(a, 0, tcpBodyData, 0, a.length);
                 System.arraycopy(b, 0, tcpBodyData, a.length, b.length);
 
@@ -97,8 +96,26 @@ public class PktHandler {
             return tcpBodyData;
         }
 
+        public byte[] byteBufToArray(ByteBuf newBuf) {
+            byte[] bytes;
+            int length = newBuf.readableBytes();
+
+            if (newBuf.hasArray()) {
+                bytes = newBuf.array();
+            } else {
+                bytes = new byte[length];
+                newBuf.getBytes(newBuf.readerIndex(), bytes);
+            }
+
+            // replace packet data
+            newBuf.clear();
+            return bytes;
+        }
+
         private Packet spoofPacket(Packet p, String dstIp) {
-            byte[] dstmac = Utils.calculate_mac(ip_mac_list.get(dstIp));
+            Map<String, MacAddress> ipMacList = Configuration.getInstance().getIpToMacList();
+
+            byte[] dstmac = ipMacList.get(dstIp).getAddress();
             byte[] srcmac = device.getLinkLayerAddresses().get(0).getAddress();
 
             Packet.Builder b = p.getBuilder();
@@ -128,8 +145,6 @@ public class PktHandler {
 
         @Override
         public void gotPacket(Packet p_temp) {
-            //System.out.println("[Receive]" + p_temp);
-
             EthernetPacket p_eth = p_temp.get(EthernetPacket.class);
 
             // check if the packet is channel-agent's, return it
@@ -137,7 +152,7 @@ public class PktHandler {
             String src_mac = Utils.decalculate_mac(p_eth.getHeader().getSrcAddr().getAddress());
 
             if (mine_mac.equals(src_mac)) {
-                return;
+                //return;
             }
 
             this.dl_src = Utils.decalculate_mac(p_eth.getHeader().getSrcAddr().getAddress());
@@ -150,7 +165,7 @@ public class PktHandler {
 
             // ignore channel-agent's packets
             if (this.dst_ip.equals(localIp) || this.src_ip.equals(localIp)) {
-                return;
+                //return;
             }
 
             TcpPacket p_tcp = p_temp.get(TcpPacket.class);
@@ -163,19 +178,61 @@ public class PktHandler {
             byte[] tcpbody = addBodyData(p_tcp);
             if (p_tcp.getHeader().getPsh()) {
                 // body is complete, do something here
-
-                //p_temp.data = body;
                 ByteBuf newBuf = null;
+
+                Packet.Builder b = p_temp.getBuilder();
+                b.get(TcpPacket.Builder.class)
+                        .payloadBuilder(new UnknownPacket.Builder().rawData(tcpbody));
 
                 switch (attackType) {
                     case TestCase.EVAESDROP:
+                        sendPkt(b.build());
+
+                        try {
+                            testAdvanced.testEvaseDrop(topo, p_temp);
+                            return;
+                        } catch (OFParseError ofParseError) {
+                            ofParseError.printStackTrace();
+                        }
                         break;
 
                     case TestCase.LINKFABRICATION:
-                        break;
+                        try {
+                            newBuf = testAdvanced.testLinkFabrication(p_temp);
+
+                            if (newBuf != null) {
+                                byte[] data = byteBufToArray(newBuf);
+
+                                b.get(TcpPacket.Builder.class)
+                                        .payloadBuilder(new UnknownPacket.Builder().rawData(data));
+
+                                sendPkt(b.build());
+                                return;
+                            }
+                        } catch (OFParseError e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        return;
 
                     case TestCase.MITM:
-                        break;
+                        try {
+                            if (this.src_ip.equals(controllerIp) && this.dst_ip.equals(switchIp)) {
+                                newBuf = testAdvanced.testMITM(p_temp);
+
+                                if (newBuf != null) {
+                                    byte[] data = byteBufToArray(newBuf);
+                                    b.get(TcpPacket.Builder.class)
+                                            .payloadBuilder(new UnknownPacket.Builder().rawData(data));
+                                    sendPkt(b.build());
+                                    return;
+                                }
+                            }
+                        } catch (OFParseError e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        return;
 
                     case TestCase.CONTROLMESSAGEMANIPULATION:
                         break;
@@ -187,85 +244,20 @@ public class PktHandler {
                         break;
                 }
 
-//                if (attackType == TestCase.EVAESDROP) {
-//                    this.sendPkt(p_temp);
-//
-//                    if (p_temp.data.length > 8) {
-//                        try {
-//                            testAdvanced.testEvaseDrop(topo, p_temp);
-//                            return;
-//                        } catch (OFParseError e) {
-//                            // TODO Auto-generated catch block
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                } else if (attackType == TestCase.LINKFABRICATION) {
-//                    if (p_temp.data.length > 8) {
-//                        try {
-//                            newBuf = testAdvanced.testLinkFabrication(p_temp);
-//
-//                            if (newBuf != null) {
-//                                p_temp.data = byteBufToArray(newBuf);
-//                                sendPkt(p_temp);
-//                                return;
-//                            }
-//                        } catch (OFParseError e) {
-//                            // TODO Auto-generated catch block
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                } else if (attackType == TestCase.MITM) {
-//                    if (p_temp.data.length > 8) {
-//                        try {
-//                            if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
-//                                newBuf = testAdvanced.testMITM(p_temp);
-//
-//                                if (newBuf != null) {
-//                                    p_temp.data = byteBufToArray(newBuf);
-//                                    sendPkt(p_temp);
-//                                    return;
-//                                }
-//                            }
-//                        } catch (OFParseError e) {
-//                            // TODO Auto-generated catch block
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                } else if (attackType == TestCase.CONTROLMESSAGEMANIPULATION) {
-//                    log.info("\n[ATTACK] Control Message Manipulation");
-//                    /* Modify a Packet Here */
-//                    if (this.dst_ip.equals(controllerIP)) {
-//                        (p.data)[2] = 0x77;
-//                        (p.data)[3] = 0x77;
-//                    }
-//                } else if (attackType == TestCase.MALFORMEDCONTROLMESSAGE) {
-//                    log.info("\n[ATTACK] Malformed Control Message");
-//                    /* Modify a Packet Here */
-//                    if (this.dst_ip.equals(switchIP)) {
-//                        // if ( (p.data)[1] != 0x0a ) {
-//                        (p.data)[2] = 0x00;
-//                        (p.data)[3] = 0x01;
-//                        // }
-//                    }
-//                }
-//                sendPkt(p_temp);
+                sendPkt(p_temp);
             }
         }
     }
 
     private static final Logger log = LoggerFactory.getLogger(PktHandler.class);
-    private static final int COUNT = 5000;
+    private static final int COUNT = 500;
 
     public static final int MINIMUM_LENGTH = 8;
 
-    private static HashMap<String, String> ip_mac_list;
     private static PcapNetworkInterface device;
-    private static ArrayList<String> ips_to_explore;
-
-    // used to filter packets for and from the attacker
-    private static String localIp;
 
     // victim A, B
+    private static String localIp;
     private static String controllerIp;
     private static String switchIp;
 
@@ -275,7 +267,6 @@ public class PktHandler {
     private TopoInfo topo;
     private ARPSpoof arpSpoof;
 
-    // flags for distinguish the kind of attacks
     private int attackType;
     private String ofPort;
     private byte ofversion;
@@ -286,7 +277,7 @@ public class PktHandler {
     private SeedPackets seedPkts;
 
     private int snapshotLength = 65536; // in bytes
-    private int readTimeout = 50; // in milliseconds
+    private int readTimeout = 50;       // in milliseconds
 
     public PktHandler(PcapNetworkInterface mydevice) {
         device = mydevice;
@@ -313,12 +304,6 @@ public class PktHandler {
         topo = new TopoInfo();
         attackType = TestCase.EMPTY;
         seedPkts = new SeedPackets(factory);
-
-        try {
-            startListening();
-        } catch (PcapNativeException e) {
-            e.printStackTrace();
-        }
     }
 
     public void startListening() throws PcapNativeException {
@@ -341,7 +326,6 @@ public class PktHandler {
         log.info("[Channel-Agent] Start ARP Spoofing");
 
         arpSpoof = new ARPSpoof(device);
-        arpSpoof.setIps(localIp, controllerIp, switchIp);
         arpSpoof.run();
     }
 
@@ -366,11 +350,6 @@ public class PktHandler {
             return topo.getTopoInfo();
     }
 
-    public void setIpsToExplore(String contip, String switchip) {
-        ips_to_explore.add(contip);
-        ips_to_explore.add(switchip);
-    }
-
     public String getOutput() {
         return this.output;
     }
@@ -388,7 +367,7 @@ public class PktHandler {
         return true;
     }
 
-
+    /*
     class middle_handler {
         private String dl_src;
         private String dl_dst;
@@ -396,241 +375,240 @@ public class PktHandler {
         private String src_ip;
 
         private boolean isTested = false;
-//        Map<Long, TCPBodyData> tcpBodys = new HashMap<Long, TCPBodyData>();
-//        // for fragmented tcp data
-//        private class TCPBodyData {
-//            byte[] bytes = null;
-//
-//            public TCPBodyData(byte[] bytes) {
-//                this.bytes = bytes;
-//            }
-//
-//            public void addBytes(byte[] bytes) {
-//                try {
-//                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//                    outputStream.write(this.bytes);
-//                    outputStream.write(bytes);
-//                    this.bytes = outputStream.toByteArray();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//
-//            }
-//
-//            public byte[] getBytes() {
-//                return bytes;
-//            }
-//        }
-//
-//        private byte[] addBodyData(TCPPacket packet) {
-//            TCPBodyData tcpBodyData;
-//            Long ack = new Long(packet.ack_num);
-//
-//            if (tcpBodys.containsKey(ack)) {
-//                tcpBodyData = tcpBodys.get(ack);
-//                tcpBodyData.addBytes(packet.data);
-//            } else {
-//                tcpBodyData = new TCPBodyData(packet.data);
-//                tcpBodys.put(ack, tcpBodyData);
-//            }
-//
-//            if (packet.psh) {
-//                tcpBodys.remove(ack);
-//            }
-//
-//            return tcpBodyData.getBytes();
-//        }
-//
-//        public void sendPkt(Packet p_temp) {
-//            if (this.dst_ip.equals(controllerIP)) {
-//                traffic_sender.send(spoofPacket(p_temp, controllerIP));
-//            } else if (this.dst_ip.equals(switchIP)) {
-//                traffic_sender.send(spoofPacket(p_temp, switchIP));
-//            }
-//        }
-//
-//        public byte[] byteBufToArray(ByteBuf newBuf) {
-//            byte[] bytes;
-//            int length = newBuf.readableBytes();
-//
-//            if (newBuf.hasArray()) {
-//                bytes = newBuf.array();
-//            } else {
-//                bytes = new byte[length];
-//                newBuf.getBytes(newBuf.readerIndex(), bytes);
-//            }
-//
-//            // replace packet data
-//            newBuf.clear();
-//            return bytes;
-//        }
-//
-//        private Packet spoofPacket(Packet p, String victim) {
-//            EthernetPacket p_eth = (EthernetPacket) p.datalink;
-//            EthernetPacket ether = new EthernetPacket();
-//            ether.frametype = p_eth.frametype;
-//
-//            ether.src_mac = device.mac_address;// p_eth.src_mac;
-//            // only difference now is that for dst mac now is the official
-//            ether.dst_mac = Utils.calculate_mac(ip_mac_list.get(victim));
-//
-//            p.datalink = ether;
-//
-//            return p;
-//        }
+        Map<Long, TCPBodyData> tcpBodys = new HashMap<Long, TCPBodyData>();
+        // for fragmented tcp data
+        private class TCPBodyData {
+            byte[] bytes = null;
 
-//        @Override
-//        public synchronized void receivePacket(Packet p_temp) {
-//            if (p_temp instanceof ARPPacket) return;
-//
-//            EthernetPacket p_eth = (EthernetPacket) p_temp.datalink;
-//
-//            // check if the packet is mine just return do not send it again
-//            String mine_mac = Utils.decalculate_mac(device.mac_address);
-//            String incoming_src_mac = Utils.decalculate_mac(p_eth.src_mac);
-//
-//            if (mine_mac.equals(incoming_src_mac)) {
-//                return;
-//            }
-//
-//            this.dl_src = Utils.decalculate_mac(p_eth.src_mac);
-//            this.dl_dst = Utils.decalculate_mac(p_eth.dst_mac);
-//
-//            if (p_temp instanceof IPPacket) {
-//                IPPacket p = ((IPPacket) p_temp);
-//                this.dst_ip = p.dst_ip.toString().split("/")[1];
-//                this.src_ip = p.src_ip.toString().split("/")[1];
-//
-//                // ignore channel-agent's packets
-//                if (this.dst_ip.equals(localIp) || this.src_ip.equals(localIp)) {
-//                    return;
-//                }
-//
-//                if (p_temp.data.length < 8 || p_temp.data.length > 1500) {
-//                    sendPkt(p_temp);
-//                    return;
-//                }
-//
-//
-//                TCPPacket tcppacl = (TCPPacket) p_temp;
-//                byte[] body = addBodyData(tcppacl);
-//
-//                if (tcppacl.psh) {
-//                    // body is complete
-//                    // do something else...
-//                    p_temp.data = body;
-//
-//                    ByteBuf newBuf = null;
-//
-//                    if (attackType == TestCase.EVAESDROP) {
-//                        this.sendPkt(p_temp);
-//
-//                        if (p_temp.data.length > 8) {
-//                            try {
-//                                testAdvanced.testEvaseDrop(topo, p_temp);
-//                                return;
-//                            } catch (OFParseError e) {
-//                                // TODO Auto-generated catch block
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    } else if (attackType == TestCase.LINKFABRICATION) {
-//                        if (p_temp.data.length > 8) {
-//                            try {
-//                                newBuf = testAdvanced.testLinkFabrication(p_temp);
-//
-//                                if (newBuf != null) {
-//                                    p_temp.data = byteBufToArray(newBuf);
-//                                    sendPkt(p_temp);
-//                                    return;
-//                                }
-//                            } catch (OFParseError e) {
-//                                // TODO Auto-generated catch block
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    } else if (attackType == TestCase.MITM) {
-//                        if (p_temp.data.length > 8) {
-//                            try {
-//                                if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
-//                                    newBuf = testAdvanced.testMITM(p_temp);
-//
-//                                    if (newBuf != null) {
-//                                        p_temp.data = byteBufToArray(newBuf);
-//                                        sendPkt(p_temp);
-//                                        return;
-//                                    }
-//                                }
-//                            } catch (OFParseError e) {
-//                                // TODO Auto-generated catch block
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    } else if (attackType == TestCase.CONTROLMESSAGEMANIPULATION) {
-//                        log.info("\n[ATTACK] Control Message Manipulation");
-//                        /* Modify a Packet Here */
-//                        if (this.dst_ip.equals(controllerIP)) {
-//                            (p.data)[2] = 0x77;
-//                            (p.data)[3] = 0x77;
-//                        }
-//                    } else if (attackType == TestCase.MALFORMEDCONTROLMESSAGE) {
-//                        log.info("\n[ATTACK] Malformed Control Message");
-//                        /* Modify a Packet Here */
-//                        if (this.dst_ip.equals(switchIP)) {
-//                            // if ( (p.data)[1] != 0x0a ) {
-//                            (p.data)[2] = 0x00;
-//                            (p.data)[3] = 0x01;
-//                            // }
-//                        }
-//                    } else if (attackType == TestCase.CONTROLPLANE_FUZZING) {
-//                        /* Switch -> Controller */
-//                        if (p_temp.data.length > 8) {
-//                            try {
-//                                if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
-//                                    byte[] msg = testFuzzing.testControlPlane(p_temp);
-//
-//                                    if (msg != null) {
-//                                        p_temp.data = msg;
-//                                        sendPkt(p_temp);
-//                                        return;
-//                                    }
-//                                }
-//                            } catch (OFParseError e) {
-//                                // TODO Auto-generated catch block
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    } else if (attackType == TestCase.DATAPLANE_FUZZING) {
-//                        /* Controller -> Switch */
-//                        if (p_temp.data.length > 8) {
-//                            try {
-//                                if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
-//                                    byte[] msg = testFuzzing.testDataPlane(p_temp);
-//
-//                                    if (msg != null) {
-//                                        p_temp.data = msg;
-//                                        sendPkt(p_temp);
-//                                        return;
-//                                    }
-//                                }
-//                            } catch (OFParseError e) {
-//                                // TODO Auto-generated catch block
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    } else if (attackType == TestCase.SEED_BASED_FUZZING) {
-//                        if (fuzzingMode == 1 && p_temp.data.length >= 8) {
-//                            if (this.dst_ip.equals(switchIP)) {
-//                                seedPkts.saveSeedPacket(this.dl_dst, p_temp.data);
-//                            } else {
-//                                seedPkts.saveSeedPacket(this.dl_src, p_temp.data);
-//                            }
-//                        }
-//                    }
-//
-//                    sendPkt(p_temp);
-//                }
-//            }
-//        }
+            public TCPBodyData(byte[] bytes) {
+                this.bytes = bytes;
+            }
+
+            public void addBytes(byte[] bytes) {
+                try {
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    outputStream.write(this.bytes);
+                    outputStream.write(bytes);
+                    this.bytes = outputStream.toByteArray();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            public byte[] getBytes() {
+                return bytes;
+            }
+        }
+
+        private byte[] addBodyData(TCPPacket packet) {
+            TCPBodyData tcpBodyData;
+            Long ack = new Long(packet.ack_num);
+
+            if (tcpBodys.containsKey(ack)) {
+                tcpBodyData = tcpBodys.get(ack);
+                tcpBodyData.addBytes(packet.data);
+            } else {
+                tcpBodyData = new TCPBodyData(packet.data);
+                tcpBodys.put(ack, tcpBodyData);
+            }
+
+            if (packet.psh) {
+                tcpBodys.remove(ack);
+            }
+
+            return tcpBodyData.getBytes();
+        }
+
+        public void sendPkt(Packet p_temp) {
+            if (this.dst_ip.equals(controllerIP)) {
+                traffic_sender.send(spoofPacket(p_temp, controllerIP));
+            } else if (this.dst_ip.equals(switchIP)) {
+                traffic_sender.send(spoofPacket(p_temp, switchIP));
+            }
+        }
+
+        public byte[] byteBufToArray(ByteBuf newBuf) {
+            byte[] bytes;
+            int length = newBuf.readableBytes();
+
+            if (newBuf.hasArray()) {
+                bytes = newBuf.array();
+            } else {
+                bytes = new byte[length];
+                newBuf.getBytes(newBuf.readerIndex(), bytes);
+            }
+
+            // replace packet data
+            newBuf.clear();
+            return bytes;
+        }
+
+        private Packet spoofPacket(Packet p, String victim) {
+            EthernetPacket p_eth = (EthernetPacket) p.datalink;
+            EthernetPacket ether = new EthernetPacket();
+            ether.frametype = p_eth.frametype;
+
+            ether.src_mac = device.mac_address;// p_eth.src_mac;
+            // only difference now is that for dst mac now is the official
+            ether.dst_mac = Utils.calculate_mac(ip_mac_list.get(victim));
+
+            p.datalink = ether;
+
+            return p;
+        }
+        @Override
+        public synchronized void receivePacket(Packet p_temp) {
+            if (p_temp instanceof ARPPacket) return;
+
+            EthernetPacket p_eth = (EthernetPacket) p_temp.datalink;
+
+            // check if the packet is mine just return do not send it again
+            String mine_mac = Utils.decalculate_mac(device.mac_address);
+            String incoming_src_mac = Utils.decalculate_mac(p_eth.src_mac);
+
+            if (mine_mac.equals(incoming_src_mac)) {
+                return;
+            }
+
+            this.dl_src = Utils.decalculate_mac(p_eth.src_mac);
+            this.dl_dst = Utils.decalculate_mac(p_eth.dst_mac);
+
+            if (p_temp instanceof IPPacket) {
+                IPPacket p = ((IPPacket) p_temp);
+                this.dst_ip = p.dst_ip.toString().split("/")[1];
+                this.src_ip = p.src_ip.toString().split("/")[1];
+
+                // ignore channel-agent's packets
+                if (this.dst_ip.equals(localIp) || this.src_ip.equals(localIp)) {
+                    return;
+                }
+
+                if (p_temp.data.length < 8 || p_temp.data.length > 1500) {
+                    sendPkt(p_temp);
+                    return;
+                }
+
+
+                TCPPacket tcppacl = (TCPPacket) p_temp;
+                byte[] body = addBodyData(tcppacl);
+
+                if (tcppacl.psh) {
+                    // body is complete
+                    // do something else...
+                    p_temp.data = body;
+
+                    ByteBuf newBuf = null;
+
+                    if (attackType == TestCase.EVAESDROP) {
+                        this.sendPkt(p_temp);
+
+                        if (p_temp.data.length > 8) {
+                            try {
+                                testAdvanced.testEvaseDrop(topo, p_temp);
+                                return;
+                            } catch (OFParseError e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        }
+                    } else if (attackType == TestCase.LINKFABRICATION) {
+                        if (p_temp.data.length > 8) {
+                            try {
+                                newBuf = testAdvanced.testLinkFabrication(p_temp);
+
+                                if (newBuf != null) {
+                                    p_temp.data = byteBufToArray(newBuf);
+                                    sendPkt(p_temp);
+                                    return;
+                                }
+                            } catch (OFParseError e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        }
+                    } else if (attackType == TestCase.MITM) {
+                        if (p_temp.data.length > 8) {
+                            try {
+                                if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
+                                    newBuf = testAdvanced.testMITM(p_temp);
+
+                                    if (newBuf != null) {
+                                        p_temp.data = byteBufToArray(newBuf);
+                                        sendPkt(p_temp);
+                                        return;
+                                    }
+                                }
+                            } catch (OFParseError e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        }
+                    } else if (attackType == TestCase.CONTROLMESSAGEMANIPULATION) {
+                        log.info("\n[ATTACK] Control Message Manipulation");
+
+                        if (this.dst_ip.equals(controllerIP)) {
+                            (p.data)[2] = 0x77;
+                            (p.data)[3] = 0x77;
+                        }
+                    } else if (attackType == TestCase.MALFORMEDCONTROLMESSAGE) {
+                        log.info("\n[ATTACK] Malformed Control Message");
+
+                        if (this.dst_ip.equals(switchIP)) {
+                            // if ( (p.data)[1] != 0x0a ) {
+                            (p.data)[2] = 0x00;
+                            (p.data)[3] = 0x01;
+                            // }
+                        }
+                    } else if (attackType == TestCase.CONTROLPLANE_FUZZING) {
+
+                        if (p_temp.data.length > 8) {
+                            try {
+                                if (this.src_ip.equals(switchIP) && this.dst_ip.equals(controllerIP)) {
+                                    byte[] msg = testFuzzing.testControlPlane(p_temp);
+
+                                    if (msg != null) {
+                                        p_temp.data = msg;
+                                        sendPkt(p_temp);
+                                        return;
+                                    }
+                                }
+                            } catch (OFParseError e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        }
+                    } else if (attackType == TestCase.DATAPLANE_FUZZING) {
+                       if (p_temp.data.length > 8) {
+                            try {
+                                if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
+                                    byte[] msg = testFuzzing.testDataPlane(p_temp);
+
+                                    if (msg != null) {
+                                        p_temp.data = msg;
+                                        sendPkt(p_temp);
+                                        return;
+                                    }
+                                }
+                            } catch (OFParseError e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        }
+                    } else if (attackType == TestCase.SEED_BASED_FUZZING) {
+                        if (fuzzingMode == 1 && p_temp.data.length >= 8) {
+                            if (this.dst_ip.equals(switchIP)) {
+                                seedPkts.saveSeedPacket(this.dl_dst, p_temp.data);
+                            } else {
+                                seedPkts.saveSeedPacket(this.dl_src, p_temp.data);
+                            }
+                        }
+                    }
+
+                    sendPkt(p_temp);
+                }
+            }
+        }
     }
+    */
 }
