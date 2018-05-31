@@ -14,8 +14,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>opendaylight-helium</module>
-        <module>opendaylight-helium-sub</module>
+        <!-- <module>opendaylight-helium</module> -->
+        <!-- <module>opendaylight-helium-sub</module> -->
         <module>opendaylight-carbon</module>
     </modules>
 

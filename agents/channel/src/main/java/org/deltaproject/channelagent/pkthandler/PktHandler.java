@@ -1,22 +1,28 @@
 package org.deltaproject.channelagent.pkthandler;
 
+import io.netty.buffer.ByteBuf;
 import org.deltaproject.channelagent.fuzzing.TestFuzzing;
+import org.deltaproject.channelagent.networknode.TopoInfo;
 import org.deltaproject.channelagent.testcase.TestCase;
 import org.deltaproject.channelagent.fuzzing.SeedPackets;
 import org.deltaproject.channelagent.testcase.TestAdvancedCase;
+import org.deltaproject.channelagent.utils.Utils;
 import org.pcap4j.core.*;
-import org.pcap4j.packet.ArpPacket;
-import org.pcap4j.packet.Packet;
+import org.pcap4j.packet.*;
 import org.pcap4j.core.PcapNetworkInterface;
 import org.pcap4j.packet.namednumber.ArpOperation;
+import org.pcap4j.util.MacAddress;
+import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.OFFactories;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -45,16 +51,209 @@ public class PktHandler {
     }
 
     class PktListner implements PacketListener {
+        private PcapHandle sendHandle;
+
+        private String dl_src;
+        private String dl_dst;
+        private String dst_ip;
+        private String src_ip;
+
+        Map<Long, byte[]> tcpBodys = new HashMap<>();
+
+        public PktListner() {
+            try {
+                sendHandle = device.openLive(snapshotLength, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, readTimeout);
+            } catch (PcapNativeException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // for fragmented tcp data
+        private byte[] addBodyData(TcpPacket packet) {
+            byte[] tcpBodyData;
+            Long ack = (long) packet.getHeader().getAcknowledgmentNumber();
+
+            if (tcpBodys.containsKey(ack)) {
+                byte[] a = tcpBodys.get(ack);   // already
+                byte[] b = packet.getPayload().getRawData().clone(); // new
+
+                // update = already + new
+                tcpBodyData = new byte[a.length + b.length];
+
+                System.arraycopy(a, 0, tcpBodyData, 0, a.length);
+                System.arraycopy(b, 0, tcpBodyData, a.length, b.length);
+
+                tcpBodys.put(ack, tcpBodyData);
+            } else {
+                tcpBodyData = packet.getPayload().getRawData().clone();
+                tcpBodys.put(ack, tcpBodyData);
+            }
+
+            if (packet.getHeader().getPsh()) {
+                tcpBodys.remove(ack);
+            }
+
+            return tcpBodyData;
+        }
+
+        private Packet spoofPacket(Packet p, String dstIp) {
+            byte[] dstmac = Utils.calculate_mac(ip_mac_list.get(dstIp));
+            byte[] srcmac = device.getLinkLayerAddresses().get(0).getAddress();
+
+            Packet.Builder b = p.getBuilder();
+            b.get(EthernetPacket.Builder.class).srcAddr(MacAddress.getByAddress(srcmac));
+            b.get(EthernetPacket.Builder.class).dstAddr(MacAddress.getByAddress(dstmac));
+
+            return b.build();
+        }
+
+        public void sendPkt(Packet p_temp) {
+            try {
+                // switch -> [channel agent] -> controller
+                if (this.dst_ip.equals(controllerIp)) {
+                    sendHandle.sendPacket(spoofPacket(p_temp, controllerIp));
+                }
+
+                // controller -> [channel agent] -> switch
+                if (this.dst_ip.equals(switchIp)) {
+                    sendHandle.sendPacket(spoofPacket(p_temp, switchIp));
+                }
+            } catch (PcapNativeException e) {
+                e.printStackTrace();
+            } catch (NotOpenException e) {
+                e.printStackTrace();
+            }
+        }
 
         @Override
-        public void gotPacket(Packet packet) {
-            System.out.println("[Receive]" + packet);
+        public void gotPacket(Packet p_temp) {
+            //System.out.println("[Receive]" + p_temp);
+
+            EthernetPacket p_eth = p_temp.get(EthernetPacket.class);
+
+            // check if the packet is channel-agent's, return it
+            String mine_mac = Utils.decalculate_mac(device.getLinkLayerAddresses().get(0).getAddress());
+            String src_mac = Utils.decalculate_mac(p_eth.getHeader().getSrcAddr().getAddress());
+
+            if (mine_mac.equals(src_mac)) {
+                return;
+            }
+
+            this.dl_src = Utils.decalculate_mac(p_eth.getHeader().getSrcAddr().getAddress());
+            this.dl_dst = Utils.decalculate_mac(p_eth.getHeader().getDstAddr().getAddress());
+
+            IpV4Packet p_ip = p_temp.get(IpV4Packet.class);
+
+            this.src_ip = p_ip.getHeader().getSrcAddr().getHostAddress();
+            this.dst_ip = p_ip.getHeader().getDstAddr().getHostAddress();
+
+            // ignore channel-agent's packets
+            if (this.dst_ip.equals(localIp) || this.src_ip.equals(localIp)) {
+                return;
+            }
+
+            TcpPacket p_tcp = p_temp.get(TcpPacket.class);
+            Packet payload = p_tcp.getPayload();
+
+            // if tcp payload is empty, return it
+            if (payload == null)
+                return;
+
+            byte[] tcpbody = addBodyData(p_tcp);
+            if (p_tcp.getHeader().getPsh()) {
+                // body is complete, do something here
+
+                //p_temp.data = body;
+                ByteBuf newBuf = null;
+
+                switch (attackType) {
+                    case TestCase.EVAESDROP:
+                        break;
+
+                    case TestCase.LINKFABRICATION:
+                        break;
+
+                    case TestCase.MITM:
+                        break;
+
+                    case TestCase.CONTROLMESSAGEMANIPULATION:
+                        break;
+
+                    case TestCase.MALFORMEDCONTROLMESSAGE:
+                        break;
+
+                    default:
+                        break;
+                }
+
+//                if (attackType == TestCase.EVAESDROP) {
+//                    this.sendPkt(p_temp);
+//
+//                    if (p_temp.data.length > 8) {
+//                        try {
+//                            testAdvanced.testEvaseDrop(topo, p_temp);
+//                            return;
+//                        } catch (OFParseError e) {
+//                            // TODO Auto-generated catch block
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                } else if (attackType == TestCase.LINKFABRICATION) {
+//                    if (p_temp.data.length > 8) {
+//                        try {
+//                            newBuf = testAdvanced.testLinkFabrication(p_temp);
+//
+//                            if (newBuf != null) {
+//                                p_temp.data = byteBufToArray(newBuf);
+//                                sendPkt(p_temp);
+//                                return;
+//                            }
+//                        } catch (OFParseError e) {
+//                            // TODO Auto-generated catch block
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                } else if (attackType == TestCase.MITM) {
+//                    if (p_temp.data.length > 8) {
+//                        try {
+//                            if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
+//                                newBuf = testAdvanced.testMITM(p_temp);
+//
+//                                if (newBuf != null) {
+//                                    p_temp.data = byteBufToArray(newBuf);
+//                                    sendPkt(p_temp);
+//                                    return;
+//                                }
+//                            }
+//                        } catch (OFParseError e) {
+//                            // TODO Auto-generated catch block
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                } else if (attackType == TestCase.CONTROLMESSAGEMANIPULATION) {
+//                    log.info("\n[ATTACK] Control Message Manipulation");
+//                    /* Modify a Packet Here */
+//                    if (this.dst_ip.equals(controllerIP)) {
+//                        (p.data)[2] = 0x77;
+//                        (p.data)[3] = 0x77;
+//                    }
+//                } else if (attackType == TestCase.MALFORMEDCONTROLMESSAGE) {
+//                    log.info("\n[ATTACK] Malformed Control Message");
+//                    /* Modify a Packet Here */
+//                    if (this.dst_ip.equals(switchIP)) {
+//                        // if ( (p.data)[1] != 0x0a ) {
+//                        (p.data)[2] = 0x00;
+//                        (p.data)[3] = 0x01;
+//                        // }
+//                    }
+//                }
+//                sendPkt(p_temp);
+            }
         }
     }
 
-    private static final String COUNT_KEY = PktHandler.class.getName() + ".count";
-    private static final int COUNT = 5000;
     private static final Logger log = LoggerFactory.getLogger(PktHandler.class);
+    private static final int COUNT = 5000;
 
     public static final int MINIMUM_LENGTH = 8;
 
@@ -69,16 +268,14 @@ public class PktHandler {
     private static String controllerIp;
     private static String switchIp;
 
-    private PacketListener packetListener;
-//    private Sender traffic_sender;
-//    private PacketReceiver handler;
-//
-//    private String output;
-//    private TopoInfo topo;
-//    private ARPSpoof spoof;
+    private PcapHandle receiveHandle;
+
+    private String output;
+    private TopoInfo topo;
+    private ARPSpoof arpSpoof;
 
     // flags for distinguish the kind of attacks
-    private int typeOfAttacks;
+    private int attackType;
     private String ofPort;
     private byte ofversion;
 
@@ -87,11 +284,10 @@ public class PktHandler {
 
     private SeedPackets seedPkts;
 
-    //private enum FuzzingMode { FUZZ_STOP, FUZZ_SEED, FUZZ_LIVE };
-    private int fuzzingMode = 0;
+    private int snapshotLength = 65536; // in bytes
+    private int readTimeout = 50; // in milliseconds
 
     public PktHandler(PcapNetworkInterface mydevice, String controllerip, String switchip, byte OFversion, String port) {
-        // set variable
         ofversion = OFversion;
         device = mydevice;
         ofPort = port;
@@ -101,7 +297,7 @@ public class PktHandler {
         controllerIp = controllerip;
         switchIp = switchip;
 
-        //topo = new TopoInfo();
+        topo = new TopoInfo();
 
         // set OF version
         OFFactory factory = null;
@@ -114,33 +310,50 @@ public class PktHandler {
             testFuzzing = new TestFuzzing(factory, this.ofversion);
         }
 
-        typeOfAttacks = TestCase.EMPTY;
+        attackType = TestCase.EMPTY;
         seedPkts = new SeedPackets(factory);
-    }
 
+        try {
+            startListening();
+        } catch (PcapNativeException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void startListening() throws PcapNativeException {
         log.info("[Channel Agent] Start listening packets");
 
-        int snapshotLength = 65536; // in bytes
-        int readTimeout = 50; // in milliseconds
-        PcapHandle handle = device.openLive(snapshotLength, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, readTimeout);
+        receiveHandle = device.openLive(snapshotLength, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, readTimeout);
+        try {
+            receiveHandle.setFilter("tcp", BpfProgram.BpfCompileMode.OPTIMIZE);
+        } catch (NotOpenException e) {
+            e.printStackTrace();
+        }
 
         ExecutorService pool = Executors.newSingleThreadExecutor();
         PktListner listener = new PktListner();
-        Task t = new Task(handle, listener);
+        Task t = new Task(receiveHandle, listener);
         pool.execute(t);
     }
 
     public void startARPSpoofing() {
         log.info("[Channel-Agent] Start ARP Spoofing");
 
-        ARPSpoof arpSpoof = new ARPSpoof(device);
+        arpSpoof = new ARPSpoof(device);
         arpSpoof.setIps(localIp, controllerIp, switchIp);
         arpSpoof.run();
     }
 
-    /*
+    public void stopARPSpoofing() {
+        log.info("[Channel-Agent] Stop ARP Spoofing");
+
+        arpSpoof.setARPspoof(false);
+    }
+
+    public void setARPspoofing(boolean value) {
+        arpSpoof.setARPspoof(value);
+    }
+
     public SeedPackets getSeedPackets() {
         return this.seedPkts;
     }
@@ -157,61 +370,32 @@ public class PktHandler {
         ips_to_explore.add(switchip);
     }
 
-    public void startARPSpoofing() {
-        log.info("[Channel-Agent] Start ARP Spoofing");
-
-        spoof = new ARPSpoof(device, ips_to_explore);
-        spoof.setSender(this.traffic_sender);
-        ip_mac_list = new HashMap<String, String>();
-        HostDiscover hosty = new HostDiscover(device, ips_to_explore);
-        hosty.discover();
-        ip_mac_list.putAll(hosty.getHosts());
-        spoof.setMacList(ip_mac_list);
-
-        this.spoof.setARPspoof(true);
-        this.spoof.start();
-    }
-
-    public void stopARPSpoofing() {
-        log.info("[Channel-Agent] Stop ARP Spoofing");
-        this.spoof.setARPspoof(false);
-    }
-
-    public void setARPspoofing(boolean value) {
-        this.spoof.setARPspoof(value);
-    }
-
     public String getOutput() {
         return this.output;
     }
 
     public int getTypeOfAttacks() {
-        return typeOfAttacks;
+        return attackType;
     }
 
-    public void setTypeOfAttacks(int typeOfAttacks) {
-        this.typeOfAttacks = typeOfAttacks;
-    }
-
-    public void setFuzzingMode(int mode) {
-        this.fuzzingMode = mode;
+    public void setTypeOfAttacks(int attackType) {
+        this.attackType = attackType;
     }
 
     public boolean testSwitchIdentification() {
-        testAdvanced.testSwitchIdentificationSpoofing(this.controllerIP, this.ofPort, this.ofversion);
+        testAdvanced.testSwitchIdentificationSpoofing(this.controllerIp, this.ofPort, this.ofversion);
         return true;
     }
-    */
 
-//    class middle_handler implements PacketReceiver {
-//        private String dl_src;
-//        private String dl_dst;
-//        private String dst_ip;
-//        private String src_ip;
-//
-//        private boolean isTested = false;
+
+    class middle_handler {
+        private String dl_src;
+        private String dl_dst;
+        private String dst_ip;
+        private String src_ip;
+
+        private boolean isTested = false;
 //        Map<Long, TCPBodyData> tcpBodys = new HashMap<Long, TCPBodyData>();
-//
 //        // for fragmented tcp data
 //        private class TCPBodyData {
 //            byte[] bytes = null;
@@ -293,7 +477,7 @@ public class PktHandler {
 //
 //            return p;
 //        }
-//
+
 //        @Override
 //        public synchronized void receivePacket(Packet p_temp) {
 //            if (p_temp instanceof ARPPacket) return;
@@ -337,7 +521,7 @@ public class PktHandler {
 //
 //                    ByteBuf newBuf = null;
 //
-//                    if (typeOfAttacks == TestCase.EVAESDROP) {
+//                    if (attackType == TestCase.EVAESDROP) {
 //                        this.sendPkt(p_temp);
 //
 //                        if (p_temp.data.length > 8) {
@@ -349,7 +533,7 @@ public class PktHandler {
 //                                e.printStackTrace();
 //                            }
 //                        }
-//                    } else if (typeOfAttacks == TestCase.LINKFABRICATION) {
+//                    } else if (attackType == TestCase.LINKFABRICATION) {
 //                        if (p_temp.data.length > 8) {
 //                            try {
 //                                newBuf = testAdvanced.testLinkFabrication(p_temp);
@@ -364,7 +548,7 @@ public class PktHandler {
 //                                e.printStackTrace();
 //                            }
 //                        }
-//                    } else if (typeOfAttacks == TestCase.MITM) {
+//                    } else if (attackType == TestCase.MITM) {
 //                        if (p_temp.data.length > 8) {
 //                            try {
 //                                if (this.src_ip.equals(controllerIP) && this.dst_ip.equals(switchIP)) {
@@ -381,14 +565,14 @@ public class PktHandler {
 //                                e.printStackTrace();
 //                            }
 //                        }
-//                    } else if (typeOfAttacks == TestCase.CONTROLMESSAGEMANIPULATION) {
+//                    } else if (attackType == TestCase.CONTROLMESSAGEMANIPULATION) {
 //                        log.info("\n[ATTACK] Control Message Manipulation");
 //                        /* Modify a Packet Here */
 //                        if (this.dst_ip.equals(controllerIP)) {
 //                            (p.data)[2] = 0x77;
 //                            (p.data)[3] = 0x77;
 //                        }
-//                    } else if (typeOfAttacks == TestCase.MALFORMEDCONTROLMESSAGE) {
+//                    } else if (attackType == TestCase.MALFORMEDCONTROLMESSAGE) {
 //                        log.info("\n[ATTACK] Malformed Control Message");
 //                        /* Modify a Packet Here */
 //                        if (this.dst_ip.equals(switchIP)) {
@@ -397,7 +581,7 @@ public class PktHandler {
 //                            (p.data)[3] = 0x01;
 //                            // }
 //                        }
-//                    } else if (typeOfAttacks == TestCase.CONTROLPLANE_FUZZING) {
+//                    } else if (attackType == TestCase.CONTROLPLANE_FUZZING) {
 //                        /* Switch -> Controller */
 //                        if (p_temp.data.length > 8) {
 //                            try {
@@ -415,7 +599,7 @@ public class PktHandler {
 //                                e.printStackTrace();
 //                            }
 //                        }
-//                    } else if (typeOfAttacks == TestCase.DATAPLANE_FUZZING) {
+//                    } else if (attackType == TestCase.DATAPLANE_FUZZING) {
 //                        /* Controller -> Switch */
 //                        if (p_temp.data.length > 8) {
 //                            try {
@@ -433,7 +617,7 @@ public class PktHandler {
 //                                e.printStackTrace();
 //                            }
 //                        }
-//                    } else if (typeOfAttacks == TestCase.SEED_BASED_FUZZING) {
+//                    } else if (attackType == TestCase.SEED_BASED_FUZZING) {
 //                        if (fuzzingMode == 1 && p_temp.data.length >= 8) {
 //                            if (this.dst_ip.equals(switchIP)) {
 //                                seedPkts.saveSeedPacket(this.dl_dst, p_temp.data);
@@ -447,5 +631,5 @@ public class PktHandler {
 //                }
 //            }
 //        }
-//    }
+    }
 }

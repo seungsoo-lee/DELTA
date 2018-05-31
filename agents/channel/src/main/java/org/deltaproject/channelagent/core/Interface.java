@@ -134,8 +134,7 @@ public class Interface extends Thread {
         log.info("[Channel Agent] Target Switch IP\t\t: " + switchIP);
         log.info("[Channel Agent] Cbench Root Path\t\t: " + cbench);
 
-        pktListener = new PktHandler(device, controllerIP, switchIP, ofVersion, ofPort, handler);
-
+        pktListener = new PktHandler(device, controllerIP, switchIP, ofVersion, ofPort);
         testController = new TestControllerCase(controllerIP, ofVersion, ofPort);
         testSwitch = new TestSwitchCase(controllerIP, ofVersion, ofPort);
     }
