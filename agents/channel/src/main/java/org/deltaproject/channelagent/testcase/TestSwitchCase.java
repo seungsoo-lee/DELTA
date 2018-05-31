@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import org.deltaproject.channelagent.core.Configuration;
 import org.deltaproject.channelagent.dummy.DummyController;
 import org.deltaproject.channelagent.dummy.DummySwitch;
 import org.projectfloodlight.openflow.protocol.*;
@@ -51,10 +52,10 @@ public class TestSwitchCase {
     private int ofport;
     private long r_xid = 0xeeeeeeeel;
 
-    public TestSwitchCase(String ip, byte ver, String port) {
-        targetIP = ip;
-        targetPORT = port;
-        targetOFVersion = ver;
+    public TestSwitchCase() {
+        targetIP = Configuration.getInstance().getSwitchIp();
+        targetPORT = Configuration.getInstance().getOfPort();
+        targetOFVersion = Configuration.getInstance().getOfVersion();
 
         random = new Random();
 
@@ -63,7 +64,7 @@ public class TestSwitchCase {
         else if (targetOFVersion == 4)
             defaultFactory = OFFactories.getFactory(OFVersion.OF_13);
 
-        ofport = Integer.parseInt(port);
+        ofport = Integer.parseInt(targetPORT);
     }
 
     public void runDummyController(int type) {

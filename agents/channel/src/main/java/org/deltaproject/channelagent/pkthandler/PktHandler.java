@@ -1,6 +1,7 @@
 package org.deltaproject.channelagent.pkthandler;
 
 import io.netty.buffer.ByteBuf;
+import org.deltaproject.channelagent.core.Configuration;
 import org.deltaproject.channelagent.fuzzing.TestFuzzing;
 import org.deltaproject.channelagent.networknode.TopoInfo;
 import org.deltaproject.channelagent.testcase.TestCase;
@@ -287,29 +288,29 @@ public class PktHandler {
     private int snapshotLength = 65536; // in bytes
     private int readTimeout = 50; // in milliseconds
 
-    public PktHandler(PcapNetworkInterface mydevice, String controllerip, String switchip, byte OFversion, String port) {
-        ofversion = OFversion;
+    public PktHandler(PcapNetworkInterface mydevice) {
         device = mydevice;
-        ofPort = port;
 
-        // set IP list
-        localIp = mydevice.getAddresses().get(0).getAddress().getHostAddress();
-        controllerIp = controllerip;
-        switchIp = switchip;
+        // set target OpenFlow version
+        ofversion = Configuration.getInstance().getOfVersion();
+        ofPort = Configuration.getInstance().getOfPort();
 
-        topo = new TopoInfo();
-
-        // set OF version
         OFFactory factory = null;
-        if (OFversion == 0x01)
+        if (ofversion == 0x01)
             factory = OFFactories.getFactory(OFVersion.OF_10);
-        else if (OFversion == 0x04)
+        else if (ofversion == 0x04)
             factory = OFFactories.getFactory(OFVersion.OF_13);
         if (factory != null) {
             testAdvanced = new TestAdvancedCase(factory, this.ofversion);
             testFuzzing = new TestFuzzing(factory, this.ofversion);
         }
 
+        // set IP lists
+        localIp = Configuration.getInstance().getChannelIp();
+        controllerIp = Configuration.getInstance().getControllerIp();
+        switchIp = Configuration.getInstance().getSwitchIp();
+
+        topo = new TopoInfo();
         attackType = TestCase.EMPTY;
         seedPkts = new SeedPackets(factory);
 

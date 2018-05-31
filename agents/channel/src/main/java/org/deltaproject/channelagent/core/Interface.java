@@ -35,16 +35,10 @@ public class Interface extends Thread {
     private String amIP;
     private int amPort;
 
-    private PktHandler pktListener;
     private PcapNetworkInterface device;
+    private PktHandler pktHandler;
 
-    private byte ofVersion;
-    private String ofPort;
-    private String handler;
     private String cbench;
-
-    private String controllerIP;
-    private String switchIP;
 
     private TestControllerCase testController;
     private TestSwitchCase testSwitch;
@@ -55,9 +49,12 @@ public class Interface extends Thread {
     }
 
     public boolean executeCbench() {
+        String ofPort = Configuration.getInstance().getOfPort();
+        String controllerIp = Configuration.getInstance().getControllerIp();
+
         try {
             cbench += "cbench";
-            String[] cmdCbench = {cbench, "-c", this.controllerIP, "-p", ofPort, "-m", "1000", "-l", "20",
+            String[] cmdCbench = {cbench, "-c", controllerIp, "-p", ofPort, "-m", "1000", "-l", "20",
                     "-s", "32", "-M", "2000", "-t", "-o", "1000"};
             ProcessBuilder pb = new ProcessBuilder(cmdCbench);
             pb.redirectErrorStream(true);
@@ -86,40 +83,41 @@ public class Interface extends Thread {
             if (s.startsWith("version")) {
                 String ofVersion = s.substring(s.indexOf(":") + 1);
                 if (ofVersion.equals("1.0"))
-                    this.ofVersion = 1;
+                    Configuration.getInstance().setOfVersion((byte) 1);
                 else if (ofVersion.equals("1.3"))
-                    this.ofVersion = 4;
+                    Configuration.getInstance().setOfVersion((byte) 4);
             }
 
             if (s.startsWith("nic")) {
                 nic = s.substring(s.indexOf(":") + 1);
                 try {
                     this.device = NIC.getInterfaceByName(nic);
+                    String ip = device.getAddresses().get(0).getAddress().getHostAddress();
+                    Configuration.getInstance().setChannelIp(ip);
+
+                    byte[] mac = device.getLinkLayerAddresses().get(0).getAddress();
+                    Configuration.getInstance().setChannelMac(mac);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
 
             if (s.startsWith("controller_ip")) {
-                controllerIP = s.substring(s.indexOf(":") + 1);
+                Configuration.getInstance().setControllerIp(s.substring(s.indexOf(":") + 1));
             }
 
             if (s.startsWith("switch_ip")) {
                 String temp = s.substring(s.indexOf(":") + 1);
 
                 if (temp.contains(",")) {
-                    switchIP = temp.substring(0, s.indexOf(","));
+                    Configuration.getInstance().setSwitchIp(temp.substring(0, s.indexOf(",")));
                 } else {
-                    switchIP = temp;
+                    Configuration.getInstance().setSwitchIp(temp);
                 }
             }
 
             if (s.startsWith("port")) {
-                this.ofPort = s.substring(s.indexOf(":") + 1);
-            }
-
-            if (s.startsWith("handler")) {
-                this.handler = s.substring(s.indexOf(":") + 1);
+                Configuration.getInstance().setOfPort(s.substring(s.indexOf(":") + 1));
             }
 
             if (s.startsWith("cbench")) {
@@ -128,15 +126,10 @@ public class Interface extends Thread {
         }
 
         log.info("[Channel Agent] Configuration setup completed");
-        log.info("[Channel Agent] OpenFlow version/port\t: " + ofVersion + "/" + ofPort);
-        log.info("[Channel Agent] MITM Network Interface\t: " + nic);
-        log.info("[Channel Agent] Target Controller IP\t: " + controllerIP);
-        log.info("[Channel Agent] Target Switch IP\t\t: " + switchIP);
-        log.info("[Channel Agent] Cbench Root Path\t\t: " + cbench);
 
-        pktListener = new PktHandler(device, controllerIP, switchIP, ofVersion, ofPort);
-        testController = new TestControllerCase(controllerIP, ofVersion, ofPort);
-        testSwitch = new TestSwitchCase(controllerIP, ofVersion, ofPort);
+        pktHandler = new PktHandler(device);
+        testController = new TestControllerCase();
+        testSwitch = new TestSwitchCase();
     }
 
     public void connectManager() throws Exception {
