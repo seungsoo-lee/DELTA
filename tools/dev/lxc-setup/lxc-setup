@@ -20,15 +20,8 @@ ssh $DELTA_CP "
     sudo apt-get update
     sudo apt-get install oracle-java8-installer oracle-java8-set-default -y
 
-    sudo apt-get install -y openvswitch-common openvswitch-switch
     git clone https://github.com/mininet/mininet
     cd mininet
-    git checkout -b 2.2.1 2.2.1
-"
-
-echo -e $CR"Install mininet"$NOCR
-scp $HOME/DELTA/tools/dev/lxc-setup/install.sh $DELTA_CP:/home/ubuntu/mininet/util/install.sh
-ssh $DELTA_CP "
     mininet/util/install.sh -a
 "
 
