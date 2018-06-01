@@ -12,7 +12,7 @@ import java.util.Properties;
 public class Interface extends Thread {
     private int result = 1;
 
-    private AppAgentFacadeImpl app;
+    private AppAgentImpl app;
     private Activator act;
 
     private Socket socket;
@@ -90,7 +90,7 @@ public class Interface extends Thread {
         }
     }
 
-    public void setAgent(AppAgentFacadeImpl in) {
+    public void setAgent(AppAgentImpl in) {
         this.app = in;
     }
 

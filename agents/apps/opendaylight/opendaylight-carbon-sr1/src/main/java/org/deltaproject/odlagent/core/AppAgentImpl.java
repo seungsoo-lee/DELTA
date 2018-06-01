@@ -1,24 +1,25 @@
 /**
- * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
  * <p>
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.deltaproject.odlagent.core;
 
+import org.deltaproject.odlagent.tests.CPUex;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import org.deltaproject.odlagent.tests.SystemTimeSet;
+import org.deltaproject.odlagent.utils.InstanceIdentifierUtils;
 import org.deltaproject.odlagent.utils.InventoryUtils;
 import org.deltaproject.odlagent.utils.PacketUtils;
 import org.deltaproject.odlagent.utils.TestProviderTransactionUtil;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.*;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.controller.sal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
@@ -35,109 +36,187 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalF
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.FlowStatisticsData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
+import java.nio.ByteBuffer;
+import java.util.*;
 
-/*
- *
+/**
+ * AppAgentImpl
  */
-public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingListener {
-    class CPU extends Thread {
-        int result = 1;
+public class AppAgentImpl implements PacketProcessingListener, DataChangeListener {
 
-        @Override
-        public void run() {
-            // TODO Auto-generated method stub
-            while (true) {
-                result = result ^ 2;
-            }
-        }
-    }
-
+    private static final Logger LOG = LoggerFactory.getLogger(AppAgentImpl.class);
     private static final byte[] ETH_TYPE_IPV4 = new byte[]{0x08, 0x00};
-    private static final int DIRECT_FLOW_PRIORITY = 1024;
-    private AtomicLong flowIdInc = new AtomicLong();
-    private AtomicLong flowCookieInc = new AtomicLong(0x2a0d00000L);
 
-    private static final Logger log = LoggerFactory
-            .getLogger(AppAgentFacadeImpl.class);
+    private NotificationService notificationService;
 
-    private Map<MacAddress, NodeConnectorRef> mac2portMapping;
-    private Map<String, InstanceIdentifier<Table>> node2table;
-
-    private FlowCommitWrapper dataStoreAccessor;
     private PacketProcessingService packetProcessingService;
-    private PacketInDispatcherImpl packetInDispatcher;
     private DataBroker dataBroker;
+    private Registration packetInRegistration;
     private SalFlowService salFlowService;
+    private ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
 
     private ArrayList<NodeId> nodeIdList;
+    private Set<InstanceIdentifier<Node>> nodeIdentifierSet;
+    private Map<String, InstanceIdentifier<Table>> node2table;
+    private Map<MacAddress, NodeConnectorRef> mac2portMapping;
 
     private Interface cm;
 
     private boolean isDrop;
     private boolean isLoop;
 
-    AppAgentFacadeImpl() {
-        nodeIdList = new ArrayList<>();
-        mac2portMapping = new HashMap<>();
-        node2table = new HashMap<>();
+    /**
+     * @param notificationService the notificationService to set
+     */
+    // @Override
+    public void setNotificationService(NotificationService notificationService) {
+        this.notificationService = notificationService;
     }
 
-    public void setDataBroker(DataBroker db) {
-        this.dataBroker = db;
+    /**
+     * @param packetProcessingService the packetProcessingService to set
+     */
+    // @Override
+    public void setPacketProcessingService(
+            PacketProcessingService packetProcessingService) {
+        this.packetProcessingService = packetProcessingService;
+    }
+
+    /**
+     * @param data the data to set
+     */
+    // @Override
+    public void setDataBroker(DataBroker data) {
+        this.dataBroker = data;
     }
 
     public void setSalFlowService(SalFlowService sal) {
         this.salFlowService = sal;
     }
 
+    /**
+     * start
+     */
+    //@Override
+    public void start() {
+        LOG.info("[App-Agent] start() passing");
+
+        nodeIdList = new ArrayList<>();
+        node2table = new HashMap<>();
+        mac2portMapping = new HashMap<>();
+        nodeIdentifierSet = new HashSet<>();
+
+        packetInRegistration = notificationService.registerNotificationListener(this);
+        dataChangeListenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                InstanceIdentifier.builder(Nodes.class)
+                        .child(Node.class)
+                        .augmentation(FlowCapableNode.class)
+                        .child(Table.class).build(),
+                this,
+                DataBroker.DataChangeScope.SUBTREE);
+
+        //appAgentHandler.connectManager();
+    }
+
+    /**
+     * stop
+     */
+    // @Override
+    public void stop() {
+        LOG.info("stop() -->");
+        //TODO: remove flow (created in #start())
+        try {
+            packetInRegistration.close();
+        } catch (Exception e) {
+            LOG.warn("Error unregistering packet in listener: {}", e.getMessage());
+            LOG.debug("Error unregistering packet in listener.. ", e);
+        }
+        try {
+            dataChangeListenerRegistration.close();
+        } catch (Exception e) {
+            LOG.warn("Error unregistering data change listener: {}", e.getMessage());
+            LOG.debug("Error unregistering data change listener.. ", e);
+        }
+        LOG.info("stop() <--");
+    }
+
+    public CheckedFuture<Void, TransactionCommitFailedException> writeFlowToConfig(InstanceIdentifier<Flow> flowPath, Flow flowBody) {
+        ReadWriteTransaction addFlowTransaction = dataBroker.newReadWriteTransaction();
+        addFlowTransaction.put(LogicalDatastoreType.CONFIGURATION, flowPath, flowBody, true);
+        return addFlowTransaction.submit();
+    }
+
     @Override
-    public synchronized void onSwitchAppeared(InstanceIdentifier<Table> appearedTablePath) {
-        log.debug("expected table acquired, learning ..");
+    public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
+        Short requiredTableId = 0;
 
-        /*
-         * appearedTablePath is in form of /nodes/node/node-id/table/table-id
-         * so we shorten it to /nodes/node/node-id to get identifier of switch.
-         *
-         */
-        InstanceIdentifier<Node> nodePath = InstanceIdentifierUtils.getNodePath(appearedTablePath);
-        //packetInDispatcher.getHandlerMapping().put(nodePath, this);
+        // TODO add flow
+        Map<InstanceIdentifier<?>, DataObject> updated = change.getUpdatedData();
 
-        NodeId nodeId = nodePath.firstKeyOf(Node.class, NodeKey.class).getId();
-        nodeIdList.add(nodeId);
+        for (Map.Entry<InstanceIdentifier<?>, DataObject> updateItem : updated.entrySet()) {
+            DataObject object = updateItem.getValue();
 
-        String tempstr = appearedTablePath.toString();
-        String swid = tempstr.substring(tempstr.indexOf("openflow"), tempstr.indexOf("openflow") + 10);
-        node2table.put(swid, appearedTablePath);
+            if (object instanceof Table) {
+                Table tableSure = (Table) object;
+                LOG.info("[App-Agent] table: {}", object);
+
+                if (requiredTableId.equals(tableSure.getId())) {
+                    @SuppressWarnings("unchecked")
+                    InstanceIdentifier<Table> tablePath = (InstanceIdentifier<Table>) updateItem.getKey();
+                    LOG.info("[App-Agent] onSwitchAppeared " + tablePath.toString());
+
+                    /*
+                     * appearedTablePath is in form of /nodes/node/node-id/table/table-id
+                     * so we shorten it to /nodes/node/node-id to get identifier of switch.
+                     */
+                    InstanceIdentifier<Node> nodePath = InstanceIdentifierUtils.getNodePath(tablePath);
+                    //packetInDispatcher.getHandlerMapping().put(nodePath, this);
+                    nodeIdentifierSet.add(nodePath);
+
+                    NodeId nodeId = nodePath.firstKeyOf(Node.class, NodeKey.class).getId();
+                    nodeIdList.add(nodeId);
+
+                    String tempstr = tablePath.toString();
+                    String swid = tempstr.substring(tempstr.indexOf("openflow"), tempstr.indexOf("openflow") + 10);
+                    node2table.put(swid, tablePath);
+                }
+            }
+        }
     }
 
     @Override
     public void onPacketReceived(PacketReceived notification) {
+        LOG.info("[App-Agent] onPacketReceived() " + notification.toString());
+
+        /**
+         * Notification contains reference to ingress port
+         * in a form of path in inventory: /nodes/node/node-connector
+         *
+         * In order to get path we shorten path to the first node reference
+         * by using firstIdentifierOf helper method provided by InstanceIdentifier,
+         * this will effectively shorten the path to /nodes/node.
+         *
+         */
+        InstanceIdentifier<?> ingressPort = notification.getIngress().getValue();
+        InstanceIdentifier<Node> nodeOfPacket = ingressPort.firstIdentifierOf(Node.class);
+
         // read src MAC and dst MAC
         byte[] dstMacRaw = PacketUtils.extractDstMac(notification.getPayload());
         byte[] srcMacRaw = PacketUtils.extractSrcMac(notification.getPayload());
@@ -151,18 +230,16 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
             NodeConnectorKey ingressKey = InstanceIdentifierUtils.getNodeConnectorKey(notification.getIngress().getValue());
             NodeConnectorId connectorId = ingressKey.getId();
 
-            /*
-            log.info("[DELTA] " + connectorId.getValue());
-            log.info("[DELTA] Received packet from MAC match: {}, ingress: {}", srcMac, ingressKey.getId());
-            log.info("[DELTA] Received packet to   MAC match: {}", dstMac);
-            log.info("[DELTA] Ethertype: {}", Integer.toHexString(0x0000ffff & ByteBuffer.wrap(etherType).getShort()));
-            */
+            LOG.info("[App-Agent] " + connectorId.getValue());
+            LOG.info("[App-Agent] Received packet from MAC match: {}, ingress: {}", srcMac, ingressKey.getId());
+            LOG.info("[App-Agent] Received packet to   MAC match: {}", dstMac);
+            LOG.info("[App-Agent] Ethertype: {}", Integer.toHexString(0x0000ffff & ByteBuffer.wrap(etherType).getShort()));
 
             mac2portMapping.put(srcMac, notification.getIngress());
             NodeConnectorRef destNodeConnector = mac2portMapping.get(dstMac);
 
             if (destNodeConnector != null && !destNodeConnector.equals(notification.getIngress())) {
-                // log.info(connectorId.toString() + "->" + destNodeConnector);
+                // LOG.info(connectorId.toString() + "->" + destNodeConnector);
                 InstanceIdentifier<Table> tablePath = null;
                 for (String key : node2table.keySet()) {
                     if (connectorId.toString().contains(key)) {
@@ -176,39 +253,6 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
         }
     }
 
-    @Override
-    public void setRegistrationPublisher(
-            DataChangeListenerRegistrationHolder registrationPublisher) {
-        // NOOP
-    }
-
-    @Override
-    public void setDataStoreAccessor(FlowCommitWrapper dataStoreAccessor) {
-        this.dataStoreAccessor = dataStoreAccessor;
-    }
-
-    @Override
-    public void setPacketProcessingService(
-            PacketProcessingService packetProcessingService) {
-        this.packetProcessingService = packetProcessingService;
-    }
-
-    /**
-     * @param packetInDispatcher
-     */
-    public void setPacketInDispatcher(PacketInDispatcherImpl packetInDispatcher) {
-        this.packetInDispatcher = packetInDispatcher;
-    }
-
-    public void connectManager() {
-        cm = new Interface();
-        cm.setAgent(this);
-        cm.setServerAddr();
-        cm.connectServer("AppAgent");
-        cm.start();
-
-        log.info("[DELTA] manager connected");
-    }
 
     public void setControlMessageDrop() {
         this.isDrop = true;
@@ -218,12 +262,16 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
         this.isLoop = true;
     }
 
+    public void sendTempPkt() {
+
+    }
+
     /*
      * 3.1.030: Infinite Loops
      */
     public void testInfiniteLoop() {
         int i = 0;
-        log.info("[DELTA] Infinite Loop");
+        LOG.info("[App-Agent] Infinite Loop");
 
         while (true) {
             i++;
@@ -237,17 +285,17 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
      * 3.1.040: Internal Storage Abuse
      */
     public String testInternalStorageAbuse() {
-        log.info("[DELTA] Internal Storage Abuse");
+        LOG.info("[App-Agent] Internal Storage Abuse");
         String removed = "";
 
-        for (InstanceIdentifier<Node> node : packetInDispatcher.getHandlerMapping().keySet()) {
+        for (InstanceIdentifier<Node> node : nodeIdentifierSet) {
             WriteTransaction wt = dataBroker.newWriteOnlyTransaction();
             wt.delete(LogicalDatastoreType.OPERATIONAL, node);
             CheckedFuture<Void, TransactionCommitFailedException> commitFuture = wt.submit();
 
             try {
                 commitFuture.checkedGet();
-                log.info("[DELTA] Transaction success for REMOVE of object {}", node);
+                LOG.info("[App-Agent] Transaction success for REMOVE of object {}", node);
                 removed += node.toString() + ", ";
             } catch (TransactionCommitFailedException e) {
                 e.printStackTrace();
@@ -261,7 +309,7 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
      * 3.1.070: Flow Rule Modification
      */
     public String testFlowRuleModification() {
-        log.info("[DELTA] Flow Rule Modification!");
+        LOG.info("[App-Agent] Flow Rule Modification!");
 
         String modified = "null";
 
@@ -293,7 +341,7 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
                     if (table != null) {
                         if (table.getFlow() != null) {
                             List<Flow> flows = table.getFlow();
-                            // log.info("[DELTA] Flowsize : " + flows.size());
+                            // LOG.info("[App-Agent] Flowsize : " + flows.size());
 
                             for (Flow flow1 : flows) {
                                 flowCount++;
@@ -312,7 +360,7 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
                                             .getAugmentation(FlowStatisticsData.class);
                                     if (null != data) {
                                         flowStatsCount++;
-                                        // log.info("[DELTA] Flow 2 : " + data.toString());
+                                        // LOG.info("[App-Agent] Flow 2 : " + data.toString());
                                     }
                                 }
 
@@ -324,10 +372,9 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
         }
 
         if (flowCount == flowStatsCount) {
-            log.info("flowStats - Success");
+            LOG.info("flowStats - Success");
         } else {
-            log.info("flowStats - Failed");
-            log.debug("System fetchs stats data in 50 seconds interval, so pls wait and try again.");
+            LOG.info("flowStats - Failed");
         }
 
         return modified;
@@ -337,9 +384,10 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
      * 3.1.080: Flow Table Clearance
      */
     public String testFlowTableClearance(boolean infinite) {
-        log.info("[DELTA] Flow Table Clearance");
+        LOG.info("[App-Agent] Flow Table Clearance");
 
         String modified = "";
+
         int cnt = 0;
 
         while (cnt != 100) {
@@ -349,7 +397,7 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
                         .setNode(InventoryUtils.getNodeRef(id));
 
                 if (salFlowService == null)
-                    log.info("salFlowService is NULL");
+                    LOG.info("salFlowService is NULL");
                 else
                     salFlowService.removeFlow(flowBuilder.build());
             }
@@ -366,7 +414,7 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
      * 3.1.110: Memory Exhaustion
      */
     public void testResourceExhaustionMem() {
-        log.info("[DELTA] Resource Exhausion : Mem");
+        LOG.info("[App-Agent] Resource Exhausion : Mem");
 
         ArrayList<long[][]> arry;
         arry = new ArrayList<long[][]>();
@@ -380,15 +428,15 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
      * 3.1.120: CPU Exhaustion
      */
     public void testResourceExhaustionCPU() {
-        log.info("[DELTA] Resource Exhausion : CPU");
+        LOG.info("[App-Agent] Resource Exhausion : CPU");
         int thread_count = 0;
 
         for (int count = 0; count < 1000; count++) {
-            CPU cpu_thread = new CPU();
+            CPUex cpu_thread = new CPUex();
             cpu_thread.start();
             thread_count++;
 
-            log.info("[AppAgent] Resource Exhausion : Thread "
+            LOG.info("[AppAgent] Resource Exhausion : Thread "
                     + thread_count);
         }
     }
@@ -397,7 +445,7 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
      * 3.1.130: System Variable Manipulation
      */
     public boolean testSystemVariableManipulation() {
-        log.info("[DELTA] System Variable Manipulation");
+        LOG.info("[App-Agent] System Variable Manipulation");
 
         SystemTimeSet systime = new SystemTimeSet();
         systime.start();
@@ -408,17 +456,16 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
      * 3.1.140: System Command Execution
      */
     public void testSystemCommandExecution() {
-        log.info("[AppAgent] System Command Execution : EXIT Controller");
+        LOG.info("[AppAgent] System Command Execution : EXIT Controller");
         System.exit(0);
     }
 
     /*
      * 2.1.060:
      */
-
     public String sendUnFlaggedFlowRemoveMsg(String cmd, long ruleId) {
 
-        log.info("[App Agent] Call sendUnflaggedFlowRemoveMsg");
+        LOG.info("[App Agent] Call sendUnflaggedFlowRemoveMsg");
 
         ReadOnlyTransaction readOnlyTransaction = null;
         try {
@@ -480,9 +527,10 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
                 final AddFlowInputBuilder builder = new AddFlowInputBuilder(flow).setNode(new NodeRef(nodeInstanceId))
                         .setFlowTable(new FlowTableRef(tableInstanceId))
                         .setTransactionUri(new Uri("9999"));
+
                 salFlowService.addFlow(builder.build());
 
-                log.info("Install a flow {} to the device {}", flow, nodeKey.getId());
+                LOG.info("Install a flow {} to the device {}", flow, nodeKey.getId());
                 String result = "Installed flow rule id|" + flow.getId().getValue();
 
                 return result;
@@ -504,7 +552,7 @@ public class AppAgentFacadeImpl implements AppAgentHandler, PacketProcessingList
                 }
             }
         } catch (Exception e) {
-            log.error(e.toString());
+            LOG.error(e.toString());
         }
 
         return "fail";

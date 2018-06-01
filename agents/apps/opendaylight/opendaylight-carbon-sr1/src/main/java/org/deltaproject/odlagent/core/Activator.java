@@ -35,7 +35,7 @@ import java.util.List;
 public class Activator extends DependencyActivatorBase implements AutoCloseable, BindingAwareConsumer {
     private static final Logger LOG = LoggerFactory.getLogger(Activator.class);
 
-    private AppAgent appAgent;
+    private AppAgentImpl appAgent;
     private Interface cm;
 
     /**
@@ -43,40 +43,43 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
      */
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
+        LOG.info("[App-Agent] Activator init() passing");
+
         ServiceReference<BindingAwareBroker> brokerRef = bundleContext.getServiceReference(BindingAwareBroker.class);
         BindingAwareBroker broker = bundleContext.getService(brokerRef);
         broker.registerConsumer(this);
     }
 
     /**
-     * Invoked when consumer is registered to the MD-SAL.
+     * We create instance of our AppAgent
+     * and set all required dependencies,
+     *
+     * which are
+     *   Data Broker (data storage service) - for configuring flows and reading stored switch state
+     *   PacketProcessingService - for sending out packets
+     *   NotificationService - for receiving notifications such as packet in.
+     *
      */
     @Override
     public void onSessionInitialized(ConsumerContext session) {
-        /**
-         * We create instance of our AppAgent
-         * and set all required dependencies,
-         *
-         * which are
-         *   Data Broker (data storage service) - for configuring flows and reading stored switch state
-         *   PacketProcessingService - for sending out packets
-         *   NotificationService - for receiving notifications such as packet in.
-         *
-         */
+        LOG.info("[App-Agent] Activator onSessionInitialized() passing");
 
         appAgent = new AppAgentImpl();
+
         appAgent.setDataBroker(session.getSALService(DataBroker.class));
         appAgent.setSalFlowService(session.getRpcService(SalFlowService.class));
         appAgent.setPacketProcessingService(session.getRpcService(PacketProcessingService.class));
+
         appAgent.setNotificationService(session.getSALService(NotificationService.class));
         appAgent.start();
 
-        connectManager();
+        //connectManager();
     }
 
     @Override
     public void close() {
-        LOG.info("[App-Agent] close() passing");
+        LOG.info("[App-Agent] Activator close() passing");
+
         if (appAgent != null) {
             appAgent.stop();
         }
@@ -84,6 +87,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
 
     @Override
     public void destroy(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
+        LOG.info("[App-Agent] Activator destroy() passing");
 
     }
 
@@ -134,12 +138,14 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
      * 3.1.100: Application Eviction
      */
     public String testApplicationEviction(String target) {
+        LOG.info("[App-Agent] Application Eviction attack");
+
         if (target.contains("restore")) {
             Bundle[] blist = getBundleContext().getBundles();
             boolean restart = false;
 
             if (blist == null) {
-                System.out.println("DELTA bundle list is NULL");
+                LOG.info("[App-Agent] bundle list is NULL");
                 return "null";
             }
 
@@ -157,19 +163,18 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
             return "OK";
         }
 
-        System.out.println("[App-Agent] Application Eviction attack");
 
         Bundle[] blist = getBundleContext().getBundles();
         boolean isStopped = false;
 
         if (blist == null) {
-            System.out.println("DELTA bundle list is NULL");
+            LOG.info("[App-Agent] bundle list is NULL");
             return "null";
         }
 
         for (Bundle b : blist) {
             if (b.getSymbolicName().contains(target)) {
-                System.out.println("[App-Agent] Stop - " + b.getSymbolicName());
+                LOG.info("[App-Agent] Stop - " + b.getSymbolicName());
 
                 try {
                     b.stop();
