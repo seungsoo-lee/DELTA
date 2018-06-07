@@ -11,10 +11,7 @@ import org.deltaproject.odlagent.tests.CPUex;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import org.deltaproject.odlagent.tests.SystemTimeSet;
-import org.deltaproject.odlagent.utils.InstanceIdentifierUtils;
-import org.deltaproject.odlagent.utils.InventoryUtils;
-import org.deltaproject.odlagent.utils.PacketUtils;
-import org.deltaproject.odlagent.utils.TestProviderTransactionUtil;
+import org.deltaproject.odlagent.utils.*;
 import org.opendaylight.controller.md.sal.binding.api.*;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -102,7 +99,6 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
     /**
      * @param data the data to set
      */
-    // @Override
     public void setDataBroker(DataBroker data) {
         this.dataBroker = data;
     }
@@ -114,7 +110,6 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
     /**
      * start
      */
-    //@Override
     public void start() {
         LOG.info("[App-Agent] start() passing");
 
@@ -247,8 +242,8 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
                     }
                 }
 
-                //NodeId ingressNodeId = InventoryUtils.getNodeId(notification.getIngress());
-                //FlowUtils.programL2Flow(dataBroker, ingressNodeId, dstMacStr, connectorId, InventoryUtils.getNodeConnectorId(destNodeConnector));
+                NodeId ingressNodeId = InventoryUtils.getNodeId(notification.getIngress());
+                FlowUtils.programL2Flow(dataBroker, ingressNodeId, dstMacStr, connectorId, InventoryUtils.getNodeConnectorId(destNodeConnector));
             }
         }
     }

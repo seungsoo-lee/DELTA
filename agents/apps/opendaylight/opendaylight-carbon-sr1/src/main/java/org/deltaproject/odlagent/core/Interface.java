@@ -150,7 +150,7 @@ public class Interface extends Thread {
         } else if (recv.contains("restore")) {
             act.testApplicationEviction("restore");
             dos.writeUTF("OK");
-        }  else if (recv.contains("2.1.060")) {
+        } else if (recv.contains("2.1.060")) {
             String cmd = null;
             if (recv.contains("install")) {
                 result = app.sendUnFlaggedFlowRemoveMsg("install", 0);
@@ -189,7 +189,7 @@ public class Interface extends Thread {
             }
         } catch (Exception e) {
             // if any error occurs
-            // e.printStackTrace();
+            e.printStackTrace();
         } finally {
 
         }
