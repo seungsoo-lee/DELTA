@@ -148,7 +148,7 @@ MANAGER_IP=[agent-manager ipAddr]
 MANAGER_PORT=3366
 ```
 
-+ STEP 3. Install DELTA using maven build
++ STEP 4. Install DELTA using maven build
 
 ```
 $ cd <DELTA>
