@@ -4,13 +4,12 @@ NOCR="\e[0m"
 
 echo -e $CR"Install dependencies"$NOCR
 
+scp install-ovs $DELTA_CP:~
+
 ssh $DELTA_CP "
     sudo apt-get update
     sudo apt-get upgrade -y
-    sudo apt-get install -y python-dev python-pip
-    sudo apt-get install -y git
-    sudo apt-get install -y wget
-    sudo apt-get install unzip
+    sudo apt-get install -y python-dev python-pip wget unzip git
 
     echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
     echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
@@ -21,8 +20,9 @@ ssh $DELTA_CP "
     sudo apt-get install oracle-java8-installer oracle-java8-set-default -y
 
     git clone https://github.com/mininet/mininet
-    cd mininet
-    mininet/util/install.sh -a
+    mininet/util/install.sh -nf
+
+    ./install-ovs 2.5.4
 "
 
 echo -e $CR"Stop control plane container"$NOCR

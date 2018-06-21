@@ -61,6 +61,10 @@ Uncomment "LXC_DHCP_CONFILE=/etc/lxc/dnsmasq.conf"
 $ sudo service lxc-net restart
 $ sudo lxc-start -n container-cp -d
 
+$ sudo vi /etc/apparmor.d/abstractions/lxc/container-base
+Uncomment "mount options=(rw, make-rprivate) -> **,"
+$ sudo apparmor_parser -r /etc/apparmor.d/lxc-containers
+
 $ cd ~
 $ ssh-keygen -t rsa
 (Press Enter)
@@ -73,7 +77,8 @@ In the bottom of the file, type the follow:
 ubuntu ALL=(ALL) NOPASSWD: ALL
 (DELTA_CP) $ exit
 
-$ ./<DELTA>/tools/dev/lxc-setup/lxc-setup
+$ cd <DELTA>/tools/dev/lxc-setup
+$ ./lxc-setup
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CH
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_DP
 
