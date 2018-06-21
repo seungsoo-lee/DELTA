@@ -32,7 +32,7 @@ esac
 
 # Check if ONOS exists on the AppAgent
 onos_directory=onos-$onos_version
-directory_check=$(ssh $DELTA_APP "[ -d $onos_directory ] && echo exists || echo does not exists")
+directory_check=$(ssh $DELTA_CP "[ -d $onos_directory ] && echo exists || echo does not exists")
 
 if [[ "$directory_check" =~ "not" ]]; then
     echo "Please install ONOS via delta-setup-onos"
@@ -41,7 +41,7 @@ fi
 
 JDK_VERSION='java-8-oracle'
 # Run ONOS
-ssh $DELTA_APP "
+ssh $DELTA_CP "
 sudo update-java-alternatives --set $JDK_VERSION
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle
 export ONOS_APPS=drivers,openflow,proxyarp,mobility,fwd
