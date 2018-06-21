@@ -1,6 +1,7 @@
 package org.deltaproject.channelagent.testcase;
 
 import com.google.common.primitives.Longs;
+import org.deltaproject.channelagent.core.Configuration;
 import org.deltaproject.channelagent.utils.Utils;
 import org.deltaproject.channelagent.dummy.DummyOF10;
 import org.deltaproject.channelagent.dummy.DummyOF13;
@@ -32,10 +33,10 @@ public class TestControllerCase {
     private Process proc;
     private int pid;
 
-    public TestControllerCase(String ip, byte ver, String port) {
-        targetIP = ip;
-        targetPORT = port;
-        targetOFVersion = ver;
+    public TestControllerCase() {
+        targetIP = Configuration.getInstance().getControllerIp();
+        targetPORT = Configuration.getInstance().getOfPort();
+        targetOFVersion = Configuration.getInstance().getOfVersion();
     }
 
     public boolean isHandshaked() {
