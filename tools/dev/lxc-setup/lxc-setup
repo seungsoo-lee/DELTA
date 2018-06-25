@@ -19,6 +19,8 @@ ssh $DELTA_CP "
     sudo apt-get update
     sudo apt-get install oracle-java8-installer oracle-java8-set-default -y
 
+    sudo apt-get install -y libpcap-dev
+
     git clone https://github.com/mininet/mininet
     mininet/util/install.sh -nf
 
