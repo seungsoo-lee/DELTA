@@ -54,7 +54,7 @@ $ ./delta-setup-devenv-ubuntu
 ```
 $ source ./<DELTA>/tools/dev/delta-setup/bash_profile
 $ cd <DELTA>/tools/dev/lxc-setup
-$ ./lxc-create
+$ ./lxc-dev-install
 
 $ sudo vi /etc/default/lxc-net
 Uncomment "LXC_DHCP_CONFILE=/etc/lxc/dnsmasq.conf"
@@ -78,7 +78,7 @@ ubuntu ALL=(ALL) NOPASSWD: ALL
 (DELTA_CP) $ exit
 
 $ cd <DELTA>/tools/dev/lxc-setup
-$ ./lxc-setup
+$ ./lxc-dev-setup
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CH
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_DP
 
