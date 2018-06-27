@@ -84,6 +84,14 @@ $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_DP
 
 ```
 
++ STEP 4. Install DELTA using maven build
+
+```
+$ cd <DELTA>
+$ source ./tools/dev/delta-setup/bash_profile
+$ mvn clean install
+```
+
 + In the case of all-in-one single machine, the test environment is automatically setup as below:
 ![Env1](images/delta_env.png)
 
@@ -147,15 +155,6 @@ $ ./delta-setup-ryu
 MANAGER_IP=[agent-manager ipAddr]
 MANAGER_PORT=3366
 ```
-
-+ STEP 4. Install DELTA using maven build
-
-```
-$ cd <DELTA>
-$ source ./tools/dev/delta-setup/bash_profile
-$ mvn clean install
-```
-
 
 ## Running DELTA
 + STEP 1. Distribute the executable files to Containers
