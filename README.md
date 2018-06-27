@@ -92,7 +92,8 @@ $ source ./tools/dev/delta-setup/bash_profile
 $ mvn clean install
 ```
 
-+ In the case of all-in-one single machine, the test environment is automatically setup as below:
++ The test environment is automatically setup as below:
+
 ![Env1](images/delta_env.png)
 
 ## Configuring your own experiments
