@@ -22,9 +22,9 @@ In order to build and run DELTA, the following are required:
   + LXC 2.0
   + JDK 1.8
 + Target Controller (for application agent)
-  + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
+  + [Floodlight](http://www.projectfloodlight.org/download/): ~1.2
   + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6, 1.9
-  + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3, Carbon
+  + [OpenDaylight](https://www.opendaylight.org/downloads): ~Oxygen
   + [Ryu](https://github.com/osrg/ryu): 4.16 
 + [Cbench](http://kkpradeeban.blogspot.kr/2014/10/installing-cbench-on-ubuntu-1404-lts.html) (for channel agent)
 + [Mininet 2.2](http://mininet.org/download/) (for host agent)
@@ -134,13 +134,7 @@ $ cd <DELTA>/tools/dev/app-agent-setup/onos
 $ ./delta-setup-onos <onos-version>
 * Supported ONOS version in the script: 1.6, 1.9 
 ```
-> OpenDaylight helium-sr3 (only JDK 1.7-supported)
-```
-$ cd <DELTA>/tools/dev/app-agent-setup
-$ ./odl-helium-sr3-scp
-(on the controller machine) $ ./odl-helium-sr3-setup
-```
-> OpenDaylight Carbon
+> OpenDaylight Oxygen
 ```
 $ cd <DELTA>/tools/dev/app-agent-setup
 $ ./odl-carbon-scp
