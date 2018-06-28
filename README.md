@@ -163,7 +163,8 @@ $ ./tools/dev/delta-setup/delta-agents-scp
 + STEP 2. Execute Agent-Manager first
 ```
 $ cd <DELTA>
-$ bin/run-delta tools/config/<configuration file> # e.g., manager_vm.cfg
+$ bin/run-delta <configuration file>
+(e.g., bin/run-delta config/manager_vm.cfg)
 
  DELTA: A Penetration Testing Framework for Software-Defined Networks
 
