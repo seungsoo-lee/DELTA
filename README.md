@@ -137,8 +137,7 @@ $ ./delta-setup-onos <onos-version>
 > OpenDaylight Oxygen
 ```
 $ cd <DELTA>/tools/dev/app-agent-setup
-$ ./odl-carbon-scp
-(on the controller machine) $ ./odl-carbon-setup
+$ ./odl-oxygen-scp
 ```
 > Ryu 4.16
 ```
