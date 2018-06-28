@@ -62,8 +62,7 @@ public class Activator extends DependencyActivatorBase implements AutoCloseable,
      */
     @Override
     public void onSessionInitialized(ConsumerContext session) {
-        LOG.info("[App-Agent] Activator onSessionInitialized() passing");
-
+        //LOG.info("[App-Agent] Activator onSessionInitialized() passing");
         appAgent = new AppAgentImpl();
 
         appAgent.setDataBroker(session.getSALService(DataBroker.class));

@@ -7,6 +7,7 @@
  */
 package org.deltaproject.odlagent.core;
 
+import com.google.common.collect.Lists;
 import org.deltaproject.odlagent.tests.CPUex;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -26,11 +27,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.AddFlowInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowTableRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.RemoveFlowInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.flow.update.OriginalFlowBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.flow.update.UpdatedFlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.FlowStatisticsData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.*;
@@ -71,7 +72,7 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
 
     private Set<NodeId> nodeIdList;
     private Set<InstanceIdentifier<Node>> nodeIdentifierSet;
-    private Map<NodeId, HashSet> node2table;
+    private Map<NodeId, HashSet<Short>> node2table;
     private Map<MacAddress, NodeConnectorRef> mac2portMapping;
 
     private Interface cm;
@@ -133,7 +134,6 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
     /**
      * stop
      */
-    // @Override
     public void stop() {
         LOG.info("stop() -->");
         //TODO: remove flow (created in #start())
@@ -182,14 +182,13 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
                 NodeId nodeId = nodePath.firstKeyOf(Node.class, NodeKey.class).getId();
                 nodeIdList.add(nodeId);
 
-                if(node2table.containsKey(nodeId)) {
-                    node2table.get(nodeId).add(tid.toString());
+                if (node2table.containsKey(nodeId)) {
+                    node2table.get(nodeId).add(tid);
                 } else {
-                    HashSet<String> set = new HashSet<>();
-                    set.add(tid.toString());
+                    HashSet<Short> set = new HashSet<>();
+                    set.add(tid);
                     node2table.put(nodeId, set);
                 }
-
                 //LOG.info("[App-Agent] nodeIdList: {}, node2table: {}", nodeIdList, node2table);
             } else {
                 //LOG.info("[App-Agent] object class: {}", object.getClass().toString());
@@ -199,7 +198,7 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
 
     @Override
     public void onPacketReceived(PacketReceived notification) {
-        LOG.info("[App-Agent] onPacketReceived() " + notification.toString());
+        // LOG.info("[App-Agent] onPacketReceived() " + notification.toString());
 
         /**
          * Notification contains reference to ingress port
@@ -239,7 +238,7 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
                 InstanceIdentifier<Table> tablePath = null;
                 for (NodeId id : node2table.keySet()) {
                     if (connectorId.toString().contains(id.getValue())) {
-                        // tablePath = node2table.get(id);
+
                     }
                 }
 
@@ -247,6 +246,8 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
                 FlowUtils.programL2Flow(dataBroker, ingressNodeId, dstMacStr, connectorId, InventoryUtils.getNodeConnectorId(destNodeConnector));
             }
         }
+
+        testFlowRuleModification();
     }
 
 
@@ -328,49 +329,51 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
 
                 for (Iterator<Table> iterator2 = tables.iterator(); iterator2.hasNext(); ) {
                     TableKey tableKey = iterator2.next().getKey();
+
                     InstanceIdentifier<Table> tableRef = InstanceIdentifier
                             .create(Nodes.class).child(Node.class, nodeKey)
                             .augmentation(FlowCapableNode.class).child(Table.class, tableKey);
+
                     Table table = TestProviderTransactionUtil.getDataObject(
                             readOnlyTransaction, tableRef);
 
                     if (table != null) {
                         if (table.getFlow() != null) {
                             List<Flow> flows = table.getFlow();
-                            // LOG.info("[App-Agent] Flowsize : " + flows.size());
 
-                            for (Flow flow1 : flows) {
-                                flowCount++;
-                                FlowKey flowKey = flow1.getKey();
+                            for (Flow origin : flows) {
+                                //LOG.info("[App-Agent] flow : " + origin.toString());
+
+                                FlowKey flowKey = origin.getKey();
                                 InstanceIdentifier<Flow> flowRef = InstanceIdentifier
                                         .create(Nodes.class).child(Node.class, nodeKey)
-                                        .augmentation(FlowCapableNode.class).child(Table.class, tableKey)
+                                        .augmentation(FlowCapableNode.class)
+                                        .child(Table.class, tableKey)
                                         .child(Flow.class, flowKey);
 
-                                Flow flow = TestProviderTransactionUtil.getDataObject(
-                                        readOnlyTransaction, flowRef);
+                                UpdatedFlowBuilder updatedFlow = new UpdatedFlowBuilder();
+                                updatedFlow.setTableId(table.getId());
+                                updatedFlow.setMatch(origin.getMatch());
+                                updatedFlow.setInstructions(null);
 
-                                if (flow != null) {
-                                    modified = flow.toString() + "\n";
-                                    FlowStatisticsData data = flow
-                                            .getAugmentation(FlowStatisticsData.class);
-                                    if (null != data) {
-                                        flowStatsCount++;
-                                        // LOG.info("[App-Agent] Flow 2 : " + data.toString());
-                                    }
+                                final UpdateFlowInputBuilder builder = new UpdateFlowInputBuilder();
+                                builder.setNode(InventoryUtils.getNodeRef(nodeId));
+                                builder.setFlowRef(new FlowRef(flowRef));
+                                builder.setOriginalFlow(new OriginalFlowBuilder(origin).setStrict(Boolean.TRUE).build());
+                                builder.setUpdatedFlow(new UpdatedFlowBuilder(updatedFlow.build()).setStrict(Boolean.TRUE).build());
+
+                                if (salFlowService == null)
+                                    LOG.info("[App-Agent] salFlowService is NULL");
+                                else {
+                                    salFlowService.updateFlow(builder.build());
                                 }
 
+                                flowCount++;
                             }
                         }
                     }
                 }
             }
-        }
-
-        if (flowCount == flowStatsCount) {
-            LOG.info("flowStats - Success");
-        } else {
-            LOG.info("flowStats - Failed");
         }
 
         return modified;
@@ -380,22 +383,30 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
      * 3.1.080: Flow Table Clearance
      */
     public String testFlowTableClearance(boolean infinite) {
-        LOG.info("[App-Agent] Flow Table Clearance");
+        LOG.info("[App-Agent] Flow Table Clearance, one time?: {}", !infinite);
 
         String modified = "";
 
         int cnt = 0;
-
         while (cnt != 100) {
             for (NodeId id : nodeIdList) {
-                RemoveFlowInputBuilder flowBuilder = new RemoveFlowInputBuilder()
-                        .setBarrier(false)
-                        .setNode(InventoryUtils.getNodeRef(id));
+                HashSet<Short> tables = node2table.get(id);
 
-                if (salFlowService == null)
-                    LOG.info("salFlowService is NULL");
-                else
-                    salFlowService.removeFlow(flowBuilder.build());
+                LOG.info("[App-Agent] node: {}, table size: {} ", id, tables.size());
+
+                for (Short tableId: tables) {
+                    RemoveFlowInputBuilder flowBuilder = new RemoveFlowInputBuilder()
+                            .setTableId(tableId)
+                            .setBarrier(false)
+                            .setNode(InventoryUtils.getNodeRef(id));
+
+                    if (salFlowService == null)
+                        LOG.info("[App-Agent] salFlowService is NULL");
+                    else {
+                        RemoveFlowInput remove = flowBuilder.build();
+                        salFlowService.removeFlow(remove);
+                    }
+                }
             }
             cnt++;
 
@@ -516,6 +527,7 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
 
                 InstanceIdentifier<Node> nodeInstanceId = InstanceIdentifier.builder(Nodes.class)
                         .child(Node.class, nodeKey).build();
+
                 InstanceIdentifier<Table> tableInstanceId = nodeInstanceId
                         .augmentation(FlowCapableNode.class)
                         .child(Table.class, new TableKey(table.getId()));

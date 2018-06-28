@@ -16,8 +16,8 @@
     <modules>
         <!-- <module>opendaylight-helium</module> -->
         <!-- <module>opendaylight-helium-sub</module> -->
-        <module>opendaylight-carbon-sr1</module>
-        <module>opendaylight-oxygen-sr1</module>
+        <!-- <module>opendaylight-carbon-sr1</module> -->
+        <module>opendaylight-oxygen</module>
     </modules>
 
 </project>
