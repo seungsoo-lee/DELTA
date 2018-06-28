@@ -69,9 +69,9 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
     private SalFlowService salFlowService;
     private ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
 
-    private ArrayList<NodeId> nodeIdList;
+    private Set<NodeId> nodeIdList;
     private Set<InstanceIdentifier<Node>> nodeIdentifierSet;
-    private Map<String, InstanceIdentifier<Table>> node2table;
+    private Map<NodeId, HashSet> node2table;
     private Map<MacAddress, NodeConnectorRef> mac2portMapping;
 
     private Interface cm;
@@ -113,7 +113,7 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
     public void start() {
         LOG.info("[App-Agent] start() passing");
 
-        nodeIdList = new ArrayList<>();
+        nodeIdList = new HashSet<>();
         node2table = new HashMap<>();
         mac2portMapping = new HashMap<>();
         nodeIdentifierSet = new HashSet<>();
@@ -160,38 +160,39 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
 
     @Override
     public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
-        Short requiredTableId = 0;
 
         // TODO add flow
         Map<InstanceIdentifier<?>, DataObject> updated = change.getUpdatedData();
-
         for (Map.Entry<InstanceIdentifier<?>, DataObject> updateItem : updated.entrySet()) {
             DataObject object = updateItem.getValue();
 
             if (object instanceof Table) {
+                /*
+                 * appearedTablePath is in form of /nodes/node/node-id/table/table-id
+                 * so we shorten it to /nodes/node/node-id to get identifier of switch.
+                 */
+
+                InstanceIdentifier<Table> tablePath = (InstanceIdentifier<Table>) updateItem.getKey();
+                InstanceIdentifier<Node> nodePath = InstanceIdentifierUtils.getNodePath(tablePath);
+                nodeIdentifierSet.add(nodePath);
+
                 Table tableSure = (Table) object;
-                LOG.info("[App-Agent] table: {}", object);
+                Short tid = tableSure.getId();
 
-                if (requiredTableId.equals(tableSure.getId())) {
-                    @SuppressWarnings("unchecked")
-                    InstanceIdentifier<Table> tablePath = (InstanceIdentifier<Table>) updateItem.getKey();
-                    LOG.info("[App-Agent] onSwitchAppeared " + tablePath.toString());
+                NodeId nodeId = nodePath.firstKeyOf(Node.class, NodeKey.class).getId();
+                nodeIdList.add(nodeId);
 
-                    /*
-                     * appearedTablePath is in form of /nodes/node/node-id/table/table-id
-                     * so we shorten it to /nodes/node/node-id to get identifier of switch.
-                     */
-                    InstanceIdentifier<Node> nodePath = InstanceIdentifierUtils.getNodePath(tablePath);
-                    //packetInDispatcher.getHandlerMapping().put(nodePath, this);
-                    nodeIdentifierSet.add(nodePath);
-
-                    NodeId nodeId = nodePath.firstKeyOf(Node.class, NodeKey.class).getId();
-                    nodeIdList.add(nodeId);
-
-                    String tempstr = tablePath.toString();
-                    String swid = tempstr.substring(tempstr.indexOf("openflow"), tempstr.indexOf("openflow") + 10);
-                    node2table.put(swid, tablePath);
+                if(node2table.containsKey(nodeId)) {
+                    node2table.get(nodeId).add(tid.toString());
+                } else {
+                    HashSet<String> set = new HashSet<>();
+                    set.add(tid.toString());
+                    node2table.put(nodeId, set);
                 }
+
+                //LOG.info("[App-Agent] nodeIdList: {}, node2table: {}", nodeIdList, node2table);
+            } else {
+                //LOG.info("[App-Agent] object class: {}", object.getClass().toString());
             }
         }
     }
@@ -236,9 +237,9 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
             if (destNodeConnector != null && !destNodeConnector.equals(notification.getIngress())) {
                 // LOG.info(connectorId.toString() + "->" + destNodeConnector);
                 InstanceIdentifier<Table> tablePath = null;
-                for (String key : node2table.keySet()) {
-                    if (connectorId.toString().contains(key)) {
-                        tablePath = node2table.get(key);
+                for (NodeId id : node2table.keySet()) {
+                    if (connectorId.toString().contains(id.getValue())) {
+                        // tablePath = node2table.get(id);
                     }
                 }
 
