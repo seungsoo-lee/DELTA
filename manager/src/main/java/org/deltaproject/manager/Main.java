@@ -26,7 +26,7 @@ public class Main {
 
     public static void main(String args[]) throws IOException {
         if (args.length < 1) {
-            System.err.println("Usage: bin/run-delta tools/config/<configuration file>");
+            System.err.println("Usage: bin/run-delta <configuration file>");
             System.exit(1);
         }
 
