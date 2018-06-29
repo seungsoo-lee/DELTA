@@ -7,6 +7,7 @@
  */
 package org.deltaproject.odlagent.core;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.deltaproject.odlagent.tests.CPUex;
 import com.google.common.base.Optional;
@@ -20,6 +21,12 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.controller.sal.binding.api.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.GroupActionCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.group.action._case.GroupActionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.output.action._case.OutputActionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
@@ -32,8 +39,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.flow.update.UpdatedFlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.FlowStatisticsData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActions;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActionsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -247,7 +260,7 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
             }
         }
 
-        testFlowRuleModification();
+        sendFlowRuleAddPkt();
     }
 
 
@@ -259,8 +272,65 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
         this.isLoop = true;
     }
 
-    public void sendTempPkt() {
+    public void sendFlowRuleAddPkt() {
+        for (NodeId id : nodeIdList) {
+            HashSet<Short> tables = node2table.get(id);
 
+            for (Short tableId : tables) {
+                if (tableId != 0)
+                    break;
+
+                // Create match
+                MatchBuilder match = new MatchBuilder();
+                match.setInPort(InventoryUtils.getNodeConnectorId(id, (long)1));
+
+                // Create action
+                /*
+                Action groupAction = new ActionBuilder()
+                        .setOrder(0)
+                        .setAction(new GroupActionCaseBuilder()
+                                .setGroupAction(new GroupActionBuilder()
+                                        .setGroupId((long) 1)
+                                        .build())
+                                .build())
+                        .build();*/
+
+                Action groupAction = new ActionBuilder()
+                        .setOrder(0)
+                        .setAction(new GroupActionCaseBuilder()
+                                .setGroupAction(null)
+                                .build())
+                        .build();
+
+                ApplyActions applyActions = new ApplyActionsBuilder()
+                        .setAction(ImmutableList.of(groupAction))
+                        .build();
+
+                // Wrap our Apply Action in an Instruction
+                Instruction applyActionsInstruction = new InstructionBuilder()
+                        .setOrder(0)
+                        .setInstruction(new ApplyActionsCaseBuilder()
+                                .setApplyActions(applyActions)
+                                .build())
+                        .build();
+
+                final AddFlowInputBuilder builder = new AddFlowInputBuilder();
+                builder.setNode(InventoryUtils.getNodeRef(id));
+                builder.setTableId(tableId);
+                builder.setMatch(match.build());
+                builder.setInstructions(new InstructionsBuilder()
+                        .setInstruction(ImmutableList.of(applyActionsInstruction))
+                        .build());
+
+                if (salFlowService == null)
+                    LOG.info("[App-Agent] salFlowService is NULL");
+                else {
+                    AddFlowInput addflow = builder.build();
+                    salFlowService.addFlow(addflow);
+                    LOG.info("[App-Agent] send add flow: {}", addflow);
+                }
+            }
+        }
     }
 
     /*
@@ -394,7 +464,7 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
 
                 LOG.info("[App-Agent] node: {}, table size: {} ", id, tables.size());
 
-                for (Short tableId: tables) {
+                for (Short tableId : tables) {
                     RemoveFlowInputBuilder flowBuilder = new RemoveFlowInputBuilder()
                             .setTableId(tableId)
                             .setBarrier(false)
@@ -519,6 +589,7 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
                                                 .build())
                                         .build())
                         .build();
+
                 Flow flow = flowBuilder
                         .setId(new FlowId(Long.toString(flowBuilder.hashCode())))
                         .setPriority(555)

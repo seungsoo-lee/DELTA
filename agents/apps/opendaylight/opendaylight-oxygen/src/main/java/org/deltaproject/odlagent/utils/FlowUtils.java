@@ -17,7 +17,10 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.openflowplugin.api.OFConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.GroupActionCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.group.action._case.GroupAction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.group.action._case.GroupActionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.output.action._case.OutputActionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder;
@@ -197,9 +200,9 @@ public class FlowUtils {
 
         /* Programming a flow involves:
          * 1. Creating a Flow object that has a match and a list of instructions,
-    	 * 2. Adding Flow object as an augmentation to the Node object in the inventory.
-    	 * 3. FlowProgrammer module of OpenFlowPlugin will pick up this data change and eventually program the switch.
-    	 */
+         * 2. Adding Flow object as an augmentation to the Node object in the inventory.
+         * 3. FlowProgrammer module of OpenFlowPlugin will pick up this data change and eventually program the switch.
+         */
 
         //Creating match object
         MatchBuilder matchBuilder = new MatchBuilder();
