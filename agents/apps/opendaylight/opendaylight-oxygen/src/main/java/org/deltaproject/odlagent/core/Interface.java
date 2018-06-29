@@ -25,12 +25,12 @@ public class Interface extends Thread {
     private int serverPort;
 
     public Interface() {
-
+        setServerAddr();
     }
 
     public void setServerAddr() {
         // default
-        this.serverIP = "10.0.2.2";
+        this.serverIP = "172.17.0.1";
         this.serverPort = 3366;
 
         String path = "~";
@@ -83,7 +83,6 @@ public class Interface extends Thread {
 
             dos.writeUTF(agent);
             dos.flush();
-            System.out.println("[App-Agent] Connected with Agent-Manager");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -150,7 +149,7 @@ public class Interface extends Thread {
         } else if (recv.contains("restore")) {
             act.testApplicationEviction("restore");
             dos.writeUTF("OK");
-        }  else if (recv.contains("2.1.060")) {
+        } else if (recv.contains("2.1.060")) {
             String cmd = null;
             if (recv.contains("install")) {
                 result = app.sendUnFlaggedFlowRemoveMsg("install", 0);
@@ -159,6 +158,9 @@ public class Interface extends Thread {
                 result = app.sendUnFlaggedFlowRemoveMsg("check", ruleId);
             }
             dos.writeUTF(result);
+        } else if (recv.contains("test")) {
+            app.test();
+            return;
         }
 
         /* else if (recv.contains("3.1.190")) {

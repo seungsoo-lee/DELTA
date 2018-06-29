@@ -11,7 +11,6 @@ import java.util.logging.LogManager;
  * Created by changhoon on 5/10/16.
  */
 public class Main {
-
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_GREEN_B = "\u001B[21;97m";
     public static final String ANSI_GREEN_N = "\u001B[1;92m";

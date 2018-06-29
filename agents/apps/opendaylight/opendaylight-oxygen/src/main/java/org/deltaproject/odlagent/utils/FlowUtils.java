@@ -12,11 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import org.deltaproject.odlagent.core.AppAgentImpl;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.openflowplugin.api.OFConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.GroupActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.GroupActionCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.group.action._case.GroupAction;
@@ -58,8 +60,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 
 import com.google.common.collect.ImmutableList;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FlowUtils {
+    private static final Logger LOG = LoggerFactory.getLogger(FlowUtils.class);
+
     private FlowUtils() {
         //prohibite to instantiate util class
     }
@@ -258,5 +264,81 @@ public class FlowUtils {
                 .build();
 
         GenericTransactionUtils.writeData(dataBroker, LogicalDatastoreType.CONFIGURATION, flowIID, flowBuilder.build(), true);
+    }
+
+    public static void programL2Flow(DataBroker dataBroker, NodeId nodeId) {
+        /*
+         * Programming a flow involves:
+         * 1. Creating a Flow object that has a match and a list of instructions,
+         * 2. Adding Flow object as an augmentation to the Node object in the inventory.
+         * 3. FlowProgrammer module of OpenFlowPlugin will pick up this data change and eventually program the switch.
+         */
+
+        // Create match object
+        MatchBuilder matchBuilder = new MatchBuilder();
+        matchBuilder.setInPort(InventoryUtils.getNodeConnectorId(nodeId, (long) 1));
+
+        // Create output action
+        OutputActionBuilder output = new OutputActionBuilder();
+        output.setOutputNodeConnector(InventoryUtils.getNodeConnectorId(nodeId, 2));
+        output.setMaxLength(65535); //Send full packet and No buffer
+
+        // Create group action
+        GroupActionCase ga = new GroupActionCaseBuilder()
+                .setGroupAction(new GroupActionBuilder()
+                        .setGroupId((long) 1)
+                        .build()).build();
+
+        ActionBuilder ab = new ActionBuilder();
+        ab.setAction(new OutputActionCaseBuilder().setOutputAction(output.build()).build());
+        //ab.setAction(ga);
+        ab.setOrder(0);
+        ab.setKey(new ActionKey(0));
+
+        List<Action> actionList = Lists.newArrayList();
+        actionList.add(ab.build());
+
+        // Create Apply Actions
+        ApplyActionsBuilder aab = new ApplyActionsBuilder();
+        aab.setAction(actionList);
+
+        // Create Instructions (Action -> ApplyAction -> Instruction -> Instructions)
+        InstructionBuilder ib = new InstructionBuilder();
+        ib.setInstruction(new ApplyActionsCaseBuilder().setApplyActions(aab.build()).build());
+        ib.setOrder(0);
+        ib.setKey(new InstructionKey(0));
+
+        List<Instruction> instructions = Lists.newArrayList();
+        instructions.add(ib.build());
+
+        InstructionsBuilder isb = new InstructionsBuilder();
+        isb.setInstruction(instructions);
+
+        // Create Flow
+        FlowBuilder flowBuilder = new FlowBuilder();
+
+        String flowId = "DELTA_RULE";
+        flowBuilder.setId(new FlowId(flowId));
+        FlowKey key = new FlowKey(new FlowId(flowId));
+
+        flowBuilder.setBarrier(true);
+        flowBuilder.setTableId((short) 0);
+        flowBuilder.setKey(key);
+        flowBuilder.setPriority(777);     // for DELTA identification
+        flowBuilder.setFlowName(flowId);
+        flowBuilder.setHardTimeout(0);
+        flowBuilder.setIdleTimeout(0);
+        flowBuilder.setMatch(matchBuilder.build());
+        flowBuilder.setInstructions(isb.build());
+
+        InstanceIdentifier<Flow> flowIID = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(nodeId))
+                .augmentation(FlowCapableNode.class)
+                .child(Table.class, new TableKey(flowBuilder.getTableId()))
+                .child(Flow.class, flowBuilder.getKey())
+                .build();
+
+        LOG.info("[App-Agent] flow: {}", flowIID);
+        GenericTransactionUtils.writeData(dataBroker, LogicalDatastoreType.OPERATIONAL, flowIID, flowBuilder.build(), true);
     }
 }

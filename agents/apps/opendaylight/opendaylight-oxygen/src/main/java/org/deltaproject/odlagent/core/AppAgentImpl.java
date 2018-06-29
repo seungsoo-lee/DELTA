@@ -39,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.flow.update.UpdatedFlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.FlowStatisticsData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.OutputPortValues;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
@@ -125,7 +126,7 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
      * start
      */
     public void start() {
-        LOG.info("[App-Agent] start() passing");
+        LOG.info("[App-Agent] AppAgentImpl start() passing");
 
         nodeIdList = new HashSet<>();
         node2table = new HashMap<>();
@@ -141,7 +142,10 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
                 this,
                 DataBroker.DataChangeScope.SUBTREE);
 
-        //appAgentHandler.connectManager();
+        cm = new Interface();
+        cm.setAgent(this);
+        cm.connectServer("AppAgent");
+        cm.start();
     }
 
     /**
@@ -259,8 +263,14 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
                 FlowUtils.programL2Flow(dataBroker, ingressNodeId, dstMacStr, connectorId, InventoryUtils.getNodeConnectorId(destNodeConnector));
             }
         }
+    }
 
-        sendFlowRuleAddPkt();
+    public void test() {
+        LOG.info("[App-Agent] test() ");
+        for (NodeId id : nodeIdList) {
+            HashSet<Short> tables = node2table.get(id);
+            FlowUtils.programL2Flow(this.dataBroker, id);
+        }
     }
 
 
@@ -282,7 +292,7 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
 
                 // Create match
                 MatchBuilder match = new MatchBuilder();
-                match.setInPort(InventoryUtils.getNodeConnectorId(id, (long)1));
+                match.setInPort(InventoryUtils.getNodeConnectorId(id, (long) 1));
 
                 // Create action
                 /*
@@ -295,10 +305,14 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
                                 .build())
                         .build();*/
 
+                Uri outport = new Uri(OutputPortValues.forValue(2).toString());
                 Action groupAction = new ActionBuilder()
                         .setOrder(0)
-                        .setAction(new GroupActionCaseBuilder()
-                                .setGroupAction(null)
+                        .setAction(new OutputActionCaseBuilder()
+                                .setOutputAction(new OutputActionBuilder()
+                                        .setMaxLength(Integer.valueOf(0xffff))
+                                        .setOutputNodeConnector(outport)
+                                        .build())
                                 .build())
                         .build();
 
@@ -316,7 +330,8 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
 
                 final AddFlowInputBuilder builder = new AddFlowInputBuilder();
                 builder.setNode(InventoryUtils.getNodeRef(id));
-                builder.setTableId(tableId);
+                builder.setPriority(777);
+                builder.setTableId((short) -1);
                 builder.setMatch(match.build());
                 builder.setInstructions(new InstructionsBuilder()
                         .setInstruction(ImmutableList.of(applyActionsInstruction))

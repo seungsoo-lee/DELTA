@@ -198,4 +198,11 @@ public class AttackConductor {
     public ControllerManager getControllerm() {
         return controllerm;
     }
+
+    public void testAttack(String input) {
+        if (appm != null) {
+            System.out.println("Attack Code [ test ]");
+            appm.write("test");
+        }
+    }
 }
