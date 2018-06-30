@@ -158,8 +158,11 @@ public class Interface extends Thread {
                 result = app.sendUnFlaggedFlowRemoveMsg("check", ruleId);
             }
             dos.writeUTF(result);
-        } else if (recv.contains("test")) {
-            app.test();
+        } else if (recv.contains("test1")) {
+            app.test1();
+            return;
+        }else if (recv.contains("test2")) {
+            app.test2();
             return;
         }
 

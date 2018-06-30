@@ -67,6 +67,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * AppAgentImpl
@@ -265,11 +266,48 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
         }
     }
 
-    public void test() {
-        LOG.info("[App-Agent] test() ");
+    public void test1() {
+        LOG.info("[App-Agent] test1() ");
+
         for (NodeId id : nodeIdList) {
             HashSet<Short> tables = node2table.get(id);
-            FlowUtils.programL2Flow(this.dataBroker, id);
+//            InstanceIdentifier<Node> node =
+//                    InstanceIdentifier
+//                            .create(Nodes.class)
+//                            .child(Node.class,
+//                                    new NodeKey(new NodeId("openflow:1")));
+            // FlowUtils.programL2Flow(this.dataBroker, id);
+        }
+//        FlowUtils.programL2Flow(this.dataBroker, new NodeId("openflow:1"));
+        sendFlowRuleAddPkt();
+    }
+
+    public void test2() {
+        LOG.info("[App-Agent] test2()");
+
+        InstanceIdentifier.InstanceIdentifierBuilder<Nodes> nodesInsIdBuilder = InstanceIdentifier
+                .<Nodes>builder(Nodes.class);
+        Nodes nodes = null;
+
+        try (ReadOnlyTransaction readOnlyTransaction = dataBroker.newReadOnlyTransaction()) {
+            Optional<Nodes> dataObjectOptional = readOnlyTransaction
+                    .read(LogicalDatastoreType.OPERATIONAL, nodesInsIdBuilder.build()).get();
+
+            if (dataObjectOptional.isPresent()) {
+                nodes = dataObjectOptional.get();
+
+                if (nodes != null) {
+                    for (Node node : nodes.getNode()) {
+                        LOG.info("[App-Agent] node: {}", node.getId());
+                    }
+                }
+            }
+        } catch (InterruptedException e) {
+            LOG.error("Failed to read nodes from Operation data store.");
+            throw new RuntimeException("Failed to read nodes from Operation data store.", e);
+        } catch (ExecutionException e) {
+            LOG.error("Failed to read nodes from Operation data store.");
+            throw new RuntimeException("Failed to read nodes from Operation data store.", e);
         }
     }
 
@@ -283,18 +321,13 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
     }
 
     public void sendFlowRuleAddPkt() {
-        for (NodeId id : nodeIdList) {
-            HashSet<Short> tables = node2table.get(id);
+        LOG.info("[App-Agent] sendFlowRuleAddPkt()");
 
-            for (Short tableId : tables) {
-                if (tableId != 0)
-                    break;
+        // Create match
+        MatchBuilder match = new MatchBuilder();
+        match.setInPort(InventoryUtils.getNodeConnectorId(new NodeId("openflow:1"), (long) 1));
 
-                // Create match
-                MatchBuilder match = new MatchBuilder();
-                match.setInPort(InventoryUtils.getNodeConnectorId(id, (long) 1));
-
-                // Create action
+        // Create action
                 /*
                 Action groupAction = new ActionBuilder()
                         .setOrder(0)
@@ -305,46 +338,47 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
                                 .build())
                         .build();*/
 
-                Uri outport = new Uri(OutputPortValues.forValue(2).toString());
-                Action groupAction = new ActionBuilder()
-                        .setOrder(0)
-                        .setAction(new OutputActionCaseBuilder()
-                                .setOutputAction(new OutputActionBuilder()
-                                        .setMaxLength(Integer.valueOf(0xffff))
-                                        .setOutputNodeConnector(outport)
-                                        .build())
+        Action groupAction = new ActionBuilder()
+                .setOrder(0)
+                .setAction(new OutputActionCaseBuilder()
+                        .setOutputAction(new OutputActionBuilder()
+                                .setMaxLength(Integer.valueOf(0xffff))
+                                .setOutputNodeConnector(InventoryUtils.getNodeConnectorId(new NodeId("openflow:1"), 2))
                                 .build())
-                        .build();
+                        .build())
+                .build();
 
-                ApplyActions applyActions = new ApplyActionsBuilder()
-                        .setAction(ImmutableList.of(groupAction))
-                        .build();
+        ApplyActions applyActions = new ApplyActionsBuilder()
+                .setAction(ImmutableList.of(groupAction))
+                .build();
 
-                // Wrap our Apply Action in an Instruction
-                Instruction applyActionsInstruction = new InstructionBuilder()
-                        .setOrder(0)
-                        .setInstruction(new ApplyActionsCaseBuilder()
-                                .setApplyActions(applyActions)
-                                .build())
-                        .build();
+        // Wrap our Apply Action in an Instruction
+        Instruction applyActionsInstruction = new InstructionBuilder()
+                .setOrder(0)
+                .setInstruction(new ApplyActionsCaseBuilder()
+                        .setApplyActions(applyActions)
+                        .build())
+                .build();
 
-                final AddFlowInputBuilder builder = new AddFlowInputBuilder();
-                builder.setNode(InventoryUtils.getNodeRef(id));
-                builder.setPriority(777);
-                builder.setTableId((short) -1);
-                builder.setMatch(match.build());
-                builder.setInstructions(new InstructionsBuilder()
-                        .setInstruction(ImmutableList.of(applyActionsInstruction))
-                        .build());
+        LOG.info("[App-Agent] before");
 
-                if (salFlowService == null)
-                    LOG.info("[App-Agent] salFlowService is NULL");
-                else {
-                    AddFlowInput addflow = builder.build();
-                    salFlowService.addFlow(addflow);
-                    LOG.info("[App-Agent] send add flow: {}", addflow);
-                }
-            }
+        final AddFlowInputBuilder builder = new AddFlowInputBuilder();
+        builder.setNode(InventoryUtils.getNodeRef(new NodeId("openflow:1")));
+        builder.setPriority(777);
+        builder.setTableId((short) 0);
+        builder.setMatch(match.build());
+        builder.setInstructions(new InstructionsBuilder()
+                .setInstruction(ImmutableList.of(applyActionsInstruction))
+                .build());
+
+        LOG.info("[App-Agent] builder {}", builder);
+
+        if (salFlowService == null)
+            LOG.info("[App-Agent] salFlowService is NULL");
+        else {
+            AddFlowInput addflow = builder.build();
+            salFlowService.addFlow(addflow);
+            LOG.info("[App-Agent] send add flow: {}", addflow);
         }
     }
 

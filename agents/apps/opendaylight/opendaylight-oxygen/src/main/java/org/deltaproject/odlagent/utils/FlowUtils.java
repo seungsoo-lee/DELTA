@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.M
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActionsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.write.actions._case.WriteActionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
@@ -289,16 +290,16 @@ public class FlowUtils {
                         .setGroupId((long) 1)
                         .build()).build();
 
+        // Create Apply Actions
         ActionBuilder ab = new ActionBuilder();
         ab.setAction(new OutputActionCaseBuilder().setOutputAction(output.build()).build());
-        //ab.setAction(ga);
+        // ab.setAction(ga);
         ab.setOrder(0);
         ab.setKey(new ActionKey(0));
 
         List<Action> actionList = Lists.newArrayList();
         actionList.add(ab.build());
 
-        // Create Apply Actions
         ApplyActionsBuilder aab = new ApplyActionsBuilder();
         aab.setAction(actionList);
 
@@ -339,6 +340,6 @@ public class FlowUtils {
                 .build();
 
         LOG.info("[App-Agent] flow: {}", flowIID);
-        GenericTransactionUtils.writeData(dataBroker, LogicalDatastoreType.OPERATIONAL, flowIID, flowBuilder.build(), true);
+        GenericTransactionUtils.writeData(dataBroker, LogicalDatastoreType.CONFIGURATION, flowIID, flowBuilder.build(), true);
     }
 }

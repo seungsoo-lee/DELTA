@@ -80,6 +80,7 @@ public final class GenericTransactionUtils {
     public static <T extends DataObject> T readData(DataBroker dataBroker, LogicalDatastoreType dataStoreType, InstanceIdentifier<T> iid) {
         Preconditions.checkNotNull(dataBroker);
         ReadOnlyTransaction readTransaction = dataBroker.newReadOnlyTransaction();
+
         try {
             Optional<T> optionalData = readTransaction.read(dataStoreType, iid).get();
             if (optionalData.isPresent()) {
