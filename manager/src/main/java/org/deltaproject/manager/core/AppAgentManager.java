@@ -90,7 +90,7 @@ public class AppAgentManager {
             return true;
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            // e.printStackTrace();
+            e.printStackTrace();
             return false;
         }
     }
@@ -129,6 +129,7 @@ public class AppAgentManager {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
+
         return result;
     }
 

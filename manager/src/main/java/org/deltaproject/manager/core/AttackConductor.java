@@ -201,8 +201,8 @@ public class AttackConductor {
 
     public void testAttack(String input) {
         if (appm != null) {
-            System.out.println("Attack Code [ test ]");
-            appm.write("test");
+            System.out.println("Attack Code [ " + input + " ]");
+            appm.write(input);
         }
     }
 }
