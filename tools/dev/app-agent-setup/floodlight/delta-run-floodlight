@@ -35,7 +35,7 @@ case $floodlight_version in
 esac
 
 # Check if Floodlight exists on the AppAgent
-directory_check=$(ssh $DELTA_APP "[ -f $FLOODLIGHT_DIR ] && echo exists || echo does not exists")
+directory_check=$(ssh $DELTA_CP "[ -f $FLOODLIGHT_DIR ] && echo exists || echo does not exists")
 
 if [[ "$directory_check" =~ "not" ]]; then
     echo "Please install Floodlight on App Agent"
@@ -43,7 +43,7 @@ if [[ "$directory_check" =~ "not" ]]; then
 fi
 
 # Run Floodlight
-ssh $DELTA_APP "
+ssh $DELTA_CP "
 sudo update-java-alternatives --set $JDK_VERSION
 export JAVA_HOME=/usr/lib/jvm/$JDK_VERSION
 $FLOODLIGHT_CMD

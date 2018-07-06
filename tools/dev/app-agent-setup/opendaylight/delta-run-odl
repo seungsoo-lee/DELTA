@@ -37,7 +37,7 @@ case $odl_version in
 esac
 
 # Check if ODL exists on the AppAgent
-directory_check=$(ssh $DELTA_APP "[ -d $ODL_DIR ] && echo exists || echo does not exists")
+directory_check=$(ssh $DELTA_CP "[ -d $ODL_DIR ] && echo exists || echo does not exists")
 
 if [[ "$directory_check" =~ "not" ]]; then
     echo "Please install ODL on APP Agent"
@@ -45,7 +45,7 @@ if [[ "$directory_check" =~ "not" ]]; then
 fi
 
 # Run ODL
-ssh $DELTA_APP "
+ssh $DELTA_CP "
 export JAVA_HOME=/usr/lib/jvm/$JDK_VERSION
 sudo update-java-alternatives --set $JDK_VERSION
 $ODL_CMD
