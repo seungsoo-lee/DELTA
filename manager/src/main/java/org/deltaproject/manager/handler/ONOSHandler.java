@@ -45,14 +45,14 @@ public class ONOSHandler implements ControllerHandler {
 
 
         try {
-            if (this.version.contains("1.1")) {
+            if (this.version.contains("1.13")) {
+                cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.13.1"};
+            } else if (this.version.contains("1.1")) {
                 cmdArray = new String[]{"ssh", sshAddr, onos1_1, "clean"};
             } else if (this.version.contains("1.6")) {
                 cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.6"};
             } else if (this.version.contains("1.9")) {
                 cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.9"};
-            } else if (this.version.contains("1.13")) {
-                cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.13.1"};
             }
 
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
