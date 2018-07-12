@@ -91,7 +91,8 @@
                                 <select class="selectpicker form-control" id="targetVersion" data-width="100%">
                                     <option>1.1</option>
                                     <option>1.6</option>
-                                    <option selected>1.9</option>
+                                    <option>1.9</option>
+                                    <option selected>1.13.1</option>
                                 </select>
                             </div>
                         </div>
@@ -116,27 +117,27 @@
                         <div class="form-group">
                             <label for="ofPort" class="col-xs-5">Controller IP</label>
                             <div class="col-xs-7">
-                                <input type="text" class="form-control" placeholder="Controller IP" id="controllerIp"
-                                       aria-describedby="basic-addon2" value="10.0.3.11">
                                 <!--<input type="text" class="form-control" placeholder="Controller IP" id="controllerIp"-->
-                                       <!--aria-describedby="basic-addon2" value="192.168.4.4">-->
+                                       <!--aria-describedby="basic-addon2" value="10.0.3.11">-->
+                                <input type="text" class="form-control" placeholder="Controller IP" id="controllerIp"
+                                       aria-describedby="basic-addon2" value="192.168.4.4">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="ofPort" class="col-xs-5">Switch IP</label>
                             <div class="col-xs-7">
-                                <input type="text" class="form-control" placeholder="Switch IP" id="switchIp"
-                                       aria-describedby="basic-addon2" value="10.0.3.13,10.0.3.13,10.0.3.13">
                                 <!--<input type="text" class="form-control" placeholder="Switch IP" id="switchIp"-->
-                                       <!--aria-describedby="basic-addon2" value="192.168.4.11,192.168.4.12">-->
+                                       <!--aria-describedby="basic-addon2" value="10.0.3.13,10.0.3.13,10.0.3.13">-->
+                                <input type="text" class="form-control" placeholder="Switch IP" id="switchIp"
+                                       aria-describedby="basic-addon2" value="192.168.4.11,192.168.4.13">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="ofVersion" class="col-xs-5">Topology Type</label>
                             <div class="col-xs-7">
                                 <select class="selectpicker form-control" id="topologyType" data-width="100%">
-                                    <option selected value="VM">VM (All-in-one)</option>
-                                    <option value="HW">Hardware</option>
+                                    <option value="VM">VM (All-in-one)</option>
+                                    <option selected value="HW">Hardware</option>
                                 </select>
                             </div>
                         </div>
