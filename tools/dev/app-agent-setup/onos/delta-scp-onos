@@ -1,17 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 onos_version=${1}
 
-
-# Prints usage help
 function usage {
-    echo "Usage: delta-setup-onos <onos-version>" >&2
+    echo "Usage: delta-scp-onos <onos-version>" >&2
     echo "* supported ONOS version: 1.6, 1.9, 1.13.1" >&2
     exit 1
 }
-
-# Configure environment variables
-export JAVA_HOME=/usr/lib/jvm/java-8-oracle
-export ONOS_APPS=drivers,openflow,proxyarp,mobility,fwd
 
 [ $# -lt 1 ] && usage
 if [ -z $DELTA_ROOT ]; then
@@ -33,18 +28,11 @@ case $onos_version in
     1.13|1.13.1)
         echo "Starting ONOS 1.13.1 on AppAgent..."
         onos_version=1.13.1
+        karaf_version=3.0.8
         ;;
     *) usage;;
 esac
 
-# get ONOS
-ssh $DELTA_CP "
-    sudo apt-get install unzip -y
-    wget http://repo1.maven.org/maven2/org/onosproject/onos-releases/$onos_version/onos-$onos_version.zip
-    unzip onos-$onos_version.zip
-    rm onos-$onos_version.zip
-"
-
-status=$?
-echo # new line for prompt
-exit $status
+# copy delta app agent
+scp $DELTA_ROOT/agents/apps/onos/onos-$onos_version/target/delta-agent-app-onos-$onos_version-1.0-SNAPSHOT.jar $DELTA_CP:~
+ssh $DELTA_CP cp delta-agent-app-onos-$onos_version-1.0-SNAPSHOT.jar onos-$onos_version/apache-karaf-$karaf_version/deploy/
