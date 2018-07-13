@@ -150,6 +150,10 @@ public class TestAdvancedCase {
                 runRemoteAgents(false, true);
                 testSwitchFirmwareMisuse(test);
                 break;
+	    case "3.1.210":
+		runRemoteAgents(false, true);
+		testPacketInDataForge(test);
+		break;
             case "------ ":          // testControllerOFCase
                 testControlMessageManipulation(test);
                 break;
@@ -954,6 +958,39 @@ public class TestAdvancedCase {
 
         return true;
     }
+
+    /*
+     * 3.1.210 - Packet-In Data Forge
+     */
+    public boolean testPacketInDataForge(TestCase test) {
+        if (!controllerm.getType().equals("Floodlight")) {
+            log.info("Floodlight is only possible to replay [" + test.getcasenum() + "] ");
+            return false;
+        }
+
+        log.info("App-Agent starts");
+        appm.write(test.getcasenum());
+
+        log.info("Host-Agent sends packets to others");
+        String flowResult = generateFlow("ping");
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        ResultInfo result = new ResultInfo();
+        result.addType(ResultInfo.COMMUNICATON);
+        result.setLatency(null, flowResult);
+
+        analyzer.checkResult(test, result);
+
+        //appm.closeSocket();
+        return true;
+    }
+
 
     /*
      * ---- Control Message Manipulation
