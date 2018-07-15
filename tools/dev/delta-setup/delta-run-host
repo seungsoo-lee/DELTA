@@ -71,7 +71,6 @@ case $running_mode in
                 ;;
             *) usage;;
         esac
-        ;;
     hw)
         echo "Running Host Agent on HW environments..."
         ssh $DELTA_DP "sudo java -jar delta-agent-host-1.0-SNAPSHOT.jar 192.168.11.101 3366"
