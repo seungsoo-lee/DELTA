@@ -131,7 +131,8 @@ public class TestCaseDirectory {
         directory.put("2.1.073",
                 new TestCase(CONTROL_PLANE_OF, "2.1.073", "Handling Control Packet Modification")); */
 
-
+        directory.put("3.1.001",
+                new TestCase(ADVANCED, "3.1.001", "Inconsistency test", "Test for controller Switch inconsistency"));
         directory.put("3.1.010",
                 new TestCase(ADVANCED, "3.1.010", "Packet-In Flooding", "Test for controller protection against " +
                         "Packet-In Flooding"));

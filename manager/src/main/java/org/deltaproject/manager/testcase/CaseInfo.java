@@ -44,6 +44,7 @@ public class CaseInfo {
     }
 
     public static void updateAdvancedCase(HashMap<String, String> map) {
+        map.put("3.1.001", "Flow Rule Inconsistency - App Name");
         map.put("3.1.010", "Packet-In Flooding");
         map.put("3.1.020", "Control Message Drop");
         map.put("3.1.030", "Infinite Loops");
