@@ -215,50 +215,14 @@ public class AppAgent {
                 "packetOutOnly", "true");
     }
 
-//    private ConnectPoint buildConnectPoint(FlowRule rule) {
-//        PortNumber port = getOutput(rule);
-//
-//        if (port == null) {
-//            return null;
-//        }
-//        return new ConnectPoint(rule.deviceId(), port);
-//    }
-//
-//    private PortNumber getOutput(FlowRule rule) {
-//        for (Instruction i : rule.treatment().allInstructions()) {
-//            if (i.type() == Instruction.Type.OUTPUT) {
-//                Instructions.OutputInstruction out = (Instructions.OutputInstruction) i;
-//                return out.port();
-//            }
-//        }
-//        return null;
-//    }
-
-//    private List<FlowEntry> getStats(ConnectPoint cp, FlowRule flowRule) {
-//        Set<FlowEntry> currentFlowStat = statsStore.getCurrentFlowStatistic(cp);
-//        System.out.println(currentFlowStat);
-//        return statsStore.getCurrentFlowStatistic(cp)
-//                .stream()
-//                .filter(flowEntry -> flowEntry
-//                        .id()
-//                        .equals(flowRule.id()))
-//                .collect(Collectors.toList());
-//    }
 
     private boolean isAttackStart = false;
     private String consistencyTestRes = "fail";
-    private FlowRule newFlowRule; // Rule named with 'org.deltaproject.onosagent'
+
     private FlowRule existFlowRule; // Rule named with 'org.onosproject.fwd'
     // 3.1.00* testInconsistency
     public String testInconsistency(char type){
         System.out.println("[ATTACK] Inconsistency attack");
-
-        TrafficTreatment.Builder treat = DefaultTrafficTreatment.builder();
-        treat.setOutput(PortNumber.portNumber(2));
-
-        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
-        selector.matchInPort(PortNumber.portNumber(1));
-        selector.matchEthType((short) 0x0800);
 
         Iterable<Device> dvs = null;
         do {
@@ -273,37 +237,66 @@ public class AppAgent {
 
         Device d = dvs.iterator().next();
 
-        //ConnectPoint cp = new ConnectPoint(d.id(), PortNumber.portNumber(2));
-        ApplicationId fwdId = coreService.getAppId("org.onosproject.fwd");
-        existFlowRule = new DefaultFlowRule(d.id(),
-                selector.build(), treat.build(), 555,       // priority: 555
-                fwdId, flowTimeout, true, null);
-        System.out.println("[ATTACK] Flow Rule inserted with name of Reactive forwarding, appId = " + fwdId);
-        System.out.println("* " + existFlowRule.toString());
-        flowRuleService.applyFlowRules(existFlowRule);
+        TrafficTreatment.Builder treat = DefaultTrafficTreatment.builder();
+        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        switch(type){
+            case '1':
+                treat.setOutput(PortNumber.portNumber(2));
+
+                selector.matchInPort(PortNumber.portNumber(1));
+                selector.matchEthType((short) 0x0800);
+
+                ApplicationId fwdId = coreService.getAppId("org.onosproject.fwd");
+                existFlowRule = new DefaultFlowRule(d.id(),
+                        selector.build(), treat.build(), 555,       // priority: 555
+                        fwdId, flowTimeout, true, null);
+                System.out.println("[ATTACK] Flow Rule inserted with name of Reactive forwarding, appId = " + fwdId);
+                System.out.println("* " + existFlowRule.toString());
+                flowRuleService.applyFlowRules(existFlowRule);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                FlowRule newFlowRule; // Rule named with 'org.deltaproject.onosagent'
+                newFlowRule = new DefaultFlowRule(d.id(),
+                        selector.build(), treat.build(), 555,       // priority: 555
+                        appId, flowTimeout, true, null);
+
+                System.out.println("[ATTACK] Flow Rule inserted with name of Delta, appId = " + appId);
+                System.out.println("* " + newFlowRule.toString());
+                flowRuleService.applyFlowRules(newFlowRule);
+
+                //TODO: Show flow rule stored in storage here
+                //System.out.println("[Storage] Flow Rule from storage, appId = " + appId);
+                //System.out.println("** " + storageFlowRule.toString());
+                isAttackStart = true;
+
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+                return consistencyTestRes;
+            case '2':
+                long outputPortNum = 65536;
+                treat.setOutput(PortNumber.portNumber(outputPortNum));
+
+                selector.matchInPort(PortNumber.portNumber(1));
+                selector.matchEthType((short) 0x0800);
+
+                existFlowRule = new DefaultFlowRule(d.id(),
+                        selector.build(), treat.build(), 555,       // priority: 555
+                        appId, flowTimeout, true, null);
+                System.out.println("[ATTACK] Flow Rule inserted with output port of " + outputPortNum);
+                flowRuleService.applyFlowRules(existFlowRule);
+                return consistencyTestRes;
         }
-        newFlowRule = new DefaultFlowRule(d.id(),
-                selector.build(), treat.build(), 555,       // priority: 555
-                appId, flowTimeout, true, null);
-
-        System.out.println("[ATTACK] Flow Rule inserted with name of Delta, appId = " + appId);
-        System.out.println("* " + newFlowRule.toString());
-        flowRuleService.applyFlowRules(newFlowRule);
-        isAttackStart = true;
-
-
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
         return consistencyTestRes;
     }
 
@@ -813,7 +806,6 @@ public class AppAgent {
         public void handleMessage(Dpid dpid, OFMessage ofMessage) {
             if (!isAttackStart) return;
             DeviceId deviceId = DeviceId.deviceId(Dpid.uri(dpid));
-            FlowId newFlowId = newFlowRule.id();
             FlowId expectFlowId = existFlowRule.id(); // appId = fwd
             if (ofMessage.getType() == OFType.STATS_REPLY) {
                 if (((OFStatsReply) ofMessage).getStatsType() == OFStatsType.FLOW) {
@@ -821,7 +813,9 @@ public class AppAgent {
                     List<OFFlowStatsEntry> entryList = msg.getEntries();
                     for( OFFlowStatsEntry e : entryList ){
                         //TODO: strictly compare whether flow rules are identical
+			// if ( e.getPriority() == existFlowRule.priority() ) TODO...
                         if(expectFlowId.value() == e.getCookie().getValue()) {
+                            System.out.println("[Storage] Flow Rule from storage, appId = " + appId);
                             consistencyTestRes="success";
                         }
                     }
