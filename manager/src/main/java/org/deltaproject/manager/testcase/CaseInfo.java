@@ -65,5 +65,8 @@ public class CaseInfo {
         map.put("3.1.190", "Flow Rule Flooding");
         map.put("3.1.200", "Switch Firmware Abuse");
         map.put("3.1.210", "Packet-In Data Forge");
+	map.put("3.1.220", "Flow Rule ID Spoofing");
+	map.put("3.1.230", "Infinite Flow Rule Synchronization");
+	map.put("3.1.240", "Malformed Flow Rule Generation");
     }
 }
