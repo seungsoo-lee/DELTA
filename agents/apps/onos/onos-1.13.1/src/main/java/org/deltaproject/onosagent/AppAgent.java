@@ -20,24 +20,16 @@ import org.onosproject.cluster.ClusterService;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.core.CoreService;
 import org.onosproject.mastership.MastershipAdminService;
-import org.onosproject.net.Device;
-import org.onosproject.net.Host;
-import org.onosproject.net.Link;
-import org.onosproject.net.PortNumber;
+import org.onosproject.net.*;
 import org.onosproject.net.device.DeviceAdminService;
 import org.onosproject.net.device.DeviceClockService;
 import org.onosproject.net.device.DeviceService;
-import org.onosproject.net.flow.DefaultFlowRule;
-import org.onosproject.net.flow.DefaultTrafficSelector;
-import org.onosproject.net.flow.DefaultTrafficTreatment;
-import org.onosproject.net.flow.FlowEntry;
-import org.onosproject.net.flow.FlowRule;
-import org.onosproject.net.flow.FlowRuleService;
-import org.onosproject.net.flow.TrafficSelector;
-import org.onosproject.net.flow.TrafficTreatment;
+import org.onosproject.net.flow.*;
 import org.onosproject.net.flow.criteria.Criterion;
 import org.onosproject.net.flow.criteria.EthCriterion;
 import org.onosproject.net.flow.criteria.PortCriterion;
+import org.onosproject.net.flow.instructions.Instruction;
+import org.onosproject.net.flow.instructions.Instructions;
 import org.onosproject.net.flowobjective.FlowObjectiveService;
 import org.onosproject.net.host.HostAdminService;
 import org.onosproject.net.host.HostService;
@@ -48,22 +40,30 @@ import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketPriority;
 import org.onosproject.net.packet.PacketProcessor;
 import org.onosproject.net.packet.PacketService;
+import org.onosproject.net.statistic.FlowStatisticStore;
 import org.onosproject.net.topology.TopologyService;
+import org.onosproject.openflow.controller.Dpid;
+import org.onosproject.openflow.controller.OpenFlowController;
+import org.onosproject.openflow.controller.OpenFlowEventListener;
+import org.onosproject.openflow.controller.OpenFlowMessageListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.ComponentInstance;
+import org.projectfloodlight.openflow.protocol.*;
+import org.projectfloodlight.openflow.types.U64;
 import org.slf4j.Logger;
-
+import org.onosproject.net.flow.instructions.Instructions.OutputInstruction;
+import org.projectfloodlight.openflow.protocol.action.OFAction;
+import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
+import javax.xml.bind.Element;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -133,6 +133,9 @@ public class AppAgent {
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected MastershipAdminService msadmin;
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    protected OpenFlowController controller;
+
     private ReactivePacketProcessor processor = new ReactivePacketProcessor();
 
     @Property(name = "flowTimeout", intValue = DEFAULT_TIMEOUT,
@@ -148,6 +151,10 @@ public class AppAgent {
     private boolean isLoop = false;
     private Random ran = new Random();
     private PacketContext dropped = null;
+
+    private final InternalFlowProvider listener = new InternalFlowProvider();
+    private String isInconsistency;
+    private int checkInconsistencyFlag = 0;
 
     @Activate
     public void activate(ComponentContext context) {
@@ -170,6 +177,7 @@ public class AppAgent {
 
         cm = new AMInterface(this);
         cm.start();
+	controller.addEventListener(listener);
     }
 
     @Deactivate
@@ -616,27 +624,38 @@ public class AppAgent {
 
     public String testInfiniteFlowRuleSynchronization() {
 	System.out.println("[ATTACK] Infinite Flow Rule Synchronization");
-	String isInconsistency = "nothing";
+	isInconsistency = "nothing";
+	checkInconsistencyFlag = 2;
 
-	// FlowRuleService.get~ : Controller
 	Iterable<Device> iterableDevice = deviceService.getDevices();
         Iterator iteratorDevice = iterableDevice.iterator();
 
+	System.out.println("\n====================");
         while (iteratorDevice.hasNext()) {
+	    int flowRuleCount = 0;
             Device device = (Device) iteratorDevice.next();
-	    System.out.println("[DEBUG] " + device);
+	    System.out.println("[Controller] " + device.id() + " FlowTable");
 	    Iterable<FlowEntry> iterableFlow = flowRuleService.getFlowEntries(device.id());
 	    Iterator iteratorFlow = iterableFlow.iterator();
 
 	    while (iteratorFlow.hasNext()) {
 		FlowEntry flowEntry = (FlowEntry) iteratorFlow.next();
-		System.out.println("[DEBUG] " + flowEntry);
-		log.info("[DEBUG] " + flowEntry);
+		if (!flowEntry.toString().contains("CONTROLLER")) {
+		    flowRuleCount++;
+		    System.out.println("<FlowRule> " + flowEntry);
+		}
 	    }
-	    
+	    System.out.println("---------------");
+            System.out.println("[Result] " + device.id() + " FlowRuleCount: " + flowRuleCount);
+            System.out.println("====================\n");
 	}
-	// Switch
-	
+
+	try {
+	    Thread.sleep(10000);
+	} catch (InterruptedException e) {
+	    e.printStackTrace();
+	}
+
 	return isInconsistency;
     }
 
@@ -735,4 +754,85 @@ public class AppAgent {
         }
     }
 
+    class InternalFlowProvider implements OpenFlowEventListener {
+
+        @Override
+        public void handleMessage(Dpid dpid, OFMessage ofMessage) {
+	    if (ofMessage.getType() != OFType.STATS_REPLY) {
+		return;
+	    } else {
+		if (((OFStatsReply) ofMessage).getStatsType() != OFStatsType.FLOW) {
+		    return;
+		}
+	    }
+
+            if (checkInconsistencyFlag < 1) {
+		return;
+	    } else {
+		checkInconsistencyFlag--;
+	    }
+
+	    System.out.println("\n====================");
+	    int flowRuleCount = 0;
+            DeviceId deviceId = DeviceId.deviceId(Dpid.uri(dpid));
+	    System.out.println("[Switch] " + deviceId + " FlowTable");
+            OFFlowStatsReply msg = (OFFlowStatsReply) ofMessage;
+            List<OFFlowStatsEntry> entryList = msg.getEntries();
+            for(OFFlowStatsEntry e : entryList) {
+		if (!e.toString().contains("controller")) {
+                    flowRuleCount++;
+                    System.out.println("<FlowRule> " + e.toString());
+                }
+            }
+	    System.out.println("---------------");
+            System.out.println("[Result] " + deviceId + " FlowRuleCount: " + flowRuleCount);
+            System.out.println("====================\n");
+
+	    Iterable<Device> iterableDevice = deviceService.getDevices();
+            Iterator iteratorDevice = iterableDevice.iterator();
+
+            while (iteratorDevice.hasNext()) {
+                Device device = (Device) iteratorDevice.next();
+		if (!device.id().toString().equals(deviceId.toString())) {
+		    continue;
+		}
+	        Iterable<FlowEntry> iterableFlow = flowRuleService.getFlowEntries(device.id());
+	        Iterator iteratorFlow = iterableFlow.iterator();
+
+	        while (iteratorFlow.hasNext()) {
+		    boolean found = false;
+	            FlowEntry flowEntry = (FlowEntry) iteratorFlow.next();
+	            if (flowEntry.toString().contains("CONTROLLER")) {
+			continue;
+		    }
+		    for(OFFlowStatsEntry e : entryList) {
+			if (e.toString().contains("controller")) {
+			    continue;
+	                }
+			if (flowEntry.id().value() != e.getCookie().getValue()) {
+			    continue;
+			}
+
+			Instruction tempF = (OutputInstruction) flowEntry.treatment().immediate().get(0);
+			OFAction tempE = (OFActionOutput) e.getActions().get(0);
+
+			long tempFOutput = ((OutputInstruction) tempF).port().toLong();
+			long tempEOutput = ((OFActionOutput) tempE).getPort().getPortNumber();
+
+			if (tempFOutput != tempEOutput) {
+			    break;
+			}
+
+			found = true;
+			break;
+	            }
+
+		    if (!found) {
+			isInconsistency = flowEntry.toString();
+			break;
+		    }
+		}
+            }
+        }
+    }
 }

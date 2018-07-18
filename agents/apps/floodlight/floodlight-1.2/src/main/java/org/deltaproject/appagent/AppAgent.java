@@ -794,9 +794,8 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 	    }
 	    System.out.println("---------------");
 	    System.out.println("[Result] " + sw + " FlowRuleCount: " + flowRuleCount);
-	    System.out.println("---------------\n");
+	    System.out.println("====================\n");
         }
-	System.out.println("====================\n");
 
 	System.out.println("\n====================");
         for (IOFSwitch sw : switches) {
@@ -825,7 +824,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 
 	    System.out.println("---------------");
             System.out.println("[Result] " + sw + " FlowRuleCount: " + flowRuleCount);
-            System.out.println("---------------\n");
+            System.out.println("====================\n");
 
 	    for (String mapKey : controllerTable.keySet()) {
 		boolean found = false;
@@ -852,7 +851,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 		}
 	    }
         }
-	System.out.println("====================\n");
 	return isInconsistency;
     }
 
