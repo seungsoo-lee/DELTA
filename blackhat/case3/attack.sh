@@ -1,3 +1,3 @@
 #!/bin/bash
 
-curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' 'http://192.168.11.102:8181/onos/v1/flows/of:5e3ec45444902a7a?appId=ATTACK' -u karaf:karaf -d '{"priority":1000, "isPermanent":true, "treatment":{"instructions":[{"type":"OUTPUT","port":999999}]}}'
+curl -X POST http://192.168.11.102:8080/wm/staticflowpusher/json -d '{"switch":"5e:3e:c4:54:44:90:2a:3a", "name":"R1", "priority":100, "eth_src":"e8:11:32:38:71:aa", "eth_dst":"e8:11:32:38:71:9a", "in_port":2, "actions":"output=3"}'

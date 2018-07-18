@@ -156,15 +156,15 @@ public class TestAdvancedCase {
 		break;
             case "3.1.220":
                 runRemoteAgents(false, true);
-                testFlowRuleIDSpoofing(test);
-		break;
+                testMalformedFlowRuleGeneration(test);
+                break;
             case "3.1.230":
                 runRemoteAgents(false, true);
-                testInfiniteFlowRuleSynchronization(test);
+                testFlowRuleIDSpoofing(test);
 		break;
             case "3.1.240":
                 runRemoteAgents(false, true);
-                testMalformedFlowRuleGeneration(test);
+                testInfiniteFlowRuleSynchronization(test);
 		break;
             case "------ ":          // testControllerOFCase
                 testControlMessageManipulation(test);
@@ -1004,120 +1004,7 @@ public class TestAdvancedCase {
     }
 
     /*
-     * 3.1.220 - Flow Rule ID Spoofing
-     */
-    public boolean testFlowRuleIDSpoofing(TestCase test) {
-        if (!controllerm.getType().equals("Floodlight")) {
-            log.info("Floodlight is only possible to replay [" + test.getcasenum() + "] ");
-            return false;
-        }
-
-	String[] setupCmd = new String[2];
-	setupCmd[0] = "sh";
-	setupCmd[1] = "/home/delta/DELTA/blackhat/case2/setup.sh";
-	try {
-	    Process p = Runtime.getRuntime().exec(setupCmd);
-	} catch (IOException e) {
-	   e.printStackTrace();
-	}
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-	log.info("Flow Rule ID Spoofing Attack");
-
-	String[] attackCmd = new String[2];
-	attackCmd[0] = "sh";
-	attackCmd[1] = "/home/delta/DELTA/blackhat/case2/attack.sh";
-        try {
-            Process p = Runtime.getRuntime().exec(attackCmd);
-        } catch (IOException e) {
-           e.printStackTrace();
-        }
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-	appm.write(test.getcasenum());
-	
-	String result = appm.read();
-
-	if (result.equals("nothing")) {
-	    test.setResult(TestCase.TestResult.PASS);
-	    log.info("3.1.220, PASS");
-	} else {
-	    log.info("Inconsistency Flow Rule: " + result);
-	    test.setResult(TestCase.TestResult.FAIL);
-	    log.info("3.1.220, FAIL");
-	}
-        //appm.closeSocket();
-        return true;
-    }
-
-    /*
-     * 3.1.230 - Infinite Flow Rule Synchronization
-     */
-    public boolean testInfiniteFlowRuleSynchronization(TestCase test) {
-        if (!controllerm.getType().equals("ONOS")) {
-            log.info("ONOS is only possible to replay [" + test.getcasenum() + "] ");
-            return false;
-        }
-
-	String[] setupCmd = new String[2];
-        setupCmd[0] = "sh";
-        setupCmd[1] = "/home/delta/DELTA/blackhat/case3/setup.sh";
-        try {
-            Process p = Runtime.getRuntime().exec(setupCmd);
-        } catch (IOException e) {
-           e.printStackTrace();
-        }
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        String[] attackCmd = new String[2];
-        attackCmd[0] = "sh";
-        attackCmd[1] = "/home/delta/DELTA/blackhat/case3/attack.sh";
-        try {
-            Process p = Runtime.getRuntime().exec(attackCmd);
-        } catch (IOException e) {
-           e.printStackTrace();
-        }
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        log.info("Host-Agent sends packets to others");
-        String flowResult = generateFlow("ping");
-
-        ResultInfo result = new ResultInfo();
-        result.addType(ResultInfo.COMMUNICATON);
-        result.setLatency(null, flowResult);
-
-        analyzer.checkResult(test, result);
-
-        //appm.closeSocket();
-        return true;
-    }
-
-    /*
-     * 3.1.240 - Malformed Flow Rule Generation
+     * 3.1.220 - Malformed Flow Rule Generation
      */
     public boolean testMalformedFlowRuleGeneration(TestCase test) {
         if (!controllerm.getType().equals("OpenDaylight")) {
@@ -1149,7 +1036,133 @@ public class TestAdvancedCase {
     }
 
 
+    /*
+     * 3.1.230 - Flow Rule ID Spoofing
+     */
+    public boolean testFlowRuleIDSpoofing(TestCase test) {
+        if (!controllerm.getType().equals("Floodlight")) {
+            log.info("Floodlight is only possible to replay [" + test.getcasenum() + "] ");
+            return false;
+        }
 
+	log.info("Setup test environment");
+
+	String[] setupCmd = new String[2];
+	setupCmd[0] = "sh";
+	setupCmd[1] = "/home/delta/DELTA/blackhat/case3/setup.sh";
+	try {
+	    Process p = Runtime.getRuntime().exec(setupCmd);
+	} catch (IOException e) {
+	   e.printStackTrace();
+	}
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+	log.info("Setup complete");
+
+	log.info("Start FlowRule ID Spoofing Attack");
+
+	String[] attackCmd = new String[2];
+	attackCmd[0] = "sh";
+	attackCmd[1] = "/home/delta/DELTA/blackhat/case3/attack.sh";
+
+        try {
+            Process p = Runtime.getRuntime().exec(attackCmd);
+        } catch (IOException e) {
+           e.printStackTrace();
+        }
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+	log.info("Attack complete");
+
+	log.info("Check inconsistency between the controller and switches");
+
+	appm.write(test.getcasenum());
+	
+	String result = appm.read();
+
+	if (result.equals("nothing")) {
+	    test.setResult(TestCase.TestResult.PASS);
+	    log.info("3.1.230, PASS");
+	} else {
+	    log.info("Inconsistency Flow Rule: " + result);
+	    test.setResult(TestCase.TestResult.FAIL);
+	    log.info("3.1.230, FAIL");
+	}
+        //appm.closeSocket();
+        return true;
+    }
+
+    /*
+     * 3.1.240 - Infinite Flow Rule Synchronization
+     */
+    public boolean testInfiniteFlowRuleSynchronization(TestCase test) {
+        if (!controllerm.getType().equals("ONOS")) {
+            log.info("ONOS is only possible to replay [" + test.getcasenum() + "] ");
+            return false;
+        }
+
+	String[] setupCmd = new String[2];
+        setupCmd[0] = "sh";
+        setupCmd[1] = "/home/delta/DELTA/blackhat/case4/setup.sh";
+        try {
+            Process p = Runtime.getRuntime().exec(setupCmd);
+        } catch (IOException e) {
+           e.printStackTrace();
+        }
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+	log.info("Infinite Flow Rule Synchronization Attack");
+
+        String[] attackCmd = new String[2];
+        attackCmd[0] = "sh";
+        attackCmd[1] = "/home/delta/DELTA/blackhat/case4/attack.sh";
+        try {
+            Process p = Runtime.getRuntime().exec(attackCmd);
+        } catch (IOException e) {
+           e.printStackTrace();
+        }
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+	appm.write(test.getcasenum());
+
+        String result = appm.read();
+
+        if (result.equals("nothing")) {
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("3.1.230, PASS");
+        } else {
+            log.info("Inconsistency Flow Rule: " + result);
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("3.1.230, FAIL");
+        }
+
+        //appm.closeSocket();
+        return true;
+    }
 
     /*
      * ---- Control Message Manipulation

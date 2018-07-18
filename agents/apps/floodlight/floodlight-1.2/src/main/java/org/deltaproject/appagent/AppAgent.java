@@ -782,18 +782,25 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 	String isInconsistency = "nothing";
 	List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
 
+	System.out.println("\n====================");
         for (DatapathId sw : switchService.getAllSwitchDpids()) {
+	    int flowRuleCount = 0;
             switches.add(switchService.getSwitch(sw));
 	    Map<String, OFFlowMod> tempMap = fservice.getFlows(sw);
 	    System.out.println("[Controller] " + sw + " FlowTable");
 	    for (String mapKey : tempMap.keySet()) {
-		System.out.println("- " + mapKey + ": " + tempMap.get(mapKey));
+		flowRuleCount++;
+		System.out.println("<FlowRule> " + mapKey + ": " + tempMap.get(mapKey));
 	    }
+	    System.out.println("---------------");
+	    System.out.println("[Result] " + sw + " FlowRuleCount: " + flowRuleCount);
+	    System.out.println("---------------\n");
         }
+	System.out.println("====================\n");
 
-	System.out.println("");
-
+	System.out.println("\n====================");
         for (IOFSwitch sw : switches) {
+	    int flowRuleCount = 0;
 	    Map<String, OFFlowMod> controllerTable = fservice.getFlows(sw.getId());
             List<OFStatsReply> flowTable = getSwitchStatistics(sw, OFStatsType.FLOW);
 	    System.out.println("[Switch] " + sw.getId() + " FlowTable");
@@ -806,7 +813,8 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 		    if (entries != null) {
 			for (OFFlowStatsEntry e : entries) {
 			    if (!e.toString().contains("controller")) {
-				System.out.println("- " + e.toString());
+				flowRuleCount++;
+				System.out.println("<FlowRule> " + e.toString());
 			    }
 			}
 		    }
@@ -814,6 +822,10 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 	    } else {
 		continue;
 	    }
+
+	    System.out.println("---------------");
+            System.out.println("[Result] " + sw + " FlowRuleCount: " + flowRuleCount);
+            System.out.println("---------------\n");
 
 	    for (String mapKey : controllerTable.keySet()) {
 		boolean found = false;
@@ -828,7 +840,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 			    if (!tempFlowRule.getCookie().equals(e.getCookie())) {
 			        continue;
 			    }
-
 			    found = true;
 			    break;
                         }
@@ -841,6 +852,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 		}
 	    }
         }
+	System.out.println("====================\n");
 	return isInconsistency;
     }
 

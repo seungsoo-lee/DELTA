@@ -149,7 +149,7 @@ public class Interface extends Thread {
 	    app.testSwappingList();
 	    //app.onRemovedPayload();
 	    return;
-	} else if (recv.contains("3.1.220")) {
+	} else if (recv.contains("3.1.230")) {
 	    result = app.testFlowRuleIDSpoofing();
 	    dos.writeUTF(result);
 	} else if (recv.contains("echo")) {

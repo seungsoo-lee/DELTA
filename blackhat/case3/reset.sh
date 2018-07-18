@@ -1,5 +1,9 @@
 #!/bin/bash
 
-curl -X DELETE --header 'Accept: application/json' 'http://192.168.11.102:8181/onos/v1/flows/application/DELTA' -u karaf:karaf
+curl -X DELETE -d '{"name":"R1"}' http://192.168.11.102:8080/wm/staticflowpusher/json
 
-curl -X DELETE --header 'Accept: application/json' 'http://192.168.11.102:8181/onos/v1/flows/application/ATTACK' -u karaf:karaf
+curl -X DELETE -d '{"name":"R2"}' http://192.168.11.102:8080/wm/staticflowpusher/json
+
+curl -X DELETE -d '{"name":"R3"}' http://192.168.11.102:8080/wm/staticflowpusher/json
+
+curl -X DELETE -d '{"name":"R4"}' http://192.168.11.102:8080/wm/staticflowpusher/json
