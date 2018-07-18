@@ -161,7 +161,9 @@ public class AMInterface extends Thread {
                 result = app.sendUnFlaggedFlowRemoveMsg("check", ruleId);
             }
             dos.writeUTF(result);
-
+	} else if (recv.contains("3.1.240")) {
+	    result = app.testInfiniteFlowRuleSynchronization();
+	    dos.writeUTF(result);
         } else if (recv.contains("test")) {
 
             return;

@@ -614,6 +614,32 @@ public class AppAgent {
         return result;
     }
 
+    public String testInfiniteFlowRuleSynchronization() {
+	System.out.println("[ATTACK] Infinite Flow Rule Synchronization");
+	String isInconsistency = "nothing";
+
+	// FlowRuleService.get~ : Controller
+	Iterable<Device> iterableDevice = deviceService.getDevices();
+        Iterator iteratorDevice = iterableDevice.iterator();
+
+        while (iteratorDevice.hasNext()) {
+            Device device = (Device) iteratorDevice.next();
+	    System.out.println("[DEBUG] " + device);
+	    Iterable<FlowEntry> iterableFlow = flowRuleService.getFlowEntries(device.id());
+	    Iterator iteratorFlow = iterableFlow.iterator();
+
+	    while (iteratorFlow.hasNext()) {
+		FlowEntry flowEntry = (FlowEntry) iteratorFlow.next();
+		System.out.println("[DEBUG] " + flowEntry);
+		log.info("[DEBUG] " + flowEntry);
+	    }
+	    
+	}
+	// Switch
+	
+	return isInconsistency;
+    }
+
     /**
      * Packet processor responsible for forwarding packets along their paths.
      */
