@@ -1153,11 +1153,11 @@ public class TestAdvancedCase {
 
         if (result.equals("nothing")) {
             test.setResult(TestCase.TestResult.PASS);
-            log.info("3.1.230, PASS");
+            log.info("3.1.240, PASS");
         } else {
             log.info("Inconsistency Flow Rule: " + result);
             test.setResult(TestCase.TestResult.FAIL);
-            log.info("3.1.230, FAIL");
+            log.info("3.1.240, FAIL");
         }
 
         //appm.closeSocket();
