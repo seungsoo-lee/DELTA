@@ -107,8 +107,10 @@ public class AMInterface extends Thread {
 
     public void replayingKnownAttack(String recv) throws IOException {
         String result = "";
-
-        if (recv.contains("3.1.020")) {
+        if(recv.contains("3.1.00")){
+            result = app.testInconsistency(recv.charAt(recv.indexOf("3.1.00")+6));
+            dos.writeUTF(result);
+        }else if (recv.contains("3.1.020")) {
             app.setControlMessageDrop();
             result = app.testControlMessageDrop();
             dos.writeUTF(result);

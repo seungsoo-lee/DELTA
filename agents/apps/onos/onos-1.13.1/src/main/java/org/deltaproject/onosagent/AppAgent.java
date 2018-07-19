@@ -20,24 +20,16 @@ import org.onosproject.cluster.ClusterService;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.core.CoreService;
 import org.onosproject.mastership.MastershipAdminService;
-import org.onosproject.net.Device;
-import org.onosproject.net.Host;
-import org.onosproject.net.Link;
-import org.onosproject.net.PortNumber;
+import org.onosproject.net.*;
 import org.onosproject.net.device.DeviceAdminService;
 import org.onosproject.net.device.DeviceClockService;
 import org.onosproject.net.device.DeviceService;
-import org.onosproject.net.flow.DefaultFlowRule;
-import org.onosproject.net.flow.DefaultTrafficSelector;
-import org.onosproject.net.flow.DefaultTrafficTreatment;
-import org.onosproject.net.flow.FlowEntry;
-import org.onosproject.net.flow.FlowRule;
-import org.onosproject.net.flow.FlowRuleService;
-import org.onosproject.net.flow.TrafficSelector;
-import org.onosproject.net.flow.TrafficTreatment;
+import org.onosproject.net.flow.*;
 import org.onosproject.net.flow.criteria.Criterion;
 import org.onosproject.net.flow.criteria.EthCriterion;
 import org.onosproject.net.flow.criteria.PortCriterion;
+import org.onosproject.net.flow.instructions.Instruction;
+import org.onosproject.net.flow.instructions.Instructions;
 import org.onosproject.net.flowobjective.FlowObjectiveService;
 import org.onosproject.net.host.HostAdminService;
 import org.onosproject.net.host.HostService;
@@ -48,22 +40,28 @@ import org.onosproject.net.packet.PacketContext;
 import org.onosproject.net.packet.PacketPriority;
 import org.onosproject.net.packet.PacketProcessor;
 import org.onosproject.net.packet.PacketService;
+import org.onosproject.net.statistic.FlowStatisticStore;
 import org.onosproject.net.topology.TopologyService;
+import org.onosproject.openflow.controller.Dpid;
+import org.onosproject.openflow.controller.OpenFlowController;
+import org.onosproject.openflow.controller.OpenFlowEventListener;
+import org.onosproject.openflow.controller.OpenFlowMessageListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.ComponentInstance;
+import org.projectfloodlight.openflow.protocol.*;
+import org.projectfloodlight.openflow.types.U64;
 import org.slf4j.Logger;
 
+import javax.xml.bind.Element;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -131,12 +129,20 @@ public class AppAgent {
     protected ClusterAdminService clusteradmin;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    protected FlowStatisticStore statsStore;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected MastershipAdminService msadmin;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    protected OpenFlowController controller;
 
     private ReactivePacketProcessor processor = new ReactivePacketProcessor();
 
     @Property(name = "flowTimeout", intValue = DEFAULT_TIMEOUT,
             label = "Configure Flow Timeout for installed flow rules; " + "default is 10 sec")
+
+    private final InternalFlowProvider listener = new InternalFlowProvider();
 
     private int flowTimeout = DEFAULT_TIMEOUT;
 
@@ -170,6 +176,7 @@ public class AppAgent {
 
         cm = new AMInterface(this);
         cm.start();
+        controller.addEventListener(listener);
     }
 
     @Deactivate
@@ -208,6 +215,90 @@ public class AppAgent {
                 "packetOutOnly", "true");
     }
 
+
+    private boolean isAttackStart = false;
+    private String consistencyTestRes = "fail";
+
+    private FlowRule existFlowRule; // Rule named with 'org.onosproject.fwd'
+    // 3.1.00* testInconsistency
+    public String testInconsistency(char type){
+        System.out.println("[ATTACK] Inconsistency attack");
+
+        Iterable<Device> dvs = null;
+        do {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            dvs = deviceService.getDevices();
+
+        } while (!dvs.iterator().hasNext());
+
+        Device d = dvs.iterator().next();
+
+        TrafficTreatment.Builder treat = DefaultTrafficTreatment.builder();
+        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
+
+        switch(type){
+            case '1':
+                treat.setOutput(PortNumber.portNumber(2));
+
+                selector.matchInPort(PortNumber.portNumber(1));
+                selector.matchEthType((short) 0x0800);
+
+                ApplicationId fwdId = coreService.getAppId("org.onosproject.fwd");
+                existFlowRule = new DefaultFlowRule(d.id(),
+                        selector.build(), treat.build(), 555,       // priority: 555
+                        fwdId, flowTimeout, true, null);
+                System.out.println("[ATTACK] Flow Rule inserted with name of Reactive forwarding, appId = " + fwdId);
+                System.out.println("* " + existFlowRule.toString());
+                flowRuleService.applyFlowRules(existFlowRule);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                FlowRule newFlowRule; // Rule named with 'org.deltaproject.onosagent'
+                newFlowRule = new DefaultFlowRule(d.id(),
+                        selector.build(), treat.build(), 555,       // priority: 555
+                        appId, flowTimeout, true, null);
+
+                System.out.println("[ATTACK] Flow Rule inserted with name of Delta, appId = " + appId);
+                System.out.println("* " + newFlowRule.toString());
+                flowRuleService.applyFlowRules(newFlowRule);
+
+                //TODO: Show flow rule stored in storage here
+                //System.out.println("[Storage] Flow Rule from storage, appId = " + appId);
+                //System.out.println("** " + storageFlowRule.toString());
+                isAttackStart = true;
+
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+                return consistencyTestRes;
+            case '2':
+                long outputPortNum = 65536;
+                treat.setOutput(PortNumber.portNumber(outputPortNum));
+
+                selector.matchInPort(PortNumber.portNumber(1));
+                selector.matchEthType((short) 0x0800);
+
+                existFlowRule = new DefaultFlowRule(d.id(),
+                        selector.build(), treat.build(), 555,       // priority: 555
+                        appId, flowTimeout, true, null);
+                System.out.println("[ATTACK] Flow Rule inserted with output port of " + outputPortNum);
+                flowRuleService.applyFlowRules(existFlowRule);
+                return consistencyTestRes;
+        }
+        return consistencyTestRes;
+    }
 
     // 2.1.060
     public String sendUnFlaggedFlowRemoveMsg(String cmd, long ruleId) {
@@ -704,6 +795,30 @@ public class AppAgent {
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    class InternalFlowProvider implements OpenFlowEventListener {
+
+        @Override
+        public void handleMessage(Dpid dpid, OFMessage ofMessage) {
+            if (!isAttackStart) return;
+            DeviceId deviceId = DeviceId.deviceId(Dpid.uri(dpid));
+            FlowId expectFlowId = existFlowRule.id(); // appId = fwd
+            if (ofMessage.getType() == OFType.STATS_REPLY) {
+                if (((OFStatsReply) ofMessage).getStatsType() == OFStatsType.FLOW) {
+                    OFFlowStatsReply msg = (OFFlowStatsReply) ofMessage;
+                    List<OFFlowStatsEntry> entryList = msg.getEntries();
+                    for( OFFlowStatsEntry e : entryList ){
+                        //TODO: strictly compare whether flow rules are identical
+			// if ( e.getPriority() == existFlowRule.priority() ) TODO...
+                        if(expectFlowId.value() == e.getCookie().getValue()) {
+                            System.out.println("[Storage] Flow Rule from storage, appId = " + appId);
+                            consistencyTestRes="success";
+                        }
+                    }
                 }
             }
         }
