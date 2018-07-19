@@ -145,7 +145,14 @@ public class Interface extends Thread {
                 result = app.sendUnFlaggedFlowRemoveMsg("check", ruleId);
             }
             dos.writeUTF(result);
-        } else if (recv.contains("echo")) {
+        } else if (recv.contains("3.1.210")) {
+	    app.testSwappingList();
+	    //app.onRemovedPayload();
+	    return;
+	} else if (recv.contains("3.1.230")) {
+	    result = app.testFlowRuleIDSpoofing();
+	    dos.writeUTF(result);
+	} else if (recv.contains("echo")) {
             dos.writeUTF("echo");
         }
 

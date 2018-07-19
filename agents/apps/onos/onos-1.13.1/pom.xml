@@ -46,18 +46,11 @@
             <version>5.0.0</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.onosproject/onos-protocols-openflow-api -->
         <dependency>
             <groupId>org.onosproject</groupId>
             <artifactId>onos-protocols-openflow-api</artifactId>
             <version>1.12.0</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.onosproject</groupId>-->
-            <!--<artifactId>onos-protocols-openflow-api</artifactId>-->
-            <!--<version>1.12.0</version>-->
-        <!--</dependency>-->
-
     </dependencies>
 
 
