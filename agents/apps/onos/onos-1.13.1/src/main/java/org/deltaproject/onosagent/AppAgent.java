@@ -637,14 +637,24 @@ public class AppAgent {
 	    System.out.println("[Controller] " + device.id() + " FlowTable");
 	    Iterable<FlowEntry> iterableFlow = flowRuleService.getFlowEntries(device.id());
 	    Iterator iteratorFlow = iterableFlow.iterator();
+	    ArrayList<FlowEntry> tempList = new ArrayList<>();
 
 	    while (iteratorFlow.hasNext()) {
 		FlowEntry flowEntry = (FlowEntry) iteratorFlow.next();
-		if (!flowEntry.toString().contains("CONTROLLER")) {
+		if (flowEntry.toString().contains("CONTROLLER")) {
 		    flowRuleCount++;
 		    System.out.println("<FlowRule> " + flowEntry);
+		} else {
+		    flowRuleCount++;
+		    tempList.add(flowEntry);
 		}
 	    }
+
+	    Iterator tempIt = tempList.iterator();
+	    while (tempIt.hasNext()) {
+		System.out.println("<FlowRule> " + tempIt.next());
+	    }
+
 	    System.out.println("---------------");
             System.out.println("[Result] " + device.id() + " FlowRuleCount: " + flowRuleCount);
             System.out.println("====================\n");
@@ -779,10 +789,8 @@ public class AppAgent {
             OFFlowStatsReply msg = (OFFlowStatsReply) ofMessage;
             List<OFFlowStatsEntry> entryList = msg.getEntries();
             for(OFFlowStatsEntry e : entryList) {
-		if (!e.toString().contains("controller")) {
-                    flowRuleCount++;
-                    System.out.println("<FlowRule> " + e.toString());
-                }
+                flowRuleCount++;
+                System.out.println("<FlowRule> " + e.toString());
             }
 	    System.out.println("---------------");
             System.out.println("[Result] " + deviceId + " FlowRuleCount: " + flowRuleCount);

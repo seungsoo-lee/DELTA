@@ -784,10 +784,11 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 
 	System.out.println("\n====================");
         for (DatapathId sw : switchService.getAllSwitchDpids()) {
-	    int flowRuleCount = 0;
+	    int flowRuleCount = 1;
             switches.add(switchService.getSwitch(sw));
 	    Map<String, OFFlowMod> tempMap = fservice.getFlows(sw);
 	    System.out.println("[Controller] " + sw + " FlowTable");
+	    System.out.println("<FlowRule> Default FlowRule (actions=CONTROLLER)");
 	    for (String mapKey : tempMap.keySet()) {
 		flowRuleCount++;
 		System.out.println("<FlowRule> " + mapKey + ": " + tempMap.get(mapKey));
@@ -812,6 +813,9 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 		    if (entries != null) {
 			for (OFFlowStatsEntry e : entries) {
 			    if (!e.toString().contains("controller")) {
+				flowRuleCount++;
+				System.out.println("<FlowRule> " + e.toString());
+			    } else {
 				flowRuleCount++;
 				System.out.println("<FlowRule> " + e.toString());
 			    }
