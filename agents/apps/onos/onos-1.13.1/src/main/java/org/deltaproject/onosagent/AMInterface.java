@@ -105,12 +105,12 @@ public class AMInterface extends Thread {
         }
     }
 
-    public void replayingKnownAttack(String recv) throws IOException {
+    public void replayingKnownAttack(String recv) throws Exception {
         String result = "";
-        if(recv.contains("3.1.00")){
-            result = app.testInconsistency(recv.charAt(recv.indexOf("3.1.00")+6));
+        if (recv.contains("3.1.00")) {
+            result = app.testInconsistency(recv.charAt(recv.indexOf("3.1.00") + 6));
             dos.writeUTF(result);
-        }else if (recv.contains("3.1.020")) {
+        } else if (recv.contains("3.1.020")) {
             app.setControlMessageDrop();
             result = app.testControlMessageDrop();
             dos.writeUTF(result);
@@ -163,12 +163,11 @@ public class AMInterface extends Thread {
                 result = app.sendUnFlaggedFlowRemoveMsg("check", ruleId);
             }
             dos.writeUTF(result);
-	} else if (recv.contains("3.1.240")) {
-	    result = app.testInfiniteFlowRuleSynchronization();
-	    dos.writeUTF(result);
-        } else if (recv.contains("test")) {
-
-            return;
+        } else if (recv.contains("3.1.240")) {
+            result = app.testInfiniteFlowRuleSynchronization();
+            dos.writeUTF(result);
+        } else if (recv.contains("3.1.250")) {
+            app.testTableFeaturesReplyAmplification();
         }
 
         dos.flush();
@@ -218,7 +217,7 @@ public class AMInterface extends Thread {
             }
             try {
                 Thread.sleep(5000);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 log.error(e.toString());
             }
         }

