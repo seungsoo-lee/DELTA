@@ -1055,14 +1055,14 @@ public class TestAdvancedCase {
 	   e.printStackTrace();
 	}
 
+	log.info("Setup complete");
+
         try {
-            Thread.sleep(3000);
+            Thread.sleep(20000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
-	log.info("Setup complete");
 
 	log.info("Start FlowRule ID Spoofing Attack");
 
@@ -1076,14 +1076,14 @@ public class TestAdvancedCase {
            e.printStackTrace();
         }
 
+	log.info("Attack complete");
+
         try {
-            Thread.sleep(5000);
+            Thread.sleep(30000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
-	log.info("Attack complete");
 
 	log.info("Check inconsistency between the controller and switches");
 
@@ -1115,6 +1115,8 @@ public class TestAdvancedCase {
             return false;
         }
 
+	log.info("Setup test environment");
+
 	String[] setupCmd = new String[2];
         setupCmd[0] = "sh";
         setupCmd[1] = "/home/delta/DELTA/blackhat/case4/setup.sh";
@@ -1124,8 +1126,10 @@ public class TestAdvancedCase {
            e.printStackTrace();
         }
 
+	log.info("Setup complete");
+
         try {
-            Thread.sleep(3000);
+            Thread.sleep(20000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -1142,8 +1146,10 @@ public class TestAdvancedCase {
            e.printStackTrace();
         }
 
+	log.info("Attack complete");
+
         try {
-            Thread.sleep(3000);
+            Thread.sleep(30000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
