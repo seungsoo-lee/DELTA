@@ -984,7 +984,7 @@ public class TestAdvancedCase {
         appm.write(test.getcasenum());
 
         try {
-            Thread.sleep(3000);
+            Thread.sleep(30000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -996,6 +996,13 @@ public class TestAdvancedCase {
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
         result.setLatency(null, flowResult);
+
+	try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         analyzer.checkResult(test, result);
 
