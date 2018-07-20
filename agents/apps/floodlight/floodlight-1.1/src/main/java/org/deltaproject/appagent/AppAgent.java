@@ -193,10 +193,11 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 				.getServiceImpl(ILinkDiscoveryService.class);
 
 		blockLLDPPacket();
-		// cm = new Communication(this);
-		// cm.setServerAddr("127.0.0.1", 3366);
-		// cm.connectServer("AppAgent");
-		// cm.start();
+
+		cm = new Communication(this);
+		cm.setServerAddr("127.0.0.1", 3366);
+		cm.connectServer("AppAgent");
+		cm.start();
 	}
 
 	@Override
