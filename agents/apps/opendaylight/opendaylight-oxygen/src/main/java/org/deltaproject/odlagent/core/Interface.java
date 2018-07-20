@@ -30,7 +30,7 @@ public class Interface extends Thread {
 
     public void setServerAddr() {
         // default
-        this.serverIP = "172.17.0.1";
+        this.serverIP = "10.0.3.1";
         this.serverPort = 3366;
 
         String path = "~";
@@ -158,11 +158,11 @@ public class Interface extends Thread {
                 result = app.sendUnFlaggedFlowRemoveMsg("check", ruleId);
             }
             dos.writeUTF(result);
-        } else if (recv.contains("test1")) {
-            app.test1();
+        } else if (recv.contains("3.1.260")) {
+            app.testMalformedFlodRuleGen();
             return;
-        }else if (recv.contains("test2")) {
-            app.test2();
+        } else if (recv.contains("test")) {
+            app.testMalformedFlodRuleGen();
             return;
         }
 
