@@ -152,6 +152,7 @@ public class TestAdvancedCase {
                 break;
 	    case "3.1.210":
 		runRemoteAgents(false, true);
+		log.info("The AM instructs the app agent to randomize the sequence of the packet-In subscription list");
 		testPacketInDataForge(test);
 		break;
             case "3.1.220":
@@ -1044,7 +1045,7 @@ public class TestAdvancedCase {
             return false;
         }
 
-	log.info("Setup test environment");
+	log.info("The AM instructs the app agent to install default flow rules");
 
 	String[] setupCmd = new String[2];
 	setupCmd[0] = "sh";
@@ -1055,8 +1056,6 @@ public class TestAdvancedCase {
 	   e.printStackTrace();
 	}
 
-	log.info("Setup complete");
-
         try {
             Thread.sleep(20000);
         } catch (InterruptedException e) {
@@ -1064,7 +1063,7 @@ public class TestAdvancedCase {
             e.printStackTrace();
         }
 
-	log.info("Start FlowRule ID Spoofing Attack");
+	log.info("The AM instructs the app agent to install a flow rule with spoofed flow ID");
 
 	String[] attackCmd = new String[2];
 	attackCmd[0] = "sh";
@@ -1075,8 +1074,6 @@ public class TestAdvancedCase {
         } catch (IOException e) {
            e.printStackTrace();
         }
-
-	log.info("Attack complete");
 
         try {
             Thread.sleep(30000);
@@ -1097,11 +1094,17 @@ public class TestAdvancedCase {
 	log.info("Host-Agent sends packets to others");
         String flowResult = generateFlow("ping");
 
+        try {
+            Thread.sleep(60000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
         result.setLatency(null, flowResult);
         analyzer.checkResult(test, result);
-
         //appm.closeSocket();
         return true;
     }

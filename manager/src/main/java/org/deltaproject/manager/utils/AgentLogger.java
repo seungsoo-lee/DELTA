@@ -59,6 +59,9 @@ public class AgentLogger {
 		    if (line.contains("LogService:Dispatcher")) {
 			continue;
 		    }
+		    if (line.contains("Sending LLDP packets out")) {
+			continue;
+		    }
                     temp += line;
                     output.write(line + "\n");
                     output.flush();

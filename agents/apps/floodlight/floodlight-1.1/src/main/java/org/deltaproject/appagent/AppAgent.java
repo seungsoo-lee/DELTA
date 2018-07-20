@@ -195,8 +195,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 		blockLLDPPacket();
 
 		cm = new Communication(this);
-		cm.setServerAddr("127.0.0.1", 3366);
-		cm.connectServer("AppAgent");
 		cm.start();
 	}
 
@@ -237,7 +235,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 
 	// A-2-M
 	public boolean Set_Control_Message_Drop() {
-		System.out.println("[AppAgent] Control_Message_Drop");
 		isDrop = true;
 
 		List<IOFMessageListener> listeners = floodlightProvider.getListeners()
@@ -264,14 +261,13 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 		listeners = floodlightProvider.getListeners().get(OFType.PACKET_IN);
 
 		for (IOFMessageListener listen : listeners) {
-			System.out.println(listen.getName());
+			//System.out.println(listen.getName());
 		}
 
 		return true;
 	}
 
 	public String Control_Message_Drop() {
-		System.out.println("[AppAgent] Control_Message_Drop");
 		String drop = "nothing";
 
 		for (int i = 0; i < 10; i++) {
@@ -763,27 +759,30 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
                 .getListeners().get(OFType.PACKET_IN);
 	System.out.println("[Agent-Manager] Start Packet-In Forge Attack");
 
-        System.out.println("[App-Agent] List of Packet-In Listener: " + packetin_listeners.size());
+        System.out.println("[App-Agent] (before) List of Packet-In Listener: " + packetin_listeners.size());
 
         int cnt = 1;
 
         for (IOFMessageListener listen : packetin_listeners) {
             System.out.println("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
-            logger.info("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
         }
 
         IOFMessageListener temp = packetin_listeners.get(0);
         packetin_listeners.set(packetin_listeners.size() - 1, temp);
         packetin_listeners.set(0, this);
 
+	try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }	
+
         cnt = 1;
 
-        System.out.println("[App-Agent] List of Packet-In Listener: " + packetin_listeners.size());
-        logger.info("[App-Agent] List of Packet-In Listener: " + packetin_listeners.size());
+        System.out.println("\n\n[App-Agent] (after) List of Packet-In Listener: " + packetin_listeners.size());
 
         for (IOFMessageListener listen : packetin_listeners) {
             System.out.println("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
-            logger.info("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
         }
 
         isRemovedPayload = true;
@@ -835,7 +834,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 //			sniffingListener();
 
 			OFPacketIn pi = (OFPacketIn) msg;
-
 			Ethernet eth = IFloodlightProviderService.bcStore.get(cntx,
 					IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
 
@@ -857,8 +855,19 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 				this.Set_Control_Message_Drop();
 				droppedPacket = pi;
 			} else if (isRemovedPayload) {
+
 				IFloodlightProviderService.bcStore.remove(cntx,
 						IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+				Ethernet tempEth = IFloodlightProviderService.bcStore.get(cntx,
+                                        IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+				System.out.println("[PacketIn Message] (before) " + msg);
+
+				System.out.println("[PacketIn Message] (after) " + tempEth);
+				try {
+                                    Thread.sleep(5000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
 				
 			}
 			

@@ -782,28 +782,45 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 	String isInconsistency = "nothing";
 	List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
 
-	System.out.println("\n====================");
+	for (DatapathId sw : switchService.getAllSwitchDpids()) {
+            switches.add(switchService.getSwitch(sw));
+            Map<String, OFFlowMod> tempMap = fservice.getFlows(sw);
+            for (String mapKey : tempMap.keySet()) {
+		if (mapKey.equals("R1")) {
+		    System.out.println("<Spoofed Rule> " + mapKey + ": " + tempMap.get(mapKey));	
+		}
+            }
+        }
+
+	try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+	System.out.println("\n========== [Controller DB] ===========");
         for (DatapathId sw : switchService.getAllSwitchDpids()) {
 	    int flowRuleCount = 1;
             switches.add(switchService.getSwitch(sw));
 	    Map<String, OFFlowMod> tempMap = fservice.getFlows(sw);
-	    System.out.println("[Controller] " + sw + " FlowTable");
-	    System.out.println("<FlowRule> Default FlowRule (actions=CONTROLLER)");
+	    System.out.println("-------------------------");
+	    System.out.println("[Switch] " + sw);
 	    for (String mapKey : tempMap.keySet()) {
 		flowRuleCount++;
-		System.out.println("<FlowRule> " + mapKey + ": " + tempMap.get(mapKey));
+		System.out.println("<" + mapKey + "> " + tempMap.get(mapKey));
 	    }
-	    System.out.println("---------------");
-	    System.out.println("[Result] " + sw + " FlowRuleCount: " + flowRuleCount);
-	    System.out.println("====================\n");
+	    System.out.println("-------------------------");
+	    System.out.println("[Result] " + sw + " FlowRuleCount: [ " + flowRuleCount + " ]");
+	    System.out.println("-------------------------\n");
         }
+	System.out.println("======================================\n\n");
 
-	System.out.println("\n====================");
+	System.out.println("\n========== [Switch DB] ===========");
         for (IOFSwitch sw : switches) {
 	    int flowRuleCount = 0;
 	    Map<String, OFFlowMod> controllerTable = fservice.getFlows(sw.getId());
             List<OFStatsReply> flowTable = getSwitchStatistics(sw, OFStatsType.FLOW);
-	    System.out.println("[Switch] " + sw.getId() + " FlowTable");
+	    System.out.println("[Switch] " + sw.getId());
 
 	    if (flowTable != null) {
 		for (OFStatsReply flow : flowTable) {
@@ -817,7 +834,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 				System.out.println("<FlowRule> " + e.toString());
 			    } else {
 				flowRuleCount++;
-				System.out.println("<FlowRule> " + e.toString());
 			    }
 			}
 		    }
@@ -825,10 +841,10 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
 	    } else {
 		continue;
 	    }
+	    System.out.println("-------------------------");
+            System.out.println("[Result] " + sw + " FlowRuleCount: [ " + flowRuleCount + " ]");
+	    System.out.println("\n=================================");
 
-	    System.out.println("---------------");
-            System.out.println("[Result] " + sw + " FlowRuleCount: " + flowRuleCount);
-            System.out.println("====================\n");
 
 	    for (String mapKey : controllerTable.keySet()) {
 		boolean found = false;
