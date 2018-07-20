@@ -996,14 +996,6 @@ public class TestAdvancedCase {
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
         result.setLatency(null, flowResult);
-
-	try {
-            Thread.sleep(30000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
         analyzer.checkResult(test, result);
 
         //appm.closeSocket();
@@ -1097,16 +1089,19 @@ public class TestAdvancedCase {
 
 	appm.write(test.getcasenum());
 	
-	String result = appm.read();
+	String resultStr = appm.read();
+	if (!resultStr.equals("nothing")) {
+            log.info("Inconsistency Flow Rule: " + resultStr);
+        }
 
-	if (result.equals("nothing")) {
-	    test.setResult(TestCase.TestResult.PASS);
-	    log.info("3.1.230, PASS");
-	} else {
-	    log.info("Inconsistency Flow Rule: " + result);
-	    test.setResult(TestCase.TestResult.FAIL);
-	    log.info("3.1.230, FAIL");
-	}
+	log.info("Host-Agent sends packets to others");
+        String flowResult = generateFlow("ping");
+
+        ResultInfo result = new ResultInfo();
+        result.addType(ResultInfo.COMMUNICATON);
+        result.setLatency(null, flowResult);
+        analyzer.checkResult(test, result);
+
         //appm.closeSocket();
         return true;
     }

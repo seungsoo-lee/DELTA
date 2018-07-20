@@ -761,9 +761,9 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
     public void testSwappingList() {
         List<IOFMessageListener> packetin_listeners = floodlightProvider
                 .getListeners().get(OFType.PACKET_IN);
+	System.out.println("[Agent-Manager] Start Packet-In Forge Attack");
 
         System.out.println("[App-Agent] List of Packet-In Listener: " + packetin_listeners.size());
-        logger.info("[App-Agent] List of Packet-In Listener: " + packetin_listeners.size());
 
         int cnt = 1;
 
@@ -857,7 +857,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 				this.Set_Control_Message_Drop();
 				droppedPacket = pi;
 			} else if (isRemovedPayload) {
-				System.out.println("[Agent-Manager] Start Packet-In Forge Attack");
 				IFloodlightProviderService.bcStore.remove(cntx,
 						IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
 				
