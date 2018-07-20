@@ -56,6 +56,9 @@ public class AgentLogger {
                 String line;
                 output.write("=================================================================================\n");
                 while ((line = stderrBr.readLine()) != null) {
+		    if (line.contains("LogService:Dispatcher")) {
+			continue;
+		    }
                     temp += line;
                     output.write(line + "\n");
                     output.flush();

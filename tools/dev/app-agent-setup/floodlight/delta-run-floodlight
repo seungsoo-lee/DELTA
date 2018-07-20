@@ -23,7 +23,12 @@ case $floodlight_version in
         echo "Starting Floodlight 0.91 on AppAgent..."
         FLOODLIGHT_DIR='floodlgiht-0.91.jar'
         FLOODLIGHT_CMD='sudo java -jar floodlight-0.91.jar'
-        exit 1
+        ;;
+    1.1)
+        echo "Starting Floodlight 1.1 on AppAgent..."
+        JDK_VERSION='java-8-oracle'
+        FLOODLIGHT_DIR='floodlight-1.1.jar'
+        FLOODLIGHT_CMD='sudo java -jar floodlight-1.1.jar -cf floodlightdefault.properties'
         ;;
     1.2)
         echo "Starting Floodlight 1.2 on AppAgent..."
