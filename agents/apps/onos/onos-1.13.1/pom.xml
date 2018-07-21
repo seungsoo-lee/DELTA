@@ -46,7 +46,7 @@
             <version>5.0.0</version>
         </dependency>
 
-	<dependency>
+        <dependency>
             <groupId>org.onosproject</groupId>
             <artifactId>onos-protocols-openflow-api</artifactId>
             <version>1.12.0</version>

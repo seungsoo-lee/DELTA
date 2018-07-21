@@ -1,11 +1,8 @@
 # Decoy Agent Manager to remotely test Agents
 import socket
-import time
 import struct
 import sys
 import threading
-import signal
-import urwid
 
 conn_list = {}
 

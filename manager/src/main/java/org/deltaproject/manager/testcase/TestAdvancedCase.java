@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.lang.reflect.Field;
 
+import static org.deltaproject.webui.TestCase.TestResult.FAIL;
+import static org.deltaproject.webui.TestCase.TestResult.PASS;
+
 public class TestAdvancedCase {
     private static final Logger log = LoggerFactory.getLogger(TestAdvancedCase.class.getName());
 
@@ -68,6 +71,14 @@ public class TestAdvancedCase {
 
     public void replayKnownAttack(TestCase test) {
         switch (test.getcasenum()) {
+            case "3.1.001":
+            case "3.1.002":
+            case "3.1.003":
+            case "3.1.004":
+            case "3.1.005":
+                runRemoteAgents(false, true);
+                testInconsistency(test);
+                break;
             case "3.1.010":
                 runRemoteAgents(true, true);
                 testPacketInFlooding(test);
@@ -206,6 +217,29 @@ public class TestAdvancedCase {
     }
 
     /*
+     * 3.1.001-005 - Inconsistency check
+     */
+    public boolean testInconsistency(TestCase test) {
+        appm.write(test.getcasenum());
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        String result = appm.read();
+        if (result.equals("success"))
+            test.setResult(PASS);
+        else if (result.equals("fail"))
+            test.setResult(FAIL);
+        else System.out.println(result);
+        return true;
+    }
+
+
+        /*
      * 3.1.010 - Packet-In Flooding
      */
     public boolean testPacketInFlooding(TestCase test) {
