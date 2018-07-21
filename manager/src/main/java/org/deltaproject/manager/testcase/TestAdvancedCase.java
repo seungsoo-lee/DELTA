@@ -85,7 +85,7 @@ public class TestAdvancedCase {
                 testInternalStorageAbuse(test);
                 break;
             case "3.1.050":
-                 testSwitchTableFlooding(test);
+                testSwitchTableFlooding(test);
                 return;
             case "3.1.060":
                 runRemoteAgents(true, true);
@@ -150,11 +150,11 @@ public class TestAdvancedCase {
                 runRemoteAgents(false, true);
                 testSwitchFirmwareMisuse(test);
                 break;
-	    case "3.1.210":
-		runRemoteAgents(false, true);
-		log.info("The AM instructs the app agent to randomize the sequence of the packet-In subscription list");
-		testPacketInDataForge(test);
-		break;
+            case "3.1.210":
+                runRemoteAgents(false, true);
+                log.info("The AM instructs the app agent to randomize the sequence of the packet-In subscription list");
+                testPacketInDataForge(test);
+                break;
             case "3.1.220":
                 runRemoteAgents(false, true);
                 testMalformedFlowRuleGeneration(test);
@@ -162,11 +162,11 @@ public class TestAdvancedCase {
             case "3.1.230":
                 runRemoteAgents(false, true);
                 testFlowRuleIDSpoofing(test);
-		break;
+                break;
             case "3.1.240":
                 runRemoteAgents(false, true);
                 testInfiniteFlowRuleSynchronization(test);
-		break;
+                break;
             case "------ ":          // testControllerOFCase
                 testControlMessageManipulation(test);
                 break;
@@ -478,7 +478,7 @@ public class TestAdvancedCase {
         ResultInfo result = new ResultInfo();
 
         log.info("Agent-Manager retrieves result from App-Agent and Host-Agent");
-		/* step 4: decide if the attack is feasible */
+        /* step 4: decide if the attack is feasible */
         result.addType(ResultInfo.APPAGENT_REPLY);
         result.addType(ResultInfo.COMMUNICATON);
         result.setLatency(null, after);
@@ -981,11 +981,17 @@ public class TestAdvancedCase {
             return false;
         }
 
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         log.info("App-Agent starts");
         appm.write(test.getcasenum());
 
         try {
-            Thread.sleep(30000);
+            Thread.sleep(25000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -1045,16 +1051,16 @@ public class TestAdvancedCase {
             return false;
         }
 
-	log.info("The AM instructs the app agent to install default flow rules");
+        log.info("The AM instructs the app agent to install default flow rules");
 
-	String[] setupCmd = new String[2];
-	setupCmd[0] = "sh";
-	setupCmd[1] = "/home/delta/DELTA/blackhat/case3/setup.sh";
-	try {
-	    Process p = Runtime.getRuntime().exec(setupCmd);
-	} catch (IOException e) {
-	   e.printStackTrace();
-	}
+        String[] setupCmd = new String[2];
+        setupCmd[0] = "sh";
+        setupCmd[1] = "/home/delta/DELTA/blackhat/case3/setup.sh";
+        try {
+            Process p = Runtime.getRuntime().exec(setupCmd);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         try {
             Thread.sleep(20000);
@@ -1063,16 +1069,16 @@ public class TestAdvancedCase {
             e.printStackTrace();
         }
 
-	log.info("The AM instructs the app agent to install a flow rule with spoofed flow ID");
+        log.info("The AM instructs the app agent to install a flow rule with spoofed flow ID");
 
-	String[] attackCmd = new String[2];
-	attackCmd[0] = "sh";
-	attackCmd[1] = "/home/delta/DELTA/blackhat/case3/attack.sh";
+        String[] attackCmd = new String[2];
+        attackCmd[0] = "sh";
+        attackCmd[1] = "/home/delta/DELTA/blackhat/case3/attack.sh";
 
         try {
             Process p = Runtime.getRuntime().exec(attackCmd);
         } catch (IOException e) {
-           e.printStackTrace();
+            e.printStackTrace();
         }
 
         try {
@@ -1082,16 +1088,16 @@ public class TestAdvancedCase {
             e.printStackTrace();
         }
 
-	log.info("Check inconsistency between the controller and switches");
+        log.info("Check inconsistency between the controller and switches");
 
-	appm.write(test.getcasenum());
-	
-	String resultStr = appm.read();
-	if (!resultStr.equals("nothing")) {
+        appm.write(test.getcasenum());
+
+        String resultStr = appm.read();
+        if (!resultStr.equals("nothing")) {
             log.info("Inconsistency Flow Rule: " + resultStr);
         }
 
-	log.info("Host-Agent sends packets to others");
+        log.info("Host-Agent sends packets to others");
         String flowResult = generateFlow("ping");
 
         try {
@@ -1118,18 +1124,18 @@ public class TestAdvancedCase {
             return false;
         }
 
-	log.info("Setup test environment");
+        log.info("Setup test environment");
 
-	String[] setupCmd = new String[2];
+        String[] setupCmd = new String[2];
         setupCmd[0] = "sh";
         setupCmd[1] = "/home/delta/DELTA/blackhat/case4/setup.sh";
         try {
             Process p = Runtime.getRuntime().exec(setupCmd);
         } catch (IOException e) {
-           e.printStackTrace();
+            e.printStackTrace();
         }
 
-	log.info("Setup complete");
+        log.info("Setup complete");
 
         try {
             Thread.sleep(20000);
@@ -1138,7 +1144,7 @@ public class TestAdvancedCase {
             e.printStackTrace();
         }
 
-	log.info("Infinite Flow Rule Synchronization Attack");
+        log.info("Infinite Flow Rule Synchronization Attack");
 
         String[] attackCmd = new String[2];
         attackCmd[0] = "sh";
@@ -1146,10 +1152,10 @@ public class TestAdvancedCase {
         try {
             Process p = Runtime.getRuntime().exec(attackCmd);
         } catch (IOException e) {
-           e.printStackTrace();
+            e.printStackTrace();
         }
 
-	log.info("Attack complete");
+        log.info("Attack complete");
 
         try {
             Thread.sleep(30000);
@@ -1158,7 +1164,7 @@ public class TestAdvancedCase {
             e.printStackTrace();
         }
 
-	appm.write(test.getcasenum());
+        appm.write(test.getcasenum());
 
         String result = appm.read();
 
