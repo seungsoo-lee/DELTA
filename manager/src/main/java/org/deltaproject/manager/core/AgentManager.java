@@ -110,10 +110,8 @@ public class AgentManager extends Thread {
             System.out.println(conductor.showConfig());
         } else if (in.equalsIgnoreCase("U")) {
 
-        } else if (in.equalsIgnoreCase("test1")) {
-            conductor.testAttack("test1");
-        } else if (in.equalsIgnoreCase("test2")) {
-            conductor.testAttack("test2");
+        } else if (in.equalsIgnoreCase("test")) {
+            conductor.testAttack("test");
         }
 
         return true;
