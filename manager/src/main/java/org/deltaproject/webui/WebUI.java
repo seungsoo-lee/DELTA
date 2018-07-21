@@ -1,20 +1,12 @@
 package org.deltaproject.webui;
 
 import com.owlike.genson.ext.jaxrs.GensonJsonConverter;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.http.server.NetworkListener;
-import org.glassfish.grizzly.websockets.WebSocketAddOn;
-import org.glassfish.grizzly.websockets.WebSocketApplication;
-import org.glassfish.grizzly.websockets.WebSocketEngine;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.URI;
 
 /**
@@ -26,8 +18,6 @@ public class WebUI {
     private static final ResourceConfig RC = new ResourceConfig().packages("org.deltaproject.webui");
     private HttpServer server;
     private final Logger log = LoggerFactory.getLogger(getClass());
-    final WebSocketAddOn addon = new WebSocketAddOn();
-    final WebSocketApplication iframeApplication = new IFrameApplication();
 
 
     public WebUI() {
@@ -36,7 +26,7 @@ public class WebUI {
 
     public void activate() {
         RC.register(GensonJsonConverter.class);
-        server = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), RC, false);
+        server = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), RC, true);
         log.info("WebUI started @ " + BASE_URI);
 
 

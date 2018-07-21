@@ -40,50 +40,50 @@ public class MainResource {
         return Response.ok(result).build();
     }
 
-    @GET
-    @Path("/log.html")
-    @Produces(MediaType.TEXT_HTML)
-    public Response getLogPage() throws IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        InputStream logPage = classLoader.getResourceAsStream("log.html");
-        InputStream headcss2 = classLoader.getResourceAsStream("css/keen-dashboards.css");
-
-        String keenJS = "<script src=\"https://d26b395fwzu5fz.cloudfront.net/3.4.1/keen.min.js\" " +
-                "type=\"text/javascript\"></script>\n";
-        String bootstrapCss = "<link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\" " +
-                "rel=\"stylesheet\" " +
-                "integrity=\"sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7\" " +
-                "crossorigin=\"anonymous\">";
-        String bootstrapJs = "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js\" " +
-                "integrity=\"sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS\" " +
-                "crossorigin=\"anonymous\"></script>";
-        String jquery = "<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js\"></script>";
-        String dataTable = "<script src=\"https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js\"></script>";
-        String dtSelect = "<script src=\"https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min" +
-                ".js\"></script>";
-        String dtButton = "<script src=\"https://cdn.datatables.net/buttons/1.2.1/js/dataTables.buttons.min" +
-                ".js\"></script>";
-        String datatablecss = "<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.datatables" +
-                ".net/1.10.12/css/jquery.dataTables.css\">";
-        String dtButtonCss = "<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.datatables" +
-                ".net/buttons/1.2.1/css/buttons.dataTables.min.css\">";
-        String dtSelectCss = "<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.datatables" +
-                ".net/select/1.2.0/css/select.dataTables.min.css\">";
-
-        String strMain = new String(toByteArray(logPage));
-        String strCss1 = bootstrapCss +
-                CSS_HEADER + new String(toByteArray(headcss2)) + CSS_FOOTER +
-                datatablecss + dtButtonCss + dtSelectCss;
-        String strJs1 = jquery +
-                bootstrapJs + keenJS +
-                dataTable + dtSelect + dtButton;
-        strMain = strMain.replace(INDEX_CSS1, strCss1);
-        strMain = strMain.replace(INDEX_JS1, strJs1);
-
-        InputStream result = new ByteArrayInputStream(strMain.getBytes(StandardCharsets.UTF_8));
-
-        return Response.ok(result).build();
-    }
+//    @GET
+//    @Path("/log.html")
+//    @Produces(MediaType.TEXT_HTML)
+//    public Response getLogPage() throws IOException {
+//        ClassLoader classLoader = getClass().getClassLoader();
+//        InputStream logPage = classLoader.getResourceAsStream("log.html");
+//        InputStream headcss2 = classLoader.getResourceAsStream("css/keen-dashboards.css");
+//
+//        String keenJS = "<script src=\"https://d26b395fwzu5fz.cloudfront.net/3.4.1/keen.min.js\" " +
+//                "type=\"text/javascript\"></script>\n";
+//        String bootstrapCss = "<link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\" " +
+//                "rel=\"stylesheet\" " +
+//                "integrity=\"sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7\" " +
+//                "crossorigin=\"anonymous\">";
+//        String bootstrapJs = "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js\" " +
+//                "integrity=\"sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS\" " +
+//                "crossorigin=\"anonymous\"></script>";
+//        String jquery = "<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js\"></script>";
+//        String dataTable = "<script src=\"https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js\"></script>";
+//        String dtSelect = "<script src=\"https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min" +
+//                ".js\"></script>";
+//        String dtButton = "<script src=\"https://cdn.datatables.net/buttons/1.2.1/js/dataTables.buttons.min" +
+//                ".js\"></script>";
+//        String datatablecss = "<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.datatables" +
+//                ".net/1.10.12/css/jquery.dataTables.css\">";
+//        String dtButtonCss = "<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.datatables" +
+//                ".net/buttons/1.2.1/css/buttons.dataTables.min.css\">";
+//        String dtSelectCss = "<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.datatables" +
+//                ".net/select/1.2.0/css/select.dataTables.min.css\">";
+//
+//        String strMain = new String(toByteArray(logPage));
+//        String strCss1 = bootstrapCss +
+//                CSS_HEADER + new String(toByteArray(headcss2)) + CSS_FOOTER +
+//                datatablecss + dtButtonCss + dtSelectCss;
+//        String strJs1 = jquery +
+//                bootstrapJs + keenJS +
+//                dataTable + dtSelect + dtButton;
+//        strMain = strMain.replace(INDEX_CSS1, strCss1);
+//        strMain = strMain.replace(INDEX_JS1, strJs1);
+//
+//        InputStream result = new ByteArrayInputStream(strMain.getBytes(StandardCharsets.UTF_8));
+//
+//        return Response.ok(result).build();
+//    }
 
     @GET
     @Path("/{filename}")

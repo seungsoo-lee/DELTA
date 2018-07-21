@@ -167,7 +167,7 @@ public class TestAdvancedCase {
                 testPacketInDataForge(test);
                 break;
             case "3.1.220":
-                runRemoteAgents(false, true);
+                runRemoteAgents(true, true);
                 testMalformedFlowRuleGeneration(test);
                 break;
             case "3.1.230":
@@ -1039,6 +1039,12 @@ public class TestAdvancedCase {
         result.setLatency(null, flowResult);
         analyzer.checkResult(test, result);
 
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         //appm.closeSocket();
         return true;
     }
@@ -1052,11 +1058,19 @@ public class TestAdvancedCase {
             return false;
         }
 
-        log.info("App-Agent starts");
-//        appm.write(test.getcasenum());
+        log.info("App-Agent starts");;
 
         try {
-            Thread.sleep(3000);
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        appm.write(test.getcasenum());
+
+        try {
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -1071,7 +1085,8 @@ public class TestAdvancedCase {
 
         analyzer.checkResult(test, result);
 
-        //appm.closeSocket();
+        appm.write(test.getcasenum() + "|remove");
+
         return true;
     }
 

@@ -1,6 +1,10 @@
 package org.deltaproject.odlagent.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
@@ -23,6 +27,7 @@ public class Interface extends Thread {
 
     private String serverIP;
     private int serverPort;
+    private static final Logger LOG = LoggerFactory.getLogger(Interface.class);
 
     public Interface() {
         setServerAddr();
@@ -158,11 +163,11 @@ public class Interface extends Thread {
                 result = app.sendUnFlaggedFlowRemoveMsg("check", ruleId);
             }
             dos.writeUTF(result);
-        } else if (recv.contains("3.1.260")) {
-            app.testMalformedFlodRuleGen();
-            return;
+        } else if (recv.contains("3.1.220")) {
+            result = app.testMalformedFlodRuleGen(recv);
+            dos.writeUTF(result);
         } else if (recv.contains("test")) {
-            app.testMalformedFlodRuleGen();
+            app.testMalformedFlodRuleGen(recv);
             return;
         }
 
@@ -184,19 +189,21 @@ public class Interface extends Thread {
     public void run() {
         // TODO Auto-generated method stub
         String recv;
-
-        try {
+        while (true) {
+            connectServer("AppAgent");
             while (true) {
-                // reads characters encoded with modified UTF-8
-                recv = dis.readUTF();
-                System.out.println("[App-Agent] Receive msg from agent-manager " + recv);
-                replayingKnownAttack(recv);
+                try {
+                    // reads characters encoded with modified UTF-8
+                    recv = dis.readUTF();
+                    System.out.println("[App-Agent] Receive msg from agent-manager " + recv);
+                    replayingKnownAttack(recv);
+                } catch (ConnectException e) {
+                    LOG.error("[App-Agent] Agent Manager is not listening");
+                } catch (Exception e) {
+                    // if any error occurs
+                    LOG.error(e.getMessage());
+                }
             }
-        } catch (Exception e) {
-            // if any error occurs
-            // e.printStackTrace();
-        } finally {
-
         }
     }
 }

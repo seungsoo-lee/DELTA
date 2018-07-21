@@ -56,12 +56,12 @@ public class AgentLogger {
                 String line;
                 output.write("=================================================================================\n");
                 while ((line = stderrBr.readLine()) != null) {
-		    if (line.contains("LogService:Dispatcher")) {
-			continue;
-		    }
-		    if (line.contains("Sending LLDP packets out")) {
-			continue;
-		    }
+                    if (line.contains("LogService:Dispatcher")) {
+                        continue;
+                    }
+                    if (line.contains("Sending LLDP packets out")) {
+                        continue;
+                    }
                     temp += line;
                     output.write(line + "\n");
                     output.flush();

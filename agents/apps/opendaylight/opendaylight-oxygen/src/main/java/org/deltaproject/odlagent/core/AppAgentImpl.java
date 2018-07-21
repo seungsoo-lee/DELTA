@@ -101,6 +101,10 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
     private boolean isDrop;
     private boolean isLoop;
 
+    // for 3.1.220
+    private Flow savedFlow;
+    private InstanceIdentifier<Flow> savedFlowId;
+
     /**
      * @param notificationService the notificationService to set
      */
@@ -153,7 +157,6 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
 
         cm = new Interface();
         cm.setAgent(this);
-        cm.connectServer("AppAgent");
         cm.start();
 
     }
@@ -723,9 +726,15 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
     }
 
     /*
-     * 3.1.260: MalformedFlodRuleGen
+     * 3.1.220: MalformedFlodRuleGen
      */
-    public String testMalformedFlodRuleGen() {
+    public String testMalformedFlodRuleGen(String recv) {
+
+        if (recv.contains("remove")) {
+            GenericTransactionUtils.writeData(dataBroker, LogicalDatastoreType.CONFIGURATION, savedFlowId, savedFlow, false);
+            return "Removed: flow - " + savedFlow;
+        }
+
         LOG.info("[App-Agent] Malformed Flow Rule Generation attack");
 
         // Create match
@@ -781,14 +790,16 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
         InstanceIdentifier<Flow> flowIID = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("openflow:1")))
                 .augmentation(FlowCapableNode.class)
-                .child(Table.class, new TableKey(builder.getTableId()))
-                .child(Flow.class, builder.getKey())
+                .child(Table.class, new TableKey(flow.getTableId()))
+                .child(Flow.class, flow.getKey())
                 .build();
 
-        GenericTransactionUtils.writeData(dataBroker, LogicalDatastoreType.CONFIGURATION, flowIID, builder.build(), true);
+        GenericTransactionUtils.writeData(dataBroker, LogicalDatastoreType.CONFIGURATION, flowIID, flow, true);
+        savedFlow = flow;
+        savedFlowId = flowIID;
 
         LOG.info("[App-Agent] flow rule {} ", flow.toString());
-        return "";
+        return "flowId: " + flowIID + ", flow: " + flow;
     }
 
 }

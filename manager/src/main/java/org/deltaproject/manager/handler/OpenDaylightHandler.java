@@ -76,17 +76,17 @@ public class OpenDaylightHandler implements ControllerHandler {
 
             if (version.equals("helium")) {
                 do {
-//                    str = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
                     str = AgentLogger.getTemp();
                     Thread.sleep(1000);
-                }
-                while (!str.contains("initialized successfully"));
+                } while (!str.contains("initialized successfully"));
             } else if (version.equals("carbon")) {
                 do {
-//                    str = AgentLogger.readLogFile(AgentLogger.APP_AGENT);
                     str = AgentLogger.getTemp();
-                }
-                while (!str.contains("shutdown OpenDaylight"));
+                } while (!str.contains("shutdown OpenDaylight"));
+            } else if (version.equals("oxygen")) {
+                do {
+                    str = AgentLogger.getTemp();
+                } while (!str.contains("shutdown OpenDaylight"));
             }
 
             log.info("OpenDaylight is activated");
@@ -115,27 +115,29 @@ public class OpenDaylightHandler implements ControllerHandler {
         }
 
         try {
-            stdIn.write("install file:" + "/home/" + user + "/delta-agent-app-odl-" + version + "-1.0-SNAPSHOT.jar" + "\n");
-            stdIn.flush();
+            if (!version.equals("oxygen")) {
+                stdIn.write("install file:" + "/home/" + user + "/delta-agent-app-odl-" + version + "-1.0-SNAPSHOT.jar" + "\n");
+                stdIn.flush();
 
-            while (!isInstalled) {
+                while (!isInstalled) {
 
 //                String line = stdOut.readLine();
-                String line = AgentLogger.getTemp();
-                if (line.contains(successMsg)) {
-                    isInstalled = true;
+                    String line = AgentLogger.getTemp();
+                    if (line.contains(successMsg)) {
+                        isInstalled = true;
 
-                    int idx = line.indexOf(successMsg);
-                    if (version.equals("helium")) {
-                        bundleID = Integer.parseInt(line.substring(idx - 4, idx - 1));
-                    } else if (version.equals("carbon")) {
-                        bundleID = Integer.parseInt(line.substring(idx + successMsg.length()).replace("\n", ""));
+                        int idx = line.indexOf(successMsg);
+                        if (version.equals("helium")) {
+                            bundleID = Integer.parseInt(line.substring(idx - 4, idx - 1));
+                        } else if (version.equals("carbon")) {
+                            bundleID = Integer.parseInt(line.substring(idx + successMsg.length()).replace("\n", ""));
+                        }
+
+                        stdIn.write("start " + bundleID + "\n");
+                        stdIn.flush();
+
+                        log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                     }
-
-                    stdIn.write("start " + bundleID + "\n");
-                    stdIn.flush();
-
-                    log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                 }
             }
 

@@ -106,13 +106,13 @@ $(document).ready(function () {
         },
     });
 
-    setInterval(function () {
-        queue_table.ajax.reload();
-    }, 3000);
+    // setInterval(function () {
+    //     queue_table.ajax.reload();
+    // }, 3000);
 
     var managerTimer = null;
     var startManagerLog = function () {
-        managerTimer = setInterval(function () {
+        managerTimer = window.setInterval(function () {
 
             $.ajax({
                 url: '/text/getlog',
@@ -130,16 +130,6 @@ $(document).ready(function () {
         }, 1000);
         return managerTimer;
     }
-
-    $('#deltalog').on({
-        mouseenter: function() {
-            clearInterval(managerTimer);
-        },
-        mouseleave: function() {
-            managerTimer = startManagerLog();
-        }
-    }).trigger('mouseenter');
-
 
     var channelTimer = null;
     var startChannelLog = function () {
@@ -170,7 +160,7 @@ $(document).ready(function () {
 
     var appTimer = null;
     var startApplog = function () {
-        appTimer = setInterval(function () {
+        appTimer = window.setInterval(function () {
 
             $.ajax({
                 url: '/text/getapp',
@@ -183,30 +173,21 @@ $(document).ready(function () {
                         $('#applog').val(data);
                         $('#applog').scrollTop($('#applog')[0].scrollHeight);
                     }
-                    $('#applog').hover(function () {
-                        clearInterval(appTimer)
-                    }, function () {
-                        appTimer = startApplog();
-                    });
-
                 }
-            });
+            });s
         }, 1000);
         return appTimer;
     }
 
-    $('#applog').on({
-        mouseenter: function() {
-            clearInterval(appTimer);
-        },
-        mouseleave: function() {
+    $('#applog').hover(function() {
+        window.clearInterval(appTimer);
+        }, function() {
             appTimer = startApplog();
-        }
-    }).trigger('mouseenter');
+        });
 
     var hostTimer = null;
     var startHostlog = function () {
-        hostTimer = setInterval(function () {
+        hostTimer = window.setInterval(function () {
 
             $.ajax({
                 url: '/text/gethost',

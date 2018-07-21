@@ -6,14 +6,20 @@ import org.deltaproject.channelagent.utils.Utils;
 import org.deltaproject.channelagent.dummy.DummyOF10;
 import org.deltaproject.channelagent.dummy.DummyOF13;
 import org.deltaproject.channelagent.dummy.DummySwitch;
+import org.deltaproject.manager.utils.AgentLogger;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.types.DatapathId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by seungsoo on 9/3/16.
@@ -328,7 +334,7 @@ public class TestControllerCase {
     //3.1.050
     public void testSwitchTableFlooding() {
 
-        for (int i=1; i < Integer.MAX_VALUE ; i++) {
+        for (int i = 1; i < Integer.MAX_VALUE; i++) {
             DummySwitch dummySwitch = new DummySwitch(DatapathId.of(i));
             dummySwitch.setTestHandShakeType(DummySwitch.HANDSHAKE_DEFAULT);
             dummySwitch.setOFFactory(targetOFVersion);
@@ -345,5 +351,46 @@ public class TestControllerCase {
             }
             dummySwitch.interrupt();
         }
+    }
+
+    //3.1.220, temporary for demo
+    public void dropContorlPacketsTemporary() {
+        log.info("[Channel-Agent] Start dropping control packets..");
+
+        try {
+            String cmdArray[] = {"sudo", "python", "arp_spoofing.py", "192.168.4.4", "192.168.4.11", "eth0"};
+            final Process proc;
+            Thread loggerThd;
+
+            ProcessBuilder pb = new ProcessBuilder(cmdArray);
+            pb.redirectErrorStream(true);
+            proc = pb.start();
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    BufferedReader stderrBr = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+                    String line;
+                    try {
+                        while ((line = stderrBr.readLine()) != null) {
+                            log.info(line);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            Thread.sleep(10000);
+            executor.shutdown();
+            proc.destroy();
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        log.info("[Channel-Agent] Stop dropping control packets..");
     }
 }
