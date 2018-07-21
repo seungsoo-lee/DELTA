@@ -711,43 +711,28 @@ public class AppAgent {
         while (iteratorDevice.hasNext()) {
             int flowRuleCount = 0;
             Device device = (Device) iteratorDevice.next();
-<<<<<<< HEAD
-	    System.out.println("[Controller] " + device.id() + " FlowTable");
-	    Iterable<FlowEntry> iterableFlow = flowRuleService.getFlowEntries(device.id());
-	    Iterator iteratorFlow = iterableFlow.iterator();
-	    ArrayList<FlowEntry> tempList = new ArrayList<>();
-
-	    while (iteratorFlow.hasNext()) {
-		FlowEntry flowEntry = (FlowEntry) iteratorFlow.next();
-		if (flowEntry.toString().contains("CONTROLLER")) {
-		    flowRuleCount++;
-		    System.out.println("<FlowRule> " + flowEntry);
-		} else {
-		    flowRuleCount++;
-		    tempList.add(flowEntry);
-		}
-	    }
-
-	    Iterator tempIt = tempList.iterator();
-	    while (tempIt.hasNext()) {
-		System.out.println("<FlowRule> " + tempIt.next());
-	    }
-
-	    System.out.println("---------------");
-=======
             System.out.println("[Controller] " + device.id() + " FlowTable");
             Iterable<FlowEntry> iterableFlow = flowRuleService.getFlowEntries(device.id());
             Iterator iteratorFlow = iterableFlow.iterator();
+            ArrayList<FlowEntry> tempList = new ArrayList<>();
 
             while (iteratorFlow.hasNext()) {
                 FlowEntry flowEntry = (FlowEntry) iteratorFlow.next();
-                if (!flowEntry.toString().contains("CONTROLLER")) {
+                if (flowEntry.toString().contains("CONTROLLER")) {
                     flowRuleCount++;
                     System.out.println("<FlowRule> " + flowEntry);
+                } else {
+                    flowRuleCount++;
+                    tempList.add(flowEntry);
                 }
             }
+
+            Iterator tempIt = tempList.iterator();
+            while (tempIt.hasNext()) {
+                System.out.println("<FlowRule> " + tempIt.next());
+            }
+
             System.out.println("---------------");
->>>>>>> delta-mvn
             System.out.println("[Result] " + device.id() + " FlowRuleCount: " + flowRuleCount);
             System.out.println("====================\n");
         }
@@ -785,7 +770,7 @@ public class AppAgent {
 //                .setXid(777)
 //                .build();
 
-        while(true) {
+        while (true) {
             controller.write(Dpid.dpid(device.id().uri()), request);
             Thread.sleep(50);
         }
