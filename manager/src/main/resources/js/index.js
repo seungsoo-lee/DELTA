@@ -193,6 +193,23 @@ $('#targetController').change(function() {
     $("#targetVersion").selectpicker("refresh");
 });
 
+$('#topologyType').change(function() {
+    topologyType = $('#topologyType').val();
+    if (topologyType == 'VM') {
+        $('#controllerIp').empty();
+        $('#controllerIp').val("10.100.100.11");
+
+        $('#switchIp').empty();
+        $('#switchIp').val("10.100.100.13,10.100.100.13,10.100.100.13");
+    } else if (topologyType == 'HW') {
+        $('#controllerIp').empty();
+        $('#controllerIp').val("192.168.4.4");
+
+        $('#switchIp').empty();
+        $('#switchIp').val("192.168.4.11,192.168.4.13");
+    }
+});
+
 // send configuration info to the server from UI
 
 function sendConfig() {

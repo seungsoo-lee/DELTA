@@ -174,16 +174,16 @@ $(document).ready(function () {
                         $('#applog').scrollTop($('#applog')[0].scrollHeight);
                     }
                 }
-            });s
+            });
         }, 1000);
         return appTimer;
     }
 
-    $('#applog').hover(function() {
+    $('#applog').hover(function () {
         window.clearInterval(appTimer);
-        }, function() {
-            appTimer = startApplog();
-        });
+    }, function () {
+        appTimer = startApplog();
+    });
 
     var hostTimer = null;
     var startHostlog = function () {
