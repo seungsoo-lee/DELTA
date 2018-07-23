@@ -190,19 +190,19 @@ public class Interface extends Thread {
         // TODO Auto-generated method stub
         String recv;
         while (true) {
-            connectServer("AppAgent");
-            while (true) {
-                try {
+            try {
+                connectServer("AppAgent");
+                while (true) {
                     // reads characters encoded with modified UTF-8
                     recv = dis.readUTF();
                     System.out.println("[App-Agent] Receive msg from agent-manager " + recv);
                     replayingKnownAttack(recv);
-                } catch (ConnectException e) {
-                    LOG.error("[App-Agent] Agent Manager is not listening");
-                } catch (Exception e) {
-                    // if any error occurs
-                    LOG.error(e.getMessage());
                 }
+            } catch (ConnectException e) {
+                LOG.error("[App-Agent] Agent Manager is not listening");
+            } catch (Exception e) {
+                // if any error occurs
+                LOG.error(e.getMessage());
             }
         }
     }

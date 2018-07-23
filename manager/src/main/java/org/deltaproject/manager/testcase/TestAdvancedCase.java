@@ -1177,7 +1177,7 @@ public class TestAdvancedCase {
 
         String[] setupCmd = new String[2];
         setupCmd[0] = "sh";
-        setupCmd[1] = "/home/delta/DELTA/blackhat/case4/setup.sh";
+        setupCmd[1] = "/home/delta/DELTA/tools/util/blackhat/case4/setup.sh";
         try {
             Process p = Runtime.getRuntime().exec(setupCmd);
         } catch (IOException e) {
@@ -1187,7 +1187,7 @@ public class TestAdvancedCase {
         log.info("Setup complete");
 
         try {
-            Thread.sleep(20000);
+            Thread.sleep(15000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -1197,7 +1197,7 @@ public class TestAdvancedCase {
 
         String[] attackCmd = new String[2];
         attackCmd[0] = "sh";
-        attackCmd[1] = "/home/delta/DELTA/blackhat/case4/attack.sh";
+        attackCmd[1] = "/home/delta/DELTA/tools/util/blackhat/case4/attack.sh";
         try {
             Process p = Runtime.getRuntime().exec(attackCmd);
         } catch (IOException e) {

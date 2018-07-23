@@ -36,6 +36,8 @@ public class OpenDaylightHandler implements ControllerHandler {
     private int indexController = -1;
     private int indexApp = -1;
 
+    AgentLogger.LoggerThread threadInstance;
+
     public OpenDaylightHandler(String path, String v, String ssh) {
         this.version = v;
         this.sshAddr = ssh;
@@ -51,10 +53,10 @@ public class OpenDaylightHandler implements ControllerHandler {
         isRunning = false;
         String str;
         String[] cmdArray = null;
+        user = sshAddr.substring(0, sshAddr.indexOf('@'));
 
         try {
             if (version.equals("helium")) {
-                user = sshAddr.substring(0, sshAddr.indexOf('@'));
 //                controllerPath = "/home/" + user + "/odl-helium-sr3/opendaylight/distribution/opendaylight/handler/distribution.opendaylight-osgipackage/opendaylight/run.sh -Xmx2g";
             }
 //                cmdArray = new String[]{"ssh", sshAddr, "sudo", controllerPath};
@@ -69,7 +71,8 @@ public class OpenDaylightHandler implements ControllerHandler {
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
             pb.redirectErrorStream(true);
             proc = pb.start();
-            loggerThd = new Thread(AgentLogger.getLoggerThreadInstance(proc, AgentLogger.APP_AGENT));
+            threadInstance = AgentLogger.getLoggerThreadInstance(proc, AgentLogger.APP_AGENT);
+            loggerThd = new Thread(threadInstance);
             loggerThd.start();
 
             stdIn = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
@@ -83,9 +86,10 @@ public class OpenDaylightHandler implements ControllerHandler {
                 do {
                     str = AgentLogger.getTemp();
                 } while (!str.contains("shutdown OpenDaylight"));
-            } else if (version.equals("oxygen")) {
+            } else if (version.contains("oxygen")) {
                 do {
-                    str = AgentLogger.getTemp();
+                    str = threadInstance.readTemp();
+                    Thread.sleep(500);
                 } while (!str.contains("shutdown OpenDaylight"));
             }
 
@@ -103,50 +107,55 @@ public class OpenDaylightHandler implements ControllerHandler {
     }
 
     public boolean installAppAgent() {
-        boolean isInstalled = false;
-        int bundleID = 0;
-
-        String successMsg = "";
-
-        if (version.equals("helium")) {
-            successMsg = "Installed";
-        } else if (version.equals("carbon")) {
-            return true;
-        }
-
         try {
-            if (!version.equals("oxygen")) {
-                stdIn.write("install file:" + "/home/" + user + "/delta-agent-app-odl-" + version + "-1.0-SNAPSHOT.jar" + "\n");
-                stdIn.flush();
+            boolean isInstalled = false;
+            int bundleID = 0;
 
-                while (!isInstalled) {
+            String successMsg = "";
 
-//                String line = stdOut.readLine();
-                    String line = AgentLogger.getTemp();
-                    if (line.contains(successMsg)) {
-                        isInstalled = true;
+            if (version.equals("helium")) {
+                successMsg = "Installed";
+            } else if (version.contains("carbon")) {
+                successMsg = "Bundle ID: ";
+            } else if (version.contains("oxygen")) {
+                successMsg = "Bundle ID: ";
+            }
+//            else if (version.contains("oxygen")) {
+//                String str;
+//                do {
+//                    Thread.sleep(15000);
+//                    stdIn.write("bundle:start 425\n");
+//                    stdIn.flush();
+//                    str = threadInstance.readTemp();
+//                } while (!str.contains("App-Agent"));
+//                log.info("AppAgent bundle ID [425] Started");
+//                return true;
+//            }
+            String temp = "install file:" + "/home/" + user + "/delta-agent-app-odl-" + version + "-1.0-SNAPSHOT.jar" + "\n";
+            System.out.println(temp);
+            stdIn.write(temp);
+            stdIn.flush();
 
-                        int idx = line.indexOf(successMsg);
-                        if (version.equals("helium")) {
-                            bundleID = Integer.parseInt(line.substring(idx - 4, idx - 1));
-                        } else if (version.equals("carbon")) {
-                            bundleID = Integer.parseInt(line.substring(idx + successMsg.length()).replace("\n", ""));
-                        }
+            while (!isInstalled) {
 
-                        stdIn.write("start " + bundleID + "\n");
-                        stdIn.flush();
+                String line = threadInstance.readTemp();
+                if (line.contains(successMsg)) {
+                    isInstalled = true;
 
-                        log.info("AppAgent bundle ID [" + bundleID + "] Installed");
+                    int idx = line.indexOf(successMsg);
+                    if (version.equals("helium")) {
+                        bundleID = Integer.parseInt(line.substring(idx - 4, idx - 1));
+                    } else if (version.equals("carbon") || version.contains("oxygen")) {
+                        bundleID = Integer.parseInt(line.substring(idx + successMsg.length()).replace("\n", ""));
                     }
+
+                    stdIn.write("start " + bundleID + "\n");
+                    stdIn.flush();
+
+                    log.info("AppAgent bundle ID [" + bundleID + "] Installed");
                 }
             }
-
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            Thread.sleep(5000);
 
 //            if (version.equals("helium")) {
 //                // for service chain interference
@@ -169,7 +178,7 @@ public class OpenDaylightHandler implements ControllerHandler {
 //                }
 //            }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
