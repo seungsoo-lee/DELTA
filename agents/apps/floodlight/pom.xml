@@ -15,6 +15,7 @@
 
     <modules>
         <!-- <module>floodlight-0.91</module> -->
+	<module>floodlight-1.1</module>
         <module>floodlight-1.2</module>
     </modules>
 

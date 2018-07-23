@@ -6,14 +6,17 @@ import org.deltaproject.channelagent.utils.Utils;
 import org.deltaproject.channelagent.dummy.DummyOF10;
 import org.deltaproject.channelagent.dummy.DummyOF13;
 import org.deltaproject.channelagent.dummy.DummySwitch;
+import org.deltaproject.manager.utils.AgentLogger;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.types.DatapathId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by seungsoo on 9/3/16.
@@ -328,7 +331,7 @@ public class TestControllerCase {
     //3.1.050
     public void testSwitchTableFlooding() {
 
-        for (int i=1; i < Integer.MAX_VALUE ; i++) {
+        for (int i = 1; i < Integer.MAX_VALUE; i++) {
             DummySwitch dummySwitch = new DummySwitch(DatapathId.of(i));
             dummySwitch.setTestHandShakeType(DummySwitch.HANDSHAKE_DEFAULT);
             dummySwitch.setOFFactory(targetOFVersion);
@@ -344,6 +347,56 @@ public class TestControllerCase {
                 }
             }
             dummySwitch.interrupt();
+        }
+    }
+
+    //3.1.220, temporary for demo
+    public void dropContorlPacketsTemporary() {
+        try {
+            log.info("[Channel-Agent] Start arp spoofing and session reset attack..");
+            String cmdArray[] = {"sudo", "python", "arp_spoofing_drop.py", "10.100.100.11", "10.100.100.13", "eth1"};
+            Process proc;
+            ProcessBuilder pb = new ProcessBuilder(cmdArray);
+            pb.redirectErrorStream(true);
+            proc = pb.start();
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            ArpSpoofingThread ast = new ArpSpoofingThread(proc);
+            executor.execute(ast);
+            Thread.sleep(3000);
+
+            log.info("[Channel-Agent] Stop arp spoofing and session reset attack..");
+            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
+            pidField.setAccessible(true);
+            Object value = pidField.get(proc);
+            log.info("pid: {}", value);
+            Runtime.getRuntime().exec("sudo kill -SIGINT " + value);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    class ArpSpoofingThread implements Runnable {
+        BufferedWriter stdinBr;
+        BufferedReader stderrBr;
+        Process proc;
+
+        public ArpSpoofingThread(Process proc) {
+            this.proc = proc;
+        }
+
+        @Override
+        public void run() {
+            stdinBr = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
+            stderrBr = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            String line;
+            try {
+                while ((line = stderrBr.readLine()) != null) {
+                    log.info(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

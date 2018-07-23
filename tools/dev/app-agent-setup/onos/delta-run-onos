@@ -20,15 +20,15 @@ fi
 
 case $onos_version in
     1.6|1.6.0)
-        echo "Starting ONOS 1.6.0 on AppAgent..."
+        echo "Starting ONOS 1.6.0..."
         onos_version=1.6.0
         ;;
     1.9|1.9.0)
-        echo "Starting ONOS 1.9.0 on AppAgent..."
+        echo "Starting ONOS 1.9.0..."
         onos_version=1.9.0
         ;;
     1.13|1.13.1)
-        echo "Starting ONOS 1.13.1 on AppAgent..."
+        echo "Starting ONOS 1.13.1..."
         onos_version=1.13.1
         ;;
     *) usage;;

@@ -4,7 +4,7 @@ odl_version=${1}
 # Prints usage help
 function usage {
     echo "Usage: delta-run-odl <odl-version>" >&2
-    echo "* supported OpenDaylight version: helium, carbon" >&2
+    echo "* supported OpenDaylight version: helium, carbon, oxygen" >&2
     exit 1
 }
 
@@ -31,6 +31,12 @@ case $odl_version in
         echo "Starting ODL carbon on App Agent..."
         ODL_DIR='distribution-karaf-0.6.0-Carbon'
         ODL_CMD='distribution-karaf-0.6.0-Carbon/bin/karaf'
+        JDK_VERSION='java-8-oracle'
+        ;;
+    oxygen-sr2)
+        echo "Starting ODL oxygen on App Agent..."
+        ODL_DIR='karaf-0.8.2'
+        ODL_CMD='karaf-0.8.2/bin/karaf'
         JDK_VERSION='java-8-oracle'
         ;;
     *) usage;;

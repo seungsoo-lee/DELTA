@@ -707,25 +707,37 @@ public class AppAgent {
         Iterable<Device> iterableDevice = deviceService.getDevices();
         Iterator iteratorDevice = iterableDevice.iterator();
 
-        System.out.println("\n====================");
+        System.out.println("\n===================== [Controller DB] ======================");
         while (iteratorDevice.hasNext()) {
             int flowRuleCount = 0;
             Device device = (Device) iteratorDevice.next();
-            System.out.println("[Controller] " + device.id() + " FlowTable");
+            System.out.println("-------------------------");
+            System.out.println("[Switch] " + device.id());
             Iterable<FlowEntry> iterableFlow = flowRuleService.getFlowEntries(device.id());
             Iterator iteratorFlow = iterableFlow.iterator();
+            ArrayList<FlowEntry> tempList = new ArrayList<>();
 
             while (iteratorFlow.hasNext()) {
                 FlowEntry flowEntry = (FlowEntry) iteratorFlow.next();
-                if (!flowEntry.toString().contains("CONTROLLER")) {
+                if (flowEntry.toString().contains("CONTROLLER")) {
                     flowRuleCount++;
-                    System.out.println("<FlowRule> " + flowEntry);
+                    //System.out.println("<FlowRule> " + flowEntry);
+                } else {
+                    flowRuleCount++;
+                    tempList.add(flowEntry);
                 }
             }
-            System.out.println("---------------");
-            System.out.println("[Result] " + device.id() + " FlowRuleCount: " + flowRuleCount);
-            System.out.println("====================\n");
+
+            Iterator tempIt = tempList.iterator();
+            while (tempIt.hasNext()) {
+                System.out.println("<FlowRule> " + tempIt.next());
+            }
+
+            System.out.println("-------------------------");
+            System.out.println("[Result] " + device.id() + " FlowRuleCount: [ " + flowRuleCount + " ]");
+            System.out.println("-------------------------\n");
         }
+        System.out.println("==========================================================\n\n");
 
         try {
             Thread.sleep(10000);
@@ -760,7 +772,7 @@ public class AppAgent {
 //                .setXid(777)
 //                .build();
 
-        while(true) {
+        while (true) {
             controller.write(Dpid.dpid(device.id().uri()), request);
             Thread.sleep(50);
         }
@@ -880,21 +892,25 @@ public class AppAgent {
                 checkInconsistencyFlag--;
             }
 
-            System.out.println("\n====================");
+            System.out.println("\n===================== [Switch DB] ======================");
             int flowRuleCount = 0;
             DeviceId deviceId = DeviceId.deviceId(Dpid.uri(dpid));
-            System.out.println("[Switch] " + deviceId + " FlowTable");
+            System.out.println("[Switch] " + deviceId);
             OFFlowStatsReply msg = (OFFlowStatsReply) ofMessage;
             List<OFFlowStatsEntry> entryList = msg.getEntries();
+
             for (OFFlowStatsEntry e : entryList) {
                 if (!e.toString().contains("controller")) {
                     flowRuleCount++;
                     System.out.println("<FlowRule> " + e.toString());
+                } else {
+                    flowRuleCount++;
                 }
             }
+
             System.out.println("---------------");
-            System.out.println("[Result] " + deviceId + " FlowRuleCount: " + flowRuleCount);
-            System.out.println("====================\n");
+            System.out.println("[Result] " + deviceId + " FlowRuleCount: [ " + flowRuleCount + " ]");
+            System.out.println("---------------\n");
 
             Iterable<Device> iterableDevice = deviceService.getDevices();
             Iterator iteratorDevice = iterableDevice.iterator();

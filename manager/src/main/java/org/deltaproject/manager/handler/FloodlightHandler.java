@@ -37,24 +37,24 @@ public class FloodlightHandler implements ControllerHandler {
         String[] cmdArray = null;
 
         try {
-            if(!version.equals("1.2") && !version.equals("0.91")) {
+            if(!version.equals("1.2") && !version.equals("0.91") && !version.equals("1.1")) {
                 log.error("Unavailable Floodlight version.. Exit..");
                 return false;
             }
-
             cmdArray = new String[]{System.getenv("DELTA_ROOT") +
                     "/tools/dev/app-agent-setup/floodlight/delta-run-floodlight", version};
 
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
             pb.redirectErrorStream(true);
             proc = pb.start();
+
             loggerThd = new Thread(AgentLogger.getLoggerThreadInstance(proc, AgentLogger.APP_AGENT));
             loggerThd.start();
 
             Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
             pidField.setAccessible(true);
-            Object value = pidField.get(proc);
 
+            Object value = pidField.get(proc);
             this.currentPID = (Integer) value;
 
             try {
@@ -66,7 +66,7 @@ public class FloodlightHandler implements ControllerHandler {
 
             stdIn = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
 //            stdOut = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-
+	    
             String line = null;
             do {
 //                line = stdOut.readLine();
@@ -80,7 +80,6 @@ public class FloodlightHandler implements ControllerHandler {
         }
 
         AgentLogger.setTemp("");
-
         return true;
     }
 
