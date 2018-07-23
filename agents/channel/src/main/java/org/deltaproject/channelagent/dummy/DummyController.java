@@ -5,10 +5,12 @@ import com.google.common.primitives.Longs;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import io.netty.buffer.UnpooledDirectByteBuf;
 import org.projectfloodlight.openflow.exceptions.OFParseError;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.types.OFHelloElement;
 import org.projectfloodlight.openflow.types.U16;
+import org.projectfloodlight.openflow.types.U32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +21,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -350,20 +353,23 @@ public class DummyController extends Thread {
 
         if (version != OFVersion.OF_10) {
             OFHelloElem.Builder heb = factory.buildHelloElemVersionbitmap();
+            ((OFHelloElemVersionbitmap.Builder) heb).setBitmaps(Collections.singletonList(U32.of(0x12)));
             List<OFHelloElem> list = new ArrayList<OFHelloElem>();
             list.add(heb.build());
             fab.setElements(list);
         }
 
         OFHello hello = fab.build();
-        sendMsg(hello, MINIMUM_LENGTH);
+        sendMsg(hello, -1);
     }
 
-    public boolean parseOFMsg(byte[] recv, int len) throws OFParseError {
+    public boolean parseOFMsg(ByteBuf newrecv, int len) throws OFParseError {
         // for OpenFlow Message
         byte[] rawMsg = new byte[len];
-        System.arraycopy(recv, 0, rawMsg, 0, len);
+//        System.arraycopy(recv, 0, rawMsg, 0, len);
+        newrecv.readBytes(rawMsg);
         ByteBuf bb = Unpooled.copiedBuffer(rawMsg);
+//        Unpooled.directBuffer()
 
         int totalLen = bb.readableBytes();
         int offset = bb.readerIndex();
@@ -382,7 +388,7 @@ public class DummyController extends Thread {
             try {
                 OFMessage message = reader.readFrom(bb);
 
-                long xid = message.getXid();
+                long xid= message.getXid();
 
                 if (message.getType() == OFType.HELLO) {
                     sendHello(startXid);
@@ -432,15 +438,34 @@ public class DummyController extends Thread {
     @Override
     public void run() {
         // TODO Auto-generated method stub
+
         byte[] recv;
         int readlen;
         boolean ack = false;
 
         try {
             while (!Thread.currentThread().isInterrupted()) {
-                recv = new byte[2048];
+                recv = new byte[8192];
+                int mlen = 0;
+                int len = 0;
+                //        Unpooled.directBuffer()
                 if ((readlen = in.read(recv, 0, recv.length)) != -1) {
-                    parseOFMsg(recv, readlen);
+                    byte[] lenarr = {recv[3], recv[4]};
+                    mlen = Integer.parseInt(javax.xml.bind.DatatypeConverter.printHexBinary(lenarr));
+                    ByteBuf newrecv = Unpooled.directBuffer(mlen);
+                    newrecv.writeBytes(recv);
+                    len = len + readlen;
+                    newrecv.writerIndex(len);
+
+                    while(mlen > len ){
+                        if((readlen = in.read(recv, 0, recv.length)) != -1) {
+                            newrecv.writeBytes(recv);
+                            len = len + readlen;
+                            newrecv.writerIndex(len);
+                        }
+                    }
+
+                    parseOFMsg(newrecv, mlen);
                 } else {
                     in.close();
                     out.close();
@@ -457,7 +482,7 @@ public class DummyController extends Thread {
             try {
                 in.close();
                 out.close();
-                serverSock.close();
+
                 targetSock.close();
             } catch (IOException e) {
                 e.printStackTrace();
