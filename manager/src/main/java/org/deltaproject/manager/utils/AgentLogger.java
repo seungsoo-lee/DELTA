@@ -64,7 +64,7 @@ public class AgentLogger {
                     if (line.contains("Sending LLDP packets out")) {
                         continue;
                     }
-//                    temp += line;
+                    temp += line;
                     tempString += line;
                     output.write(line + "\n");
                     output.flush();
