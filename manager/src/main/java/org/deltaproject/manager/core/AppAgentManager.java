@@ -70,39 +70,35 @@ public class AppAgentManager {
     }
 
     public boolean write(String code) {
-        if (targetController.contains("OpenDaylight")) {
-            if (code.contains("3.1.090") || code.contains("3.1.100") || code.contains("restore")) {
-                try {
+        try {
+            if (targetController.contains("OpenDaylight")) {
+                if (code.contains("3.1.090") || code.contains("3.1.100") || code.contains("restore")) {
                     dos2.writeUTF(code);
                     dos2.flush();
                     return true;
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                    return false;
                 }
             }
-        }
 
-        try {
+            while (dos == null) {
+                log.info("App Agent is not connected, waiting 5 seconds..");
+                Thread.sleep(5000);
+            }
             dos.writeUTF(code);
             dos.flush();
-            return true;
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return false;
+        } catch (Exception e) {
+            log.error(e.toString());
         }
+        return true;
     }
 
 
-    public void startFuzzing() {
+//    public void startFuzzing() {
+//
+//    }
 
-    }
-
-    public void setTargetType(int target) {
-        write(Integer.toString(target));
-    }
+//    public void setTargetType (int target) {
+//        write(Integer.toString(target));
+//    }
 
     public String read() {
         String result = "";

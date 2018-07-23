@@ -726,13 +726,13 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
     }
 
     /*
-     * 3.1.220: MalformedFlodRuleGen
+     * 3.1.220: MalformedFlodRuleGen (case 2)
      */
     public String testMalformedFlodRuleGen(String recv) {
 
         if (recv.contains("remove")) {
             GenericTransactionUtils.writeData(dataBroker, LogicalDatastoreType.CONFIGURATION, savedFlowId, savedFlow, false);
-            return "Removed: flow - " + savedFlow;
+            return "Removed:" + "<flowId>: " + savedFlowId + "\n" + "<flow rule>: " + savedFlow;
         }
 
         LOG.info("[App-Agent] Malformed Flow Rule Generation attack");
@@ -798,8 +798,8 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
         savedFlow = flow;
         savedFlowId = flowIID;
 
-        LOG.info("[App-Agent] flow rule {} ", flow.toString());
-        return "flowId: " + flowIID + ", flow: " + flow;
+        LOG.info("[App-Agent] installed flow rule on configurational data store: {} ", flow.toString());
+        return "Installed:" + "<flowId>: " + savedFlowId + "\n" + "<flow rule>: " + savedFlow;
     }
 
 }

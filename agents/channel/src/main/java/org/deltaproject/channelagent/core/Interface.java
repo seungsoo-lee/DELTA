@@ -325,7 +325,7 @@ public class Interface extends Thread {
                         pktHandler.testSwitchIdentification();
 
                         dos.writeUTF("success");
-                    } else if (recv.equalsIgnoreCase("3.1.220")) { //temporary
+                    } else if (recv.contains("3.1.220")) { //temporary
                         testController.dropContorlPacketsTemporary();
                     }
 

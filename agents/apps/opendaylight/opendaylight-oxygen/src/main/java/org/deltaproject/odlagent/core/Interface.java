@@ -163,11 +163,12 @@ public class Interface extends Thread {
                 result = app.sendUnFlaggedFlowRemoveMsg("check", ruleId);
             }
             dos.writeUTF(result);
-        } else if (recv.contains("3.1.220")) {
+        } else if (recv.contains("3.1.220")) { //case2: malformed rule generation
             result = app.testMalformedFlodRuleGen(recv);
             dos.writeUTF(result);
         } else if (recv.contains("test")) {
-            app.testMalformedFlodRuleGen(recv);
+            result = app.testMalformedFlodRuleGen(recv);
+            dos.writeUTF(result);
             return;
         }
 
@@ -190,19 +191,24 @@ public class Interface extends Thread {
         // TODO Auto-generated method stub
         String recv;
         while (true) {
-            connectServer("AppAgent");
-            while (true) {
-                try {
+            try {
+                connectServer("AppAgent");
+                while (true) {
                     // reads characters encoded with modified UTF-8
                     recv = dis.readUTF();
                     System.out.println("[App-Agent] Receive msg from agent-manager " + recv);
                     replayingKnownAttack(recv);
-                } catch (ConnectException e) {
-                    LOG.error("[App-Agent] Agent Manager is not listening");
-                } catch (Exception e) {
-                    // if any error occurs
-                    LOG.error(e.getMessage());
                 }
+            } catch (ConnectException e) {
+                LOG.error("[App-Agent] Agent Manager is not listening");
+            } catch (Exception e) {
+                // if any error occurs
+                LOG.error(e.toString());
+            }
+            try {
+                Thread.sleep(5000);
+            } catch (Exception e) {
+                LOG.error(e.toString());
             }
         }
     }

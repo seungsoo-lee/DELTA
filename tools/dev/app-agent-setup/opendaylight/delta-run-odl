@@ -33,7 +33,7 @@ case $odl_version in
         ODL_CMD='distribution-karaf-0.6.0-Carbon/bin/karaf'
         JDK_VERSION='java-8-oracle'
         ;;
-    oxygen)
+    oxygen-sr2)
         echo "Starting ODL oxygen on App Agent..."
         ODL_DIR='karaf-0.8.2'
         ODL_CMD='karaf-0.8.2/bin/karaf'

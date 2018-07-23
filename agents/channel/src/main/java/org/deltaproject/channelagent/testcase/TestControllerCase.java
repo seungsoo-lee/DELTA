@@ -13,10 +13,7 @@ import org.projectfloodlight.openflow.types.DatapathId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -355,42 +352,51 @@ public class TestControllerCase {
 
     //3.1.220, temporary for demo
     public void dropContorlPacketsTemporary() {
-        log.info("[Channel-Agent] Start dropping control packets..");
-
         try {
-            String cmdArray[] = {"sudo", "python", "arp_spoofing.py", "192.168.4.4", "192.168.4.11", "eth0"};
-            final Process proc;
-            Thread loggerThd;
-
+            log.info("[Channel-Agent] Start arp spoofing and session reset attack..");
+            String cmdArray[] = {"sudo", "python", "arp_spoofing_drop.py", "10.100.100.11", "10.100.100.13", "eth1"};
+            Process proc;
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
             pb.redirectErrorStream(true);
             proc = pb.start();
             ExecutorService executor = Executors.newSingleThreadExecutor();
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    BufferedReader stderrBr = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-                    String line;
-                    try {
-                        while ((line = stderrBr.readLine()) != null) {
-                            log.info(line);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            Thread.sleep(10000);
-            executor.shutdown();
-            proc.destroy();
+            ArpSpoofingThread ast = new ArpSpoofingThread(proc);
+            executor.execute(ast);
+            Thread.sleep(3000);
 
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+            log.info("[Channel-Agent] Stop arp spoofing and session reset attack..");
+            Field pidField = Class.forName("java.lang.UNIXProcess").getDeclaredField("pid");
+            pidField.setAccessible(true);
+            Object value = pidField.get(proc);
+            log.info("pid: {}", value);
+            Runtime.getRuntime().exec("sudo kill -SIGINT " + value);
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        log.info("[Channel-Agent] Stop dropping control packets..");
+    }
+
+    class ArpSpoofingThread implements Runnable {
+        BufferedWriter stdinBr;
+        BufferedReader stderrBr;
+        Process proc;
+
+        public ArpSpoofingThread(Process proc) {
+            this.proc = proc;
+        }
+
+        @Override
+        public void run() {
+            stdinBr = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
+            stderrBr = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            String line;
+            try {
+                while ((line = stderrBr.readLine()) != null) {
+                    log.info(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
