@@ -114,7 +114,7 @@ public class AgentLogger {
 
         if (!dir.exists()) {
             dir.mkdirs();
-            System.out.println("Directory was created!");
+//            System.err.println("Directory was created!");
         }
     }
 

@@ -56,7 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
+import java.io.*;
 
 public class AppAgent implements IFloodlightModule, IOFMessageListener {
     class CPU extends Thread {
@@ -186,7 +186,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
             throws FloodlightModuleException {
         // TODO Auto-generated method stub
         floodlightProvider.addOFMessageListener(OFType.PACKET_IN, this);
-
+	//testSwappingList();
         /*
         floodlightProvider.addOFMessageListener(OFType.FLOW_REMOVED, this);
         floodlightProvider.addOFMessageListener(OFType.ERROR, this);
@@ -240,6 +240,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
                 } else if (isLoop) {
                     this.testInfiniteLoop();
                 } else if (isRemovedPayload) {
+		    System.out.println("[Agent-Manager] Start Packet-In Forge Attack");
                     IFloodlightProviderService.bcStore.remove(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
                 }
 
@@ -747,11 +748,13 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
                 .getListeners().get(OFType.PACKET_IN);
 
         System.out.println("[App-Agent] List of Packet-In Listener: " + packetin_listeners.size());
+	logger.info("[App-Agent] List of Packet-In Listener: " + packetin_listeners.size());
 
         int cnt = 1;
 
         for (IOFMessageListener listen : packetin_listeners) {
             System.out.println("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
+	    logger.info("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
         }
 
         IOFMessageListener temp = packetin_listeners.get(0);
@@ -761,12 +764,94 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         cnt = 1;
 
         System.out.println("[App-Agent] List of Packet-In Listener: " + packetin_listeners.size());
+	logger.info("[App-Agent] List of Packet-In Listener: " + packetin_listeners.size());
 
         for (IOFMessageListener listen : packetin_listeners) {
             System.out.println("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
+	    logger.info("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
         }
 
         isRemovedPayload = true;
+    }
+
+    public void onRemovedPayload() {
+	isRemovedPayload = true;
+    }
+
+    public String testFlowRuleIDSpoofing() {
+	String isInconsistency = "nothing";
+	List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
+
+	System.out.println("\n====================");
+        for (DatapathId sw : switchService.getAllSwitchDpids()) {
+	    int flowRuleCount = 0;
+            switches.add(switchService.getSwitch(sw));
+	    Map<String, OFFlowMod> tempMap = fservice.getFlows(sw);
+	    System.out.println("[Controller] " + sw + " FlowTable");
+	    for (String mapKey : tempMap.keySet()) {
+		flowRuleCount++;
+		System.out.println("<FlowRule> " + mapKey + ": " + tempMap.get(mapKey));
+	    }
+	    System.out.println("---------------");
+	    System.out.println("[Result] " + sw + " FlowRuleCount: " + flowRuleCount);
+	    System.out.println("====================\n");
+        }
+
+	System.out.println("\n====================");
+        for (IOFSwitch sw : switches) {
+	    int flowRuleCount = 0;
+	    Map<String, OFFlowMod> controllerTable = fservice.getFlows(sw.getId());
+            List<OFStatsReply> flowTable = getSwitchStatistics(sw, OFStatsType.FLOW);
+	    System.out.println("[Switch] " + sw.getId() + " FlowTable");
+
+	    if (flowTable != null) {
+		for (OFStatsReply flow : flowTable) {
+		    OFFlowStatsReply fsr = (OFFlowStatsReply) flow;
+		    List<OFFlowStatsEntry> entries = fsr.getEntries();
+
+		    if (entries != null) {
+			for (OFFlowStatsEntry e : entries) {
+			    if (!e.toString().contains("controller")) {
+				flowRuleCount++;
+				System.out.println("<FlowRule> " + e.toString());
+			    }
+			}
+		    }
+		}
+	    } else {
+		continue;
+	    }
+
+	    System.out.println("---------------");
+            System.out.println("[Result] " + sw + " FlowRuleCount: " + flowRuleCount);
+            System.out.println("====================\n");
+
+	    for (String mapKey : controllerTable.keySet()) {
+		boolean found = false;
+		OFFlowMod tempFlowRule = controllerTable.get(mapKey);
+
+                for (OFStatsReply flow : flowTable) {
+                    OFFlowStatsReply fsr = (OFFlowStatsReply) flow;
+                    List<OFFlowStatsEntry> entries = fsr.getEntries();
+
+                    if (entries != null) {
+                        for (OFFlowStatsEntry e : entries) {
+			    if (!tempFlowRule.getCookie().equals(e.getCookie())) {
+			        continue;
+			    }
+			    found = true;
+			    break;
+                        }
+
+                    }
+                }
+
+		if (!found) {
+		    isInconsistency = tempFlowRule.toString();
+		}
+	    }
+        }
+	return isInconsistency;
     }
 
     @Override
