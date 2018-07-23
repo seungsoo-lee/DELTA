@@ -1,9 +1,12 @@
 #!/bin/bash
 
-curl -X DELETE -d '{"name":"R1"}' http://192.168.11.102:8080/wm/staticflowpusher/json
+CONTROLLER_IP=10.0.3.11
+PORT=8080
 
-curl -X DELETE -d '{"name":"R2"}' http://192.168.11.102:8080/wm/staticflowpusher/json
+curl -X DELETE -d '{"name":"A1"}' http://$CONTROLLER_IP:$PORT/wm/staticflowpusher/json
 
-curl -X DELETE -d '{"name":"R3"}' http://192.168.11.102:8080/wm/staticflowpusher/json
+curl -X DELETE -d '{"name":"A2"}' http://$CONTROLLER_IP:$PORT/wm/staticflowpusher/json
 
-curl -X DELETE -d '{"name":"R4"}' http://192.168.11.102:8080/wm/staticflowpusher/json
+curl -X DELETE -d '{"name":"B1"}' http://$CONTROLLER_IP:$PORT/wm/staticflowpusher/json
+
+curl -X DELETE -d '{"name":"B2"}' http://$CONTROLLER_IP:$PORT/wm/staticflowpusher/json

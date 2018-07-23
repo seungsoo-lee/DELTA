@@ -176,6 +176,7 @@ $('#targetController').change(function() {
     $('#targetVersion').empty();
     targetController = $('#targetController').val();
     if (targetController == 'ONOS') {
+	$('#targetVersion').append('<option value="1.13.1">1.13.1</option>');
         $('#targetVersion').append('<option value="1.9.0">1.9.0</option>');
         $('#targetVersion').append('<option value="1.6.0">1.6.0</option>');
         $('#targetVersion').append('<option value="1.1.0">1.1.0</option>');
@@ -197,10 +198,10 @@ $('#topologyType').change(function() {
     topologyType = $('#topologyType').val();
     if (topologyType == 'VM') {
         $('#controllerIp').empty();
-        $('#controllerIp').val("10.100.100.11");
+        $('#controllerIp').val("10.0.3.11");
 
         $('#switchIp').empty();
-        $('#switchIp').val("10.100.100.13,10.100.100.13,10.100.100.13");
+        $('#switchIp').val("10.0.3.13,10.0.3.13,10.0.3.13");
     } else if (topologyType == 'HW') {
         $('#controllerIp').empty();
         $('#controllerIp').val("192.168.4.4");

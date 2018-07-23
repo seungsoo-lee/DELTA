@@ -354,7 +354,7 @@ public class TestControllerCase {
     public void dropContorlPacketsTemporary() {
         try {
             log.info("[Channel-Agent] Start arp spoofing and session reset attack..");
-            String cmdArray[] = {"sudo", "python", "arp_spoofing_drop.py", "10.100.100.11", "10.100.100.13", "eth1"};
+            String cmdArray[] = {"sudo", "python", "arp_spoofing_drop.py", "10.0.3.11", "10.0.3.13", "eth1"};
             Process proc;
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
             pb.redirectErrorStream(true);
