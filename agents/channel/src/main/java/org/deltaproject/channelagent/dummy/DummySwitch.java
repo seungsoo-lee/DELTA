@@ -557,7 +557,7 @@ public class DummySwitch extends Thread {
                     sendMsg(ofEchoReply, -1);
                 }
 
-                if (xid == this.requestXid) {
+                if (xid == this.DEFAULT_XID) {
                     log.info("[Channel Agent] receive Response msg");
                     res = message;
                 }
