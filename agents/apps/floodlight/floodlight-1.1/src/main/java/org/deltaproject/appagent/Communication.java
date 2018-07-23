@@ -87,7 +87,7 @@ public class Communication extends Thread {
 
 		while (true) {
 			try {
-				this.setServerAddr("192.168.11.101", 3366);
+				this.setServerAddr("10.0.3.1", 3366);
 				this.connectServer("AppAgent");
 				while (true) {
 					recv = dis.readUTF();
