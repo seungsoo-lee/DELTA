@@ -395,7 +395,7 @@ public class TestSwitchCase {
 
         String result = "";
         OFPortMod request = defaultFactory.buildPortMod().setXid(r_xid).setPortNo(OFPort.of(1))
-                .setConfig(new HashSet<>(Arrays.asList(OFPortConfig.PORT_DOWN))).build();
+                .setConfig(new HashSet<>(Arrays.asList(OFPortConfig.NO_STP))).build();
         ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
         request.writeTo(buf);
 
@@ -613,21 +613,21 @@ public class TestSwitchCase {
         ArrayList<OFTableFeaturePropType> receivedList = new ArrayList();
 
         OFTableFeaturesStatsReply response = (OFTableFeaturesStatsReply) dummyController.getResponse();
-//        OFTableFeatures ofTableFeatures = response.getEntries().get(0);
-//        for (OFTableFeatureProp oFTableFeatureProp : ofTableFeatures.getProperties()) {
-//            int type = oFTableFeatureProp.getType();
-//            OFTableFeaturePropType ofTableFeaturePropType = OFTableFeaturePropType.values()[type];
-//            receivedList.add(ofTableFeaturePropType);
-//        }
-//
-//        OFTableFeaturePropType seletedType = null;
-//        List<OFTableFeaturePropType> originalList = Arrays.asList(OFTableFeaturePropType.values());
-//        for (OFTableFeaturePropType type : originalList) {
-//            if (!receivedList.contains(type)) {
-//                seletedType = type;
-//                break;
-//            }
-//        }
+        OFTableFeatures ofTableFeatures = response.getEntries().get(0);
+        for (OFTableFeatureProp oFTableFeatureProp : ofTableFeatures.getProperties()) {
+            int type = oFTableFeatureProp.getType();
+            OFTableFeaturePropType ofTableFeaturePropType = OFTableFeaturePropType.values()[type];
+            receivedList.add(ofTableFeaturePropType);
+        }
+
+        OFTableFeaturePropType seletedType = null;
+        List<OFTableFeaturePropType> originalList = Arrays.asList(OFTableFeaturePropType.values());
+        for (OFTableFeaturePropType type : originalList) {
+            if (!receivedList.contains(type)) {
+                seletedType = type;
+                break;
+            }
+        }
 
         log.info("[Channel Agent] Send msg :" + request.toString());
 

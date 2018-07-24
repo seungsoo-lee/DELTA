@@ -1110,7 +1110,7 @@ public class TestAdvancedCase {
 
         String[] setupCmd = new String[2];
         setupCmd[0] = "sh";
-        setupCmd[1] = "/home/delta/DELTA/tools/util/blackhat/case3/setup.sh";
+        setupCmd[1] = "/home/swwon111/DELTA/tools/util/blackhat/case3/setup.sh";
         try {
             Process p = Runtime.getRuntime().exec(setupCmd);
         } catch (IOException e) {
@@ -1128,7 +1128,7 @@ public class TestAdvancedCase {
 
         String[] attackCmd = new String[2];
         attackCmd[0] = "sh";
-        attackCmd[1] = "/home/delta/DELTA/tools/util/blackhat/case3/attack.sh";
+        attackCmd[1] = "/home/swwon111/DELTA/tools/util/blackhat/case3/attack.sh";
 
         try {
             Process p = Runtime.getRuntime().exec(attackCmd);
@@ -1183,7 +1183,7 @@ public class TestAdvancedCase {
 
         String[] setupCmd = new String[2];
         setupCmd[0] = "sh";
-        setupCmd[1] = "/home/delta/DELTA/tools/util/blackhat/case4/setup.sh";
+        setupCmd[1] = "/home/swwon111/DELTA/tools/util/blackhat/case4/setup.sh";
         try {
             Process p = Runtime.getRuntime().exec(setupCmd);
         } catch (IOException e) {
@@ -1203,7 +1203,7 @@ public class TestAdvancedCase {
 
         String[] attackCmd = new String[2];
         attackCmd[0] = "sh";
-        attackCmd[1] = "/home/delta/DELTA/tools/util/blackhat/case4/attack.sh";
+        attackCmd[1] = "/home/swwon111/DELTA/tools/util/blackhat/case4/attack.sh";
         try {
             Process p = Runtime.getRuntime().exec(attackCmd);
         } catch (IOException e) {
