@@ -4,7 +4,7 @@ floodlight_version=${1}
 # Prints usage help
 function usage {
     echo "Usage: delta-run-onos <floodlight-version>" >&2
-    echo "* supported Floodlight version: 0.91 1.2" >&2
+    echo "* supported Floodlight version: 0.91 1.1 1.2" >&2
     exit 1
 }
 
@@ -28,7 +28,7 @@ case $floodlight_version in
         echo "Starting Floodlight 1.1..."
         JDK_VERSION='java-8-oracle'
         FLOODLIGHT_DIR='floodlight-1.1.jar'
-        FLOODLIGHT_CMD='sudo java -jar floodlight-1.1.jar -cf floodlightdefault.properties'
+        FLOODLIGHT_CMD='sudo java -jar floodlight-1.1.jar -cf floodlightcase1.properties'
         ;;
     1.2)
         echo "Starting Floodlight 1.2..."

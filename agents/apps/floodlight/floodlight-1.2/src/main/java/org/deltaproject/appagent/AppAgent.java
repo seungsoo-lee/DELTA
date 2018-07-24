@@ -748,13 +748,11 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
                 .getListeners().get(OFType.PACKET_IN);
 
         System.out.println("[App-Agent] List of Packet-In Listener: " + packetin_listeners.size());
-        logger.info("[App-Agent] List of Packet-In Listener: " + packetin_listeners.size());
 
         int cnt = 1;
 
         for (IOFMessageListener listen : packetin_listeners) {
             System.out.println("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
-            logger.info("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
         }
 
         IOFMessageListener temp = packetin_listeners.get(0);
@@ -764,11 +762,9 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         cnt = 1;
 
         System.out.println("[App-Agent] List of Packet-In Listener: " + packetin_listeners.size());
-        logger.info("[App-Agent] List of Packet-In Listener: " + packetin_listeners.size());
 
         for (IOFMessageListener listen : packetin_listeners) {
             System.out.println("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
-            logger.info("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
         }
 
         isRemovedPayload = true;

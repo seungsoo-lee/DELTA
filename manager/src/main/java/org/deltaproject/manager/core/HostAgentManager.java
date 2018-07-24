@@ -90,6 +90,10 @@ public class HostAgentManager extends Thread {
                         cmdArray = new String[]{"ssh", cfg.getHOST_SSH(), "sudo", "python", topologyFile,
                                 cfg.getCONTROLLER_IP(), cfg.getOF_PORT()};
                         break;
+                    case "test-new-topo.py":
+                        cmdArray = new String[]{"ssh", cfg.getHOST_SSH(), "sudo", "python", topologyFile,
+                                cfg.getCONTROLLER_IP(), cfg.getOF_PORT(), cfg.getAM_IP(), cfg.getAM_PORT(), version};
+                        break;
                 }
 
                 // in the case of hardware setting

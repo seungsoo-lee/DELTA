@@ -56,6 +56,29 @@ public class TestAdvancedCase {
         initController(true);
     }
 
+    // for new cases (3.1.210, 3.1.220, 3.1.230, 3.1.240)
+    public void newRunRemoteAgents(boolean channel, boolean host) {
+        log.info("Run controller/channel/host agents..");
+
+        appm.setTargetController(controllerm.getType());
+
+        if (channel) {
+            channelm.runAgent();
+        }
+
+        if (host) {
+            hostm.runAgent("test-new-topo.py");
+        }
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        initController(true);
+    }
+
     public void stopRemoteAgents() {
         log.info("Stop controller/channel/host agents..");
         controllerm.killController();
@@ -162,20 +185,22 @@ public class TestAdvancedCase {
                 testSwitchFirmwareMisuse(test);
                 break;
             case "3.1.210":
-                runRemoteAgents(false, true);
+                newRunRemoteAgents(false, true);
                 log.info("The AM instructs the app agent to randomize the sequence of the packet-In subscription list");
                 testPacketInDataForge(test);
                 break;
             case "3.1.220":
-                runRemoteAgents(true, true);
+                newRunRemoteAgents(true, true);
                 testMalformedFlowRuleGeneration(test);
                 break;
             case "3.1.230":
-                runRemoteAgents(false, true);
+                changeFloodlightProperties("1");
+                newRunRemoteAgents(false, true);
                 testFlowRuleIDSpoofing(test);
+                changeFloodlightProperties("2");
                 break;
             case "3.1.240":
-                runRemoteAgents(false, true);
+                newRunRemoteAgents(false, true);
                 testInfiniteFlowRuleSynchronization(test);
                 break;
             case "------ ":          // testControllerOFCase
@@ -184,6 +209,21 @@ public class TestAdvancedCase {
         }
 
         stopRemoteAgents();
+    }
+
+    private void changeFloodlightProperties(String num) {
+        Process proc = null;
+        String[] cmdArray = null;
+        try {
+            cmdArray = new String[]{System.getenv("DELTA_ROOT") +
+                "/tools/dev/app-agent-setup/floodlight/floodlight-1.2-case3-scp", num};
+
+            ProcessBuilder pb = new ProcessBuilder(cmdArray);
+            pb.redirectErrorStream(true);
+            proc = pb.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void initController(boolean switchWait) {
@@ -1110,7 +1150,7 @@ public class TestAdvancedCase {
 
         String[] setupCmd = new String[2];
         setupCmd[0] = "sh";
-        setupCmd[1] = "/home/swwon111/DELTA/tools/util/blackhat/case3/setup.sh";
+        setupCmd[1] = System.getenv("DELTA_ROOT") + "/tools/util/blackhat/case3/setup.sh";
         try {
             Process p = Runtime.getRuntime().exec(setupCmd);
         } catch (IOException e) {
@@ -1128,7 +1168,7 @@ public class TestAdvancedCase {
 
         String[] attackCmd = new String[2];
         attackCmd[0] = "sh";
-        attackCmd[1] = "/home/swwon111/DELTA/tools/util/blackhat/case3/attack.sh";
+        attackCmd[1] = System.getenv("DELTA_ROOT") + "/tools/util/blackhat/case3/attack.sh";
 
         try {
             Process p = Runtime.getRuntime().exec(attackCmd);
@@ -1183,7 +1223,7 @@ public class TestAdvancedCase {
 
         String[] setupCmd = new String[2];
         setupCmd[0] = "sh";
-        setupCmd[1] = "/home/swwon111/DELTA/tools/util/blackhat/case4/setup.sh";
+        setupCmd[1] = System.getenv("DELTA_ROOT") + "/tools/util/blackhat/case4/setup.sh";
         try {
             Process p = Runtime.getRuntime().exec(setupCmd);
         } catch (IOException e) {
@@ -1203,7 +1243,7 @@ public class TestAdvancedCase {
 
         String[] attackCmd = new String[2];
         attackCmd[0] = "sh";
-        attackCmd[1] = "/home/swwon111/DELTA/tools/util/blackhat/case4/attack.sh";
+        attackCmd[1] = System.getenv("DELTA_ROOT") + "/tools/util/blackhat/case4/attack.sh";
         try {
             Process p = Runtime.getRuntime().exec(attackCmd);
         } catch (IOException e) {

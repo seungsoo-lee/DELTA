@@ -892,25 +892,25 @@ public class AppAgent {
                 checkInconsistencyFlag--;
             }
 
-            System.out.println("\n===================== [Switch DB] ======================");
+            //System.out.println("\n===================== [Switch DB] ======================");
             int flowRuleCount = 0;
             DeviceId deviceId = DeviceId.deviceId(Dpid.uri(dpid));
-            System.out.println("[Switch] " + deviceId);
+            //System.out.println("[Switch] " + deviceId);
             OFFlowStatsReply msg = (OFFlowStatsReply) ofMessage;
             List<OFFlowStatsEntry> entryList = msg.getEntries();
 
             for (OFFlowStatsEntry e : entryList) {
                 if (!e.toString().contains("controller")) {
                     flowRuleCount++;
-                    System.out.println("<FlowRule> " + e.toString());
+                    //System.out.println("<FlowRule> " + e.toString());
                 } else {
-                    flowRuleCount++;
+                    //flowRuleCount++;
                 }
             }
 
-            System.out.println("---------------");
-            System.out.println("[Result] " + deviceId + " FlowRuleCount: [ " + flowRuleCount + " ]");
-            System.out.println("---------------\n");
+            //System.out.println("---------------");
+            //System.out.println("[Result] " + deviceId + " FlowRuleCount: [ " + flowRuleCount + " ]");
+            //System.out.println("---------------\n");
 
             Iterable<Device> iterableDevice = deviceService.getDevices();
             Iterator iteratorDevice = iterableDevice.iterator();
