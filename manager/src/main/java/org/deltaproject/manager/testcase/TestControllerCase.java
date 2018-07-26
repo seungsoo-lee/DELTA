@@ -303,11 +303,12 @@ public class TestControllerCase {
         }
 
         am.write(test.getcasenum() + "|install");
-        long flowId = Integer.parseInt(am.read().split("\\|")[1]);
-        log.info("App-agent sends msg " + am.read() + " with un-flagged removed");
+        String a = am.read();
+        long flowId = Long.parseLong(a.split("\\|")[1]);
+  //      log.info("App-agent sends msg " + am.read() + " with un-flagged removed");
 
         try {
-            Thread.sleep(10000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
