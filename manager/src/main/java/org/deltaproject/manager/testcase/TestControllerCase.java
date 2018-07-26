@@ -189,7 +189,7 @@ public class TestControllerCase {
         log.info(info);
 
         initController();
-        chm.write("2.1.030|nohello");
+        chm.write(test.getcasenum());
 
         log.info("Dummy switch dosen't send hello message");
 

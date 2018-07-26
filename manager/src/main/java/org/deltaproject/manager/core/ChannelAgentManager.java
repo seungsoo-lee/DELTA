@@ -1,5 +1,6 @@
 package org.deltaproject.manager.core;
 
+
 import org.deltaproject.manager.utils.AgentLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,10 @@ public class ChannelAgentManager extends Thread {
 
     public String read() {
         try {
-            return dis.readUTF();
+            while(dis != null){
+                return dis.readUTF();
+            }
+
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -67,7 +71,7 @@ public class ChannelAgentManager extends Thread {
 
     public boolean runAgent() {
         String amAddr = cfg.getAM_IP() + " " + cfg.getAM_PORT();
-        String cmdArray[] = {"ssh", cfg.getCHANNEL_SSH(), "sudo", "java", "-jar", "delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar", amAddr};
+        String cmdArray[] = {"ssh", cfg.getCHANNEL_SSH(), "sudo", "java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005", "-jar", "delta-agent-channel-1.0-SNAPSHOT-jar-with-dependencies.jar", amAddr};
 
         try {
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
