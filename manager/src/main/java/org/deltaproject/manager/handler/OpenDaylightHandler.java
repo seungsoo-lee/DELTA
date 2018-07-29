@@ -96,7 +96,7 @@ public class OpenDaylightHandler implements ControllerHandler {
 //                } while (!str.contains("to accept incoming"));
 //            }
 
-            log.info("OpenDaylight is activated");
+            log.info("* On/Off | OpenDaylight : On");
 
             installAppAgent();
             threadInstance.setTemp("");
@@ -195,6 +195,7 @@ public class OpenDaylightHandler implements ControllerHandler {
             pc.getInputStream().close();
             pc.getOutputStream().close();
             pc.waitFor();
+			log.info("* On/Off | OpenDaylight : Off");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
