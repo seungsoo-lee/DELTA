@@ -28,6 +28,7 @@ public class TestControllerCase {
     private DummySwitch temp;
     private String targetIP;
     private String targetPORT;
+    private String targetSwitchIP;
 
     private long requestXid = 0xeeeeeeeel;
     private OFMessage response;
@@ -40,6 +41,7 @@ public class TestControllerCase {
         targetIP = Configuration.getInstance().getControllerIp();
         targetPORT = Configuration.getInstance().getOfPort();
         targetOFVersion = Configuration.getInstance().getOfVersion();
+        targetSwitchIP = Configuration.getInstance().getSwitchIp();
     }
 
     public boolean isHandshaked() {
@@ -354,7 +356,7 @@ public class TestControllerCase {
     public void dropContorlPacketsTemporary() {
         try {
             log.info("[Channel-Agent] Start arp spoofing and session reset attack..");
-            String cmdArray[] = {"sudo", "python", "arp_spoofing_drop.py", "10.0.3.11", "10.0.3.13", "eth1"};
+            String cmdArray[] = {"sudo", "python", "arp_spoofing_drop.py", targetIP, targetSwitchIP, "eth1"};
             Process proc;
             ProcessBuilder pb = new ProcessBuilder(cmdArray);
             pb.redirectErrorStream(true);

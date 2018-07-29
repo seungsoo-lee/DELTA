@@ -22,21 +22,21 @@ fi
 
 case $odl_version in
     helium)
-        echo "Starting ODL helium on App Agent..."
+        echo "Starting ODL helium..."
         ODL_DIR='odl-helium-sr3'
         ODL_CMD='sudo odl-helium-sr3/opendaylight/distribution/opendaylight/target/distribution.opendaylight-osgipackage/opendaylight/run.sh -Xmx4g'
         JDK_VERSION='java-7-oracle'
         ;;
     carbon)
-        echo "Starting ODL carbon on App Agent..."
+        echo "Starting ODL carbon..."
         ODL_DIR='distribution-karaf-0.6.0-Carbon'
         ODL_CMD='distribution-karaf-0.6.0-Carbon/bin/karaf'
         JDK_VERSION='java-8-oracle'
         ;;
     oxygen-sr2)
-        echo "Starting ODL oxygen on App Agent..."
+        echo "Starting ODL oxygen..."
         ODL_DIR='karaf-0.8.2'
-        ODL_CMD='karaf-0.8.2/bin/karaf'
+        ODL_CMD='karaf-0.8.2/bin/karaf clean'
         JDK_VERSION='java-8-oracle'
         ;;
     *) usage;;

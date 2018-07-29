@@ -23,6 +23,7 @@ public class TestAdvancedCase {
     private HostAgentManager hostm;
     private ChannelAgentManager channelm;
     private ControllerManager controllerm;
+    private String targetIP;
 
     private ResultAnalyzer analyzer;
 
@@ -32,6 +33,7 @@ public class TestAdvancedCase {
         this.channelm = cm;
         this.controllerm = ctm;
         this.analyzer = new ResultAnalyzer(controllerm, appm);
+        this.targetIP = cfg.getCONTROLLER_IP();
     }
 
     public void runRemoteAgents(boolean channel, boolean host) {
@@ -1065,7 +1067,7 @@ public class TestAdvancedCase {
         appm.write(test.getcasenum());
 
         try {
-            Thread.sleep(25000);
+            Thread.sleep(20000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -1105,29 +1107,29 @@ public class TestAdvancedCase {
 
             log.info("[Attack] Install malformed rules in configurational data store from OpenDaylight");
             appm.write(test.getcasenum());
-            String result = appm.read();
+            String appResult = appm.read();
 //            log.info(result);
 
-            Thread.sleep(5000);
+            Thread.sleep(10000);
 
             log.info("Instruct Channel Agent to interrupt control channel temporarily");
             channelm.write(test.getcasenum());
 
-            Thread.sleep(60000);
+            Thread.sleep(20000);
 
-//        log.info("Host-Agent sends packets to others");
-//        String flowResult = generateFlow("ping");
+            log.info("Host-Agent sends packets to others");
+            String flowResult = generateFlow("ping");
 
-//        ResultInfo result = new ResultInfo();
-//        result.addType(ResultInfo.COMMUNICATON);
-//        result.setLatency(null, flowResult);
+            ResultInfo result = new ResultInfo();
+            result.addType(ResultInfo.COMMUNICATON);
+            result.setLatency(null, flowResult);
 
-//        analyzer.checkResult(test, result);
+            analyzer.checkResult(test, result);
 
-            log.info("[Restore] Remove the malformed rules in configurational data store from OpenDaylight");
-            appm.write(test.getcasenum() + "|remove");
-            result = appm.read();
-//            log.info(result);
+//            log.info("[Restore] Remove the malformed rules in configurational data store from OpenDaylight");
+//            appm.write(test.getcasenum() + "|remove");
+//            appResult = appm.read();
+//            log.info(appResult);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -1145,12 +1147,12 @@ public class TestAdvancedCase {
             log.info("Floodlight is only possible to replay [" + test.getcasenum() + "] ");
             return false;
         }
-
         log.info("The AM instructs the app agent to install default flow rules");
 
-        String[] setupCmd = new String[2];
+        String[] setupCmd = new String[3];
         setupCmd[0] = "sh";
         setupCmd[1] = System.getenv("DELTA_ROOT") + "/tools/util/blackhat/case3/setup.sh";
+        setupCmd[2] = targetIP;
         try {
             Process p = Runtime.getRuntime().exec(setupCmd);
         } catch (IOException e) {
@@ -1166,9 +1168,10 @@ public class TestAdvancedCase {
 
         log.info("The AM instructs the app agent to install a flow rule with spoofed flow ID");
 
-        String[] attackCmd = new String[2];
+        String[] attackCmd = new String[3];
         attackCmd[0] = "sh";
         attackCmd[1] = System.getenv("DELTA_ROOT") + "/tools/util/blackhat/case3/attack.sh";
+        attackCmd[2] = targetIP;
 
         try {
             Process p = Runtime.getRuntime().exec(attackCmd);
@@ -1221,9 +1224,10 @@ public class TestAdvancedCase {
 
         log.info("Setup test environment");
 
-        String[] setupCmd = new String[2];
+        String[] setupCmd = new String[3];
         setupCmd[0] = "sh";
         setupCmd[1] = System.getenv("DELTA_ROOT") + "/tools/util/blackhat/case4/setup.sh";
+        setupCmd[2] = targetIP;
         try {
             Process p = Runtime.getRuntime().exec(setupCmd);
         } catch (IOException e) {
@@ -1241,9 +1245,10 @@ public class TestAdvancedCase {
 
         log.info("Infinite Flow Rule Synchronization Attack");
 
-        String[] attackCmd = new String[2];
+        String[] attackCmd = new String[3];
         attackCmd[0] = "sh";
         attackCmd[1] = System.getenv("DELTA_ROOT") + "/tools/util/blackhat/case4/attack.sh";
+        attackCmd[2] = targetIP;
         try {
             Process p = Runtime.getRuntime().exec(attackCmd);
         } catch (IOException e) {

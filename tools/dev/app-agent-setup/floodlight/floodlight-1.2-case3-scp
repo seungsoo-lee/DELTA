@@ -1,6 +1,12 @@
 #!/bin/bash
 temp=${1}
 
+function usage {
+    echo "Usage: floodlight-1.2-case3.scp <1 or 2>" >&2
+    exit 1
+}
+
+
 case $temp in
     1)
         scp $DELTA_ROOT/tools/util/blackhat/case3/floodlightdefault.properties $DELTA_CP:~/

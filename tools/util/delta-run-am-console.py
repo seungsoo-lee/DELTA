@@ -36,9 +36,8 @@ def input_handler():
             print thd_num
             print cmd_num
             conn = conn_list[thd_num]
-            print conn
             writeUTF(conn, cmd_num)
-            data = conn.recv(1024).decode('utf-8')
+            data = conn.recv(512).decode('utf-8')
             print '[AgentManger Tester] Received: ', data
         except Exception as e:
             print '[ERROR] not avialable input\n'
