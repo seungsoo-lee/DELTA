@@ -57,6 +57,7 @@ public class ChannelAgentManager extends Thread {
 
     public void write(String input) {
         try {
+			log.info("* SendPKT | CMD : Manager --> Channel agent = " + input);
             dos.writeUTF(input);
             dos.flush();
         } catch (IOException e) {
@@ -106,6 +107,7 @@ public class ChannelAgentManager extends Thread {
                 socket.close();
                 socket = null;
             }
+			log.info("* On/Off | Channel agent : Off");
         } catch (IOException e) {
             e.printStackTrace();
         }

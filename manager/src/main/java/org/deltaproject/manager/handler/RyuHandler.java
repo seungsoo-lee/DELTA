@@ -68,7 +68,7 @@ public class RyuHandler implements ControllerHandler {
             // TODO: This part will add to check whether Ryu application is complete.
 
             isRunning = true;
-            log.info("Ryu is activated");
+            log.info("* On/Off | Ryu : On");
 
             Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep ryu-manager");
             String tempS;
@@ -106,6 +106,7 @@ public class RyuHandler implements ControllerHandler {
             pc.getInputStream().close();
             pc.getOutputStream().close();
             pc.waitFor();
+			log.info("* On/Off | Ryu : Off");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

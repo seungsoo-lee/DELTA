@@ -120,11 +120,7 @@ $(document).ready(function () {
                 contentType: "text/plain",
                 async: false,
                 success: function (data) {
-                    var old = $('#deltalog').val();
-                    if (old.length != data.length) {
-                        $('#deltalog').val(data);
-                        $('#deltalog').scrollTop($('#deltalog')[0].scrollHeight);
-                    }
+					handleDeltaData(data);
                 }
             });
         }, 1000);
@@ -141,11 +137,7 @@ $(document).ready(function () {
                 contentType: "text/plain",
                 async: false,
                 success: function (data) {
-                    var old = $('#channellog').val();
-                    if (old.length != data.length) {
-                        $('#channellog').val(data);
-                        $('#channellog').scrollTop($('#channellog')[0].scrollHeight);
-                    }
+					handleChannelData(data);
                 }
             });
         }, 1000);
@@ -168,23 +160,19 @@ $(document).ready(function () {
                 contentType: "text/plain",
                 async: false,
                 success: function (data) {
-                    var old = $('#applog').val();
-                    if (old.length != data.length) {
-                        $('#applog').val(data);
-                        $('#applog').scrollTop($('#applog')[0].scrollHeight);
-                    }
+					handleAppData(data);
                 }
             });
         }, 1000);
         return appTimer;
     }
 
-    $('#applog').hover(function () {
+/*    $('#applog').hover(function () {
         window.clearInterval(appTimer);
     }, function () {
         appTimer = startApplog();
     });
-
+*/
     var hostTimer = null;
     var startHostlog = function () {
         hostTimer = window.setInterval(function () {
@@ -195,11 +183,7 @@ $(document).ready(function () {
                 contentType: "text/plain",
                 async: false,
                 success: function (data) {
-                    var old = $('#hostlog').val();
-                    if (old.length != data.length) {
-                        $('#hostlog').val(data);
-                        $('#hostlog').scrollTop($('#hostlog')[0].scrollHeight);
-                    }
+					handleHostData(data);
                 }
             });
         }, 1000);

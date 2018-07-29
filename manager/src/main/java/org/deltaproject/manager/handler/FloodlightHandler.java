@@ -66,7 +66,7 @@ public class FloodlightHandler implements ControllerHandler {
 
             stdIn = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
 //            stdOut = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-	    
+		   log.info("* On/Off | Floodlight : On"); 
             String line = null;
             do {
 //                line = stdOut.readLine();
@@ -91,6 +91,7 @@ public class FloodlightHandler implements ControllerHandler {
             pc.getInputStream().close();
             pc.getOutputStream().close();
             pc.waitFor();
+			log.info("* On/Off | Floodlight : Off");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
