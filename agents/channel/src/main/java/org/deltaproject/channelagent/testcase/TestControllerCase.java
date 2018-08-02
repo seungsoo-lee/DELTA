@@ -102,37 +102,52 @@ public class TestControllerCase {
 
         String result;
 
+
         byte[] msg;
         if (targetOFVersion == 4) {
             msg = Utils.hexStringToByteArray(DummyOF13.PORT_STATUS);
             msg[0] = (byte) 0x01;
 
             result = "Send Packet-In msg with OF version 1.0\n";
+			log.info("* SendPKT | PKT_IN : Hub --> Core = OF1.0");
+			log.info("* Test | Send Packet-In msg with OF version 1.0");
         } else {
             msg = Utils.hexStringToByteArray(DummyOF10.PACKET_IN);
             msg[0] = (byte) 0x04;
             result = "Send Packet-In msg with OF version 1.3\n";
+			log.info("* SendPKT | PKT_IN : Hub --> Core = OF1.3");
+			log.info("* Test | Send Packet-In msg with OF version 1.3");
         }
 
         byte[] xidbytes = Longs.toByteArray(requestXid);
         System.arraycopy(xidbytes, 4, msg, 4, 4);
 
         ofSwitch.sendRawMsg(msg);
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         OFMessage response = ofSwitch.getResponse();
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
         if (response != null) {
+			log.info("* RecvPKT | OF : Core --> Hub = " + response.toString());
+			log.info("* Test | Response:" + response.toString());
             if (response.getType() == OFType.PACKET_OUT)
                 result += "Response msg : " + response.toString() + ", FAIL";
             else
                 result += "Response msg : " + response.toString() + ", PASS";
-        } else
+        } else{
             result += "Response is NULL (expected msg is ERR), FAIL";
+			log.info("* Result | No response");
+			log.info("* Test | Response: Null");
+		}
 
 //        stopSW();
         return result;

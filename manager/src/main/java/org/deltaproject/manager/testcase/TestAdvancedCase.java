@@ -188,7 +188,6 @@ public class TestAdvancedCase {
                 break;
             case "3.1.210":
                 newRunRemoteAgents(false, true);
-                log.info("The AM instructs the app agent to randomize the sequence of the packet-In subscription list");
                 testPacketInDataForge(test);
                 break;
             case "3.1.220":
@@ -1052,29 +1051,36 @@ public class TestAdvancedCase {
      * 3.1.210 - Packet-In Data Forge
      */
     public boolean testPacketInDataForge(TestCase test) {
+		log.info("* Test | The AM instructs the app agent to randomize the sequence of the packet-In subscription list");
         if (!controllerm.getType().equals("Floodlight")) {
-            log.info("Floodlight is only possible to replay [" + test.getcasenum() + "] ");
+            log.info("* Test | Floodlight is only possible to replay [" + test.getcasenum() + "] ");
             return false;
         }
 
-        try {
+/*        try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+*/
         log.info("App-Agent starts");
         appm.write(test.getcasenum());
 
         try {
-            Thread.sleep(20000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
-        log.info("Host-Agent sends packets to others");
+        log.info("* Test | Host-Agent sends packets to others");
         String flowResult = generateFlow("ping");
+
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
@@ -1082,10 +1088,11 @@ public class TestAdvancedCase {
         analyzer.checkResult(test, result);
 
         try {
-            Thread.sleep(10000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
 
         //appm.closeSocket();
         return true;
@@ -1098,7 +1105,7 @@ public class TestAdvancedCase {
         try {
 
             if (!controllerm.getType().equals("OpenDaylight")) {
-                log.info("OpenDaylight is only possible to replay [" + test.getcasenum() + "] ");
+                log.info("* Test | OpenDaylight is only possible to replay [" + test.getcasenum() + "] ");
                 return false;
             }
 
@@ -1144,10 +1151,10 @@ public class TestAdvancedCase {
      */
     public boolean testFlowRuleIDSpoofing(TestCase test) {
         if (!controllerm.getType().equals("Floodlight")) {
-            log.info("Floodlight is only possible to replay [" + test.getcasenum() + "] ");
+            log.info("* Test | Floodlight is only possible to replay [" + test.getcasenum() + "] ");
             return false;
         }
-        log.info("The AM instructs the app agent to install default flow rules");
+        log.info("* Test | The AM instructs the app agent to install default flow rules");
 
         String[] setupCmd = new String[3];
         setupCmd[0] = "sh";
@@ -1166,7 +1173,7 @@ public class TestAdvancedCase {
             e.printStackTrace();
         }
 
-        log.info("The AM instructs the app agent to install a flow rule with spoofed flow ID");
+        log.info("* Test | The AM instructs the app agent to install a flow rule with spoofed flow ID");
 
         String[] attackCmd = new String[3];
         attackCmd[0] = "sh";

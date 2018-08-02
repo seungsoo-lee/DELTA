@@ -757,32 +757,32 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
     public void testSwappingList() {
         List<IOFMessageListener> packetin_listeners = floodlightProvider
                 .getListeners().get(OFType.PACKET_IN);
-	System.out.println("[Agent-Manager] Start Packet-In Forge Attack");
-
-        System.out.println("[App-Agent] (before) List of Packet-In Listener: " + packetin_listeners.size());
+		System.out.println("[Agent-Manager] Start Packet-In Forge Attack");
+        System.out.println("* Data | [App-Agent] (before) List of Packet-In Listener: " + packetin_listeners.size());
 
         int cnt = 1;
 
         for (IOFMessageListener listen : packetin_listeners) {
-            System.out.println("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
+            System.out.println("* Data | [App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
         }
 
         IOFMessageListener temp = packetin_listeners.get(0);
         packetin_listeners.set(packetin_listeners.size() - 1, temp);
         packetin_listeners.set(0, this);
-
-	try {
-            Thread.sleep(10000);
+		System.out.println("* Action | Randomize Packet-In subscription list");
+		System.out.println("* Test | The app agent modifies the order of the list");
+		try {
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }	
 
         cnt = 1;
 
-        System.out.println("\n\n[App-Agent] (after) List of Packet-In Listener: " + packetin_listeners.size());
+        System.out.println("\n\n* Data | [App-Agent] (after) List of Packet-In Listener: " + packetin_listeners.size());
 
         for (IOFMessageListener listen : packetin_listeners) {
-            System.out.println("[App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
+            System.out.println("* Data | [App-Agent] " + (cnt++) + " [" + listen.getName() + "] APPLICATION");
         }
 
         isRemovedPayload = true;
@@ -855,19 +855,26 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener,
 				this.Set_Control_Message_Drop();
 				droppedPacket = pi;
 			} else if (isRemovedPayload) {
-
 				IFloodlightProviderService.bcStore.remove(cntx,
 						IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
 				Ethernet tempEth = IFloodlightProviderService.bcStore.get(cntx,
                                         IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+				try { Thread.sleep(10000); } catch( InterruptedException e) { e.printStackTrace(); }
+				System.out.println("* RecvPKT | PKT_IN : OF1 --> App agent = ping");
+				try { Thread.sleep(2300); } catch( InterruptedException e) { e.printStackTrace(); }
 				System.out.println("[PacketIn Message] (before) " + msg);
-
+				System.out.println("* Action | Remove content of Packet_In msg");
+				System.out.println("* Test | The app agent removes the data field of the message");
+				try { Thread.sleep(500); } catch( InterruptedException e) { e.printStackTrace(); }
 				System.out.println("[PacketIn Message] (after) " + tempEth);
+				System.out.println("* SendPKT | PKT_IN : App agent --> Apps = (empty)");
+				System.out.println("* Test | The app agent toss forged PKT_IN message to the next app");
+				try { Thread.sleep(5000); } catch( InterruptedException e) { e.printStackTrace(); }
 				try {
-                                    Thread.sleep(5000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				
 			}
 			

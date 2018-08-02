@@ -128,6 +128,11 @@ public class TestControllerCase {
 
         log.info("Dummy switch starts");
         chm.write("startsw");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+		}
 
         if (chm.read().contains("switchok"))
             chm.write(test.getcasenum());
@@ -142,6 +147,12 @@ public class TestControllerCase {
             test.setResult(PASS);
         else
             test.setResult(FAIL);
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+		}
 
         cm.killController();
     }

@@ -109,14 +109,14 @@ public class AttackConductor {
                         + ",handler:dummy"
                         + ",cbench:" + cfg.getCBENCH_ROOT();
 
-                channelm.write(config);
                 log.info("* On/Off | Channel agent : On");
+                channelm.write(config);
             }
 
             if (agentType.contains("HostAgent")) {
                 hostm.setSocket(socket, dos, dis);
-                hostm.write("target:" + cfg.getTARGET_HOST());
                 log.info("* On/Off | Host agent : On");
+                hostm.write("target:" + cfg.getTARGET_HOST());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -124,6 +124,7 @@ public class AttackConductor {
     }
 
     public void executeTestCase(TestCase test) throws InterruptedException {
+		log.info("* Test | " + test.getcasenum() + " - " + test.getName() + " - " + test.getDesc());
         long start = System.currentTimeMillis();
         if (test.getcasenum().charAt(0) == '1') {
             testSwitchCase.replayKnownAttack(test);

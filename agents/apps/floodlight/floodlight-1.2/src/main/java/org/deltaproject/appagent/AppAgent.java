@@ -811,12 +811,12 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         }
         System.out.println("==========================================================\n\n");
 
-//        System.out.println("\n===================== [Switch DB] ======================");
+        System.out.println("\n===================== [Switch DB] ======================");
         for (IOFSwitch sw : switches) {
             int flowRuleCount = 0;
             Map<String, OFFlowMod> controllerTable = fservice.getFlows(sw.getId());
             List<OFStatsReply> flowTable = getSwitchStatistics(sw, OFStatsType.FLOW);
-//            System.out.println("[Switch] " + sw.getId());
+            System.out.println("[Switch] " + sw.getId());
 
             if (flowTable != null) {
                 for (OFStatsReply flow : flowTable) {
@@ -827,7 +827,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
                         for (OFFlowStatsEntry e : entries) {
                             if (!e.toString().contains("controller")) {
                                 flowRuleCount++;
-//                                System.out.println("<FlowRule> " + e.toString());
+                                System.out.println("<FlowRule> " + e.toString());
                             } else {
                                 flowRuleCount++;
                             }
