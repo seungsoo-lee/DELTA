@@ -1110,14 +1110,14 @@ public class TestAdvancedCase {
             }
 
             log.info("App-Agent starts");
-//            Thread.sleep(10000);
+            Thread.sleep(10000);
 
             log.info("[Attack] Install malformed rules in configurational data store from OpenDaylight");
             appm.write(test.getcasenum());
             String appResult = appm.read();
 //            log.info(result);
 
-//            Thread.sleep(10000);
+            Thread.sleep(10000);
 
             log.info("Instruct Channel Agent to interrupt control channel temporarily");
             channelm.write(test.getcasenum());
