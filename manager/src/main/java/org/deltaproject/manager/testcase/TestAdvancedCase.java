@@ -1155,6 +1155,7 @@ public class TestAdvancedCase {
             return false;
         }
         log.info("* Test | The AM instructs the app agent to install default flow rules");
+		log.info("* SendPKT | CMD : Manager --> App agent = Install default flow rules");
 
         String[] setupCmd = new String[3];
         setupCmd[0] = "sh";
@@ -1174,6 +1175,7 @@ public class TestAdvancedCase {
         }
 
         log.info("* Test | The AM instructs the app agent to install a flow rule with spoofed flow ID");
+		log.info("* SendPKT | CMD : Manager --> App agent = Install spoofed flow ID");
 
         String[] attackCmd = new String[3];
         attackCmd[0] = "sh";
@@ -1217,6 +1219,12 @@ public class TestAdvancedCase {
         result.setLatency(null, flowResult);
         analyzer.checkResult(test, result);
         //appm.closeSocket();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return true;
     }
 
