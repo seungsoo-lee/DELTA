@@ -785,6 +785,9 @@ public class AppAgentImpl implements PacketProcessingListener, DataChangeListene
                 .build());
         builder.setKey(flowKey);
 
+		LOG.info("* Test | Install malformed flow rule");
+		//LOG.info("* Data | <Controller> {id=000000000000");
+
         Flow flow = builder.build();
 
         InstanceIdentifier<Flow> flowIID = InstanceIdentifier.builder(Nodes.class)

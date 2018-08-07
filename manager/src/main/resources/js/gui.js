@@ -139,8 +139,6 @@ window.onload = function () {
 				box1 : f.select("#FOFBox11"),
 				box2 : f.select("#FOFBox12"),
 				box3 : f.select("#FOFBox13"),
-				box4 : f.select("#FOFBox14"),
-				box5 : f.select("#FOFBox15"),
 				text11 : f.select("#i111"),
 				text12 : f.select("#i112"),
 				text13 : f.select("#i113"),
@@ -160,8 +158,6 @@ window.onload = function () {
 				box1 : f.select("#FOFBox21"),
 				box2 : f.select("#FOFBox22"),
 				box3 : f.select("#FOFBox23"),
-				box4 : f.select("#FOFBox24"),
-				box5 : f.select("#FOFBox25"),
 				text11 : f.select("#i211"),
 				text12 : f.select("#i212"),
 				text13 : f.select("#i213"),
@@ -255,6 +251,7 @@ window.onload = function () {
 		}, function(){
 			OF.textBox.attr({opacity: 0});
 		});
+		FDB.obj.attr({ transform: "translate(0, -70)" });
 		s.add(f);
 		setInterval(function() {
 			if( isNewlineHandled == true ) return;
@@ -330,6 +327,13 @@ window.onload = function () {
 				hide(Explain1, 300, 0);
 				hide(Explain2, 300, 0);
 				hide(Explain3, 300, 0);
+				initTable(FDB);
+				initTable(FOF1);
+				initTable(FOF2);
+				initTable(PacketInList);
+				FDBIndex = 1;
+				FOFIndex1 = 1;
+				FOFIndex2 = 1;
 				handleMsg = false;
 			}
 			if( (obj == CP) && (state == "Off") ) didToss = false;
@@ -445,8 +449,8 @@ window.onload = function () {
 					if( content.length > 10 ) content = content.slice(0, content.indexOf(","));
 				}
 			}
-			var font = 26;
-			if( content.length > 17 ) font = Math.floor( (26 * 17) / content.length );
+			var font = 24;
+			if( content.length > 14 ) font = Math.floor( (24 * 14) / content.length );
 			cmd_obj.text.attr({
 				"#text": content,
 				"font-size": font
@@ -454,6 +458,8 @@ window.onload = function () {
 			sendPkt(cmd_obj, src_obj, dst_obj);
 		}
 		var FDBIndex = 1;
+		var FOFIndex1 = 1;
+		var FOFIndex2 = 1;
 		function handleData(line){
 			var type;
 			if( line.indexOf("* Data | [App-Agent] ") != -1 )
@@ -465,25 +471,123 @@ window.onload = function () {
 				show(data_obj, 500);
 				return;
 			}
-			else if( line.indexOf("[Controller DB]") != -1 ){
+			else if( line.indexOf("<Controller>") != -1 ){
+				show(FDB.obj, 500);
+				show(FOF1.obj, 500);
+				show(FOF2.obj, 500);
 				data_obj = FDB;
-				FDBIndex = 1;
-				show(data_obj.obj, 500);
+				if( FDBIndex > 5 ) return;
+				var ID = line.slice(line.indexOf("{id=") + 16, line.indexOf("{id=") + 18 );
+				var IN, SRC, DST;
+				if( line.indexOf("IN_PORT:") == -1 ){
+					IN = "All";
+					SRC = "All";
+					DST = "All";
+				}
+				else{
+					IN = line.slice(line.indexOf("IN_PORT:") + 8, line.indexOf("IN_PORT:") + 9 );
+					SRC = line.slice(line.indexOf("ETH_SRC:") + 23, line.indexOf("ETH_SRC:") + 25 );
+					DST = line.slice(line.indexOf("ETH_DST:") + 23, line.indexOf("ETH_DST") + 25 );
+				}
+				var Action;
+				if( line.indexOf("OUTPUT:") == -1 ) Action = "Drop";
+				else{
+					line = line.slice(line.indexOf("OUTPUT:"), line.length);
+					Action = "FWD " + line.slice(line.indexOf("OUTPUT:") + 7, line.indexOf("]"));
+				}
+				data_obj["text"+ FDBIndex + "1"].attr({"#text": ID});
+				data_obj["text"+ FDBIndex + "2"].attr({"#text": IN});
+				data_obj["text"+ FDBIndex + "3"].attr({"#text": SRC});
+				data_obj["text"+ FDBIndex + "4"].attr({"#text": DST});
+				data_obj["text"+ FDBIndex + "5"].attr({"#text": Action});
+				FDBIndex++;
 				return;
 			}
-			else if( line.indexOf("[Switch 01]") != -1 ){
+			else if( line.indexOf("<Switch 01>") != -1 ){
 				data_obj = FOF1;
-				FDBIndex = 1;
-				show(data_obj.obj, 500);
+				if( FOFIndex1 > 3 ) return;
+				var IN, SRC, DST;
+				if( line.indexOf("in_port=") == -1 ){
+					IN = "All";
+					SRC = "All";
+					DST = "All";
+				}
+				else{
+					IN = line.slice(line.indexOf("in_port=") + 8, line.indexOf("in_port=") + 9 );
+					SRC = line.slice(line.indexOf("eth_src=") + 23, line.indexOf("eth_src=") + 25 );
+					DST = line.slice(line.indexOf("eth_dst=") + 23, line.indexOf("eth_dst=") + 25 );
+				}
+				var Action;
+				if( line.indexOf("(port=") == -1 ) Action = "Drop";
+				else{
+					line = line.slice(line.indexOf("(port="), line.length);
+					Action = "FWD " + line.slice(line.indexOf("(port=") + 6, line.indexOf("," ));
+				}
+				var exist = false;
+				for( var i = 1; i < FOFIndex1; i++ ){
+					exist = true;
+					if( data_obj["text"+ i + "1"].attr("#text") != IN )
+						exist = false;
+					if( data_obj["text"+ i + "2"].attr("#text") != SRC )
+						exist = false;
+					if( data_obj["text"+ i + "3"].attr("#text") != DST )
+						exist = false;
+					if( data_obj["text"+ i + "4"].attr("#text") != Action )
+						exist = false;
+					if( exist ) break;
+				}
+				if( !exist ){
+					data_obj["text"+ FOFIndex1 + "1"].attr({"#text": IN});
+					data_obj["text"+ FOFIndex1 + "2"].attr({"#text": SRC});
+					data_obj["text"+ FOFIndex1 + "3"].attr({"#text": DST});
+					data_obj["text"+ FOFIndex1 + "4"].attr({"#text": Action});
+					FOFIndex1++;
+				}
 				return;
 			}
-			else if( line.indexOf("[Switch 02]") != -1 ){
+			else if( line.indexOf("<Switch 02>") != -1 ){
 				data_obj = FOF2;
-				FDBIndex = 1;
-				show(data_obj.obj, 500);
+				if( FOFIndex2 > 3 ) return;
+				var IN, SRC, DST;
+				if( line.indexOf("in_port=") == -1 ){
+					IN = "All";
+					SRC = "All";
+					DST = "All";
+				}
+				else{
+					IN = line.slice(line.indexOf("in_port=") + 8, line.indexOf("in_port=") + 9 );
+					SRC = line.slice(line.indexOf("eth_src=") + 23, line.indexOf("eth_src=") + 25 );
+					DST = line.slice(line.indexOf("eth_dst=") + 23, line.indexOf("eth_dst=") + 25 );
+				}
+				var Action;
+				if( line.indexOf("(port=") == -1 ) Action = "Drop";
+				else{
+					line = line.slice(line.indexOf("(port="), line.length);
+					Action = "FWD" + line.slice(line.indexOf("(port=") + 6, line.indexOf("," ));
+				}
+				var exist = false;
+				for( var i = 1; i < FOFIndex2; i++ ){
+					exist = true;
+					if( data_obj["text"+ i + "1"].attr("#text") != IN )
+						exist = false;
+					if( data_obj["text"+ i + "2"].attr("#text") != SRC )
+						exist = false;
+					if( data_obj["text"+ i + "3"].attr("#text") != DST )
+						exist = false;
+					if( data_obj["text"+ i + "4"].attr("#text") != Action )
+						exist = false;
+					if( exist ) break;
+				}
+				if( !exist ){
+					data_obj["text"+ FOFIndex2 + "1"].attr({"#text": IN});
+					data_obj["text"+ FOFIndex2 + "2"].attr({"#text": SRC});
+					data_obj["text"+ FOFIndex2 + "3"].attr({"#text": DST});
+					data_obj["text"+ FOFIndex2 + "4"].attr({"#text": Action});
+					FOFIndex2++;
+				}
 				return;
 			}
-			if( FDBIndex > 5 ) FDBIndex = 0; 
+
 			if( (data_obj == PacketInList.obj) ){
 				var cnt = line.charAt( 0 );
 				var app = line.slice( line.indexOf("[") + 1, line.indexOf("]"));
@@ -525,43 +629,6 @@ window.onload = function () {
 					box.animate({"fill": "#808080"},1000);
 				else box.animate({"fill": "#ffffff"},1000);
 				text.attr({"#text": app});
-			}
-			else if( data_obj == FDB ){
-				var SW, ID, IN, SRC, DST, Action;
-				line = line.slice(line.indexOf("SW="), line.length);
-				SW = line.slice( 3, line.indexOf(","));
-				line = line.slice(line.indexOf("ID="), line.length);
-				ID = line.slice( 3, line.indexOf(","));
-				line = line.slice(line.indexOf("IN="), line.length);
-				IN = line.slice( 3, line.indexOf(","));
-				line = line.slice(line.indexOf("SRC="), line.length);
-				SRC = line.slice( 4, line.indexOf(","));
-				line = line.slice(line.indexOf("DST="), line.length);
-				DST = line.slice( 4, line.indexOf(","));
-				Action = line.slice(line.indexOf("Action=") + 8, line.length);
-				if( Action.length == 0 ) Action = "Drop";
-				data_obj["text"+ FDBIndex + "1"].attr({"#text": ID});
-				data_obj["text"+ FDBIndex + "2"].attr({"#text": IN});
-				data_obj["text"+ FDBIndex + "3"].attr({"#text": SRC});
-				data_obj["text"+ FDBIndex + "4"].attr({"#text": DST});
-				data_obj["text"+ FDBIndex + "5"].attr({"#text": Action});
-				FDBIndex++;
-			}
-			else if( (data_obj == FOF1) || (data_obj == FOF2) ){
-				var IN, SRC, DST, Action;
-				line = line.slice(line.indexOf("IN="), line.length);
-				IN = line.slice( 3, line.indexOf(","));
-				line = line.slice(line.indexOf("SRC="), line.length);
-				SRC = line.slice( 4, line.indexOf(","));
-				line = line.slice(line.indexOf("DST="), line.length);
-				DST = line.slice( 4, line.indexOf(","));
-				Action = line.slice(line.indexOf("Action=") + 8, line.length);
-				if( Action.length == 0 ) Action = "Drop";
-				data_obj["text"+ FDBIndex + "1"].attr({"#text": IN});
-				data_obj["text"+ FDBIndex + "2"].attr({"#text": SRC});
-				data_obj["text"+ FDBIndex + "3"].attr({"#text": DST});
-				data_obj["text"+ FDBIndex + "4"].attr({"#text": Action});
-				FDBIndex++;
 			}
 		}
 		function handleAction(line){
@@ -612,6 +679,7 @@ window.onload = function () {
 			var type = "* Result | ";
 			if( line.indexOf("Ping response host unreachable") != -1 ) show(Dead_CP, 500);
 			if( line.indexOf("No response") != -1 ) show(Dead_CP, 500);
+			// TODO: insert log handler here
 		}
 		function setPos(target, dst){
 			target.obj.attr({
@@ -647,6 +715,30 @@ window.onload = function () {
 				obj.animate({opacity: 0}, interval/2, function(){
 					obj.animate({opacity: 1}, interval/2, callback);
 				});
+			}
+		}
+		function initTable(obj){
+			var rowMax, colMax;
+			if( obj == PacketInList ){
+				for( var i = 1; i < 8 ; i++ ) obj["text" + i ].attr({"#text": " "});
+				return;
+			}
+			else{
+				if( obj == FDB ){
+					rowMax = 5;
+					colMax = 5;
+				}
+				else if( (obj == FOF1) || (obj == FOF2) ){
+					rowMax = 3;
+					colMax = 4;
+				}
+				//obj.box0.attr({"#text": " "});
+				for( var i = 1; i < rowMax + 1; i++ ){
+					//obj["box" + i].attr({"#text": " "});
+					for( var j = 1; j < colMax + 1; j++){
+						obj["text" + i + j].attr({"#text": " "});
+					}
+				}
 			}
 		}
 	});

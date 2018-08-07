@@ -1233,11 +1233,12 @@ public class TestAdvancedCase {
      */
     public boolean testInfiniteFlowRuleSynchronization(TestCase test) {
         if (!controllerm.getType().equals("ONOS")) {
-            log.info("ONOS is only possible to replay [" + test.getcasenum() + "] ");
+            log.info("* Test | ONOS is only possible to replay [" + test.getcasenum() + "] ");
             return false;
         }
 
-        log.info("Setup test environment");
+        log.info("* Test | Setup test environment");
+        log.info("* SendPKT | CMD : Manager --> App agent = Setup test environment");
 
         String[] setupCmd = new String[3];
         setupCmd[0] = "sh";
@@ -1258,7 +1259,8 @@ public class TestAdvancedCase {
             e.printStackTrace();
         }
 
-        log.info("Infinite Flow Rule Synchronization Attack");
+        log.info("* Test | Infinite Flow Rule Synchronization Attack");
+        log.info("* SendPKT | CMD : Manager --> App agent = instructions:[port=999999]");
 
         String[] attackCmd = new String[3];
         attackCmd[0] = "sh";
@@ -1273,7 +1275,7 @@ public class TestAdvancedCase {
         log.info("Attack complete");
 
         try {
-            Thread.sleep(30000);
+            Thread.sleep(40000);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -1285,11 +1287,18 @@ public class TestAdvancedCase {
 
         if (result.equals("nothing")) {
             test.setResult(TestCase.TestResult.PASS);
-            log.info("3.1.240, PASS");
+            log.info("* Test | 3.1.240, PASS");
         } else {
             log.info("Inconsistency Flow Rule: " + result);
             test.setResult(TestCase.TestResult.FAIL);
-            log.info("3.1.240, FAIL");
+            log.info("* Test | 3.1.240, FAIL");
+        }
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
 
         //appm.closeSocket();
