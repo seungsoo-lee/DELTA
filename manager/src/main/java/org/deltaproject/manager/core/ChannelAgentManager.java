@@ -1,6 +1,5 @@
 package org.deltaproject.manager.core;
 
-
 import org.deltaproject.manager.utils.AgentLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
