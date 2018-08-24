@@ -5,6 +5,7 @@ from mininet.cli import CLI
 from mininet.net import Mininet
 from mininet.topo import Topo
 from mininet.node import OVSSwitch, Controller, RemoteController
+from mininet.log import setLogLevel, info, debug
 
 def DeltaNetwork():
 #Make topology
@@ -33,6 +34,7 @@ def DeltaNetwork():
         net.stop()
 
 if __name__=='__main__':
+        setLogLevel('debug')
         if len(sys.argv) != 4:
                 print ("Usage: sudo python topo-setup.py <Controller IP> <Controller Port> <OF version>")
                 sys.exit(0)

@@ -69,7 +69,7 @@ public class TestAdvancedCase {
         }
 
         if (host) {
-            hostm.runAgent("test-new-topo.py");
+            hostm.runAgent("test-advanced-topo.py");
         }
 
         try {
@@ -121,6 +121,7 @@ public class TestAdvancedCase {
                 testInternalStorageAbuse(test);
                 break;
             case "3.1.050":
+//                runRemoteAgents(true, true);
                 testSwitchTableFlooding(test);
                 return;
             case "3.1.060":

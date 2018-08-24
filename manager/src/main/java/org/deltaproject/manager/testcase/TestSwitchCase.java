@@ -361,7 +361,7 @@ public class TestSwitchCase {
     }
 
     /*
-     * 1.1.070 - Unsupported Version Numeber
+     * 1.1.070 - Unsupported Version Number
      * Verify that the switch throws an error when it receives a connection
      * setup message with an unsupported version number.
      */
