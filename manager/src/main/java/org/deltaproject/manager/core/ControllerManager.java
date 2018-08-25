@@ -284,7 +284,7 @@ public class ControllerManager {
                 e.printStackTrace();
             }
         }
-		if( cnt > 0 ) log.info("* On/Off | Connection : On");
+//		if( cnt > 0 ) log.info("* On/Off | Connection : On");
         return cnt;
     }
 

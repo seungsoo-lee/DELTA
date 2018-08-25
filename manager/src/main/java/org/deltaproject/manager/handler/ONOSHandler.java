@@ -84,7 +84,7 @@ public class ONOSHandler implements ControllerHandler {
             stdIn.write("log:tail");
 
             isRunning = true;
-            log.info("* On/Off | ONOS : On");
+//            log.info("* On/Off | ONOS : On");
 
             Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep karaf");
             String tempS;
@@ -117,7 +117,7 @@ public class ONOSHandler implements ControllerHandler {
             pc.getInputStream().close();
             pc.getOutputStream().close();
             pc.waitFor();
-			log.info("* On/Off | ONOS : Off");
+//			log.info("* On/Off | ONOS : Off");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

@@ -86,7 +86,7 @@ public class AttackConductor {
                 appm.setAppSocket(socket, dos, dis);
                 dos.writeUTF("OK");
                 dos.flush();
-                log.info("* On/Off | App agent : On");
+//                log.info("* On/Off | App agent : On");
             }
 
             /* ActAgent for OpenDaylight Handler */
@@ -109,13 +109,13 @@ public class AttackConductor {
                         + ",handler:dummy"
                         + ",cbench:" + cfg.getCBENCH_ROOT();
 
-                log.info("* On/Off | Channel agent : On");
+//                log.info("* On/Off | Channel agent : On");
                 channelm.write(config);
             }
 
             if (agentType.contains("HostAgent")) {
                 hostm.setSocket(socket, dos, dis);
-                log.info("* On/Off | Host agent : On");
+//                log.info("* On/Off | Host agent : On");
                 hostm.write("target:" + cfg.getTARGET_HOST());
             }
         } catch (Exception e) {

@@ -161,7 +161,7 @@ public class HostAgentManager extends Thread {
                 socket.close();
                 socket = null;
             }
-			log.info("* On/Off | Host agent : Off");
+//			log.info("* On/Off | Host agent : Off");
         } catch (IOException e) {
             e.printStackTrace();
         }

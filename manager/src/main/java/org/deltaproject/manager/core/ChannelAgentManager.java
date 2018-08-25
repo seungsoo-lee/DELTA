@@ -110,7 +110,7 @@ public class ChannelAgentManager extends Thread {
                 socket.close();
                 socket = null;
             }
-			log.info("* On/Off | Channel agent : Off");
+//			log.info("* On/Off | Channel agent : Off");
         } catch (IOException e) {
             e.printStackTrace();
         }

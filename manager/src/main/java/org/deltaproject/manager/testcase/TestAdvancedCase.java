@@ -58,28 +58,28 @@ public class TestAdvancedCase {
         initController(true);
     }
 
-    // for new cases (3.1.210, 3.1.220, 3.1.230, 3.1.240)
-    public void newRunRemoteAgents(boolean channel, boolean host) {
-        log.info("Run controller/channel/host agents..");
-
-        appm.setTargetController(controllerm.getType());
-
-        if (channel) {
-            channelm.runAgent();
-        }
-
-        if (host) {
-            hostm.runAgent("test-advanced-topo.py");
-        }
-
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        initController(true);
-    }
+//    // for new cases (3.1.210, 3.1.220, 3.1.230, 3.1.240)
+//    public void newRunRemoteAgents(boolean channel, boolean host) {
+//        log.info("Run controller/channel/host agents..");
+//
+//        appm.setTargetController(controllerm.getType());
+//
+//        if (channel) {
+//            channelm.runAgent();
+//        }
+//
+//        if (host) {
+//            hostm.runAgent("test-advanced-topo.py");
+//        }
+//
+//        try {
+//            Thread.sleep(10000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        initController(true);
+//    }
 
     public void stopRemoteAgents() {
         log.info("Stop controller/channel/host agents..");
@@ -187,22 +187,22 @@ public class TestAdvancedCase {
                 runRemoteAgents(false, true);
                 testSwitchFirmwareMisuse(test);
                 break;
-            case "3.1.210":
-                newRunRemoteAgents(false, true);
+            case "3.1.210": //TODO check needed
+                runRemoteAgents(false, true);
                 testPacketInDataForge(test);
                 break;
-            case "3.1.220":
-                newRunRemoteAgents(true, true);
+            case "3.1.220": //TODO check needed
+                runRemoteAgents(true, true);
                 testMalformedFlowRuleGeneration(test);
                 break;
-            case "3.1.230":
+            case "3.1.230": //TODO check needed
                 changeFloodlightProperties("1");
-                newRunRemoteAgents(false, true);
+                runRemoteAgents(false, true);
                 testFlowRuleIDSpoofing(test);
                 changeFloodlightProperties("2");
                 break;
-            case "3.1.240":
-                newRunRemoteAgents(false, true);
+            case "3.1.240": //TODO check needed
+                runRemoteAgents(false, true);
                 testInfiniteFlowRuleSynchronization(test);
                 break;
             case "------ ":          // testControllerOFCase
