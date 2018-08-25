@@ -28,7 +28,7 @@ def DeltaNetwork():
 
     net.start()
 
-    h1.cmd("java -jar $HOME/delta-agent-host-1.0-SNAPSHOT.jar " + sys.argv[3] + " " + sys.argv[4] + " &")
+    h1.cmd("java -jar $HOME/delta-agent-host-1.0-SNAPSHOT.jar " + sys.argv[3] + " " + sys.argv[4])
     CLI(net)
     net.stop()
 

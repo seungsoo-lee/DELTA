@@ -340,7 +340,8 @@ public class TestAdvancedCase {
 
 		/* step 2: conduct the attack */
         appm.write(test.getcasenum());
-        log.info("App-Agent set Packet-In msg drop [" + appm.read() + "]");
+//        log.info("App-Agent set Packet-In msg drop [" + appm.read() + "]");
+        log.info("App-Agent set Packet-In msg drop");
 
         try {
             Thread.sleep(3000);
@@ -358,7 +359,7 @@ public class TestAdvancedCase {
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
 
-        appm.write("getmsg");
+        appm.write("3.1.020|getmsg");
         String appresult = appm.read();
         log.info("Dropped Packet-In: " + appresult);
 
