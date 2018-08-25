@@ -132,6 +132,7 @@ $ ./onos-1.1.0-scp
 ```
 $ cd <DELTA>/tools/dev/app-agent-setup/onos
 $ ./delta-setup-onos <onos-version>
+$ ./delta-scp-onos <onos-version>
 * Supported ONOS version in the script: 1.6, 1.9, 1.13.1
 ```
 > OpenDaylight Oxygen
