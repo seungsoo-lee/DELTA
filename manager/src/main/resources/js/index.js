@@ -176,19 +176,39 @@ $('#targetController').change(function() {
     $('#targetVersion').empty();
     targetController = $('#targetController').val();
     if (targetController == 'ONOS') {
+	$('#targetVersion').append('<option value="1.13.1">1.13.1</option>');
         $('#targetVersion').append('<option value="1.9.0">1.9.0</option>');
         $('#targetVersion').append('<option value="1.6.0">1.6.0</option>');
         $('#targetVersion').append('<option value="1.1.0">1.1.0</option>');
     } else if (targetController == 'OpenDaylight') {
         $('#targetVersion').append('<option value="helium">helium</option>');
         $('#targetVersion').append('<option value="carbon">carbon</option>');
+        $('#targetVersion').append('<option selected value="oxygen-sr2">oxygen-sr2</option>');
     } else if (targetController == 'Floodlight') {
         $('#targetVersion').append('<option value="1.2">1.2</option>');
+	$('#targetVersion').append('<option value="1.1">1.1</option>');
         $('#targetVersion').append('<option value="0.91">0.91</option>');
     } else if (targetController == 'Ryu') {
         $('#targetVersion').append('<option value="4.16">4.16</option>');
     }
     $("#targetVersion").selectpicker("refresh");
+});
+
+$('#topologyType').change(function() {
+    topologyType = $('#topologyType').val();
+    if (topologyType == 'VM') {
+        $('#controllerIp').empty();
+        $('#controllerIp').val("10.0.3.11");
+
+        $('#switchIp').empty();
+        $('#switchIp').val("10.0.3.13,10.0.3.13,10.0.3.13");
+    } else if (topologyType == 'HW') {
+        $('#controllerIp').empty();
+        $('#controllerIp').val("192.168.4.4");
+
+        $('#switchIp').empty();
+        $('#switchIp').val("192.168.4.11,192.168.4.13");
+    }
 });
 
 // send configuration info to the server from UI

@@ -114,6 +114,7 @@ public class Interface extends Thread {
             while (true) {
                 // reads characters encoded with modified UTF-8
                 recv = dis.readUTF();
+				//try{ Thread.sleep(3000); } catch (InterruptedException e){ e.printStackTrace();}
 
                 if (recv.contains("ping")) {
                     dos.writeUTF(ha.executePing(this.targetHost));

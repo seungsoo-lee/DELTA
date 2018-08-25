@@ -117,7 +117,7 @@ public class ResultAnalyzer {
 
     public boolean checkCommunication(String in) {
         if (in.contains("Unreachable")) {
-            log.info("Ping response host unreachable");
+            log.info("* Result | Ping response host unreachable");
         } else if (in.contains("100%")) {
             log.info("100% Packet loss");
         } else {

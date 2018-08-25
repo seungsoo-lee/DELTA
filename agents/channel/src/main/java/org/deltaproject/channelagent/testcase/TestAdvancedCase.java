@@ -21,6 +21,8 @@ import org.projectfloodlight.openflow.types.U16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +46,6 @@ public class TestAdvancedCase {
 
     public ByteBuf getByteBuf(Packet p_temp) {
         byte[] rawMsg = p_temp.getRawData();
-
         return Unpooled.wrappedBuffer(rawMsg);
     }
 
@@ -165,10 +166,11 @@ public class TestAdvancedCase {
     }
 
     public boolean testEvaseDrop(TopoInfo nodes, Packet p_temp) throws OFParseError {
-        ByteBuf bb = getByteBuf(p_temp);
+        ByteBuf bb = getByteBuf(p_temp.get(TcpPacket.class).getPayload());
 
         int totalLen = bb.readableBytes();
         int offset = bb.readerIndex();
+
         EthernetPacket p_eth = null;
         EthernetPacket.EthernetHeader p_eth_h = null;
         IpV4Packet ipv4Packet = null;
@@ -213,7 +215,7 @@ public class TestAdvancedCase {
 
             if (version != this.ofversion) {
                 // segmented TCP pkt
-                // log.info("OFVersion Missing " + offset + ":" + totalLen);
+                log.info("OFVersion Missing " + offset + ":" + totalLen);
                 return false;
             }
 

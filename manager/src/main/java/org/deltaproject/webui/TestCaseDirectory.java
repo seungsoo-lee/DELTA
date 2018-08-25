@@ -131,7 +131,10 @@ public class TestCaseDirectory {
         directory.put("2.1.073",
                 new TestCase(CONTROL_PLANE_OF, "2.1.073", "Handling Control Packet Modification")); */
 
-
+        directory.put("3.1.001",
+                new TestCase(ADVANCED, "3.1.001", "Flow Rule Inconsistency test (App Name)", "Test for controller-Switch inconsistency due to app name"));
+        directory.put("3.1.002",
+                new TestCase(ADVANCED, "3.1.002", "Flow Rule Inconsistency test (Output Port)", "Test for controller-Switch inconsistency due to output port"));
         directory.put("3.1.010",
                 new TestCase(ADVANCED, "3.1.010", "Packet-In Flooding", "Test for controller protection against " +
                         "Packet-In Flooding"));
@@ -191,7 +194,18 @@ public class TestCaseDirectory {
         directory.put("3.1.200",
                 new TestCase(ADVANCED, "3.1.200", "Switch Firmware Abuse", "Test for switch protection against " +
                         "application installing unsupported flow rules"));
-
+        directory.put("3.1.210",
+                new TestCase(ADVANCED, "3.1.210", "Packet-In Data Forge", "Test for controller protection against " +
+                        "Packet_In data forge attack"));
+        directory.put("3.1.220",
+                new TestCase(ADVANCED, "3.1.220", "Malformed Flow Rule Generation", "Test for controller protection against " +
+                        "Malformed Flow Rule Generation attack"));
+        directory.put("3.1.230",
+                new TestCase(ADVANCED, "3.1.230", "Flow Rule ID Spoofing", "Test for controller protection against " +
+                        "Flow Rule ID Spoofing attack"));
+        directory.put("3.1.240",
+                new TestCase(ADVANCED, "3.1.240", "Infinite Flow Rule Synchronization", "Test for controller protection against " +
+                        "Infinite Flow Rule Synchronization attack"));
         //directory.put("0.0.011",
         //        new TestCase(FUZZING, "0.0.010", "Control Plane Fuzzing Test", "Finding unknown attack case for
         // control plane"));

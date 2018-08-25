@@ -5,7 +5,7 @@ onos_version=${1}
 # Prints usage help
 function usage {
     echo "Usage: delta-setup-onos <onos-version>" >&2
-    echo "* supported ONOS version: 1.6, 1.9" >&2
+    echo "* supported ONOS version: 1.6, 1.9, 1.13.1" >&2
     exit 1
 }
 
@@ -30,19 +30,20 @@ case $onos_version in
         onos_version=1.9.0
         karaf_version=3.0.8
         ;;
+    1.13|1.13.1)
+        echo "Starting ONOS 1.13.1 on AppAgent..."
+        onos_version=1.13.1
+        ;;
     *) usage;;
 esac
 
 # get ONOS
-ssh $DELTA_APP "
+ssh $DELTA_CP "
     sudo apt-get install unzip -y
-    wget http://downloads.onosproject.org/release/onos-$onos_version.zip
+    wget http://repo1.maven.org/maven2/org/onosproject/onos-releases/$onos_version/onos-$onos_version.zip
     unzip onos-$onos_version.zip
     rm onos-$onos_version.zip
 "
-scp $DELTA_ROOT/agents/apps/onos/onos-$onos_version/target/delta-agent-app-onos-$onos_version-1.0-SNAPSHOT.jar $DELTA_APP:~
-# copy delta app agent
-ssh $DELTA_APP cp delta-agent-app-onos-$onos_version-1.0-SNAPSHOT.jar onos-$onos_version/apache-karaf-$karaf_version/deploy/
 
 status=$?
 echo # new line for prompt

@@ -8,8 +8,11 @@ import org.deltaproject.webui.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.*;
 import java.lang.reflect.Field;
+
+import static org.deltaproject.webui.TestCase.TestResult.FAIL;
+import static org.deltaproject.webui.TestCase.TestResult.PASS;
 
 public class TestAdvancedCase {
     private static final Logger log = LoggerFactory.getLogger(TestAdvancedCase.class.getName());
@@ -20,6 +23,7 @@ public class TestAdvancedCase {
     private HostAgentManager hostm;
     private ChannelAgentManager channelm;
     private ControllerManager controllerm;
+    private String targetIP;
 
     private ResultAnalyzer analyzer;
 
@@ -29,6 +33,7 @@ public class TestAdvancedCase {
         this.channelm = cm;
         this.controllerm = ctm;
         this.analyzer = new ResultAnalyzer(controllerm, appm);
+        this.targetIP = cfg.getCONTROLLER_IP();
     }
 
     public void runRemoteAgents(boolean channel, boolean host) {
@@ -53,6 +58,29 @@ public class TestAdvancedCase {
         initController(true);
     }
 
+//    // for new cases (3.1.210, 3.1.220, 3.1.230, 3.1.240)
+//    public void newRunRemoteAgents(boolean channel, boolean host) {
+//        log.info("Run controller/channel/host agents..");
+//
+//        appm.setTargetController(controllerm.getType());
+//
+//        if (channel) {
+//            channelm.runAgent();
+//        }
+//
+//        if (host) {
+//            hostm.runAgent("test-advanced-topo.py");
+//        }
+//
+//        try {
+//            Thread.sleep(10000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        initController(true);
+//    }
+
     public void stopRemoteAgents() {
         log.info("Stop controller/channel/host agents..");
         controllerm.killController();
@@ -68,6 +96,14 @@ public class TestAdvancedCase {
 
     public void replayKnownAttack(TestCase test) {
         switch (test.getcasenum()) {
+            case "3.1.001":
+            case "3.1.002":
+            case "3.1.003":
+            case "3.1.004":
+            case "3.1.005":
+                runRemoteAgents(false, true);
+                testInconsistency(test);
+                break;
             case "3.1.010":
                 runRemoteAgents(true, true);
                 testPacketInFlooding(test);
@@ -85,7 +121,8 @@ public class TestAdvancedCase {
                 testInternalStorageAbuse(test);
                 break;
             case "3.1.050":
-                 testSwitchTableFlooding(test);
+//                runRemoteAgents(true, true);
+                testSwitchTableFlooding(test);
                 return;
             case "3.1.060":
                 runRemoteAgents(true, true);
@@ -150,12 +187,45 @@ public class TestAdvancedCase {
                 runRemoteAgents(false, true);
                 testSwitchFirmwareMisuse(test);
                 break;
+            case "3.1.210": //TODO check needed
+                runRemoteAgents(false, true);
+                testPacketInDataForge(test);
+                break;
+            case "3.1.220": //TODO check needed
+                runRemoteAgents(true, true);
+                testMalformedFlowRuleGeneration(test);
+                break;
+            case "3.1.230": //TODO check needed
+                changeFloodlightProperties("1");
+                runRemoteAgents(false, true);
+                testFlowRuleIDSpoofing(test);
+                changeFloodlightProperties("2");
+                break;
+            case "3.1.240": //TODO check needed
+                runRemoteAgents(false, true);
+                testInfiniteFlowRuleSynchronization(test);
+                break;
             case "------ ":          // testControllerOFCase
                 testControlMessageManipulation(test);
                 break;
         }
 
         stopRemoteAgents();
+    }
+
+    private void changeFloodlightProperties(String num) {
+        Process proc = null;
+        String[] cmdArray = null;
+        try {
+            cmdArray = new String[]{System.getenv("DELTA_ROOT") +
+                "/tools/dev/app-agent-setup/floodlight/floodlight-1.2-case3-scp", num};
+
+            ProcessBuilder pb = new ProcessBuilder(cmdArray);
+            pb.redirectErrorStream(true);
+            proc = pb.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void initController(boolean switchWait) {
@@ -189,8 +259,31 @@ public class TestAdvancedCase {
     }
 
     /*
-     * 3.1.010 - Packet-In Flooding
+     * 3.1.001-005 - Inconsistency check
      */
+    public boolean testInconsistency(TestCase test) {
+        appm.write(test.getcasenum());
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        String result = appm.read();
+        if (result.equals("success"))
+            test.setResult(PASS);
+        else if (result.equals("fail"))
+            test.setResult(FAIL);
+        else System.out.println(result);
+        return true;
+    }
+
+
+    /*
+ * 3.1.010 - Packet-In Flooding
+ */
     public boolean testPacketInFlooding(TestCase test) {
 //        //log.info(test.getcasenum() + " - Packet-In Flooding - Test for controller protection against Packet-In Flooding");
 
@@ -247,7 +340,8 @@ public class TestAdvancedCase {
 
 		/* step 2: conduct the attack */
         appm.write(test.getcasenum());
-        log.info("App-Agent set Packet-In msg drop [" + appm.read() + "]");
+//        log.info("App-Agent set Packet-In msg drop [" + appm.read() + "]");
+        log.info("App-Agent set Packet-In msg drop");
 
         try {
             Thread.sleep(3000);
@@ -265,7 +359,7 @@ public class TestAdvancedCase {
         ResultInfo result = new ResultInfo();
         result.addType(ResultInfo.COMMUNICATON);
 
-        appm.write("getmsg");
+        appm.write("3.1.020|getmsg");
         String appresult = appm.read();
         log.info("Dropped Packet-In: " + appresult);
 
@@ -461,7 +555,7 @@ public class TestAdvancedCase {
         ResultInfo result = new ResultInfo();
 
         log.info("Agent-Manager retrieves result from App-Agent and Host-Agent");
-		/* step 4: decide if the attack is feasible */
+        /* step 4: decide if the attack is feasible */
         result.addType(ResultInfo.APPAGENT_REPLY);
         result.addType(ResultInfo.COMMUNICATON);
         result.setLatency(null, after);
@@ -952,6 +1046,264 @@ public class TestAdvancedCase {
         //appm.closeSocket();
         controllerm.killController();
 
+        return true;
+    }
+
+    /*
+     * 3.1.210 - Packet-In Data Forge
+     */
+    public boolean testPacketInDataForge(TestCase test) {
+		log.info("* Test | The AM instructs the app agent to randomize the sequence of the packet-In subscription list");
+        if (!controllerm.getType().equals("Floodlight")) {
+            log.info("* Test | Floodlight is only possible to replay [" + test.getcasenum() + "] ");
+            return false;
+        }
+
+/*        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+*/
+        log.info("App-Agent starts");
+        appm.write(test.getcasenum());
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        log.info("* Test | Host-Agent sends packets to others");
+        String flowResult = generateFlow("ping");
+
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        ResultInfo result = new ResultInfo();
+        result.addType(ResultInfo.COMMUNICATON);
+        result.setLatency(null, flowResult);
+        analyzer.checkResult(test, result);
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+        //appm.closeSocket();
+        return true;
+    }
+
+    /*
+     * 3.1.220 - Malformed Flow Rule Generation (case 2)
+     */
+    public boolean testMalformedFlowRuleGeneration(TestCase test) {
+        try {
+
+            if (!controllerm.getType().equals("OpenDaylight")) {
+                log.info("* Test | OpenDaylight is only possible to replay [" + test.getcasenum() + "] ");
+                return false;
+            }
+
+            log.info("App-Agent starts");
+            Thread.sleep(10000);
+
+            log.info("[Attack] Install malformed rules in configurational data store from OpenDaylight");
+            appm.write(test.getcasenum());
+            String appResult = appm.read();
+//            log.info(result);
+
+            Thread.sleep(10000);
+
+            log.info("Instruct Channel Agent to interrupt control channel temporarily");
+            channelm.write(test.getcasenum());
+
+            Thread.sleep(20000);
+
+            log.info("Host-Agent sends packets to others");
+            String flowResult = generateFlow("ping");
+
+            ResultInfo result = new ResultInfo();
+            result.addType(ResultInfo.COMMUNICATON);
+            result.setLatency(null, flowResult);
+
+            analyzer.checkResult(test, result);
+
+//            log.info("[Restore] Remove the malformed rules in configurational data store from OpenDaylight");
+//            appm.write(test.getcasenum() + "|remove");
+//            appResult = appm.read();
+//            log.info(appResult);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return true;
+    }
+
+
+    /*
+     * 3.1.230 - Flow Rule ID Spoofing (case 3)
+     */
+    public boolean testFlowRuleIDSpoofing(TestCase test) {
+        if (!controllerm.getType().equals("Floodlight")) {
+            log.info("* Test | Floodlight is only possible to replay [" + test.getcasenum() + "] ");
+            return false;
+        }
+        log.info("* Test | The AM instructs the app agent to install default flow rules");
+		log.info("* SendPKT | CMD : Manager --> App agent = Install default flow rules");
+
+        String[] setupCmd = new String[3];
+        setupCmd[0] = "sh";
+        setupCmd[1] = System.getenv("DELTA_ROOT") + "/tools/util/blackhat/case3/setup.sh";
+        setupCmd[2] = targetIP;
+        try {
+            Process p = Runtime.getRuntime().exec(setupCmd);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        log.info("* Test | The AM instructs the app agent to install a flow rule with spoofed flow ID");
+		log.info("* SendPKT | CMD : Manager --> App agent = Install spoofed flow ID");
+
+        String[] attackCmd = new String[3];
+        attackCmd[0] = "sh";
+        attackCmd[1] = System.getenv("DELTA_ROOT") + "/tools/util/blackhat/case3/attack.sh";
+        attackCmd[2] = targetIP;
+
+        try {
+            Process p = Runtime.getRuntime().exec(attackCmd);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Thread.sleep(15000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        log.info("Check inconsistency between the controller and switches");
+
+        appm.write(test.getcasenum());
+
+        String resultStr = appm.read();
+        if (!resultStr.equals("nothing")) {
+            log.info("Inconsistency Flow Rule: " + resultStr);
+        }
+
+        log.info("Host-Agent sends packets to others");
+        String flowResult = generateFlow("ping");
+
+        try {
+            Thread.sleep(15000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        ResultInfo result = new ResultInfo();
+        result.addType(ResultInfo.COMMUNICATON);
+        result.setLatency(null, flowResult);
+        analyzer.checkResult(test, result);
+        //appm.closeSocket();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    /*
+     * 3.1.240 - Infinite Flow Rule Synchronization (case 4)
+     */
+    public boolean testInfiniteFlowRuleSynchronization(TestCase test) {
+        if (!controllerm.getType().equals("ONOS")) {
+            log.info("* Test | ONOS is only possible to replay [" + test.getcasenum() + "] ");
+            return false;
+        }
+
+        log.info("* Test | Setup test environment");
+        log.info("* SendPKT | CMD : Manager --> App agent = Setup test environment");
+
+        String[] setupCmd = new String[3];
+        setupCmd[0] = "sh";
+        setupCmd[1] = System.getenv("DELTA_ROOT") + "/tools/util/blackhat/case4/setup.sh";
+        setupCmd[2] = targetIP;
+        try {
+            Process p = Runtime.getRuntime().exec(setupCmd);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        log.info("Setup complete");
+
+        try {
+            Thread.sleep(15000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        log.info("* Test | Infinite Flow Rule Synchronization Attack");
+        log.info("* SendPKT | CMD : Manager --> App agent = instructions:[port=999999]");
+
+        String[] attackCmd = new String[3];
+        attackCmd[0] = "sh";
+        attackCmd[1] = System.getenv("DELTA_ROOT") + "/tools/util/blackhat/case4/attack.sh";
+        attackCmd[2] = targetIP;
+        try {
+            Process p = Runtime.getRuntime().exec(attackCmd);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        log.info("Attack complete");
+
+        try {
+            Thread.sleep(40000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        appm.write(test.getcasenum());
+
+        String result = appm.read();
+
+        if (result.equals("nothing")) {
+            test.setResult(TestCase.TestResult.PASS);
+            log.info("* Test | 3.1.240, PASS");
+        } else {
+            log.info("Inconsistency Flow Rule: " + result);
+            test.setResult(TestCase.TestResult.FAIL);
+            log.info("* Test | 3.1.240, FAIL");
+        }
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        //appm.closeSocket();
         return true;
     }
 

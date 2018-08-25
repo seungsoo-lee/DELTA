@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import org.deltaproject.channelagent.core.Configuration;
 import org.deltaproject.channelagent.dummy.DummyController;
 import org.deltaproject.channelagent.dummy.DummySwitch;
 import org.projectfloodlight.openflow.protocol.*;
@@ -51,10 +52,10 @@ public class TestSwitchCase {
     private int ofport;
     private long r_xid = 0xeeeeeeeel;
 
-    public TestSwitchCase(String ip, byte ver, String port) {
-        targetIP = ip;
-        targetPORT = port;
-        targetOFVersion = ver;
+    public TestSwitchCase() {
+        targetIP = Configuration.getInstance().getSwitchIp();
+        targetPORT = Configuration.getInstance().getOfPort();
+        targetOFVersion = Configuration.getInstance().getOfVersion();
 
         random = new Random();
 
@@ -63,7 +64,7 @@ public class TestSwitchCase {
         else if (targetOFVersion == 4)
             defaultFactory = OFFactories.getFactory(OFVersion.OF_13);
 
-        ofport = Integer.parseInt(port);
+        ofport = Integer.parseInt(targetPORT);
     }
 
     public void runDummyController(int type) {
@@ -394,7 +395,7 @@ public class TestSwitchCase {
 
         String result = "";
         OFPortMod request = defaultFactory.buildPortMod().setXid(r_xid).setPortNo(OFPort.of(1))
-                .setConfig(new HashSet<>(Arrays.asList(OFPortConfig.NO_STP))).build();
+                .setConfig(new HashSet<>(Arrays.asList(OFPortConfig.PORT_DOWN))).build();
         ByteBuf buf = PooledByteBufAllocator.DEFAULT.directBuffer(1024);
         request.writeTo(buf);
 
@@ -609,31 +610,31 @@ public class TestSwitchCase {
 
         Thread.sleep(2000);
 
-        ArrayList<OFTableFeaturePropType> receivedList = new ArrayList();
+//        ArrayList<OFTableFeaturePropType> receivedList = new ArrayList();
 
-        OFTableFeaturesStatsReply response = (OFTableFeaturesStatsReply) dummyController.getResponse();
-        OFTableFeatures ofTableFeatures = response.getEntries().get(0);
-        for (OFTableFeatureProp oFTableFeatureProp : ofTableFeatures.getProperties()) {
-            int type = oFTableFeatureProp.getType();
-            OFTableFeaturePropType ofTableFeaturePropType = OFTableFeaturePropType.values()[type];
-            receivedList.add(ofTableFeaturePropType);
-        }
-
-        OFTableFeaturePropType seletedType = null;
-        List<OFTableFeaturePropType> originalList = Arrays.asList(OFTableFeaturePropType.values());
-        for (OFTableFeaturePropType type : originalList) {
-            if (!receivedList.contains(type)) {
-                seletedType = type;
-                break;
-            }
-        }
+        OFMessage response = dummyController.getResponse();
+//        OFTableFeatures ofTableFeatures = response.getEntries().get(0);
+//        for (OFTableFeatureProp oFTableFeatureProp : ofTableFeatures.getProperties()) {
+//            int type = oFTableFeatureProp.getType();
+//            OFTableFeaturePropType ofTableFeaturePropType = OFTableFeaturePropType.values()[type];
+//            receivedList.add(ofTableFeaturePropType);
+//        }
+//
+//        OFTableFeaturePropType seletedType = null;
+//        List<OFTableFeaturePropType> originalList = Arrays.asList(OFTableFeaturePropType.values());
+//        for (OFTableFeaturePropType type : originalList) {
+//            if (!receivedList.contains(type)) {
+//                seletedType = type;
+//                break;
+//            }
+//        }
 
         log.info("[Channel Agent] Send msg :" + request.toString());
 
         String result = "";
         result += request.toString();
         if (response != null) {
-            result += "\n" + response.toString();
+            result += "\n" + response.getType().toString();
         } else {
             result += "\nnull";
         }

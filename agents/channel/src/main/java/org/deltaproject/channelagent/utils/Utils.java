@@ -360,10 +360,6 @@ public class Utils {
         ip1 = parseIPString(ip_str1);
         ip2 = parseIPString(ip_str2);
 
-        // System.out.println(Integer.toBinaryString(ip1));
-        // System.out.println(Integer.toBinaryString(ip2));
-        // System.out.println(Integer.toBinaryString(subnet));
-
         ip1 &= subnet;
         ip2 &= subnet;
 
@@ -386,15 +382,6 @@ public class Utils {
         return (port_int2 == (port_int1 & port_int2)) ? true : false;
     }
 
-    /*
-     * public static int bytesIndexOf(byte[] outer, byte[] inner) { String
-     * bigStr = new String(outer); String smallStr = new String(inner);
-     *
-     *
-     * return bigStr.indexOf(smallStr);
-     *
-     * }
-     */
     public static int bytesIndexOf(byte[] largeArray, byte[] subArray) {
 
         /* If any of the arrays is empty then not found */
@@ -446,28 +433,6 @@ public class Utils {
         }
         return ret;
     }
-
-//    public static NetworkInterfaceAddress __get_inet4(NetworkInterface device) throws NullPointerException {
-//        if (device == null)
-//            throw new NullPointerException("No device has been given! potato");
-//
-//        for (NetworkInterfaceAddress addr : device.addresses)
-//            if (addr.address instanceof Inet4Address)
-//                return addr;
-//
-//        return null;
-//    }
-
-//    public static String bytesToHex(byte[] bytes) {
-//        char[] hexArray = "0123456789ABCDEF".toCharArray();
-//        char[] hexChars = new char[bytes.length * 2];
-//        for (int j = 0; j < bytes.length; j++) {
-//            int v = bytes[j] & 0xFF;
-//            hexChars[j * 2] = hexArray[v >>> 4];
-//            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-//        }
-//        return new String(hexChars);
-//    }
 
     public static byte[] calculate_mac(String mac) {
         String[] macAddressParts = mac.split(":");

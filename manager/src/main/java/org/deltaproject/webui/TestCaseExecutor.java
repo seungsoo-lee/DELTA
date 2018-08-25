@@ -33,7 +33,7 @@ public class TestCaseExecutor extends Thread {
 
                 // apply configuration from Web UI
                 TestCase test = queue.getNext();
-                log.info(test.getcasenum() + " - " + test.getName() + " - " + test.getDesc());
+                //log.info(test.getcasenum() + " - " + test.getName() + " - " + test.getDesc());
                 conductor.refreshConfig(test.getConfiguration());
                 try {
                     queue.setRunningTestCase(test);

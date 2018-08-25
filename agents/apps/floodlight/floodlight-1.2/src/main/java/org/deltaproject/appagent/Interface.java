@@ -90,11 +90,11 @@ public class Interface extends Thread {
     public void replayingKnownAttack(String recv) throws IOException {
         String result = "";
 
-        if (recv.equals("3.1.020")) {
+        if (recv.contains("3.1.020")) {
             app.setControlMessageDrop();
             dos.writeUTF("OK");
             dos.flush();
-        } else if (recv.equals("getmsg")) {
+        } else if (recv.contains("getmsg")) {
             result = app.testControlMessageDrop();
             dos.writeUTF(result);
         } else if (recv.equals("3.1.030")) {
@@ -144,6 +144,13 @@ public class Interface extends Thread {
                 long ruleId = Long.parseLong(recv.split("\\|")[2]);
                 result = app.sendUnFlaggedFlowRemoveMsg("check", ruleId);
             }
+            dos.writeUTF(result);
+        } else if (recv.contains("3.1.210")) {
+            app.testSwappingList();
+            //app.onRemovedPayload();
+            return;
+        } else if (recv.contains("3.1.230")) {
+            result = app.testFlowRuleIDSpoofing();
             dos.writeUTF(result);
         } else if (recv.contains("echo")) {
             dos.writeUTF("echo");
