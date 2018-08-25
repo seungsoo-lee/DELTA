@@ -45,7 +45,9 @@ public class ONOSHandler implements ControllerHandler {
 
 
         try {
-            if (this.version.contains("1.1")) {
+            if (this.version.contains("1.13")) {
+                cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.13.1"};
+            } else if (this.version.contains("1.1")) {
                 cmdArray = new String[]{"ssh", sshAddr, onos1_1, "clean"};
             } else if (this.version.contains("1.6")) {
                 cmdArray = new String[]{System.getenv("DELTA_ROOT") + "/tools/dev/app-agent-setup/onos/delta-run-onos", "1.6"};
@@ -82,7 +84,7 @@ public class ONOSHandler implements ControllerHandler {
             stdIn.write("log:tail");
 
             isRunning = true;
-            log.info("ONOS is activated");
+//            log.info("* On/Off | ONOS : On");
 
             Process temp = Runtime.getRuntime().exec("ssh " + sshAddr + " sudo ps -ef | grep karaf");
             String tempS;
@@ -115,6 +117,7 @@ public class ONOSHandler implements ControllerHandler {
             pc.getInputStream().close();
             pc.getOutputStream().close();
             pc.waitFor();
+//			log.info("* On/Off | ONOS : Off");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

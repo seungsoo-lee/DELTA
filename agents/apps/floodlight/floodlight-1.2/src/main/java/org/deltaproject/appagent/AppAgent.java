@@ -56,7 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
+import java.io.*;
 
 public class AppAgent implements IFloodlightModule, IOFMessageListener {
     class CPU extends Thread {
@@ -186,7 +186,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
             throws FloodlightModuleException {
         // TODO Auto-generated method stub
         floodlightProvider.addOFMessageListener(OFType.PACKET_IN, this);
-
+        //testSwappingList();
         /*
         floodlightProvider.addOFMessageListener(OFType.FLOW_REMOVED, this);
         floodlightProvider.addOFMessageListener(OFType.ERROR, this);
@@ -240,6 +240,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
                 } else if (isLoop) {
                     this.testInfiniteLoop();
                 } else if (isRemovedPayload) {
+                    System.out.println("[Agent-Manager] Start Packet-In Forge Attack");
                     IFloodlightProviderService.bcStore.remove(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
                 }
 
@@ -767,6 +768,129 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         }
 
         isRemovedPayload = true;
+    }
+
+    public void onRemovedPayload() {
+        isRemovedPayload = true;
+    }
+
+    public String testFlowRuleIDSpoofing() {
+        String isInconsistency = "nothing";
+        List<IOFSwitch> switches = new ArrayList<IOFSwitch>();
+
+        for (DatapathId sw : switchService.getAllSwitchDpids()) {
+            switches.add(switchService.getSwitch(sw));
+            Map<String, OFFlowMod> tempMap = fservice.getFlows(sw);
+            for (String mapKey : tempMap.keySet()) {
+                if (mapKey.equals("A1")) {
+                    System.out.println("<Spoofed Rule> " + mapKey + ": " + tempMap.get(mapKey));
+                }
+            }
+        }
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("\n===================== [Controller DB] ======================");
+				String in, action;
+        for (DatapathId sw : switchService.getAllSwitchDpids()) {
+            int flowRuleCount = 1;
+            switches.add(switchService.getSwitch(sw));
+            Map<String, OFFlowMod> tempMap = fservice.getFlows(sw);
+            System.out.println("-------------------------");
+            System.out.println("[Switch] " + sw);
+            for (String mapKey : tempMap.keySet()) {
+				flowRuleCount++;
+				System.out.println("<" + mapKey + "> " + tempMap.get(mapKey));
+				String FlowMod = tempMap.get(mapKey).toString();
+				FlowMod = FlowMod.replace("in_port=", "IN_PORT:");
+				FlowMod = FlowMod.replace("eth_src=", "ETH_SRC:");
+				FlowMod = FlowMod.replace("eth_dst=", "ETH_DST:");
+				action=FlowMod.substring(FlowMod.indexOf("instructions=[")+14, FlowMod.length());
+				action = action.substring(0, action.indexOf("]"));
+				if( action.length() == 0 )
+					action = "Drop";
+				else{
+					action = FlowMod.substring(FlowMod.indexOf("(port=") + 6, FlowMod.length() );
+					action = "[OUTPUT:" + action.substring(0, action.indexOf(",")) + "]";
+				}
+				System.out.println("* Data | <Controller> {id=000000000000" + mapKey + "}, " + FlowMod + ", " + action );
+            }
+            System.out.println("-------------------------");
+            System.out.println("[Result] " + sw + " FlowRuleCount: [ " + flowRuleCount + " ]");
+            System.out.println("-------------------------\n");
+        }
+        System.out.println("==========================================================\n\n");
+
+        System.out.println("\n===================== [Switch DB] ======================");
+        for (IOFSwitch sw : switches) {
+            int flowRuleCount = 0;
+            Map<String, OFFlowMod> controllerTable = fservice.getFlows(sw.getId());
+            List<OFStatsReply> flowTable = getSwitchStatistics(sw, OFStatsType.FLOW);
+			String swId = sw.getId().toString();
+            System.out.println("* Data | [Switch " + swId.substring(swId.length()-2, swId.length()) + "]");
+
+            if (flowTable != null) {
+                for (OFStatsReply flow : flowTable) {
+                    OFFlowStatsReply fsr = (OFFlowStatsReply) flow;
+                    List<OFFlowStatsEntry> entries = fsr.getEntries();
+
+                    if (entries != null) {
+                        for (OFFlowStatsEntry e : entries) {
+                            if (!e.toString().contains("controller")) {
+                                flowRuleCount++;
+								String Flow = e.toString();
+								if( Flow.indexOf("instructions=[") + 14 == Flow.length())
+									action = "Drop";
+								else{
+									action = Flow.substring(Flow.indexOf("(port=") + 6, Flow.length() );
+									action = "(port=" + action.substring(0, action.indexOf(","));
+								}
+								System.out.println("<FlowRule> " + e.toString());
+								System.out.println("* Data | <Switch " + swId.substring(swId.length()-2, swId.length()) + "> " + Flow + action);
+                            } else {
+                                flowRuleCount++;
+                            }
+                        }
+                    }
+                }
+            } else {
+                continue;
+            }
+//            System.out.println("-------------------------");
+//            System.out.println("[Result] " + sw + " FlowRuleCount: [ " + flowRuleCount + " ]");
+//            System.out.println("\n==========================================================\n");
+
+
+            for (String mapKey : controllerTable.keySet()) {
+                boolean found = false;
+                OFFlowMod tempFlowRule = controllerTable.get(mapKey);
+
+                for (OFStatsReply flow : flowTable) {
+                    OFFlowStatsReply fsr = (OFFlowStatsReply) flow;
+                    List<OFFlowStatsEntry> entries = fsr.getEntries();
+
+                    if (entries != null) {
+                        for (OFFlowStatsEntry e : entries) {
+                            if (!tempFlowRule.getCookie().equals(e.getCookie())) {
+                                continue;
+                            }
+                            found = true;
+                            break;
+                        }
+
+                    }
+                }
+
+                if (!found) {
+                    isInconsistency = tempFlowRule.toString();
+                }
+            }
+        }
+        return isInconsistency;
     }
 
     @Override

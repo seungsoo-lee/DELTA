@@ -98,9 +98,9 @@ body.application .return-link:hover,
 }
 
 .fill {
-  height: 290px;
+  height: 400px;
   width: 98%;
-  overflow-y: scroll;
+  overflow-y: visible;
   resize: none;
 }
 
@@ -110,6 +110,7 @@ textarea {
   white-space: pre-wrap;
   padding: .5em;
   font-family: "Consolas", "Ubuntu Mono", "Monaco", monospace;
+  font-size: small;
   color: white;
 }
 

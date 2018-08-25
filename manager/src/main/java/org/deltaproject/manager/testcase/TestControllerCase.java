@@ -128,6 +128,11 @@ public class TestControllerCase {
 
         log.info("Dummy switch starts");
         chm.write("startsw");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+		}
 
         if (chm.read().contains("switchok"))
             chm.write(test.getcasenum());
@@ -142,6 +147,12 @@ public class TestControllerCase {
             test.setResult(PASS);
         else
             test.setResult(FAIL);
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+		}
 
         cm.killController();
     }
@@ -189,7 +200,7 @@ public class TestControllerCase {
         log.info(info);
 
         initController();
-        chm.write("2.1.030|nohello");
+        chm.write(test.getcasenum());
 
         log.info("Dummy switch dosen't send hello message");
 
@@ -303,18 +314,17 @@ public class TestControllerCase {
         }
 
         am.write(test.getcasenum() + "|install");
-        long flowId = Integer.parseInt(am.read().split("\\|")[1]);
-        log.info("App-agent sends msg " + am.read() + " with un-flagged removed");
+        String flowId = am.read().split("\\|")[1];
 
         try {
-            Thread.sleep(10000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         chm.write(test.getcasenum());
-        String response = chm.read();
+        String chmessage = chm.read();
 
-        if (response.equals("nothing")) {
+        if (chmessage.equals("nothing")) {
             test.setResult(FAIL);
             cm.killController();
 
@@ -322,13 +332,20 @@ public class TestControllerCase {
         }
 
         am.write(test.getcasenum() + "|check|" + flowId);
-        log.info("App-agent sends msg " + am.read() + " with un-flagged removed");
+        String response = am.read();
+        log.info("App-agent sends msg " + response + " with un-flagged removed");
 
-        String[] split = StringUtils.split(response, "\n");
-        log.info(split[0]);
-        log.info(split[1]);
+//        String[] split = StringUtils.split(response, "\n");
+//        log.info(split[0]);
+//        log.info(split[1]);
+//
+//        if (split[1].contains("PASS"))
+//            test.setResult(PASS);
+//        else
+//            test.setResult(FAIL);
 
-        if (split[1].contains("PASS"))
+        if (response.contains("fail"))
+            /* atack fail */
             test.setResult(PASS);
         else
             test.setResult(FAIL);

@@ -21,8 +21,9 @@ public class PktHandler {
 
 	public String executePing(String destIP) {
 		try {
-			System.out.println("[Host-Agent] ping " + destIP + " -c 3");
-			process = Runtime.getRuntime().exec("ping " + destIP + " -c 3");
+			System.out.println("[Host-Agent] ping " + destIP + " -c 1");
+			System.out.println("* SendPKT | PKT : Host agent --> OF1 = ping");
+			process = Runtime.getRuntime().exec("ping " + destIP + " -c 1");
 
 			stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
 

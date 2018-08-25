@@ -17,6 +17,7 @@
         <module>onos</module>
         <module>floodlight</module>
         <module>opendaylight</module>
+        <module>ryu</module>
     </modules>
 
 </project>

@@ -5,7 +5,7 @@
 
 # for Application agent
 echo '- for application agent...'
-scp $DELTA_ROOT/tools/config/agent.cfg $DELTA_CP:~/
+scp $DELTA_ROOT/config/agent.cfg $DELTA_CP:~/
 
 # for Channel agent
 echo '- for channel agent...'

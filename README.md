@@ -22,9 +22,9 @@ In order to build and run DELTA, the following are required:
   + LXC 2.0
   + JDK 1.8
 + Target Controller (for application agent)
-  + [Floodlight](http://www.projectfloodlight.org/download/): 0.91, 1.2
+  + [Floodlight](http://www.projectfloodlight.org/download/): ~1.2
   + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6, 1.9
-  + [OpenDaylight](https://www.opendaylight.org/downloads): Helium-sr3, Carbon
+  + [OpenDaylight](https://www.opendaylight.org/downloads): ~Oxygen
   + [Ryu](https://github.com/osrg/ryu): 4.16 
 + [Cbench](http://kkpradeeban.blogspot.kr/2014/10/installing-cbench-on-ubuntu-1404-lts.html) (for channel agent)
 + [Mininet 2.2](http://mininet.org/download/) (for host agent)
@@ -54,7 +54,7 @@ $ ./delta-setup-devenv-ubuntu
 ```
 $ source ./<DELTA>/tools/dev/delta-setup/bash_profile
 $ cd <DELTA>/tools/dev/lxc-setup
-$ ./lxc-create
+$ ./lxc-dev-install
 
 $ sudo vi /etc/default/lxc-net
 Uncomment "LXC_DHCP_CONFILE=/etc/lxc/dnsmasq.conf"
@@ -78,13 +78,22 @@ ubuntu ALL=(ALL) NOPASSWD: ALL
 (DELTA_CP) $ exit
 
 $ cd <DELTA>/tools/dev/lxc-setup
-$ ./lxc-setup
+$ ./lxc-dev-setup
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CH
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_DP
 
 ```
 
-+ In the case of all-in-one single machine, the test environment is automatically setup as below:
++ STEP 4. Install DELTA using maven build
+
+```
+$ cd <DELTA>
+$ source ./tools/dev/delta-setup/bash_profile
+$ mvn clean install
+```
+
++ The test environment is automatically setup as below:
+
 ![Env1](images/delta_env.png)
 
 ## Configuring your own experiments
@@ -125,17 +134,10 @@ $ cd <DELTA>/tools/dev/app-agent-setup/onos
 $ ./delta-setup-onos <onos-version>
 * Supported ONOS version in the script: 1.6, 1.9 
 ```
-> OpenDaylight helium-sr3 (only JDK 1.7-supported)
+> OpenDaylight Oxygen
 ```
 $ cd <DELTA>/tools/dev/app-agent-setup
-$ ./odl-helium-sr3-scp
-(on the controller machine) $ ./odl-helium-sr3-setup
-```
-> OpenDaylight Carbon
-```
-$ cd <DELTA>/tools/dev/app-agent-setup
-$ ./odl-carbon-scp
-(on the controller machine) $ ./odl-carbon-setup
+$ ./odl-oxygen-scp
 ```
 > Ryu 4.16
 ```
@@ -147,15 +149,6 @@ $ ./delta-setup-ryu
 MANAGER_IP=[agent-manager ipAddr]
 MANAGER_PORT=3366
 ```
-
-+ STEP 4. Install DELTA using maven build
-
-```
-$ cd <DELTA>
-$ source ./tools/dev/delta-setup/bash_profile
-$ mvn clean install
-```
-
 
 ## Running DELTA
 + STEP 1. Distribute the executable files to Containers
@@ -170,7 +163,8 @@ $ ./tools/dev/delta-setup/delta-agents-scp
 + STEP 2. Execute Agent-Manager first
 ```
 $ cd <DELTA>
-$ bin/run-delta tools/config/<configuration file> # e.g., manager_vm.cfg
+$ bin/run-delta <configuration file>
+(e.g., bin/run-delta config/manager_vm.cfg)
 
  DELTA: A Penetration Testing Framework for Software-Defined Networks
 

@@ -4,7 +4,7 @@ onos_version=${1}
 # Prints usage help
 function usage {
     echo "Usage: delta-run-onos <onos-version>" >&2
-    echo "* supported ONOS version: 1.6, 1.9" >&2
+    echo "* supported ONOS version: 1.6, 1.9, 1.13.1" >&2
     exit 1
 }
 
@@ -20,12 +20,16 @@ fi
 
 case $onos_version in
     1.6|1.6.0)
-        echo "Starting ONOS 1.6.0 on AppAgent..."
+        echo "Starting ONOS 1.6.0..."
         onos_version=1.6.0
         ;;
     1.9|1.9.0)
-        echo "Starting ONOS 1.9.0 on AppAgent..."
+        echo "Starting ONOS 1.9.0..."
         onos_version=1.9.0
+        ;;
+    1.13|1.13.1)
+        echo "Starting ONOS 1.13.1..."
+        onos_version=1.13.1
         ;;
     *) usage;;
 esac
@@ -45,5 +49,5 @@ ssh $DELTA_CP "
 sudo update-java-alternatives --set $JDK_VERSION
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle
 export ONOS_APPS=drivers,openflow,proxyarp,mobility,fwd
-$onos_directory/bin/onos-service clean
+$onos_directory/bin/onos-service clean debug
 "

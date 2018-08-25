@@ -45,6 +45,7 @@ public class HostAgentManager extends Thread {
         try {
             dos.writeUTF(input);
             dos.flush();
+			log.info("* SendPKT | CMD : Manager --> Host agent = " + input);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -89,6 +90,10 @@ public class HostAgentManager extends Thread {
                     case "test-controller-topo.py":
                         cmdArray = new String[]{"ssh", cfg.getHOST_SSH(), "sudo", "python", topologyFile,
                                 cfg.getCONTROLLER_IP(), cfg.getOF_PORT()};
+                        break;
+                    case "test-new-topo.py":
+                        cmdArray = new String[]{"ssh", cfg.getHOST_SSH(), "sudo", "python", topologyFile,
+                                cfg.getCONTROLLER_IP(), cfg.getOF_PORT(), cfg.getAM_IP(), cfg.getAM_PORT(), version};
                         break;
                 }
 
@@ -156,6 +161,7 @@ public class HostAgentManager extends Thread {
                 socket.close();
                 socket = null;
             }
+//			log.info("* On/Off | Host agent : Off");
         } catch (IOException e) {
             e.printStackTrace();
         }

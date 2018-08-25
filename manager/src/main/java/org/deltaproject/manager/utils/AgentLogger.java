@@ -23,6 +23,7 @@ public class AgentLogger {
     public static ArrayList<Thread> loggerList = new ArrayList();
     public static String temp = "";
 
+
     public static LoggerThread getLoggerThreadInstance(Process proc, String name) {
         return new LoggerThread(proc, name);
     }
@@ -43,6 +44,7 @@ public class AgentLogger {
         private String name;
         private BufferedReader stderrBr;
         private FileWriter output;
+        public String tempString = "";
 
         LoggerThread(Process proc, String name) {
             this.stderrBr = new BufferedReader(new InputStreamReader(proc.getInputStream()));
@@ -56,7 +58,14 @@ public class AgentLogger {
                 String line;
                 output.write("=================================================================================\n");
                 while ((line = stderrBr.readLine()) != null) {
+                    if (line.contains("LogService:Dispatcher")) {
+                        continue;
+                    }
+                    if (line.contains("Sending LLDP packets out")) {
+                        continue;
+                    }
                     temp += line;
+                    tempString += line;
                     output.write(line + "\n");
                     output.flush();
                 }
@@ -71,6 +80,14 @@ public class AgentLogger {
                     e.printStackTrace();
                 }
             }
+        }
+
+        public synchronized String readTemp() {
+            return tempString;
+        }
+
+        public synchronized void setTemp(String temp) {
+            tempString = temp;
         }
 
     }
@@ -114,7 +131,7 @@ public class AgentLogger {
 
         if (!dir.exists()) {
             dir.mkdirs();
-            System.out.println("Directory was created!");
+//            System.err.println("Directory was created!");
         }
     }
 
