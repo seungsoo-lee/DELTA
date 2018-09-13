@@ -3,6 +3,7 @@
 [![Black Hat Arsenal2](https://github.com/toolswatch/badges/blob/master/arsenal/usa/2018.svg)](https://www.blackhat.com/us-18/arsenal/schedule/index.html#delta-sdn-security-evaluation-framework-10588)
 
 # DELTA: SDN SECURITY EVALUATION FRAMEWORK
+![Delta logo](/images/delta_logo.png)
 
 ## What is DELTA?
 DELTA is a penetration testing framework that regenerates known attack scenarios for diverse test cases. This framework also provides the capability of discovering unknown security problems in SDN by employing a fuzzing technique.
