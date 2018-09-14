@@ -24,6 +24,7 @@ public class Main {
             "                                                     ";
 
     public static void main(String args[]) throws IOException {
+
         if (args.length < 1) {
             System.err.println("Usage: bin/run-delta <configuration file>");
             System.exit(1);
@@ -31,8 +32,8 @@ public class Main {
 
         System.out.print(ANSI_GREEN_N);
         System.out.print("\n" + LOGO + "\n");
-        System.out.print(ANSI_RESET);
-        System.out.print(ANSI_GREEN_B);
+//        System.out.print(ANSI_RESET);
+//        System.out.print(ANSI_GREEN_B);
         System.out.print(ANSI_RESET);
         System.setProperty(SimpleLogger.LOG_FILE_KEY, System.getenv("DELTA_ROOT") + "/log/manager.log");
         System.setProperty(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, "TRUE");
