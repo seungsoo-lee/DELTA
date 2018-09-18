@@ -730,7 +730,7 @@ public class AppAgent {
 
             Iterator tempIt = tempList.iterator();
             while (tempIt.hasNext()) {
-                System.out.println("<FlowRule> " + tempIt.next());
+                System.out.println("* Data | <Controller> <FlowRule> " + tempIt.next());
             }
 
             System.out.println("-------------------------");
@@ -892,17 +892,17 @@ public class AppAgent {
                 checkInconsistencyFlag--;
             }
 
-            //System.out.println("\n===================== [Switch DB] ======================");
+            System.out.println("\n===================== [Switch DB] ======================");
             int flowRuleCount = 0;
             DeviceId deviceId = DeviceId.deviceId(Dpid.uri(dpid));
-            //System.out.println("[Switch] " + deviceId);
+            //System.out.println("* Data | [Switch " + deviceId.toString().substring(17, 19) + "]");
             OFFlowStatsReply msg = (OFFlowStatsReply) ofMessage;
             List<OFFlowStatsEntry> entryList = msg.getEntries();
 
             for (OFFlowStatsEntry e : entryList) {
                 if (!e.toString().contains("controller")) {
                     flowRuleCount++;
-                    //System.out.println("<FlowRule> " + e.toString());
+                    System.out.println("* Data | <Switch " + deviceId.toString().substring(17,19) + ">, <FlowRule> " + e.toString());
                 } else {
                     //flowRuleCount++;
                 }

@@ -132,11 +132,9 @@ public class TestCaseDirectory {
                 new TestCase(CONTROL_PLANE_OF, "2.1.073", "Handling Control Packet Modification")); */
 
         directory.put("3.1.001",
-                new TestCase(ADVANCED, "3.1.001", "App name inconsistency test", "Test for controller-Switch" + 
-			"inconsistency due to app name"));
+                new TestCase(ADVANCED, "3.1.001", "Flow Rule Inconsistency test (App Name)", "Test for controller-Switch inconsistency due to app name"));
         directory.put("3.1.002",
-                new TestCase(ADVANCED, "3.1.002", "App name inconsistency test", "Test for controller-Switch" + 
-			"inconsistency due to output port"));
+                new TestCase(ADVANCED, "3.1.002", "Flow Rule Inconsistency test (Output Port)", "Test for controller-Switch inconsistency due to output port"));
         directory.put("3.1.010",
                 new TestCase(ADVANCED, "3.1.010", "Packet-In Flooding", "Test for controller protection against " +
                         "Packet-In Flooding"));

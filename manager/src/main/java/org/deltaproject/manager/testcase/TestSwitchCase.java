@@ -79,7 +79,7 @@ public class TestSwitchCase {
             hm.runAgent("test-switch-topo.py");
         }
 
-        try {
+        try{
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -172,7 +172,11 @@ public class TestSwitchCase {
     public boolean runDummyController() {
         log.info("Run dummy controller");
         chm.write("runDummyController");
-
+        try {
+            Thread.sleep(8000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         String response = chm.read();
         if (!response.contains("runDummyController")) {
             log.info("Run dummy controller fail!");
@@ -450,16 +454,36 @@ public class TestSwitchCase {
 
         chm.write(test.getcasenum());
         String response = chm.read();
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
         String[] split = StringUtils.split(response, "\n");
+		log.info("* SendPKT | OF : Hub --> OF1 = " + split[0]); 
+		log.info("* Test | Send message with invalid OXM length");
         log.info("Channel agent send msg :" + split[0]);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         if (!split[1].contains("null")) {
             test.setResult(PASS);
+			log.info("* RecvPKT | OF : OF1 --> Hub = " + split[1]);
+			log.info("* Test | Obtain error response : Test Pass");
             log.info("Response err msg: " + split[1] + ", PASS");
         } else {
             test.setResult(FAIL);
-            log.info("Response is null, FAIL");
+            log.info("* Test | Null response : Test FAIL");
+        }
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

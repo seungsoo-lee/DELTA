@@ -13,7 +13,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="./js/jquery.highlight-within-textarea.js"></script>
-    <script type="text/javascript" src="./js/log.js"></script>
 </head>
 <body class="application">
 
@@ -109,5 +108,31 @@
 
 <!-- {JS1} -->
 
+    <script> 
+	    var deltalog = $('#deltalog');
+		var channellog = $('#channellog');
+		var applog = $('#applog');
+		var hostlog = $('#hostlog');
+		function handleDeltaData(data){
+			handleData(deltalog, data);
+		}
+        function handleChannelData(data){
+			handleData(channellog, data);
+		}
+        function handleAppData(data){
+			handleData(applog, data);
+		}
+        function handleHostData(data){
+			handleData(hostlog, data);
+		}
+        function handleData(obj, data){
+			var old = obj.val();
+			if (old.length != data.length) {
+				obj.val(data);
+				obj.scrollTop(obj[0].scrollHeight);
+			}
+		}
+	</script>
+    <script type="text/javascript" src="./js/log.js"></script>
 </body>
 </html>

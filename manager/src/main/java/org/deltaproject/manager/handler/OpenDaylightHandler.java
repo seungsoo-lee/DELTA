@@ -84,9 +84,19 @@ public class OpenDaylightHandler implements ControllerHandler {
                     str = AgentLogger.getTemp();
                     Thread.sleep(1000);
                 } while (!str.contains("initialized successfully"));
+            } else if (version.equals("carbon")) {
+                do {
+                    str = AgentLogger.getTemp();
+                } while (!str.contains("shutdown OpenDaylight"));
             }
+//            else if (version.contains("oxygen")) {
+//                do {
+//                    str = threadInstance.readTemp();
+//                    Thread.sleep(500);
+//                } while (!str.contains("to accept incoming"));
+//            }
 
-            log.info("OpenDaylight is activated");
+//            log.info("* On/Off | OpenDaylight : On");
 
             installAppAgent();
             threadInstance.setTemp("");
@@ -103,32 +113,30 @@ public class OpenDaylightHandler implements ControllerHandler {
         try {
             boolean isInstalled = false;
             int bundleID = 0;
+
             String successMsg = "";
 
             if (version.equals("helium")) {
                 successMsg = "Installed";
-            } else if (version.contains("carbon")) {
-                successMsg = "Bundle ID: ";
-            } else if (version.contains("oxygen")) {
+            } else if (version.contains("carbon") || version.contains("oxygen")) {
                 successMsg = "Bundle ID: ";
             }
 //            else if (version.contains("oxygen")) {
-//                String str;
-//                do {
-//                    Thread.sleep(15000);
-//                    stdIn.write("bundle:start 425\n");
-//                    stdIn.flush();
-//                    str = threadInstance.readTemp();
-//                } while (!str.contains("App-Agent"));
+//                successMsg = "Bundle ID: ";
+//            }
+//            else if (version.contains("oxygen")) {
+//                stdIn.write("start 425\n");
+//                stdIn.flush();
 //                log.info("AppAgent bundle ID [425] Started");
 //                return true;
 //            }
+
             String temp = "install file:" + "/home/" + user + "/delta-agent-app-odl-" + version + "-1.0-SNAPSHOT.jar" + "\n";
-            System.out.println(temp);
             stdIn.write(temp);
             stdIn.flush();
 
             while (!isInstalled) {
+
                 String line = threadInstance.readTemp();
                 if (line.contains(successMsg)) {
                     isInstalled = true;
@@ -187,6 +195,7 @@ public class OpenDaylightHandler implements ControllerHandler {
             pc.getInputStream().close();
             pc.getOutputStream().close();
             pc.waitFor();
+//			log.info("* On/Off | OpenDaylight : Off");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

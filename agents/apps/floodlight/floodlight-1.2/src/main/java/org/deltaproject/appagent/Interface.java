@@ -90,11 +90,11 @@ public class Interface extends Thread {
     public void replayingKnownAttack(String recv) throws IOException {
         String result = "";
 
-        if (recv.equals("3.1.020")) {
+        if (recv.contains("3.1.020")) {
             app.setControlMessageDrop();
             dos.writeUTF("OK");
             dos.flush();
-        } else if (recv.equals("getmsg")) {
+        } else if (recv.contains("getmsg")) {
             result = app.testControlMessageDrop();
             dos.writeUTF(result);
         } else if (recv.equals("3.1.030")) {

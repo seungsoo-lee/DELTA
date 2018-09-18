@@ -3,6 +3,7 @@
 [![Black Hat Arsenal2](https://github.com/toolswatch/badges/blob/master/arsenal/usa/2018.svg)](https://www.blackhat.com/us-18/arsenal/schedule/index.html#delta-sdn-security-evaluation-framework-10588)
 
 # DELTA: SDN SECURITY EVALUATION FRAMEWORK
+![Delta logo](/images/delta_logo.png)
 
 ## What is DELTA?
 DELTA is a penetration testing framework that regenerates known attack scenarios for diverse test cases. This framework also provides the capability of discovering unknown security problems in SDN by employing a fuzzing technique.
@@ -23,7 +24,7 @@ In order to build and run DELTA, the following are required:
   + JDK 1.8
 + Target Controller (for application agent)
   + [Floodlight](http://www.projectfloodlight.org/download/): ~1.2
-  + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6, 1.9
+  + [ONOS](https://wiki.onosproject.org/display/ONOS/Downloads): 1.1, 1.6, 1.9, 1.13.1 (being tested)
   + [OpenDaylight](https://www.opendaylight.org/downloads): ~Oxygen
   + [Ryu](https://github.com/osrg/ryu): 4.16 
 + [Cbench](http://kkpradeeban.blogspot.kr/2014/10/installing-cbench-on-ubuntu-1404-lts.html) (for channel agent)
@@ -122,17 +123,18 @@ AM_PORT=3366
 $ cd <DELTA>/tools/dev/app-agent-setup
 $ ./floodlight-1.2-scp
 ```
-> ONOS 1.1
+> ONOS 1.1 (depreciated)
 ```
 $ cd <DELTA>/tools/dev/app-agent-setup/onos
 $ ./onos-1.1.0-scp
 (on the controller machine) $ ./onos-1.1.0-setup
 ```
-> ONOS 1.6 or 1.9
+> ONOS 1.6, 1.9 or 1.13.1
 ```
 $ cd <DELTA>/tools/dev/app-agent-setup/onos
 $ ./delta-setup-onos <onos-version>
-* Supported ONOS version in the script: 1.6, 1.9 
+$ ./delta-scp-onos <onos-version>
+* Supported ONOS version in the script: 1.6, 1.9, 1.13.1
 ```
 > OpenDaylight Oxygen
 ```
@@ -185,6 +187,8 @@ Command>_
 + Seungsoo Lee (KAIST)
 + Jinwoo Kim (KAIST)
 + Seungwon Woo (KAIST)
++ Haney Kang (KAIST)
++ Jaehan Kim (KAIST)
 + Changhoon Yoon (KAIST)
 + Sandra Scott-Hayward (Queen's University Belfast)
 + Seungwon Shin (KAIST)

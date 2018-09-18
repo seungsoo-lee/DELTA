@@ -49,5 +49,5 @@ ssh $DELTA_CP "
 sudo update-java-alternatives --set $JDK_VERSION
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle
 export ONOS_APPS=drivers,openflow,proxyarp,mobility,fwd
-$onos_directory/bin/onos-service clean
+$onos_directory/bin/onos-service clean debug
 "

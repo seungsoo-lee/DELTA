@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONTROLLER_IP=10.0.3.11
+CONTROLLER_IP=${1}
 PORT=8080
 
 curl -X DELETE -d '{"name":"A1"}' http://$CONTROLLER_IP:$PORT/wm/staticflowpusher/json

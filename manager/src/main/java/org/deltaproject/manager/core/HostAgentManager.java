@@ -45,6 +45,7 @@ public class HostAgentManager extends Thread {
         try {
             dos.writeUTF(input);
             dos.flush();
+			log.info("* SendPKT | CMD : Manager --> Host agent = " + input);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -160,6 +161,7 @@ public class HostAgentManager extends Thread {
                 socket.close();
                 socket = null;
             }
+//			log.info("* On/Off | Host agent : Off");
         } catch (IOException e) {
             e.printStackTrace();
         }

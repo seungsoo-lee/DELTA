@@ -795,6 +795,7 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         }
 
         System.out.println("\n===================== [Controller DB] ======================");
+				String in, action;
         for (DatapathId sw : switchService.getAllSwitchDpids()) {
             int flowRuleCount = 1;
             switches.add(switchService.getSwitch(sw));
@@ -802,8 +803,21 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
             System.out.println("-------------------------");
             System.out.println("[Switch] " + sw);
             for (String mapKey : tempMap.keySet()) {
-                flowRuleCount++;
-                System.out.println("<" + mapKey + "> " + tempMap.get(mapKey));
+				flowRuleCount++;
+				System.out.println("<" + mapKey + "> " + tempMap.get(mapKey));
+				String FlowMod = tempMap.get(mapKey).toString();
+				FlowMod = FlowMod.replace("in_port=", "IN_PORT:");
+				FlowMod = FlowMod.replace("eth_src=", "ETH_SRC:");
+				FlowMod = FlowMod.replace("eth_dst=", "ETH_DST:");
+				action=FlowMod.substring(FlowMod.indexOf("instructions=[")+14, FlowMod.length());
+				action = action.substring(0, action.indexOf("]"));
+				if( action.length() == 0 )
+					action = "Drop";
+				else{
+					action = FlowMod.substring(FlowMod.indexOf("(port=") + 6, FlowMod.length() );
+					action = "[OUTPUT:" + action.substring(0, action.indexOf(",")) + "]";
+				}
+				System.out.println("* Data | <Controller> {id=000000000000" + mapKey + "}, " + FlowMod + ", " + action );
             }
             System.out.println("-------------------------");
             System.out.println("[Result] " + sw + " FlowRuleCount: [ " + flowRuleCount + " ]");
@@ -811,12 +825,13 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
         }
         System.out.println("==========================================================\n\n");
 
-//        System.out.println("\n===================== [Switch DB] ======================");
+        System.out.println("\n===================== [Switch DB] ======================");
         for (IOFSwitch sw : switches) {
             int flowRuleCount = 0;
             Map<String, OFFlowMod> controllerTable = fservice.getFlows(sw.getId());
             List<OFStatsReply> flowTable = getSwitchStatistics(sw, OFStatsType.FLOW);
-//            System.out.println("[Switch] " + sw.getId());
+			String swId = sw.getId().toString();
+            System.out.println("* Data | [Switch " + swId.substring(swId.length()-2, swId.length()) + "]");
 
             if (flowTable != null) {
                 for (OFStatsReply flow : flowTable) {
@@ -827,7 +842,15 @@ public class AppAgent implements IFloodlightModule, IOFMessageListener {
                         for (OFFlowStatsEntry e : entries) {
                             if (!e.toString().contains("controller")) {
                                 flowRuleCount++;
-//                                System.out.println("<FlowRule> " + e.toString());
+								String Flow = e.toString();
+								if( Flow.indexOf("instructions=[") + 14 == Flow.length())
+									action = "Drop";
+								else{
+									action = Flow.substring(Flow.indexOf("(port=") + 6, Flow.length() );
+									action = "(port=" + action.substring(0, action.indexOf(","));
+								}
+								System.out.println("<FlowRule> " + e.toString());
+								System.out.println("* Data | <Switch " + swId.substring(swId.length()-2, swId.length()) + "> " + Flow + action);
                             } else {
                                 flowRuleCount++;
                             }

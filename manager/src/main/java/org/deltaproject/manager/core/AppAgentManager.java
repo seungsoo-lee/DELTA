@@ -71,6 +71,7 @@ public class AppAgentManager {
 
     public boolean write(String code) {
         try {
+			log.info("* SendPKT | CMD : Manager --> App agent = " + code);
             if (targetController.contains("OpenDaylight")) {
                 if (code.contains("3.1.090") || code.contains("3.1.100") || code.contains("restore")) {
                     dos2.writeUTF(code);
