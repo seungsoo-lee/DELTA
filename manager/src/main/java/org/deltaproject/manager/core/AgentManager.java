@@ -3,11 +3,13 @@ package org.deltaproject.manager.core;
 import org.aesh.command.*;
 import org.aesh.command.impl.registry.AeshCommandRegistryBuilder;
 import org.aesh.command.invocation.CommandInvocation;
+import org.aesh.command.option.Arguments;
 import org.aesh.command.parser.CommandLineParserException;
 import org.aesh.command.registry.CommandRegistry;
 import org.aesh.command.settings.Settings;
 import org.aesh.command.settings.SettingsBuilder;
 import org.aesh.command.shell.Shell;
+import org.aesh.io.Resource;
 import org.aesh.readline.ReadlineConsole;
 import org.aesh.terminal.tty.Signal;
 //import org.aesh.readline.terminal.Key;
@@ -27,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.ParseException;
+import java.util.List;
 import java.util.function.Consumer;
 
 import static org.aesh.terminal.tty.Signal.*;
@@ -232,22 +236,22 @@ public class AgentManager extends Thread {
     @CommandDefinition(name = "attack", description = "replaying known attack(s)", aliases = {"a", "A"})
     public static class AttackCommand implements Command {
 
+        @Arguments(required = true)
+        private List<Resource> arguments;
+
         @Override
         public CommandResult execute(CommandInvocation commandInvocation) throws CommandException, InterruptedException {
             String input = null;
-            sc = new BufferedReader(new InputStreamReader(System.in));
+           // sc = new BufferedReader(new InputStreamReader(System.in));
 
-            System.out.println("Type \"h\" to go back to menu.");
 
-            while (true) {
-                System.out.print("\nSelect the attack code> ");
+          //  System.out.println("Type \"h\" to go back to menu.");
 
-                try {
-                    input = sc.readLine();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                String parsedinput = input.replaceAll("\\s+","");
+           // while (true) {
+            //    System.out.print("\nSelect the attack code> ");
+
+            input = arguments.get(0).toString(); //sc.readLine();
+            String parsedinput = input.replaceAll("\\s+","");
 //            if (input.equalsIgnoreCase("A")) //conductor.replayAllKnownAttacks();
                 if (conductor.isPossibleAttack(input) && TestCaseDirectory.getDirectory().containsKey(input.trim())) {
                     TestCase testCase = TestCaseDirectory.getDirectory().get(input);
@@ -267,12 +271,12 @@ public class AgentManager extends Thread {
                     System.out.print(ANSI_RESET);
 
                     printHelp();
-                    break;
+                    //break;
                 }
                 else {
                     System.out.println("Attack Code [" + input + "] is not available");
                 }
-            }
+            //}
             return CommandResult.SUCCESS;
         }
     }
