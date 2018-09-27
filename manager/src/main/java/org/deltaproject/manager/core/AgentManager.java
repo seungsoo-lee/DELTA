@@ -1,9 +1,13 @@
 package org.deltaproject.manager.core;
 
 import org.aesh.command.*;
+import org.aesh.command.builder.CommandBuilder;
+import org.aesh.command.completer.CompleterInvocation;
+import org.aesh.command.completer.OptionCompleter;
 import org.aesh.command.impl.registry.AeshCommandRegistryBuilder;
 import org.aesh.command.invocation.CommandInvocation;
 import org.aesh.command.option.Arguments;
+import org.aesh.command.option.Option;
 import org.aesh.command.parser.CommandLineParserException;
 import org.aesh.command.registry.CommandRegistry;
 import org.aesh.command.settings.Settings;
@@ -11,6 +15,7 @@ import org.aesh.command.settings.SettingsBuilder;
 import org.aesh.command.shell.Shell;
 import org.aesh.io.Resource;
 import org.aesh.readline.ReadlineConsole;
+import org.aesh.readline.terminal.formatting.TerminalString;
 import org.aesh.terminal.tty.Signal;
 //import org.aesh.readline.terminal.Key;
 
@@ -30,7 +35,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.ParseException;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static org.aesh.terminal.tty.Signal.*;
@@ -146,7 +151,6 @@ public class AgentManager extends Thread {
                     .commandRegistry(registry)
                     .persistHistory(false)
                     .setInterruptHandler(interrupthandler)
-                    .enableExport(false)
                     .build();
             console = new ReadlineConsole(settings);
 
@@ -200,9 +204,7 @@ public class AgentManager extends Thread {
 //        }
 //    }
 //}
-
-
-    @CommandDefinition(name = "list", description = "show all known attacks", aliases = {"p", "P"})
+    @CommandDefinition(name = "p", description = "show all known attacks", aliases = {"P"})
     public static class AttackListCommand implements Command {
 
         @Override
@@ -218,7 +220,7 @@ public class AgentManager extends Thread {
         }
     }
 
-    @CommandDefinition(name = "config", description = "show configuration info", aliases = {"c", "C"})
+    @CommandDefinition(name = "c", description = "show configuration info", aliases = {"C"})
     public static class ConfigurationCommand implements Command {
 
         @Override
@@ -233,50 +235,64 @@ public class AgentManager extends Thread {
         }
     }
 
-    @CommandDefinition(name = "attack", description = "replaying known attack(s)", aliases = {"a", "A"})
+    public static class CodeCompleter implements OptionCompleter {
+        @Override
+        public void complete(CompleterInvocation completerData) {
+            List<String> completeList = new ArrayList<>();
+            TreeMap<String, String> treeMap = conductor.getAttackInfo();
+            Iterator<String> treeMapIter = treeMap.keySet().iterator();
+            while (treeMapIter.hasNext()) {
+                String key = (String) treeMapIter.next();
+                if(key.startsWith(completerData.getGivenCompleteValue())){
+                    completeList.add(String.format("%s", key));
+                }
+
+            }
+            completerData.setAppendSpace(false);
+            completerData.setCompleterValues(completeList);
+        }
+    }
+
+    @CommandDefinition(name = "a", description = "replaying known attack(s)", aliases = {"A"})
     public static class AttackCommand implements Command {
 
-        @Arguments(required = true)
+        @Arguments(completer = CodeCompleter.class, description = "testcase number")
         private List<Resource> arguments;
 
         @Override
         public CommandResult execute(CommandInvocation commandInvocation) throws CommandException, InterruptedException {
-            String input = null;
-           // sc = new BufferedReader(new InputStreamReader(System.in));
+            if(arguments == null){
+                System.out.println("Usage:");
+                System.out.println("         a   [ARGUMENT]\n");
+                System.out.println("One argument [code] is required for [aA] command.");
+                return CommandResult.SUCCESS;
+            }
+            else if(arguments.size() != 1){
+                System.out.println("Usage:");
+                System.out.println("         a   [ARGUMENT]\n");
+                System.out.println("One argument [code] is required for [aA] command.");
+                return CommandResult.SUCCESS;
+            }
 
+            String input = arguments.get(0).toString();
 
-          //  System.out.println("Type \"h\" to go back to menu.");
-
-           // while (true) {
-            //    System.out.print("\nSelect the attack code> ");
-
-            input = arguments.get(0).toString(); //sc.readLine();
-            String parsedinput = input.replaceAll("\\s+","");
 //            if (input.equalsIgnoreCase("A")) //conductor.replayAllKnownAttacks();
-                if (conductor.isPossibleAttack(input) && TestCaseDirectory.getDirectory().containsKey(input.trim())) {
-                    TestCase testCase = TestCaseDirectory.getDirectory().get(input);
-                    testCase.setConfiguration(configuration);
-                    System.out.println("\nStart attack!");
-                    System.out.println("You can see the detail in WebUI or Log file");
+            if (conductor.isPossibleAttack(input) && TestCaseDirectory.getDirectory().containsKey(input.trim())) {
+                TestCase testCase = TestCaseDirectory.getDirectory().get(input);
+                testCase.setConfiguration(configuration);
+                System.out.println("\nStart attack!");
+                System.out.println("You can see the detail in WebUI or Log file");
 
-                    conductor.refreshConfig(testCase.getConfiguration());
-                    conductor.executeTestCase(testCase);
-                    System.out.print("\nTest Result: ");
-                    System.out.println(testCase.getResult());
-                    System.out.println("If the result is 'FAIL', it is vulnerable to the attack.");
-                }
-                else if (parsedinput.equalsIgnoreCase("h") || parsedinput.equals("help")){
-                    System.out.print(ANSI_WHITE_BRIGHT);
-                    System.out.print("\n" + "[Menu]" + "\n\n");
-                    System.out.print(ANSI_RESET);
+                conductor.refreshConfig(testCase.getConfiguration());
+                conductor.executeTestCase(testCase);
+                System.out.print("\nTest Result: ");
+                System.out.println(testCase.getResult());
+                System.out.println("If the result is 'FAIL', it is vulnerable to the attack.");
+            }
+            else {
+                System.out.println("Attack Code [" + input + "] is not available");
+            }
 
-                    printHelp();
-                    //break;
-                }
-                else {
-                    System.out.println("Attack Code [" + input + "] is not available");
-                }
-            //}
             return CommandResult.SUCCESS;
         }
     }
@@ -349,7 +365,7 @@ public class AgentManager extends Thread {
 //        }
 //    }
 
-    @CommandDefinition(name = "quit", description = "quit the program", aliases = {"exit", "q", "Q"})
+    @CommandDefinition(name = "q", description = "quit the program", aliases = {"exit", "quit", "Q"})
     public static class ExitCommand implements Command {
 
         @Override
@@ -383,7 +399,7 @@ public class AgentManager extends Thread {
         System.out.println(" [uU]\t- Finding an unknown attack");
         System.out.println(" [hH]\t- Show Menu");
         System.out.println(" [qQ]\t- Quit\n");
-        System.out.println(" \"<Tab>\" for available commands.\n");
+        System.out.println(" \"<Tab>\" for available commands or [aA] arguments.\n");
     }
 
 //    public boolean processUserInput(String in) throws IOException, InterruptedException {

@@ -12,9 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.TreeMap;
+import java.util.*;
 
 public class AttackConductor {
     private static final Logger log = LoggerFactory.getLogger(AttackConductor.class);
@@ -172,6 +170,14 @@ public class AttackConductor {
             String value = (String) treeMap.get(key);
             System.out.println(String.format("%s\t: %s", key, value));
         }
+    }
+
+
+    public TreeMap<String, String > getAttackInfo() {
+        TreeMap<String, String> treeMap = new TreeMap<String, String>(infoSwitchCase);
+        treeMap.putAll(infoControllerCase);
+        treeMap.putAll(infoAdvancedCase);
+        return treeMap;
     }
 
     public boolean isPossibleAttack(String code) {
