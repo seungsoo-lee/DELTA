@@ -25,7 +25,9 @@ import org.onosproject.net.flow.criteria.EthCriterion;
 import org.onosproject.net.flow.criteria.PortCriterion;
 import org.onosproject.net.flow.instructions.Instruction;
 import org.onosproject.net.flow.instructions.Instructions.OutputInstruction;
+import org.onosproject.net.flowobjective.DefaultForwardingObjective;
 import org.onosproject.net.flowobjective.FlowObjectiveService;
+import org.onosproject.net.flowobjective.ForwardingObjective;
 import org.onosproject.net.host.HostAdminService;
 import org.onosproject.net.host.HostService;
 import org.onosproject.net.link.LinkAdminService;
@@ -169,6 +171,8 @@ public class AppAgent {
         cm = new AMInterface(this);
         cm.start();
         controller.addEventListener(listener);
+
+        set_ttl_rules();
     }
 
     @Deactivate
@@ -776,6 +780,43 @@ public class AppAgent {
             controller.write(Dpid.dpid(device.id().uri()), request);
             Thread.sleep(50);
         }
+    }
+
+    // for IITP, SDN Security Research
+    public void set_ttl_rules() {
+        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
+        deviceService.getAvailableDevices().forEach(
+                d -> {
+                    selector.matchEthType(Ethernet.TYPE_IPV4);
+                    TrafficTreatment treatment = DefaultTrafficTreatment.builder()
+                            .decNwTtl()
+                            .build();
+                    FlowRule rule = DefaultFlowRule.builder()
+                            .forDevice(d.id())
+                            .withSelector(selector.build())
+                            .withTreatment(treatment)
+                            .withPriority(99)
+                            .fromApp(appId)
+                            .makePermanent()
+                            .forTable(2).build();
+                    FlowRuleOperations.Builder ops = FlowRuleOperations.builder();
+                    ops.add(rule);
+                    String description = "[AppAgent] Install initial TTL flow rules";
+                    flowRuleService.apply(ops.build(new FlowRuleOperationsContext() {
+                        @Override
+                        public void onSuccess(FlowRuleOperations ops) {
+                            log.info(description + " success: " + ops.toString() + ", " + rule.toString());
+                        }
+
+                        @Override
+                        public void onError(FlowRuleOperations ops) {
+                            log.info(description + " error: " + ops.toString() + ", " + rule.toString());
+                        }
+                    }));
+
+                }
+
+        );
     }
 
     /**

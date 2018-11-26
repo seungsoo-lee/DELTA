@@ -215,13 +215,13 @@ public class AMInterface extends Thread {
                         dos.close();
                     }
                 } catch (IOException e) {
-                    log.error(e.toString());
+                    log.error("{}", e);
                 }
             }
             try {
                 Thread.sleep(5000);
             } catch (Exception e) {
-                log.error(e.toString());
+                log.error("{}", e);
             }
         }
     }
