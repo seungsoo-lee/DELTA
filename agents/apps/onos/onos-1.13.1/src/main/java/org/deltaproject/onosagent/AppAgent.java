@@ -1,13 +1,12 @@
 package org.deltaproject.onosagent;
 
 import com.google.common.collect.Lists;
+import iitp2018.NetworkLoopDetector;
 import org.apache.felix.scr.annotations.*;
 import org.onlab.metrics.MetricsService;
-import org.onlab.packet.Ethernet;
-import org.onlab.packet.Ip4Prefix;
-import org.onlab.packet.IpAddress;
-import org.onlab.packet.MacAddress;
+import org.onlab.packet.*;
 import org.onosproject.app.ApplicationAdminService;
+import org.onosproject.app.ApplicationService;
 import org.onosproject.cfg.ComponentConfigService;
 import org.onosproject.cfg.ConfigProperty;
 import org.onosproject.cluster.ClusterAdminService;
@@ -35,7 +34,7 @@ import org.onosproject.net.statistic.FlowStatisticStore;
 import org.onosproject.net.topology.TopologyService;
 import org.onosproject.openflow.controller.Dpid;
 import org.onosproject.openflow.controller.OpenFlowController;
-import org.onosproject.openflow.controller.OpenFlowEventListener;
+import org.onosproject.openflow.controller.OpenFlowMessageListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -45,7 +44,6 @@ import org.osgi.service.component.ComponentInstance;
 import org.projectfloodlight.openflow.protocol.*;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.protocol.action.OFActionOutput;
-import org.projectfloodlight.openflow.protocol.instruction.OFInstruction;
 import org.slf4j.Logger;
 
 import java.io.BufferedReader;
@@ -53,6 +51,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static org.onlab.util.Tools.groupedThreads;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -127,6 +127,9 @@ public class AppAgent {
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected OpenFlowController controller;
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    protected ApplicationService appService;
+
     private ReactivePacketProcessor processor = new ReactivePacketProcessor();
 
     @Property(name = "flowTimeout", intValue = DEFAULT_TIMEOUT,
@@ -143,9 +146,11 @@ public class AppAgent {
     private Random ran = new Random();
     private PacketContext dropped = null;
 
-    private final InternalFlowProvider listener = new InternalFlowProvider();
+    private final InternalMessageListener listener = new InternalMessageListener();
     private String isInconsistency;
     private int checkInconsistencyFlag = 0;
+
+    private NetworkLoopDetector nad;
 
     @Activate
     public void activate(ComponentContext context) {
@@ -154,21 +159,25 @@ public class AppAgent {
 
         appId = coreService.registerApplication("org.deltaproject.onosagent");
 
-        packetService.addProcessor(processor, PacketProcessor.ADVISOR_MAX);
+//        packetService.addProcessor(processor, PacketProcessor.ADVISOR_MAX);
+//
+//        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
+//        selector.matchEthType(Ethernet.TYPE_IPV4);
+//        packetService.requestPackets(selector.build(), PacketPriority.REACTIVE,
+//                appId);
+//        selector.matchEthType(Ethernet.TYPE_ARP);
+//        packetService.requestPackets(selector.build(), PacketPriority.REACTIVE,
+//                appId);
 
-        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
-        selector.matchEthType(Ethernet.TYPE_IPV4);
-        packetService.requestPackets(selector.build(), PacketPriority.REACTIVE,
-                appId);
-        selector.matchEthType(Ethernet.TYPE_ARP);
-        packetService.requestPackets(selector.build(), PacketPriority.REACTIVE,
-                appId);
 
         log.info("Started with Application ID {}", appId.id());
 
-        cm = new AMInterface(this);
-        cm.start();
-        controller.addEventListener(listener);
+//        cm = new AMInterface(this);
+//        cm.start();
+        controller.addMessageListener(listener);
+
+//        nad = new NetworkLoopDetector(controller, deviceService, flowRuleService, coreService, linkService);
+//        nad.start();
     }
 
     @Deactivate
@@ -177,7 +186,15 @@ public class AppAgent {
         flowRuleService.removeFlowRulesById(appId);
         packetService.removeProcessor(processor);
         processor = null;
+        nad.stop();
+//        try {
+//            cm.interrupt();
+//            cm.join();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         log.info("Stopped");
+
     }
 
     // Attack/Misuses
@@ -778,6 +795,8 @@ public class AppAgent {
         }
     }
 
+
+
     /**
      * Packet processor responsible for forwarding packets along their paths.
      */
@@ -789,6 +808,16 @@ public class AppAgent {
         }
 
         public void process(PacketContext context) {
+
+            if (context.isHandled()) {
+                return;
+            }
+
+            Ethernet packet = context.inPacket().parsed();
+
+            if (packet == null) {
+                return;
+            }
             if (isDrop) {
                 if (droppedPacket == null) {
                     droppedPacket = context;
@@ -802,6 +831,11 @@ public class AppAgent {
                 context.block();
             } else if (isLoop) {
                 AppAgent.testInfiniteLoop();
+            } else {
+                if (packet.getEtherType() == Ethernet.TYPE_IPV4) {
+                    IPv4 ipv4Packet = (IPv4) packet.getPayload();
+                    log.info("TTL value: {}", ipv4Packet.getTtl());
+                }
             }
         }
     }
@@ -873,90 +907,92 @@ public class AppAgent {
         }
     }
 
-    class InternalFlowProvider implements OpenFlowEventListener {
+    /**
+     * for inconsistent attack cases in black hat 2018
+     */
+    class InternalMessageListener implements OpenFlowMessageListener {
+        @Override
+        public void handleIncomingMessage(Dpid dpid, OFMessage ofMessage) {
+            if (ofMessage.getType() == OFType.STATS_REPLY) {
+                if (((OFStatsReply) ofMessage).getStatsType() == OFStatsType.FLOW) {
+                    if (checkInconsistencyFlag < 1) {
+                        return;
+                    } else {
+                        checkInconsistencyFlag--;
+                    }
+
+                    System.out.println("\n===================== [Switch DB] ======================");
+                    int flowRuleCount = 0;
+                    DeviceId deviceId = DeviceId.deviceId(Dpid.uri(dpid));
+                    //System.out.println("* Data | [Switch " + deviceId.toString().substring(17, 19) + "]");
+                    OFFlowStatsReply msg = (OFFlowStatsReply) ofMessage;
+                    List<OFFlowStatsEntry> entryList = msg.getEntries();
+
+                    for (OFFlowStatsEntry e : entryList) {
+                        if (!e.toString().contains("controller")) {
+                            flowRuleCount++;
+                            System.out.println("* Data | <Switch " + deviceId.toString().substring(17, 19) + ">, <FlowRule> " + e.toString());
+                        } else {
+                            //flowRuleCount++;
+                        }
+                    }
+
+                    //System.out.println("---------------");
+                    //System.out.println("[Result] " + deviceId + " FlowRuleCount: [ " + flowRuleCount + " ]");
+                    //System.out.println("---------------\n");
+
+                    Iterable<Device> iterableDevice = deviceService.getDevices();
+                    Iterator iteratorDevice = iterableDevice.iterator();
+
+                    while (iteratorDevice.hasNext()) {
+                        Device device = (Device) iteratorDevice.next();
+                        if (!device.id().toString().equals(deviceId.toString())) {
+                            continue;
+                        }
+                        Iterable<FlowEntry> iterableFlow = flowRuleService.getFlowEntries(device.id());
+                        Iterator iteratorFlow = iterableFlow.iterator();
+
+                        while (iteratorFlow.hasNext()) {
+                            boolean found = false;
+                            FlowEntry flowEntry = (FlowEntry) iteratorFlow.next();
+                            if (flowEntry.toString().contains("CONTROLLER")) {
+                                continue;
+                            }
+                            for (OFFlowStatsEntry e : entryList) {
+                                if (e.toString().contains("controller")) {
+                                    continue;
+                                }
+                                if (flowEntry.id().value() != e.getCookie().getValue()) {
+                                    continue;
+                                }
+
+                                Instruction tempF = (OutputInstruction) flowEntry.treatment().immediate().get(0);
+                                OFAction tempE = (OFActionOutput) e.getActions().get(0);
+
+                                long tempFOutput = ((OutputInstruction) tempF).port().toLong();
+                                long tempEOutput = ((OFActionOutput) tempE).getPort().getPortNumber();
+
+                                if (tempFOutput != tempEOutput) {
+                                    break;
+                                }
+
+                                found = true;
+                                break;
+                            }
+
+                            if (!found) {
+                                isInconsistency = flowEntry.toString();
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         @Override
-        public void handleMessage(Dpid dpid, OFMessage ofMessage) {
-
-            if (ofMessage.getType() != OFType.STATS_REPLY) {
-                return;
-            } else {
-                if (((OFStatsReply) ofMessage).getStatsType() != OFStatsType.FLOW) {
-                    return;
-                }
-            }
-
-            if (checkInconsistencyFlag < 1) {
-                return;
-            } else {
-                checkInconsistencyFlag--;
-            }
-
-            System.out.println("\n===================== [Switch DB] ======================");
-            int flowRuleCount = 0;
-            DeviceId deviceId = DeviceId.deviceId(Dpid.uri(dpid));
-            //System.out.println("* Data | [Switch " + deviceId.toString().substring(17, 19) + "]");
-            OFFlowStatsReply msg = (OFFlowStatsReply) ofMessage;
-            List<OFFlowStatsEntry> entryList = msg.getEntries();
-
-            for (OFFlowStatsEntry e : entryList) {
-                if (!e.toString().contains("controller")) {
-                    flowRuleCount++;
-                    System.out.println("* Data | <Switch " + deviceId.toString().substring(17,19) + ">, <FlowRule> " + e.toString());
-                } else {
-                    //flowRuleCount++;
-                }
-            }
-
-            //System.out.println("---------------");
-            //System.out.println("[Result] " + deviceId + " FlowRuleCount: [ " + flowRuleCount + " ]");
-            //System.out.println("---------------\n");
-
-            Iterable<Device> iterableDevice = deviceService.getDevices();
-            Iterator iteratorDevice = iterableDevice.iterator();
-
-            while (iteratorDevice.hasNext()) {
-                Device device = (Device) iteratorDevice.next();
-                if (!device.id().toString().equals(deviceId.toString())) {
-                    continue;
-                }
-                Iterable<FlowEntry> iterableFlow = flowRuleService.getFlowEntries(device.id());
-                Iterator iteratorFlow = iterableFlow.iterator();
-
-                while (iteratorFlow.hasNext()) {
-                    boolean found = false;
-                    FlowEntry flowEntry = (FlowEntry) iteratorFlow.next();
-                    if (flowEntry.toString().contains("CONTROLLER")) {
-                        continue;
-                    }
-                    for (OFFlowStatsEntry e : entryList) {
-                        if (e.toString().contains("controller")) {
-                            continue;
-                        }
-                        if (flowEntry.id().value() != e.getCookie().getValue()) {
-                            continue;
-                        }
-
-                        Instruction tempF = (OutputInstruction) flowEntry.treatment().immediate().get(0);
-                        OFAction tempE = (OFActionOutput) e.getActions().get(0);
-
-                        long tempFOutput = ((OutputInstruction) tempF).port().toLong();
-                        long tempEOutput = ((OFActionOutput) tempE).getPort().getPortNumber();
-
-                        if (tempFOutput != tempEOutput) {
-                            break;
-                        }
-
-                        found = true;
-                        break;
-                    }
-
-                    if (!found) {
-                        isInconsistency = flowEntry.toString();
-                        break;
-                    }
-                }
-            }
+        public void handleOutgoingMessage(Dpid dpid, List<OFMessage> list) {
+            return;
         }
     }
 }

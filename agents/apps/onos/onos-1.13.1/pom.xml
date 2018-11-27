@@ -15,6 +15,16 @@
 
     <description>ONOS 1.13.1 App Agent</description>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <onos.version>1.13.1</onos.version>
+        <onos.app.name>org.deltaproject.appagent</onos.app.name>
+        <onos.app.title>AppAgent</onos.app.title>
+        <onos.app.origin>KAIST NSS</onos.app.origin>
+        <onos.app.url>https://github.com/nss-lab/DELTA</onos.app.url>
+        <onos.app.readme>DELTA AppAgent for testing ONOS</onos.app.readme>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.onosproject</groupId>
@@ -50,6 +60,16 @@
             <groupId>org.onosproject</groupId>
             <artifactId>onos-protocols-openflow-api</artifactId>
             <version>1.12.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.onosproject</groupId>
+            <artifactId>onos-cli</artifactId>
+            <version>1.11.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.console</artifactId>
+            <version>3.0.8</version>
         </dependency>
     </dependencies>
 
@@ -113,13 +133,27 @@
             <plugin>
                 <groupId>org.onosproject</groupId>
                 <artifactId>onos-maven-plugin</artifactId>
-                <version>1.10</version>
+                <version>1.11</version>
                 <executions>
                     <execution>
-                        <id>app</id>
+                        <id>cfg</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>cfg</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>swagger</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>swagger</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>app</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>app</goal>
                         </goals>
                     </execution>
                 </executions>
