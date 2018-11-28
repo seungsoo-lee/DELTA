@@ -123,6 +123,7 @@ public class AgentManager extends Thread {
 //            });
 
             /**********  handler : any signal? but working only Ctrl-C. (signal == null) ***************/
+            /* not working while executing DELTA test cases */
             ReadlineConsole console = null;
             ReadlineConsole finalConsole = console;
             interrupthandler = signal -> {
