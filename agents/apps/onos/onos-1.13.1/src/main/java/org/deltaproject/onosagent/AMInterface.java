@@ -52,7 +52,7 @@ public class AMInterface extends Thread {
         BufferedReader br = null;
         InputStreamReader isr = null;
         FileInputStream fis = null;
-        File file = new File(path + "/agent.cfg");
+        File file = new File(path + "/appagent.cfg");
         String temp;
 
         try {
@@ -70,9 +70,9 @@ public class AMInterface extends Thread {
             }
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("File Not Found: {}", e);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("{}", e);
         } finally {
             try {
                 fis.close();
@@ -183,8 +183,9 @@ public class AMInterface extends Thread {
     @Override
     public void run() {
         String recv = "";
+        boolean running = true;
 
-        while (true) {
+        while (running) {
             try {
                 this.setServerAddr();
                 this.connectServer("AppAgent");
@@ -204,6 +205,9 @@ public class AMInterface extends Thread {
             } catch (EOFException e) {
                 // if any error occurs
                 log.info("[App-Agent] Closing...");
+            } catch (InterruptedException e) {
+                log.info("[App-Agent] Interrupted!");
+                running = false;
             } catch (Exception e) {
                 log.error(e.toString());
             } finally {

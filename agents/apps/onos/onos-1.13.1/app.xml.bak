@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright 2015 Open Networking Laboratory
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<app name="org.deltaproject.appagent" origin="KAIST NSS" version="${project.version}"
+     featuresRepo="mvn:${project.groupId}/${project.artifactId}/${project.version}/xml/features"
+     features="${project.artifactId}">
+    <description>${project.description}</description>
+    <artifact>mvn:${project.groupId}/${project.artifactId}/${project.version}</artifact>
+
+    <security>
+        <role>USER</role>
+        <permissions>
+            <app-perm>APP_READ</app-perm>
+            <app-perm>CONFIG_READ</app-perm>
+            <app-perm>CONFIG_WRITE</app-perm>
+            <app-perm>CLUSTER_READ</app-perm>
+            <app-perm>DEVICE_READ</app-perm>
+            <app-perm>TOPOLOGY_READ</app-perm>
+            <app-perm>PACKET_READ</app-perm>
+            <app-perm>PACKET_WRITE</app-perm>
+            <app-perm>PACKET_EVENT</app-perm>
+            <app-perm>INTENT_READ</app-perm>
+            <app-perm>INTENT_WRITE</app-perm>
+            <app-perm>HOST_READ</app-perm>
+            <app-perm>FLOWRULE_READ</app-perm>
+            <app-perm>FLOWRULE_WRITE</app-perm>
+
+            <java-perm>
+                <classname>org.osgi.framework.ServicePermission</classname>
+                <name>org.onosproject.demo.DemoApi</name>
+                <actions>get,register</actions>
+            </java-perm>
+
+            <java-perm>
+                <classname>org.osgi.framework.ServicePermission</classname>
+                <name>org.onosproject.rest.ApiDocService</name>
+                <actions>get</actions>
+            </java-perm>
+
+            <java-perm>
+                <classname>org.osgi.framework.ServicePermission</classname>
+                <name>org.onlab.metrics.MetricsService</name>
+                <actions>get</actions>
+            </java-perm>
+
+            <java-perm>
+                <classname>java.util.PropertyPermission</classname>
+                <name>java.version</name>
+                <actions>read</actions>
+            </java-perm>
+
+            <java-perm>
+                <classname>java.lang.RuntimePermission</classname>
+                <name>accessDeclaredMembers</name>
+            </java-perm>
+            <java-perm>
+                <classname>java.lang.RuntimePermission</classname>
+                <name>modifyThread</name>
+            </java-perm>
+
+            <java-perm>
+                <classname>java.lang.reflect.ReflectPermission</classname>
+                <name>suppressAccessChecks</name>
+            </java-perm>
+
+            <java-perm>
+                <classname>org.osgi.framework.AdminPermission</classname>
+                <name>*</name>
+                <actions>context</actions>
+            </java-perm>
+
+        </permissions>
+    </security>
+
+</app>
