@@ -178,7 +178,7 @@ public class AppAgent {
 //        cm.start();
         controller.addMessageListener(listener);
 
-//        nad = new NetworkLoopDetector(controller, deviceService, flowRuleService, coreService, linkService);
+//        nad = new NetworkLoopDetector(ctrl, deviceService, flowRuleService, coreService, linkService);
 //        nad.start();
     }
 
@@ -843,7 +843,7 @@ public class AppAgent {
     /**
      * Thread class for a resource exhaustion attack.
      */
-    private final class CpuThread extends Thread {
+    public class CpuThread extends Thread {
         private int result = 2;
         private int cnt = 0;
 
@@ -929,7 +929,7 @@ public class AppAgent {
                     List<OFFlowStatsEntry> entryList = msg.getEntries();
 
                     for (OFFlowStatsEntry e : entryList) {
-                        if (!e.toString().contains("controller")) {
+                        if (!e.toString().contains("ctrl")) {
                             flowRuleCount++;
                             System.out.println("* Data | <Switch " + deviceId.toString().substring(17, 19) + ">, <FlowRule> " + e.toString());
                         } else {
@@ -959,7 +959,7 @@ public class AppAgent {
                                 continue;
                             }
                             for (OFFlowStatsEntry e : entryList) {
-                                if (e.toString().contains("controller")) {
+                                if (e.toString().contains("ctrl")) {
                                     continue;
                                 }
                                 if (flowEntry.id().value() != e.getCookie().getValue()) {
