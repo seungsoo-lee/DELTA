@@ -13,11 +13,11 @@
     <artifactId>delta-agent-app-onos-1.13.1</artifactId>
     <packaging>bundle</packaging>
 
-    <description>ONOS 1.13.1 App Agent</description>
+    <description>ONOS 1.10.0 App Agent</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <onos.version>1.13.1</onos.version>
+        <onos.version>1.10.0</onos.version>
         <onos.app.name>org.deltaproject.appagent</onos.app.name>
         <onos.app.title>AppAgent</onos.app.title>
         <onos.app.origin>KAIST NSS</onos.app.origin>
@@ -29,13 +29,13 @@
         <dependency>
             <groupId>org.onosproject</groupId>
             <artifactId>onos-api</artifactId>
-            <version>1.13.1</version>
+            <version>${onos.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.onosproject</groupId>
             <artifactId>onlab-osgi</artifactId>
-            <version>1.13.1</version>
+            <version>${onos.version}</version>
         </dependency>
 
         <dependency>

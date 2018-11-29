@@ -27,6 +27,7 @@
         <permissions>
             <app-perm>DEVICE_READ</app-perm>
             <app-perm>FLOWRULE_READ</app-perm>
+            <app-perm>LINK_READ</app-perm>
         </permissions>
     </security>
 

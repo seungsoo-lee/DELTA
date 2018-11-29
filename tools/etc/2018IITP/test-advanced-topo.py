@@ -7,7 +7,7 @@ from mininet.log import setLogLevel, info, debug
 
 def DeltaNetwork():
     # Make topology
-    net = Mininet(topo=None, controller=None, build=True, ipBase='10.0.0.0/24')
+    net = Mininet(topo=None, ctrl=None, build=True, ipBase='10.0.0.0/24')
     c0 = RemoteController('c0', ip = "127.0.0.1", port = 6633)
     net.addController(c0)
     # Add switch

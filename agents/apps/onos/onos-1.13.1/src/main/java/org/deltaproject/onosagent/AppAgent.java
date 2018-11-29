@@ -1,6 +1,7 @@
 package org.deltaproject.onosagent;
 
 import com.google.common.collect.Lists;
+import iitp2018.AttackGenerator;
 import iitp2018.NetworkLoopDetector;
 import org.apache.felix.scr.annotations.*;
 import org.onlab.metrics.MetricsService;
@@ -159,7 +160,7 @@ public class AppAgent {
         contextbk = context;
         // cfgService.registerProperties(getClass());
 
-        appId = coreService.registerApplication("org.deltaproject.onosagent");
+        appId = coreService.registerApplication("org.deltaproject.appagent");
 
 //        packetService.addProcessor(processor, PacketProcessor.ADVISOR_MAX);
 //
@@ -173,6 +174,11 @@ public class AppAgent {
 
 
         log.info("Started with Application ID {}", appId.id());
+
+        AttackGenerator attackGenerator = new AttackGenerator(controller, deviceService, flowRuleService,
+                coreService, linkService, linkadmin);
+        ArrayList<Thread> threads = new ArrayList<>();
+        attackGenerator.removeLinkInformation(threads);
 
 //        cm = new AMInterface(this);
 //        cm.start();

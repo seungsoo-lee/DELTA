@@ -1,5 +1,6 @@
 package iitp2018;
 
+import com.google.common.collect.ImmutableSet;
 import iitp2018.AttackGenerator;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
@@ -11,6 +12,8 @@ import org.onosproject.net.link.LinkAdminService;
 import org.onosproject.net.link.LinkService;
 import org.onosproject.openflow.controller.OpenFlowController;
 
+import java.util.ArrayList;
+
 /** Attack Generator CLI for IITP2018
  * usage: onos> delta:attack [attack_num]
  */
@@ -21,8 +24,9 @@ public class AttackGeneratorCommand extends AbstractShellCommand {
     @Argument(index = 0, name = "case_num",
             description = "Attack Case Number",
             required = true, multiValued = false)
-    int num = 0;
+    String cmd = null;
 
+    private ArrayList<Thread> threads = new ArrayList<>();
 
     @Override
     protected void execute() {
@@ -36,22 +40,32 @@ public class AttackGeneratorCommand extends AbstractShellCommand {
 
         AttackGenerator attackGenerator = new AttackGenerator(ctrl, ds, fs, cs, ls, las);
 
-        switch(num) {
-            case 1:
+        switch(cmd) {
+            case "1":
                 attackGenerator.loopInjector();
                 break;
-            case 2:
+            case "2":
                 attackGenerator.modifyOutputActions();
                 break;
-            case 3:
-                attackGenerator.removeLinkInformation();
+            case "3":
+                attackGenerator.removeLinkInformation(threads);
                 break;
-            case 4:
+            case "4":
                 attackGenerator.exitController();
                 break;
-            case 5:
-                attackGenerator.exhaustResources();
+            case "5":
+                attackGenerator.exhaustMemResources(threads);
                 break;
+            case "6":
+                attackGenerator.exhaustCpuResources(threads);
+                break;
+            case "kill":
+                System.out.println("Kill threads!");
+                for (Thread t: threads) {
+                    t.interrupt();
+                }
+                break;
+
         }
     }
 }
