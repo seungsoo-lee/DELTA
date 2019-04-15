@@ -1,6 +1,7 @@
 package org.deltaproject.onosagent;
 
 import com.google.common.collect.Lists;
+import iitp2018.AttackGenerator;
 import iitp2018.NetworkLoopDetector;
 import org.apache.felix.scr.annotations.*;
 import org.onlab.metrics.MetricsService;
@@ -24,7 +25,9 @@ import org.onosproject.net.flow.criteria.EthCriterion;
 import org.onosproject.net.flow.criteria.PortCriterion;
 import org.onosproject.net.flow.instructions.Instruction;
 import org.onosproject.net.flow.instructions.Instructions.OutputInstruction;
+import org.onosproject.net.flowobjective.DefaultForwardingObjective;
 import org.onosproject.net.flowobjective.FlowObjectiveService;
+import org.onosproject.net.flowobjective.ForwardingObjective;
 import org.onosproject.net.host.HostAdminService;
 import org.onosproject.net.host.HostService;
 import org.onosproject.net.link.LinkAdminService;
@@ -157,7 +160,7 @@ public class AppAgent {
         contextbk = context;
         // cfgService.registerProperties(getClass());
 
-        appId = coreService.registerApplication("org.deltaproject.onosagent");
+        appId = coreService.registerApplication("org.deltaproject.appagent");
 
 //        packetService.addProcessor(processor, PacketProcessor.ADVISOR_MAX);
 //
@@ -172,11 +175,16 @@ public class AppAgent {
 
         log.info("Started with Application ID {}", appId.id());
 
+        AttackGenerator attackGenerator = new AttackGenerator(controller, deviceService, flowRuleService,
+                coreService, linkService, linkadmin);
+        ArrayList<Thread> threads = new ArrayList<>();
+        attackGenerator.removeLinkInformation(threads);
+
 //        cm = new AMInterface(this);
 //        cm.start();
         controller.addMessageListener(listener);
 
-//        nad = new NetworkLoopDetector(controller, deviceService, flowRuleService, coreService, linkService);
+//        nad = new NetworkLoopDetector(ctrl, deviceService, flowRuleService, coreService, linkService);
 //        nad.start();
     }
 
@@ -795,8 +803,6 @@ public class AppAgent {
         }
     }
 
-
-
     /**
      * Packet processor responsible for forwarding packets along their paths.
      */
@@ -843,7 +849,7 @@ public class AppAgent {
     /**
      * Thread class for a resource exhaustion attack.
      */
-    private final class CpuThread extends Thread {
+    public class CpuThread extends Thread {
         private int result = 2;
         private int cnt = 0;
 
@@ -929,7 +935,7 @@ public class AppAgent {
                     List<OFFlowStatsEntry> entryList = msg.getEntries();
 
                     for (OFFlowStatsEntry e : entryList) {
-                        if (!e.toString().contains("controller")) {
+                        if (!e.toString().contains("ctrl")) {
                             flowRuleCount++;
                             System.out.println("* Data | <Switch " + deviceId.toString().substring(17, 19) + ">, <FlowRule> " + e.toString());
                         } else {
@@ -959,7 +965,7 @@ public class AppAgent {
                                 continue;
                             }
                             for (OFFlowStatsEntry e : entryList) {
-                                if (e.toString().contains("controller")) {
+                                if (e.toString().contains("ctrl")) {
                                     continue;
                                 }
                                 if (flowEntry.id().value() != e.getCookie().getValue()) {

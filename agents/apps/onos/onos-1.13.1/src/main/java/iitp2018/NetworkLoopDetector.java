@@ -150,6 +150,13 @@ public class NetworkLoopDetector {
                 Collections.emptyList(),
                 Collections.emptyList());
 
+        AdjacencyListsGraph alg = makeGraphFromRules(linkService, rules);
+
+
+        log.info("topology: {}", alg);
+    }
+
+    public static AdjacencyListsGraph makeGraphFromRules(LinkService ls, Set<FlowEntry> rules) {
         ImmutableSet.Builder<TopologyVertex> vertexes = ImmutableSet.builder();
         ImmutableSet.Builder<TopologyEdge> edges = ImmutableSet.builder();
 
@@ -165,7 +172,7 @@ public class NetworkLoopDetector {
                     PortNumber port = ((Instructions.OutputInstruction) i).port();
                     ConnectPoint srcCp = new ConnectPoint(rule.deviceId(), port);
 
-                    linkService.getIngressLinks(srcCp).forEach(link -> {
+                    ls.getIngressLinks(srcCp).forEach(link -> {
                         TopologyVertex dst = new DefaultTopologyVertex(link.src().deviceId());
                         ConnectPoint dstCp = new ConnectPoint(link.src().deviceId(), link.src().port());
                         DefaultLink dLink = DefaultLink.builder()
@@ -182,8 +189,7 @@ public class NetworkLoopDetector {
         }
 
         AdjacencyListsGraph alg = new AdjacencyListsGraph(vertexes.build(), edges.build());
-
-        log.info("topology: {}", alg);
+        return alg;
     }
 
     private Set<FlowEntry> getFlowRulesFor(Ethernet pkt) {
