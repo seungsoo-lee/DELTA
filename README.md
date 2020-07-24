@@ -40,7 +40,7 @@ DELTA installation depends on maven and ant build system. The mvn command is use
 + STEP 1. Get the source code of DELTA on the agent manager machine
 
 ```
-$ git clone https://github.com/OpenNetworkingFoundation/DELTA.git
+$ git clone https://github.com/seungsoo-lee/DELTA.git
 ```
 
 + STEP 2. Install DELTA dependencies
