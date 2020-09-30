@@ -9,7 +9,7 @@ cd ;
 sudo sh -c "echo 'deb http://download.virtualbox.org/virtualbox/debian xenial contrib non-free' >> /etc/apt/sources.list.d/virtualbox.list"
 wget -q http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc -O- | sudo apt-key add -
 sudo apt-get update
-sudo apt-get install virtualbox-5.0 -y
+sudo apt-get install virtualbox-5.0 -y --allow-unauthenticated
 
 # install vagrant 1.8.4
 cd ;
