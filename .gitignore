@@ -1,6 +1,7 @@
 *.iml
 *.log
 .idea
+.vagrant
 target/
 agents/temp/
 .AppleDouble
