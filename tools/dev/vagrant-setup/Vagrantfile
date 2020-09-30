@@ -16,6 +16,8 @@
 # limitations under the License.
 #
 
+#Vagrant::DEFAULT_SERVER_URL.replace('https://vagrantcloud.com')
+
 Vagrant.configure(2) do |config|
 
   if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
@@ -26,6 +28,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.define "controller" do |d|
     d.vm.box = "ubuntu/trusty64"
+    d.vm.box_url = "https://app.vagrantup.com/ubuntu/boxes/trusty64"
     d.vm.hostname = "controller-vm"
     d.vm.network "private_network", ip: "10.100.100.11"
     d.vm.network "private_network", ip: "10.100.200.11"
@@ -39,6 +42,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.define "channel" do |d|
     d.vm.box = "ubuntu/trusty64"
+    d.vm.box_url = "https://app.vagrantup.com/ubuntu/boxes/trusty64"
     d.vm.hostname = "channel-vm"
     d.vm.network "private_network", ip: "10.100.100.12"
     d.vm.network "private_network", ip: "10.100.200.12"
@@ -52,6 +56,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.define "mininet" do |d|
     d.vm.box = "ubuntu/trusty64"
+    d.vm.box_url = "https://app.vagrantup.com/ubuntu/boxes/trusty64"
     d.vm.hostname = "mininet-vm"
     d.vm.network "private_network", ip: "10.100.100.13"
     d.vm.network "private_network", ip: "10.100.200.13"
