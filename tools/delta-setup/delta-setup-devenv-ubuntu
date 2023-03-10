@@ -20,5 +20,5 @@ sudo apt-get install unzip ant wget -y
 # install maven
 cd; mkdir Downloads Applications
 cd Downloads
-wget http://archive.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
+wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.3.9/apache-maven-3.3.9-bin.tar.gz
 tar -zxvf apache-maven-3.3.9-bin.tar.gz -C ../Applications/
