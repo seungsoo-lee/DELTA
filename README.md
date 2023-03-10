@@ -46,15 +46,15 @@ $ git clone https://github.com/seungsoo-lee/DELTA.git
 + STEP 2. Install DELTA dependencies
 
 ```
-$ cd <DELTA>/tools/dev/delta-setup/
+$ cd DELTA/tools/delta-setup/
 $ ./delta-setup-devenv-ubuntu
 ```
 
 + STEP 3. Install three containers using lxc
 
 ```
-$ source ./<DELTA>/tools/dev/delta-setup/bash_profile
-$ cd <DELTA>/tools/dev/lxc-setup
+$ source ./DELTA/tools/delta-setup/bash_profile
+$ cd DELTA/tools/lxc-setup
 $ ./lxc-dev-install
 
 $ sudo vi /etc/default/lxc-net
@@ -78,7 +78,7 @@ In the bottom of the file, type the follow:
 ubuntu ALL=(ALL) NOPASSWD: ALL
 (DELTA_CP) $ exit
 
-$ cd <DELTA>/tools/dev/lxc-setup
+$ cd DELTA/tools/lxc-setup
 $ ./lxc-dev-setup
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_CH
 $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_DP
@@ -88,8 +88,8 @@ $ ssh-copy-id -i ~/.ssh/id_rsa.pub $DELTA_DP
 + STEP 4. Install DELTA using maven build
 
 ```
-$ cd <DELTA>
-$ source ./tools/dev/delta-setup/bash_profile
+$ cd DELTA
+$ source ./tools/delta-setup/bash_profile
 $ mvn clean install
 ```
 
@@ -120,30 +120,30 @@ AM_PORT=3366
 ```
 > Floodlight 1.2
 ```
-$ cd <DELTA>/tools/dev/app-agent-setup
+$ cd DELTA/tools/app-agent-setup
 $ ./floodlight-1.2-scp
 ```
 > ONOS 1.1 (depreciated)
 ```
-$ cd <DELTA>/tools/dev/app-agent-setup/onos
+$ cd DELTA/tools/app-agent-setup/onos
 $ ./onos-1.1.0-scp
 (on the controller machine) $ ./onos-1.1.0-setup
 ```
 > ONOS 1.6, 1.9 or 1.13.1
 ```
-$ cd <DELTA>/tools/dev/app-agent-setup/onos
+$ cd DELTA/tools/app-agent-setup/onos
 $ ./delta-setup-onos <onos-version>
 $ ./delta-scp-onos <onos-version>
 * Supported ONOS version in the script: 1.6, 1.9, 1.13.1
 ```
 > OpenDaylight Oxygen
 ```
-$ cd <DELTA>/tools/dev/app-agent-setup
+$ cd DELTA/tools/app-agent-setup
 $ ./odl-oxygen-scp
 ```
 > Ryu 4.16
 ```
-$ cd <DELTA>/tools/dev/app-agent-setup/ryu
+$ cd DELTA/tools/app-agent-setup/ryu
 $ ./delta-setup-ryu
 ```
 + The app-agent (on the controller container) needs 'agent.cfg' file to connect to the agent-manager.
@@ -156,15 +156,15 @@ MANAGER_PORT=3366
 + STEP 1. Distribute the executable files to Containers
 
 ```
-$ cd <DELTA>
-$ source ./tools/dev/delta-setup/bash_profile
+$ cd DELTA
+$ source ./tools/delta-setup/bash_profile
 $ ./tools/dev/delta-setup/delta-agents-scp
 ```
 
 
 + STEP 2. Execute Agent-Manager first
 ```
-$ cd <DELTA>
+$ cd DELTA
 $ bin/run-delta <configuration file>
 (e.g., bin/run-delta config/manager_vm.cfg)
 
